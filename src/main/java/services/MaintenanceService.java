@@ -93,4 +93,33 @@ public class MaintenanceService {
         }
         return maintenances;
     }
+
+    // Jointure Maintenance + Machine
+    public void afficherMaintenanceAvecMachine() throws SQLException {
+
+        String sql = "SELECT m.idMain, m.typePanne, m.cout, m.dateMain, m.description, " +
+                "ma.idM, ma.marque, ma.modele " +
+                "FROM maintenance m " +
+                "INNER JOIN machine ma ON m.idM = ma.idM";
+
+        Statement st = connection.createStatement();
+        ResultSet rs = st.executeQuery(sql);
+
+        while (rs.next()) {
+            System.out.println(
+                    "ID Maintenance: " + rs.getInt("idMain") +
+                            ", Type: " + rs.getString("typePanne") +
+                            ", Coût: " + rs.getDouble("cout") +
+                            ", Date: " + rs.getDate("dateMain") +
+                            ", Machine ID: " + rs.getInt("idM") +
+                            ", Marque: " + rs.getString("marque") +
+                            ", Modèle: " + rs.getString("modele")
+            );
+        }
+    }
+
+
+
+
+
 }
