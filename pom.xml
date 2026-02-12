@@ -5,7 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.esprit_workshop3a11example</groupId>
+<<<<<<< HEAD
     <artifactId>integration1_crud</artifactId>
+=======
+    <artifactId>Agroflow_gestuser</artifactId>
+>>>>>>> origin/Users
     <version>1.0-SNAPSHOT</version>
 
     <properties>
@@ -13,5 +17,16 @@
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+<<<<<<< HEAD
 
+=======
+    <dependencies>
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <version>8.0.33</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+>>>>>>> origin/Users
 </project>
