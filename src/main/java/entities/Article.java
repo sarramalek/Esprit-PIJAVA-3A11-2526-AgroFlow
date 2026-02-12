@@ -21,6 +21,12 @@ public class Article {
         this.idCategorie = idCategorie;
     }
 
+    public Article(String articleDeTest, double v, double v1, String unité, int i) {
+    }
+
+    public Article(String text, double v, int i) {
+    }
+
     // Getters et Setters (Vérifie bien l'orthographe exacte)
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }

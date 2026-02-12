@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<HBox prefHeight="650.0" prefWidth="1050.0" style="-fx-background-color: #fdfae7;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.afficherarticleController">
+    <children>
+        <VBox prefWidth="250.0" spacing="15.0" style="-fx-background-color: #34495e;">
+            <children>
+                <Label text="AGROFLOW" textFill="WHITE">
+                    <font><Font name="System Bold" size="24.0" /></font>
+                    <VBox.margin><Insets bottom="20.0" left="20.0" top="30.0" /></VBox.margin>
+                </Label>
+                <Button alignment="BASELINE_LEFT" maxWidth="Infinity" onAction="#allerVersArticles" prefHeight="45.0" style="-fx-background-color: #2d5a27; -fx-text-fill: white;" text="📦  Gestion des Articles">
+                    <padding><Insets left="20.0" /></padding>
+                </Button>
+                <Button alignment="BASELINE_LEFT" maxWidth="Infinity" onAction="#allerVersCategories" prefHeight="45.0" style="-fx-background-color: transparent; -fx-text-fill: #bdc3c7;" text="📂  Gestion des Catégories">
+                    <padding><Insets left="20.0" /></padding>
+                </Button>
+            </children>
+        </VBox>
+
+        <VBox HBox.hgrow="ALWAYS" spacing="15.0" style="-fx-padding: 30;">
+            <children>
+                <Label text="Liste des Stocks" textFill="#2d5a27">
+                    <font><Font name="System Bold" size="28.0" /></font>
+                </Label>
+
+                <HBox alignment="CENTER_LEFT" prefHeight="75.0" spacing="15.0" style="-fx-background-color: rgba(52, 73, 94, 0.08); -fx-background-radius: 12; -fx-border-color: rgba(52, 73, 94, 0.15); -fx-border-radius: 12;">
+                    <padding><Insets left="15.0" right="15.0" /></padding>
+                    <children>
+                        <Button onAction="#ouvrirFormulaireAjout" prefHeight="35.0" prefWidth="120.0" style="-fx-background-color: #2d5a27; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5;" text="+ AJOUTER" />
+                        <Button onAction="#modifierArticle" prefHeight="35.0" prefWidth="120.0" style="-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5;" text="✏ MODIFIER" />
+                        <Button onAction="#supprimerArticle" prefHeight="35.0" prefWidth="120.0" style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5;" text="🗑 SUPPRIMER" />
+                    </children>
+                </HBox>
+
+                <TableView fx:id="tableArticles" prefHeight="450.0" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent; -fx-border-color: transparent;">
+                    <columns>
+                        <TableColumn fx:id="colNom" prefWidth="300.0" text="Nom de l'article" />
+                        <TableColumn fx:id="colQuantite" prefWidth="120.0" text="Quantité" />
+                        <TableColumn fx:id="colUnite" prefWidth="100.0" text="Unité" />
+                        <TableColumn fx:id="colSeuil" prefWidth="120.0" text="Seuil d'alerte" />
+                    </columns>
+                    <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                    </columnResizePolicy>
+                </TableView>
+            </children>
+        </VBox>
+    </children>
+</HBox>

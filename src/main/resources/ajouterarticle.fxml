@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<HBox prefHeight="650.0" prefWidth="1050.0" style="-fx-background-color: #fdfae7;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.ajouterarticleController">
+    <children>
+        <VBox prefWidth="250.0" spacing="15.0" style="-fx-background-color: #34495e;">
+            <children>
+                <Label text="AGROFLOW" textFill="WHITE">
+                    <font><Font name="System Bold" size="24.0" /></font>
+                    <VBox.margin><Insets bottom="20.0" left="20.0" top="30.0" /></VBox.margin>
+                </Label>
+                <Button alignment="BASELINE_LEFT" onAction="#retourListe" prefHeight="40.0" prefWidth="250.0" style="-fx-background-color: transparent; -fx-text-fill: white;" text="⬅ Retour à la liste">
+                    <padding><Insets left="20.0" /></padding>
+                </Button>
+            </children>
+        </VBox>
+
+        <VBox HBox.hgrow="ALWAYS" spacing="25.0" style="-fx-padding: 40;">
+            <children>
+                <Label fx:id="lblTitre" text="Nouvel Article de Stock" textFill="#2c3e50">
+                    <font><Font name="System Bold" size="30.0" /></font>
+                </Label>
+
+                <GridPane vgap="15.0">
+                    <columnConstraints>
+                        <ColumnConstraints prefWidth="200.0" />
+                        <ColumnConstraints prefWidth="450.0" />
+                    </columnConstraints>
+                    <children>
+                        <Label text="Désignation :" />
+                        <TextField fx:id="tfNom" prefHeight="35.0" promptText="Ex: Engrais NPK" GridPane.columnIndex="1" />
+
+                        <Label text="Quantité en Stock :" GridPane.rowIndex="1" />
+                        <TextField fx:id="tfQuantite" prefHeight="35.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                        <Label text="Seuil d'Alerte :" GridPane.rowIndex="2" />
+                        <TextField fx:id="tfSeuil" prefHeight="35.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                        <Label text="Unité de mesure :" GridPane.rowIndex="3" />
+                        <TextField fx:id="tfUnite" prefHeight="35.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+                        <Label text="Catégorie :" GridPane.rowIndex="4" />
+                        <HBox spacing="10.0" alignment="CENTER_LEFT" GridPane.columnIndex="1" GridPane.rowIndex="4">
+                            <children>
+                                <ComboBox fx:id="cbCategories" prefHeight="35.0" prefWidth="350.0" promptText="Choisir une catégorie" />
+                                <Button onAction="#allerAjouterCategorie" prefHeight="35.0" prefWidth="40.0"
+                                        style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5;"
+                                        text="+" />
+                            </children>
+                        </HBox>
+                    </children>
+                </GridPane>
+
+                <HBox spacing="20.0">
+                    <children>
+                        <Button onAction="#validerAjout" prefHeight="40.0" prefWidth="200.0" style="-fx-background-color: #2d5a27; -fx-text-fill: white; -fx-font-weight: bold;" text="CONFIRMER" />
+                        <Button onAction="#retourListe" prefHeight="40.0" prefWidth="120.0" style="-fx-background-color: white; -fx-border-color: #34495e;" text="ANNULER" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+    </children>
+</HBox>

@@ -1,0 +1,28 @@
+/* Définition des variables de ta palette */
+.root {
+    -fx-primary-green: #2E7D32;  /* Vert pour l'ajout */
+    -fx-primary-blue: #1976D2;   /* Bleu pour la modif */
+    -fx-primary-red: #D32F2F;    /* Rouge pour la suppression */
+}
+
+/* Application aux boutons */
+.button-ajouter {
+    -fx-background-color: -fx-primary-green;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.button-modifier {
+    -fx-background-color: -fx-primary-blue;
+    -fx-text-fill: white;
+}
+
+.button-supprimer {
+    -fx-background-color: -fx-primary-red;
+    -fx-text-fill: white;
+}
+
+/* Style pour l'entête du tableau */
+.table-view .column-header {
+    -fx-background-color: #ECEFF1;
+}
