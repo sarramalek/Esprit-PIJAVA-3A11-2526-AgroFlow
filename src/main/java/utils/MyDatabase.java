@@ -8,7 +8,7 @@ public class MyDatabase {
 
     private final String USER="root";
     private final String PASSWORD="";
-    private final String URL="jdbc:mysql://localhost:3306/users_bd";
+    private final String URL="jdbc:mysql://localhost:3306/agroflow";
 
     public Connection connection ;
     public static MyDatabase instance ;
