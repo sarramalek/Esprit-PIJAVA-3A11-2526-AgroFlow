@@ -1,5 +1,8 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/Materiel
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
@@ -37,6 +40,7 @@ build/
 .vscode/
 
 ### Mac OS ###
+<<<<<<< HEAD
 .DS_Store
 =======
 /target/
@@ -47,3 +51,6 @@ build/
 target/
 .idea/
 >>>>>>> origin/stocks
+=======
+.DS_Store
+>>>>>>> origin/Materiel

@@ -1,4 +1,4 @@
-package test;
+package Main;
 
 import entities.Article;
 import entities.Categorie;

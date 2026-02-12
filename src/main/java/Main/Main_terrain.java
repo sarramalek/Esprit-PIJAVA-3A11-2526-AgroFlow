@@ -1,4 +1,4 @@
-package test;
+package Main;
 
 import entities.plante;
 import entities.rotation;
