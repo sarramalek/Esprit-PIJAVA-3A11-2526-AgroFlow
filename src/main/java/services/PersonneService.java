@@ -1,6 +1,9 @@
 package services;
 
-import models.*;
+import entities.Admin;
+import entities.Employe;
+import entities.Personne;
+import entities.Utilisateur;
 import utils.MyDatabase;
 
 import java.sql.*;

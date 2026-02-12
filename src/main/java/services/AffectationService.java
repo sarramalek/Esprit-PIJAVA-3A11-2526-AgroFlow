@@ -1,6 +1,6 @@
 package services;
 
-import models.Affectation;
+import entities.Affectation;
 import utils.MyDatabase;
 
 import java.sql.*;

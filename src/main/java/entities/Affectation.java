@@ -1,4 +1,4 @@
-package models;
+package entities;
 
 public class Affectation {
     private int id_affect;

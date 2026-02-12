@@ -1,4 +1,4 @@
-package models;
+package entities;
 
 public class Tache {
     private int id_tache;

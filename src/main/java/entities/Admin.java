@@ -1,33 +1,33 @@
-package models;
+package entities;
 
-public class Utilisateur extends Personne {
+public class Admin extends Personne {
 
     // Constructeur par défaut
-    public Utilisateur() {
+    public Admin() {
         super();
     }
 
     // Constructeur avec paramètres
-    public Utilisateur(int cin, String nom, String prenom, String tel, String date_naiss,
-                       String email, String mdp, String adresse, String ville,
-                       String date_creationcpt, String date_dernierchg) {
+    public Admin(int cin, String nom, String prenom, String tel, String date_naiss,
+                 String email, String mdp, String adresse, String ville,
+                 String date_creationcpt, String date_dernierchg) {
         super(cin, nom, prenom, tel, date_naiss, email, mdp, adresse, ville,
                 date_creationcpt, date_dernierchg);
     }
 
     @Override
     public int getRole() {
-        return 1; // Rôle Utilisateur
+        return 3; // Rôle Admin
     }
 
     @Override
     public String getRoleNom() {
-        return "Utilisateur";
+        return "Administrateur";
     }
 
     @Override
     public String toString() {
-        return "Utilisateur{" +
+        return "Admin{" +
                 "cin=" + getCin() +
                 ", nom='" + getNom() + '\'' +
                 ", prenom='" + getPrenom() + '\'' +

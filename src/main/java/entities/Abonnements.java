@@ -1,4 +1,4 @@
-package models;
+package entities;
 
 public class Abonnements {
     private int id_abonn;

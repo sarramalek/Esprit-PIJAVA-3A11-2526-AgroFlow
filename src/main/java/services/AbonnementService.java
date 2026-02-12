@@ -1,6 +1,6 @@
 package services;
 
-import models.Abonnements;
+import entities.Abonnements;
 import utils.MyDatabase;
 
 import java.sql.*;

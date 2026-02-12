@@ -1,5 +1,5 @@
 package services;
-import models.offres;
+import entities.offres;
 
 import utils.MyDatabase;
 

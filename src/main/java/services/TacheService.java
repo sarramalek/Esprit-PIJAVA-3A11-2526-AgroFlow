@@ -1,6 +1,6 @@
 package services;
 
-import models.Tache;
+import entities.Tache;
 import utils.MyDatabase;
 
 import java.sql.*;

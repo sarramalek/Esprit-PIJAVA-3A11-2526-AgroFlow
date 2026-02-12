@@ -1,6 +1,6 @@
 package test;
 
-import models.*;
+import entities.*;
 import services.*;
 
 import java.sql.SQLException;

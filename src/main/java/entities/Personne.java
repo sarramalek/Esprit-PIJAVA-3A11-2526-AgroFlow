@@ -1,4 +1,4 @@
-package models;
+package entities;
 
 public abstract class Personne {
     private int cin;
