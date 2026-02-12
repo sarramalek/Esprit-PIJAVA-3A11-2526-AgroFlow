@@ -3,8 +3,12 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
 <<<<<<< HEAD
+<<<<<<< HEAD
     <mapping directory="$PROJECT_DIR$/AgroFlow" vcs="Git" />
 =======
 >>>>>>> origin/Materiel
+=======
+    <mapping directory="$PROJECT_DIR$/AgroFlow" vcs="Git" />
+>>>>>>> remotes/origin/master
   </component>
 </project>

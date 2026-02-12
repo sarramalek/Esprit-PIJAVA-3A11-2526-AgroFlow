@@ -1,8 +1,11 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> origin/Materiel
+=======
+>>>>>>> remotes/origin/master
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
@@ -41,6 +44,7 @@ build/
 
 ### Mac OS ###
 <<<<<<< HEAD
+<<<<<<< HEAD
 .DS_Store
 =======
 /target/
@@ -54,3 +58,6 @@ target/
 =======
 .DS_Store
 >>>>>>> origin/Materiel
+=======
+.DS_Store
+>>>>>>> remotes/origin/master
