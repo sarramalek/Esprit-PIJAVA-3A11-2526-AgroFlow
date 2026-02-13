@@ -5,7 +5,11 @@
 =======
 >>>>>>> origin/Materiel
 =======
+<<<<<<< HEAD
 >>>>>>> origin/Evenements
+=======
+>>>>>>> remotes/origin/master
+>>>>>>> 6b30a67aa64d8802d76cb21210cbea475ecccbf9
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
@@ -64,4 +68,8 @@ target/
 >>>>>>> origin/Materiel
 =======
 .DS_Store
+<<<<<<< HEAD
 >>>>>>> origin/Evenements
+=======
+>>>>>>> remotes/origin/master
+>>>>>>> 6b30a67aa64d8802d76cb21210cbea475ecccbf9
