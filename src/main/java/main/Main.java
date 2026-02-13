@@ -1,4 +1,4 @@
-package test;
+package main;
 
 import entities.*;
 import services.*;
@@ -16,8 +16,8 @@ public class Main {
             sa.ajouter(v);
             System.out.println("Animaux : " + sa.afficher());
 
-            animaux C = new animaux(1,"kiki", "vache", "pure", new Date(), Sexe.MALE, 550f);
-            sa.ajouter(v);
+            animaux c = new animaux(2,"kiki", "vache", "pure", new Date(), Sexe.MALE, 550f);
+            sa.ajouter(c);
             System.out.println("Animaux : " + sa.afficher());
 
             // Test Examen (Assurez-vous que l'ID animal 1 existe)

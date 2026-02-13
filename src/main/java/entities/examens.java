@@ -1,5 +1,6 @@
 package entities;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 public class examens {
@@ -24,8 +25,8 @@ public class examens {
     // Getters et Setters
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
-    public Date getDate_examen() { return date_examen; }
-    public void setDate_examen(Date date_examen) { this.date_examen = date_examen; }
+    public java.util.Date getDate_examen() { return date_examen; }
+    public void setDate_examen(java.util.Date date_examen) { this.date_examen = date_examen; }
     public String getType_examen() { return type_examen; }
     public void setType_examen(String type_examen) { this.type_examen = type_examen; }
     public String getDiagnostic() { return diagnostic; }

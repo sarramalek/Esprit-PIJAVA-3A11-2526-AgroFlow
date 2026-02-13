@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
+
+<AnchorPane prefHeight="500.0" prefWidth="600.0" style="-fx-background-color: #FDFBF0;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.ModifierExamenController">
+    <children>
+        <VBox spacing="15.0" layoutX="50.0" layoutY="30.0" prefWidth="500.0">
+            <children>
+                <Text text="Modifier l'Examen" style="-fx-font-size: 24; -fx-font-weight: bold; -fx-fill: #2C3E50;" />
+
+                <Label text="Animal" />
+                <ComboBox fx:id="cbAnimal" prefWidth="500.0" />
+
+                <Label text="Type d'examen" />
+                <TextField fx:id="tfType" />
+
+                <Label text="Date" />
+                <DatePicker fx:id="dpDate" prefWidth="500.0" />
+
+                <Label text="Diagnostic" />
+                <TextArea fx:id="taDiagnostic" prefHeight="80.0" />
+
+                <Label text="Traitement" />
+                <TextArea fx:id="taTraitement" prefHeight="80.0" />
+
+                <HBox spacing="20.0" alignment="CENTER">
+                    <children>
+                        <Button onAction="#handleModifier" text="ENREGISTRER" style="-fx-background-color: #2D5A27; -fx-text-fill: white; -fx-font-weight: bold;" prefWidth="150.0" />
+                        <Button onAction="#retourListe" text="ANNULER" style="-fx-background-color: #E74C3C; -fx-text-fill: white;" prefWidth="150.0" />
+                    </children>
+                    <VBox.margin><Insets top="10.0" /></VBox.margin>
+                </HBox>
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>
