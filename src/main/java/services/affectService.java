@@ -7,10 +7,10 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AffectationService implements IService<Affectation> {
+public class affectService implements IService<Affectation> {
     private Connection connection;
 
-    public AffectationService() {
+    public affectService() {
         connection = MyDatabase.getInstance().getConnection();
         if (connection != null) {
             System.out.println("AffectationService: Connection initialized successfully!");

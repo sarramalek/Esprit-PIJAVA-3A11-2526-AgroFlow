@@ -16,7 +16,7 @@ public class Main {
     private static OffresServicees offreService;
     private static AbonnementService abonnementService;
     private static TacheService tacheService;
-    private static AffectationService affectationService;
+    private static affectService affectationService;
 
     public static void main(String[] args) {
         System.out.println("╔════════════════════════════════════════════════╗");
