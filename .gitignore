@@ -1,12 +1,19 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> origin/Materiel
+=======
+>>>>>>> origin/Evenements
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+<<<<<<< HEAD
+=======
+.kotlin
+>>>>>>> origin/Evenements
 
 ### IntelliJ IDEA ###
 .idea/modules.xml
@@ -41,6 +48,7 @@ build/
 
 ### Mac OS ###
 <<<<<<< HEAD
+<<<<<<< HEAD
 .DS_Store
 =======
 /target/
@@ -54,3 +62,6 @@ target/
 =======
 .DS_Store
 >>>>>>> origin/Materiel
+=======
+.DS_Store
+>>>>>>> origin/Evenements
