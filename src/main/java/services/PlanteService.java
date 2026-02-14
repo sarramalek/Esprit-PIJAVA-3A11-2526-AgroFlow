@@ -1,7 +1,7 @@
 package services;
 
 import entities.plante;
-import utiles.Mydatabase;
+import utils.Mydatabase;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;

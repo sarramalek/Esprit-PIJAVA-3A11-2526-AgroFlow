@@ -1,4 +1,4 @@
-package utiles;
+package utils;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -7,7 +7,7 @@ import java.sql.SQLException;
 public class Mydatabase {
     private final String USER = "root";
     private final String PASSWORD = "";
-    private final String URL = "jdbc:mysql://localhost:3306/agroflow";
+    private final String URL = "jdbc:mysql://localhost:3306/agroflow2";
 
     public Connection connection;
     public static Mydatabase instance;
