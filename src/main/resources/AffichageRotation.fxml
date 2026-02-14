@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<BorderPane prefHeight="600.0" prefWidth="900.0" style="-fx-background-color: #fcf8e6;"
+            xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controllers.AffichageRotationController">
+
+    <left>
+        <VBox prefWidth="230.0" spacing="5.0" style="-fx-background-color: #2C3E50; -fx-padding: 15;">
+            <children>
+                <Text fill="WHITE" text="AGROFLOW">
+                    <font><Font name="System Bold" size="24.0" /></font>
+                </Text>
+                <Separator opacity="0.2" prefHeight="20.0" />
+                <Button maxWidth="Infinity" alignment="BASELINE_LEFT" prefHeight="45.0"
+                        style="-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;"
+                        text="🐾 Gestion Animaux" />
+                <Button maxWidth="Infinity" alignment="BASELINE_LEFT" prefHeight="45.0"
+                        style="-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;"
+                        text="⚙️ Gestion Matériels" />
+                <Button maxWidth="Infinity" alignment="BASELINE_LEFT" prefHeight="45.0"
+                        style="-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;"
+                        text="📦 Gestion Stocks" />
+                <Button maxWidth="Infinity" alignment="BASELINE_LEFT" prefHeight="45.0"
+                        style="-fx-background-color: #2D5A27; -fx-text-fill: white; -fx-cursor: hand;"
+                        text="🌱 Gestion Terrains" />
+                <Button maxWidth="Infinity" alignment="BASELINE_LEFT" prefHeight="45.0"
+                        style="-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;"
+                        text="📅 Événements" />
+                <Button maxWidth="Infinity" alignment="BASELINE_LEFT" prefHeight="45.0"
+                        style="-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;"
+                        text="👥 Utilisateurs" />
+                <Region VBox.vgrow="ALWAYS" />
+                <Separator opacity="0.1" />
+                <Button maxWidth="Infinity"
+                        style="-fx-background-color: #E74C3C; -fx-text-fill: white;"
+                        text="Déconnexion" />
+            </children>
+        </VBox>
+    </left>
+
+    <center>
+        <VBox alignment="TOP_CENTER" spacing="15.0" style="-fx-padding: 20;">
+            <children>
+                <HBox alignment="CENTER_LEFT" prefWidth="850.0">
+                    <children>
+                        <Button onAction="#versAccueil"
+                                style="-fx-background-color: #34495E; -fx-text-fill: white; -fx-cursor: hand; -fx-background-radius: 5;"
+                                text="⬅ Retour Accueil" />
+                    </children>
+                </HBox>
+
+                <Text fill="#2C3E50" text="Gestion des Rotations">
+                    <font><Font name="System Bold" size="24.0" /></font>
+                </Text>
+
+                <TableView fx:id="tableRotations" prefHeight="350.0" prefWidth="850.0">
+                    <columns>
+                        <TableColumn fx:id="colTerrain" prefWidth="180.0" text="Terrain" />
+                        <TableColumn fx:id="colPlante" prefWidth="150.0" text="Plante" />
+                        <TableColumn fx:id="colVariete" prefWidth="130.0" text="Variété" />
+                        <TableColumn fx:id="colDateDebut" prefWidth="120.0" text="Date Début" />
+                        <TableColumn fx:id="colDateFin" prefWidth="120.0" text="Date Fin" />
+                        <TableColumn fx:id="colStatus" prefWidth="100.0" text="Statut" />
+                    </columns>
+                </TableView>
+
+                <HBox alignment="CENTER" spacing="20.0">
+                    <children>
+                        <Button onAction="#versAjout" prefHeight="40.0" prefWidth="140.0"
+                                style="-fx-background-color: #2D5A27; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;"
+                                text="+ AJOUTER" />
+                        <Button onAction="#versModifier" prefHeight="40.0" prefWidth="140.0"
+                                style="-fx-background-color: #A8C69F; -fx-text-fill: #2C3E50; -fx-font-weight: bold; -fx-cursor: hand;"
+                                text="MODIFIER" />
+                        <Button onAction="#handleSupprimer" prefHeight="40.0" prefWidth="140.0"
+                                style="-fx-background-color: #E74C3C; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;"
+                                text="SUPPRIMER" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+    </center>
+</BorderPane>

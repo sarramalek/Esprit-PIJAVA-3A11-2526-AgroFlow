@@ -7,6 +7,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -17,6 +18,7 @@ import services.PlanteService;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.application.Platform;
 
 public class AffichagePlanteController implements Initializable {
 
@@ -64,17 +66,23 @@ public class AffichagePlanteController implements Initializable {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/ModifierPlante.fxml"));
             Parent root = loader.load();
 
-            // Récupérer le contrôleur et passer la plante sélectionnée
             ModifierPlanteController controller = loader.getController();
             controller.initialiserAvecPlante(planteSelectionnee);
 
             Stage stage = (Stage) tablePlantes.getScene().getWindow();
+
+            boolean etaitMaximise = stage.isMaximized();
+
             stage.setScene(new Scene(root));
+
+            if (etaitMaximise) {
+                Platform.runLater(() -> stage.setMaximized(true));
+            }
+
             stage.show();
 
         } catch (IOException e) {
             e.printStackTrace();
-            showAlert("Erreur", "Impossible de charger la page de modification", Alert.AlertType.ERROR);
         }
     }
 
@@ -107,7 +115,11 @@ public class AffichagePlanteController implements Initializable {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/AjoutPlante.fxml"));
             Parent root = loader.load();
             Stage stage = (Stage) tablePlantes.getScene().getWindow();
+            boolean etaitMaximise = stage.isMaximized();  // ← LIGNE 1 : Sauvegarder
+
             stage.setScene(new Scene(root));
+
+            stage.setMaximized(etaitMaximise);
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
@@ -119,5 +131,22 @@ public class AffichagePlanteController implements Initializable {
         alert.setTitle(titre);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+    @FXML
+    void versAccueil(ActionEvent event) {
+        try {
+            // Assurez-vous que le nom du fichier est exact (AccueilTerrain.fxml ou Accueil.fxml)
+            Parent root = FXMLLoader.load(getClass().getResource("/acceuilterrain.fxml"));
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            boolean etaitMaximise = stage.isMaximized();  // ← LIGNE 1 : Sauvegarder
+
+            stage.setScene(new Scene(root));
+
+            stage.setMaximized(etaitMaximise);
+            stage.setTitle("Accueil Terrain");
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

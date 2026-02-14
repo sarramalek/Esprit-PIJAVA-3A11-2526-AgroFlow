@@ -92,7 +92,11 @@ public class ModifierPlanteController {
             Parent root = loader.load();
 
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            boolean etaitMaximise = stage.isMaximized();  // ← LIGNE 1 : Sauvegarder
+
             stage.setScene(new Scene(root));
+
+            stage.setMaximized(etaitMaximise);
             stage.setTitle("Gestion des Plantes");
             stage.show();
 

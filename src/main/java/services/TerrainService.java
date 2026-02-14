@@ -83,4 +83,23 @@ public class TerrainService {
         }
         return terrains;
     }
+    public void supprimerAvecRotations(int id) {
+        try {
+            // 1. Supprimer d'abord toutes les rotations liées
+            String deleteRotations = "DELETE FROM rotation WHERE id_terrain = ?";
+            PreparedStatement pst1 = connection.prepareStatement(deleteRotations);
+            pst1.setInt(1, id);
+            pst1.executeUpdate();
+
+            // 2. Ensuite supprimer le terrain
+            String deleteTerrain = "DELETE FROM terrain WHERE id_terrain = ?";
+            PreparedStatement pst2 = connection.prepareStatement(deleteTerrain);
+            pst2.setInt(1, id);
+            pst2.executeUpdate();
+
+            System.out.println("Terrain et ses rotations supprimés !");
+        } catch (SQLException e) {
+            System.out.println("Erreur : " + e.getMessage());
+        }
+    }
 }

@@ -75,4 +75,5 @@ class TerrainServiceTest {
         boolean existeEncore = listeApres.stream().anyMatch(t -> t.getId_terrain() == idASupprimer);
         assertFalse(existeEncore, "Le terrain devrait être supprimé de la base.");
     }
+
 }

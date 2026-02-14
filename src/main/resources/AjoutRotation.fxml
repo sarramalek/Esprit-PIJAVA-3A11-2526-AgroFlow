@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<BorderPane prefHeight="600.0" prefWidth="900.0" style="-fx-background-color: #fcf8e6;"
+            xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controllers.AjoutRotationController">
+
+    <left>
+        <VBox prefWidth="230.0" spacing="5.0" style="-fx-background-color: #2C3E50; -fx-padding: 15;">
+            <children>
+                <Text fill="WHITE" text="AGROFLOW">
+                    <font><Font name="System Bold" size="24.0" /></font>
+                </Text>
+                <Separator opacity="0.2" prefHeight="20.0" />
+
+                <Button maxWidth="Infinity" alignment="BASELINE_LEFT" prefHeight="45.0"
+                        style="-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;"
+                        text="🐾 Gestion Animaux" />
+
+                <Button maxWidth="Infinity" alignment="BASELINE_LEFT" prefHeight="45.0"
+                        style="-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;"
+                        text="⚙️ Gestion Matériels" />
+
+                <Button maxWidth="Infinity" alignment="BASELINE_LEFT" prefHeight="45.0"
+                        style="-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;"
+                        text="📦 Gestion Stocks" />
+
+                <Button maxWidth="Infinity" alignment="BASELINE_LEFT" prefHeight="45.0"
+                        style="-fx-background-color: #2D5A27; -fx-text-fill: white; -fx-cursor: hand;"
+                        text="🌱 Gestion Terrains" />
+
+                <Button maxWidth="Infinity" alignment="BASELINE_LEFT" prefHeight="45.0"
+                        style="-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;"
+                        text="📅 Événements" />
+
+                <Button maxWidth="Infinity" alignment="BASELINE_LEFT" prefHeight="45.0"
+                        style="-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;"
+                        text="👥 Utilisateurs" />
+
+                <Region VBox.vgrow="ALWAYS" />
+
+                <Separator opacity="0.1" />
+                <Button maxWidth="Infinity"
+                        style="-fx-background-color: #E74C3C; -fx-text-fill: white;"
+                        text="Déconnexion" />
+            </children>
+        </VBox>
+    </left>
+
+    <center>
+        <VBox spacing="30.0" style="-fx-padding: 40;" alignment="TOP_CENTER">
+            <children>
+                <Text fill="#2C3E50" text="Ajouter une nouvelle Rotation">
+                    <font><Font name="System Bold" size="26.0" /></font>
+                </Text>
+
+                <GridPane hgap="15.0" vgap="20.0" maxWidth="550.0">
+                    <columnConstraints>
+                        <ColumnConstraints minWidth="150.0" />
+                        <ColumnConstraints minWidth="350.0" />
+                    </columnConstraints>
+                    <children>
+                        <Label text="Terrain :" textFill="#2C3E50" GridPane.rowIndex="0">
+                            <font><Font size="14.0" /></font>
+                        </Label>
+                        <ComboBox fx:id="comboTerrain" prefHeight="40.0" prefWidth="350.0"
+                                  promptText="Sélectionnez un terrain"
+                                  style="-fx-border-color: #A8C69F; -fx-border-radius: 5; -fx-background-radius: 5;"
+                                  GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                        <Label text="Plante :" textFill="#2C3E50" GridPane.rowIndex="1">
+                            <font><Font size="14.0" /></font>
+                        </Label>
+                        <ComboBox fx:id="comboPlante" prefHeight="40.0" prefWidth="350.0"
+                                  promptText="Sélectionnez une plante"
+                                  style="-fx-border-color: #A8C69F; -fx-border-radius: 5; -fx-background-radius: 5;"
+                                  GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                        <Label text="Date Début :" textFill="#2C3E50" GridPane.rowIndex="2">
+                            <font><Font size="14.0" /></font>
+                        </Label>
+                        <DatePicker fx:id="dateDebut" prefHeight="40.0" prefWidth="350.0"
+                                    promptText="Sélectionnez la date de début"
+                                    style="-fx-border-color: #A8C69F; -fx-border-radius: 5; -fx-background-radius: 5;"
+                                    GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                        <Label text="Date Fin :" textFill="#2C3E50" GridPane.rowIndex="3">
+                            <font><Font size="14.0" /></font>
+                        </Label>
+                        <DatePicker fx:id="dateFin" prefHeight="40.0" prefWidth="350.0"
+                                    promptText="Sélectionnez la date de fin"
+                                    style="-fx-border-color: #A8C69F; -fx-border-radius: 5; -fx-background-radius: 5;"
+                                    GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+                        <Label text="Statut :" textFill="#2C3E50" GridPane.rowIndex="4">
+                            <font><Font size="14.0" /></font>
+                        </Label>
+                        <ComboBox fx:id="comboStatus" prefHeight="40.0" prefWidth="350.0"
+                                  promptText="Sélectionnez le statut"
+                                  style="-fx-border-color: #A8C69F; -fx-border-radius: 5; -fx-background-radius: 5;"
+                                  GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                    </children>
+                </GridPane>
+
+                <HBox spacing="15.0" alignment="CENTER">
+                    <children>
+                        <Button onAction="#ajouterRotation" prefHeight="45.0" prefWidth="200.0"
+                                style="-fx-background-color: #2D5A27; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14;"
+                                text="✓ AJOUTER" />
+                        <Button onAction="#retourListe" prefHeight="45.0" prefWidth="150.0"
+                                style="-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-font-size: 14;"
+                                text="✗ ANNULER" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+    </center>
+</BorderPane>

@@ -64,26 +64,89 @@ public class RotationService {
         }
     }
 
-    // --- AFFICHER TOUT (Read) ---
+    // --- AFFICHER TOUTES (Read avec JOIN) - VERSION COMPLETE ---
+    /**
+     * ✨ METHODE AMELIOREE avec JOIN pour récupérer les noms
+     * Cette méthode récupère les rotations avec les noms de terrain, plante et variété
+     */
     public List<rotation> afficherToutes() {
         List<rotation> rotations = new ArrayList<>();
-        String query = "SELECT * FROM rotation";
+
+        // ✅ Requête avec JOIN pour avoir tous les détails
+        String query = "SELECT " +
+                "r.id_rotation, r.id_terrain, r.id_plante, " +
+                "r.date_debut_t, r.date_fin_t, r.status, " +
+                "t.nom_terrain, " +
+                "p.nom_p, p.variete " +
+                "FROM rotation r " +
+                "LEFT JOIN terrain t ON r.id_terrain = t.id_terrain " +
+                "LEFT JOIN plante p ON r.id_plante = p.id_plante " +
+                "ORDER BY r.date_debut_t DESC";
+
         try (Statement st = connection.createStatement();
              ResultSet rs = st.executeQuery(query)) {
 
             while (rs.next()) {
-                rotations.add(new rotation(
+                // Créer l'objet rotation avec les données de base
+                rotation rot = new rotation(
                         rs.getInt("id_rotation"),
                         rs.getInt("id_terrain"),
                         rs.getInt("id_plante"),
                         rs.getDate("date_debut_t"),
                         rs.getDate("date_fin_t"),
                         rs.getInt("status")
-                ));
+                );
+
+                // ✨ Ajouter les informations d'affichage
+                rot.setNom_terrain(rs.getString("nom_terrain"));
+                rot.setNom_plante(rs.getString("nom_p"));
+                rot.setVariete_plante(rs.getString("variete"));
+
+                rotations.add(rot);
+            }
+
+            System.out.println("✅ " + rotations.size() + " rotation(s) chargée(s) avec détails");
+
+        } catch (SQLException e) {
+            System.out.println("❌ Erreur Affichage Rotation: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return rotations;
+    }
+
+    // --- RECHERCHER PAR ID ---
+    public rotation rechercherParId(int id) {
+        String query = "SELECT " +
+                "r.id_rotation, r.id_terrain, r.id_plante, " +
+                "r.date_debut_t, r.date_fin_t, r.status, " +
+                "t.nom_terrain, p.nom_p, p.variete " +
+                "FROM rotation r " +
+                "LEFT JOIN terrain t ON r.id_terrain = t.id_terrain " +
+                "LEFT JOIN plante p ON r.id_plante = p.id_plante " +
+                "WHERE r.id_rotation = ?";
+
+        try (PreparedStatement pst = connection.prepareStatement(query)) {
+            pst.setInt(1, id);
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    rotation rot = new rotation(
+                            rs.getInt("id_rotation"),
+                            rs.getInt("id_terrain"),
+                            rs.getInt("id_plante"),
+                            rs.getDate("date_debut_t"),
+                            rs.getDate("date_fin_t"),
+                            rs.getInt("status")
+                    );
+                    rot.setNom_terrain(rs.getString("nom_terrain"));
+                    rot.setNom_plante(rs.getString("nom_p"));
+                    rot.setVariete_plante(rs.getString("variete"));
+                    return rot;
+                }
             }
         } catch (SQLException e) {
-            System.out.println("Erreur Affichage Rotation: " + e.getMessage());
+            System.out.println("Erreur Recherche Rotation: " + e.getMessage());
         }
-        return rotations;
+        return null;
     }
 }
