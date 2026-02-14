@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<BorderPane prefHeight="600.0" prefWidth="900.0"
+            style="-fx-background-color: #fcf8e6;"
+            xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controllers.AccueilMaterielController">
+
+    <!-- ================= SIDEBAR ================= -->
+    <left>
+        <VBox prefWidth="230.0" spacing="10.0"
+              style="-fx-background-color: #2C3E50; -fx-padding: 15;">
+            <children>
+                <Text fill="WHITE" text="AGROFLOW">
+                    <font>
+                        <Font name="System Bold" size="24.0"/>
+                    </font>
+                </Text>
+
+                <Separator opacity="0.2"/>
+
+                <Button text="🐾 Gestion Animaux"
+                        onAction="#naviguerAnimaux"
+                        maxWidth="Infinity"
+                        alignment="BASELINE_LEFT"
+                        prefHeight="45.0"
+                        style="-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;"/>
+
+                <Button text="⚙️ Gestion Matériels"
+                        onAction="#naviguerMateriels"
+                        maxWidth="Infinity"
+                        alignment="BASELINE_LEFT"
+                        prefHeight="45.0"
+                        style="-fx-background-color: #2D5A27; -fx-text-fill: white; -fx-cursor: hand;"/>
+
+                <Button text="📦 Gestion Stocks"
+                        onAction="#naviguerStocks"
+                        maxWidth="Infinity"
+                        alignment="BASELINE_LEFT"
+                        prefHeight="45.0"
+                        style="-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;"/>
+
+                <Button text="🌱 Gestion Terrains"
+                        onAction="#naviguerTerrains"
+                        maxWidth="Infinity"
+                        alignment="BASELINE_LEFT"
+                        prefHeight="45.0"
+                        style="-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;"/>
+
+                <Button text="📅 Événements"
+                        onAction="#naviguerEvenements"
+                        maxWidth="Infinity"
+                        alignment="BASELINE_LEFT"
+                        prefHeight="45.0"
+                        style="-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;"/>
+
+                <Button text="👥 Utilisateurs"
+                        onAction="#naviguerUsers"
+                        maxWidth="Infinity"
+                        alignment="BASELINE_LEFT"
+                        prefHeight="45.0"
+                        style="-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;"/>
+
+                <Region VBox.vgrow="ALWAYS"/>
+
+                <Separator opacity="0.1"/>
+
+                <Button text="Déconnexion"
+                        onAction="#deconnexion"
+                        maxWidth="Infinity"
+                        prefHeight="40.0"
+                        style="-fx-background-color: #E74C3C; -fx-text-fill: white; -fx-cursor: hand; -fx-font-weight: bold;"/>
+            </children>
+        </VBox>
+    </left>
+
+    <!-- ================= CENTER ================= -->
+    <center>
+        <VBox spacing="40" alignment="CENTER" style="-fx-padding: 40;">
+            <children>
+
+                <Text text="Module Gestion Matériels"
+                      fill="#2C3E50">
+                    <font>
+                        <Font name="System Bold" size="28"/>
+                    </font>
+                </Text>
+
+                <HBox spacing="40" alignment="CENTER">
+
+                    <!-- MACHINES -->
+                    <VBox spacing="15" alignment="CENTER"
+                          onMouseClicked="#ouvrirMachines"
+                          prefWidth="200.0"
+                          prefHeight="200.0"
+                          style="-fx-background-color: white;
+                                 -fx-padding: 25;
+                                 -fx-border-radius: 10;
+                                 -fx-background-radius: 10;
+                                 -fx-cursor: hand;
+                                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 10, 0, 0, 3);
+                                 -fx-border-color: #e0e0e0;
+                                 -fx-border-width: 1;">
+                        <children>
+                            <Text text="⚙️" style="-fx-font-size: 60px;"/>
+                            <Text text="Machines"
+                                  style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-fill: #2C3E50;"/>
+                            <Text text="Gérer les machines"
+                                  style="-fx-font-size: 12px; -fx-fill: #7f8c8d;"/>
+                        </children>
+                    </VBox>
+
+                    <!-- MAINTENANCES -->
+                    <VBox spacing="15" alignment="CENTER"
+                          onMouseClicked="#ouvrirMaintenances"
+                          prefWidth="200.0"
+                          prefHeight="200.0"
+                          style="-fx-background-color: white;
+                                 -fx-padding: 25;
+                                 -fx-border-radius: 10;
+                                 -fx-background-radius: 10;
+                                 -fx-cursor: hand;
+                                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 10, 0, 0, 3);
+                                 -fx-border-color: #e0e0e0;
+                                 -fx-border-width: 1;">
+                        <children>
+                            <Text text="🔧" style="-fx-font-size: 60px;"/>
+                            <Text text="Maintenances"
+                                  style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-fill: #2C3E50;"/>
+                            <Text text="Suivi des maintenances"
+                                  style="-fx-font-size: 12px; -fx-fill: #7f8c8d;"/>
+                        </children>
+                    </VBox>
+
+                    <!-- ACHATS -->
+                    <VBox spacing="15" alignment="CENTER"
+                          onMouseClicked="#ouvrirAchats"
+                          prefWidth="200.0"
+                          prefHeight="200.0"
+                          style="-fx-background-color: white;
+                                 -fx-padding: 25;
+                                 -fx-border-radius: 10;
+                                 -fx-background-radius: 10;
+                                 -fx-cursor: hand;
+                                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 10, 0, 0, 3);
+                                 -fx-border-color: #e0e0e0;
+                                 -fx-border-width: 1;">
+                        <children>
+                            <Text text="🛒" style="-fx-font-size: 60px;"/>
+                            <Text text="Achats"
+                                  style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-fill: #2C3E50;"/>
+                            <Text text="Gérer les achats"
+                                  style="-fx-font-size: 12px; -fx-fill: #7f8c8d;"/>
+                        </children>
+                    </VBox>
+
+                </HBox>
+
+                <!-- Message d'information optionnel -->
+                <Text text="Cliquez sur une carte pour accéder au module correspondant"
+                      fill="#95a5a6"
+                      style="-fx-font-size: 14px; -fx-font-style: italic;"/>
+
+            </children>
+        </VBox>
+    </center>
+
+</BorderPane>
