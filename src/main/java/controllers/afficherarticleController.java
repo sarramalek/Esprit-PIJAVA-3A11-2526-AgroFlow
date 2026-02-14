@@ -135,4 +135,16 @@ public class afficherarticleController {
         alert.setContentText(message);
         alert.showAndWait();
     }
+    @FXML
+    void deconnexion(ActionEvent event) {
+        try {
+            // Chargement de la page de connexion
+            Parent root = FXMLLoader.load(getClass().getResource("/login.fxml"));
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.centerOnScreen();
+        } catch (IOException e) {
+            System.err.println("Erreur de déconnexion : " + e.getMessage());
+        }
+    }
 }
