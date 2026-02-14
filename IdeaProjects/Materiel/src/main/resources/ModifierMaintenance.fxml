@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="controllers.ModifierMaintenanceController"
+      spacing="20" style="-fx-padding: 30; -fx-background-color: #f5f6fa;">
+
+    <!-- Titre -->
+    <Label text="✏️ Modifier une Maintenance"
+           style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+
+    <Separator style="-fx-background-color: #e2e8f0;"/>
+
+    <!-- Formulaire -->
+    <VBox spacing="15">
+
+        <!-- Machine -->
+        <VBox spacing="5">
+            <Label text="🔧 Machine *" style="-fx-font-weight: bold; -fx-font-size: 13px;"/>
+            <ComboBox fx:id="comboMachine" prefWidth="400"
+                      style="-fx-padding: 10; -fx-background-radius: 5; -fx-font-size: 13px;"/>
+        </VBox>
+
+        <!-- Type de Panne -->
+        <VBox spacing="5">
+            <Label text="⚠️ Type de Panne *" style="-fx-font-weight: bold; -fx-font-size: 13px;"/>
+            <TextField fx:id="txtTypePanne" promptText="Ex: Panne moteur, Court-circuit..."
+                       prefWidth="400"
+                       style="-fx-padding: 10; -fx-background-radius: 5; -fx-border-color: #cbd5e0; -fx-border-radius: 5; -fx-font-size: 13px;"/>
+        </VBox>
+
+        <!-- Date de Maintenance -->
+        <VBox spacing="5">
+            <Label text="📅 Date de Maintenance *" style="-fx-font-weight: bold; -fx-font-size: 13px;"/>
+            <DatePicker fx:id="datePickerMaintenance" prefWidth="400"
+                        style="-fx-padding: 10; -fx-background-radius: 5; -fx-font-size: 13px;"/>
+        </VBox>
+
+        <!-- Coût -->
+        <VBox spacing="5">
+            <Label text="💰 Coût (DT) *" style="-fx-font-weight: bold; -fx-font-size: 13px;"/>
+            <TextField fx:id="txtCout" promptText="Ex: 450.00"
+                       prefWidth="400"
+                       style="-fx-padding: 10; -fx-background-radius: 5; -fx-border-color: #cbd5e0; -fx-border-radius: 5; -fx-font-size: 13px;"/>
+        </VBox>
+
+        <!-- Description -->
+        <VBox spacing="5">
+            <Label text="📝 Description *" style="-fx-font-weight: bold; -fx-font-size: 13px;"/>
+            <TextArea fx:id="txtDescription"
+                      promptText="Décrivez la panne, les travaux effectués et les pièces remplacées..."
+                      prefWidth="400" prefHeight="120" wrapText="true"
+                      style="-fx-padding: 10; -fx-background-radius: 5; -fx-border-color: #cbd5e0; -fx-border-radius: 5; -fx-font-size: 13px;"/>
+        </VBox>
+
+    </VBox>
+
+    <!-- Note d'information -->
+    <HBox spacing="10" style="-fx-background-color: #e3f2fd; -fx-padding: 15; -fx-background-radius: 5;">
+        <Label text="ℹ️" style="-fx-font-size: 16px;"/>
+        <Label text="Les champs marqués d'un astérisque (*) sont obligatoires"
+               style="-fx-font-size: 12px; -fx-text-fill: #1976d2;" wrapText="true"/>
+    </HBox>
+
+    <!-- Boutons d'action -->
+    <HBox spacing="15" alignment="CENTER">
+        <Button text="❌ Annuler" onAction="#annuler"
+                prefWidth="180" prefHeight="45"
+                style="-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-font-size: 14px; -fx-background-radius: 5; -fx-cursor: hand; -fx-font-weight: bold;"/>
+
+        <Button text="✅ Mettre à jour" onAction="#modifier"
+                prefWidth="180" prefHeight="45"
+                style="-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-size: 14px; -fx-background-radius: 5; -fx-cursor: hand; -fx-font-weight: bold;"/>
+    </HBox>
+
+</VBox>
