@@ -14,365 +14,239 @@ import services.MaintenanceService;
 import java.net.URL;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.ResourceBundle;
 
 public class AjouterMaintenanceController implements Initializable {
 
-    @FXML private ComboBox<String> comboMachine;
-    @FXML private TextField txtTypePanne;
-    @FXML private DatePicker datePickerMaintenance;
-    @FXML private TextField txtCout;
-    @FXML private TextArea txtDescription;
+    // ============================================================
+    //  CHAMPS FXML
+    // ============================================================
 
-    private MachineService machineService = new MachineService();
-    private MaintenanceService maintenanceService = new MaintenanceService();
+    /**
+     * ComboBox<Machine> : affiche le NOM de la machine (via cellFactory)
+     * mais stocke l'objet Machine complet → on récupère l'idM proprement.
+     */
+    @FXML private ComboBox<Machine> comboMachine;
 
-    // Map pour la jointure : Nom Machine -> Machine Object
-    private Map<String, Machine> mapMachines = new HashMap<>();
+    @FXML private TextField  txtTypePanne;
+    @FXML private DatePicker datePickerMain;
+    @FXML private TextField  txtCout;
+    @FXML private TextArea   txtDescription;
 
+    // Labels d'erreur inline
+    @FXML private Label errMachine;
+    @FXML private Label errTypePanne;
+    @FXML private Label errDate;
+    @FXML private Label errCout;
+
+    // ============================================================
+    //  SERVICES
+    // ============================================================
+    private final MachineService     machineService     = new MachineService();
+    private final MaintenanceService maintenanceService = new MaintenanceService();
+
+    // ============================================================
+    //  INITIALISATION
+    // ============================================================
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        chargerMachines();
-        datePickerMaintenance.setValue(LocalDate.now());
-        comboMachine.setPromptText("🔧 Sélectionner une machine");
+        configurerComboMachine();   // JOINTURE : charge les machines et configure l'affichage
+        datePickerMain.setValue(LocalDate.now());  // date par défaut = aujourd'hui
     }
 
-    private void chargerMachines() {
+    /**
+     * Configure le ComboBox pour :
+     * - afficher uniquement le NOM de la machine dans la liste
+     * - stocker l'objet Machine complet (idM accessible via machine.getIdM())
+     *
+     * C'est LA clé de la jointure idM ↔ nom_machine.
+     */
+    private void configurerComboMachine() {
         try {
             List<Machine> machines = machineService.recuperer();
 
-            mapMachines.clear();
-            ObservableList<String> nomsMachines = FXCollections.observableArrayList();
-
-            for (Machine machine : machines) {
-                String nomMachine = machine.getNom();
-                nomsMachines.add(nomMachine);
-                mapMachines.put(nomMachine, machine);
-            }
-
-            comboMachine.setItems(nomsMachines);
-            System.out.println("✅ " + machines.size() + " machines chargées pour l'ajout");
-
-        } catch (SQLException e) {
-            afficherAlerte("Erreur", "❌ Erreur lors du chargement des machines: " + e.getMessage(), Alert.AlertType.ERROR);
-            e.printStackTrace();
-        }
-    }
-
-    @FXML
-    private void ajouter() {
-        System.out.println("🔄 Tentative d'ajout de maintenance...");
-
-        // ✅ VALIDATION COMPLÈTE
-        if (!validerTousLesChamps()) {
-            return;
-        }
-
-        try {
-            // Récupérer la machine sélectionnée (JOINTURE)
-            String nomMachineSelectionnee = comboMachine.getValue();
-            Machine machine = mapMachines.get(nomMachineSelectionnee);
-
-            if (machine == null) {
-                afficherAlerte("Erreur", "❌ Machine non trouvée dans la base de données", Alert.AlertType.ERROR);
+            if (machines.isEmpty()) {
+                afficherAlerte("Attention",
+                        "Aucune machine disponible. Veuillez d'abord ajouter des machines.",
+                        Alert.AlertType.WARNING);
                 return;
             }
 
-            // Créer l'objet Maintenance
-            Maintenance maintenance = new Maintenance();
-            maintenance.setIdM(machine.getIdM());  // 🔑 JOINTURE via idM
-            maintenance.setTypePanne(txtTypePanne.getText().trim());
-            maintenance.setDateMain(datePickerMaintenance.getValue());
-            maintenance.setCout(Double.parseDouble(txtCout.getText().trim()));
-            maintenance.setDescription(txtDescription.getText().trim());
+            ObservableList<Machine> listeMachines = FXCollections.observableArrayList(machines);
+            comboMachine.setItems(listeMachines);
 
-            System.out.println("📝 Maintenance à ajouter:");
-            System.out.println("   🔧 Machine: " + machine.getNom() + " (ID: " + machine.getIdM() + ")");
-            System.out.println("   ⚠️ Type Panne: " + maintenance.getTypePanne());
-            System.out.println("   📅 Date: " + maintenance.getDateMain());
-            System.out.println("   💰 Coût: " + maintenance.getCout() + " DT");
-
-            // Ajouter dans la base de données
-            maintenanceService.ajouter(maintenance);
-
-            afficherAlerte("Succès", "✅ Maintenance ajoutée avec succès pour la machine: " + machine.getNom(), Alert.AlertType.INFORMATION);
-            fermerFenetre();
-
-        } catch (NumberFormatException e) {
-            afficherAlerte("Erreur", "❌ Le coût doit être un nombre valide (ex: 450.0)", Alert.AlertType.ERROR);
-            txtCout.requestFocus();
-        } catch (SQLException e) {
-            afficherAlerte("Erreur", "❌ Erreur lors de l'ajout dans la base de données:\n" + e.getMessage(), Alert.AlertType.ERROR);
-            e.printStackTrace();
-        } catch (Exception e) {
-            afficherAlerte("Erreur", "❌ Erreur inattendue:\n" + e.getMessage(), Alert.AlertType.ERROR);
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * ✅ VALIDATION COMPLÈTE DE TOUS LES CHAMPS
-     */
-    private boolean validerTousLesChamps() {
-        // 1. Validation Machine
-        if (!validerMachine()) return false;
-
-        // 2. Validation Type Panne
-        if (!validerTypePanne()) return false;
-
-        // 3. Validation Date
-        if (!validerDate()) return false;
-
-        // 4. Validation Coût
-        if (!validerCout()) return false;
-
-        // 5. Validation Description
-        if (!validerDescription()) return false;
-
-        return true;
-    }
-
-    /**
-     * ✅ Validation Machine
-     * - Obligatoire
-     * - Doit être sélectionnée dans le ComboBox
-     */
-    private boolean validerMachine() {
-        if (comboMachine.getValue() == null || comboMachine.getValue().isEmpty()) {
-            afficherAlerte("⚠️ Validation",
-                    "Veuillez sélectionner une machine dans la liste",
-                    Alert.AlertType.WARNING);
-            comboMachine.requestFocus();
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * ✅ Validation Type Panne
-     * - Obligatoire
-     * - Ne doit pas être vide
-     * - Minimum 3 caractères
-     * - Uniquement du texte (lettres et espaces)
-     */
-    private boolean validerTypePanne() {
-        String typePanne = txtTypePanne.getText().trim();
-
-        if (typePanne.isEmpty()) {
-            afficherAlerte("⚠️ Validation",
-                    "Le type de panne est obligatoire",
-                    Alert.AlertType.WARNING);
-            txtTypePanne.requestFocus();
-            return false;
-        }
-
-        if (typePanne.length() < 3) {
-            afficherAlerte("⚠️ Validation",
-                    "Le type de panne doit contenir au moins 3 caractères",
-                    Alert.AlertType.WARNING);
-            txtTypePanne.requestFocus();
-            return false;
-        }
-
-        // Vérifier que c'est uniquement du texte (pas de chiffres ou symboles excessifs)
-        if (!typePanne.matches("^[a-zA-ZÀ-ÿ\\s'-]+$")) {
-            afficherAlerte("⚠️ Validation",
-                    "Le type de panne ne doit contenir que des lettres, espaces, apostrophes et tirets\n" +
-                            "❌ Exemple invalide: 'Panne123' ou 'Panne@#$'\n" +
-                            "✅ Exemple valide: 'Panne moteur' ou 'Court-circuit'",
-                    Alert.AlertType.WARNING);
-            txtTypePanne.requestFocus();
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * ✅ Validation Date
-     * - Obligatoire
-     * - Doit être une date valide
-     * - Ne doit pas être dans le futur
-     */
-    private boolean validerDate() {
-        LocalDate date = datePickerMaintenance.getValue();
-
-        if (date == null) {
-            afficherAlerte("⚠️ Validation",
-                    "La date de maintenance est obligatoire",
-                    Alert.AlertType.WARNING);
-            datePickerMaintenance.requestFocus();
-            return false;
-        }
-
-        if (date.isAfter(LocalDate.now())) {
-            afficherAlerte("⚠️ Validation",
-                    "La date de maintenance ne peut pas être dans le futur\n" +
-                            "📅 Date sélectionnée: " + date + "\n" +
-                            "📅 Date actuelle: " + LocalDate.now(),
-                    Alert.AlertType.WARNING);
-            datePickerMaintenance.requestFocus();
-            return false;
-        }
-
-        // Optionnel : vérifier que la date n'est pas trop ancienne (ex: > 10 ans)
-        if (date.isBefore(LocalDate.now().minusYears(10))) {
-            Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
-            confirmation.setTitle("⚠️ Date ancienne");
-            confirmation.setHeaderText("La date sélectionnée est ancienne");
-            confirmation.setContentText("La date est antérieure à " + LocalDate.now().minusYears(10) + "\n" +
-                    "Voulez-vous continuer ?");
-
-            return confirmation.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK;
-        }
-
-        return true;
-    }
-
-    /**
-     * ✅ Validation Coût
-     * - Obligatoire
-     * - Doit être un nombre positif
-     * - Ne doit pas être négatif
-     * - Format valide (nombre décimal)
-     */
-    private boolean validerCout() {
-        String coutTexte = txtCout.getText().trim();
-
-        if (coutTexte.isEmpty()) {
-            afficherAlerte("⚠️ Validation",
-                    "Le coût est obligatoire",
-                    Alert.AlertType.WARNING);
-            txtCout.requestFocus();
-            return false;
-        }
-
-        try {
-            double cout = Double.parseDouble(coutTexte);
-
-            if (cout < 0) {
-                afficherAlerte("⚠️ Validation",
-                        "Le coût ne peut pas être négatif\n" +
-                                "💰 Coût saisi: " + cout + " DT",
-                        Alert.AlertType.WARNING);
-                txtCout.requestFocus();
-                return false;
-            }
-
-            if (cout == 0) {
-                Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
-                confirmation.setTitle("⚠️ Coût nul");
-                confirmation.setHeaderText("Le coût est de 0 DT");
-                confirmation.setContentText("Êtes-vous sûr que cette maintenance n'a coûté aucun frais ?");
-
-                if (confirmation.showAndWait().orElse(ButtonType.CANCEL) != ButtonType.OK) {
-                    txtCout.requestFocus();
-                    return false;
+            // -------------------------------------------------------
+            //  cellFactory  : affiche le NOM dans chaque ligne de la liste déroulante
+            // -------------------------------------------------------
+            comboMachine.setCellFactory(lv -> new ListCell<Machine>() {
+                @Override
+                protected void updateItem(Machine machine, boolean empty) {
+                    super.updateItem(machine, empty);
+                    if (empty || machine == null) {
+                        setText(null);
+                    } else {
+                        // Affiche : "Tracteur  (ID: 3)"  — retirez la partie ID si non souhaitée
+                        setText(machine.getNom() + "   (ID: " + machine.getIdM() + ")");
+                    }
                 }
-            }
+            });
 
-            // Vérifier que le coût n'est pas excessif (optionnel)
-            if (cout > 100000) {
-                Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
-                confirmation.setTitle("⚠️ Coût élevé");
-                confirmation.setHeaderText("Le coût est très élevé");
-                confirmation.setContentText("💰 Coût: " + String.format("%.2f", cout) + " DT\n" +
-                        "Voulez-vous continuer ?");
+            // -------------------------------------------------------
+            //  buttonCell  : affiche le NOM dans le bouton du ComboBox après sélection
+            // -------------------------------------------------------
+            comboMachine.setButtonCell(new ListCell<Machine>() {
+                @Override
+                protected void updateItem(Machine machine, boolean empty) {
+                    super.updateItem(machine, empty);
+                    if (empty || machine == null) {
+                        setText("Selectionner une machine");
+                        setStyle("-fx-text-fill: #a0aec0;");
+                    } else {
+                        setText(machine.getNom());
+                        setStyle("-fx-text-fill: #2c3e50; -fx-font-weight: bold;");
+                    }
+                }
+            });
 
-                return confirmation.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK;
-            }
+            System.out.println("[OK] " + machines.size() + " machine(s) chargee(s) dans le ComboBox");
 
-        } catch (NumberFormatException e) {
-            afficherAlerte("⚠️ Validation",
-                    "Le coût doit être un nombre valide\n\n" +
-                            "✅ Exemples valides:\n" +
-                            "   - 450\n" +
-                            "   - 450.50\n" +
-                            "   - 1250.75\n\n" +
-                            "❌ Format invalide: '" + coutTexte + "'",
-                    Alert.AlertType.WARNING);
-            txtCout.requestFocus();
-            return false;
+        } catch (SQLException e) {
+            afficherAlerte("Erreur", "Impossible de charger les machines : " + e.getMessage(),
+                    Alert.AlertType.ERROR);
+            e.printStackTrace();
         }
-
-        return true;
     }
 
-    /**
-     * ✅ Validation Description
-     * - Obligatoire
-     * - Ne doit pas être vide
-     * - Doit contenir une description minimale (au moins 10 caractères)
-     */
-    private boolean validerDescription() {
-        String description = txtDescription.getText().trim();
+    // ============================================================
+    //  ENREGISTRER
+    // ============================================================
+    @FXML
+    private void enregistrer() {
+        // 1. Réinitialiser les erreurs
+        effacerErreurs();
 
-        if (description.isEmpty()) {
-            afficherAlerte("⚠️ Validation",
-                    "La description est obligatoire",
-                    Alert.AlertType.WARNING);
-            txtDescription.requestFocus();
-            return false;
+        // 2. Valider les champs
+        if (!valider()) return;
+
+        // 3. Récupérer la machine sélectionnée → idM via JOINTURE
+        Machine machineSelectionnee = comboMachine.getValue();
+        int idM = machineSelectionnee.getIdM();  // clé étrangère vers table Machine
+
+        // 4. Construire l'objet Maintenance
+        String   typePanne   = txtTypePanne.getText().trim();
+        LocalDate date       = datePickerMain.getValue();
+        double   cout        = Double.parseDouble(txtCout.getText().trim().replace(",", "."));
+        String   description = txtDescription.getText().trim();
+
+        Maintenance maintenance = new Maintenance();
+        maintenance.setIdM(idM);                // FK → Machine.idM  (jointure)
+        maintenance.setTypePanne(typePanne);
+        maintenance.setDateMain(date);
+        maintenance.setCout(cout);
+        maintenance.setDescription(description.isEmpty() ? null : description);
+
+        // 5. Persister
+        try {
+            maintenanceService.ajouter(maintenance);
+            afficherAlerte("Succes",
+                    "Maintenance ajoutee avec succes pour la machine : " + machineSelectionnee.getNom(),
+                    Alert.AlertType.INFORMATION);
+            fermerFenetre();
+        } catch (SQLException e) {
+            afficherAlerte("Erreur", "Erreur lors de l'enregistrement : " + e.getMessage(),
+                    Alert.AlertType.ERROR);
+            e.printStackTrace();
         }
-
-        if (description.length() < 10) {
-            afficherAlerte("⚠️ Validation",
-                    "La description doit contenir au moins 10 caractères\n" +
-                            "📝 Caractères actuels: " + description.length() + "\n" +
-                            "📝 Caractères minimum requis: 10\n\n" +
-                            "Veuillez fournir plus de détails sur la panne et les travaux effectués.",
-                    Alert.AlertType.WARNING);
-            txtDescription.requestFocus();
-            return false;
-        }
-
-        // Vérifier qu'il y a au moins quelques mots (pas juste des espaces répétés)
-        String[] mots = description.split("\\s+");
-        if (mots.length < 3) {
-            afficherAlerte("⚠️ Validation",
-                    "La description doit contenir au moins 3 mots\n" +
-                            "💡 Décrivez la panne, les travaux effectués, et les pièces remplacées.",
-                    Alert.AlertType.WARNING);
-            txtDescription.requestFocus();
-            return false;
-        }
-
-        return true;
     }
 
+    // ============================================================
+    //  VALIDATION
+    // ============================================================
+    private boolean valider() {
+        boolean valide = true;
+
+        // Machine obligatoire
+        if (comboMachine.getValue() == null) {
+            errMachine.setText("Veuillez selectionner une machine.");
+            surligner(comboMachine);
+            valide = false;
+        }
+
+        // Type de panne obligatoire
+        if (txtTypePanne.getText().trim().isEmpty()) {
+            errTypePanne.setText("Le type de panne est obligatoire.");
+            surligner(txtTypePanne);
+            valide = false;
+        }
+
+        // Date obligatoire
+        if (datePickerMain.getValue() == null) {
+            errDate.setText("Veuillez choisir une date.");
+            valide = false;
+        } else if (datePickerMain.getValue().isAfter(LocalDate.now())) {
+            errDate.setText("La date ne peut pas etre dans le futur.");
+            valide = false;
+        }
+
+        // Coût : obligatoire + numérique + positif
+        String coutStr = txtCout.getText().trim().replace(",", ".");
+        if (coutStr.isEmpty()) {
+            errCout.setText("Le cout est obligatoire.");
+            surligner(txtCout);
+            valide = false;
+        } else {
+            try {
+                double cout = Double.parseDouble(coutStr);
+                if (cout < 0) {
+                    errCout.setText("Le cout doit etre positif ou nul.");
+                    surligner(txtCout);
+                    valide = false;
+                }
+            } catch (NumberFormatException e) {
+                errCout.setText("Valeur numerique invalide (ex: 150.00).");
+                surligner(txtCout);
+                valide = false;
+            }
+        }
+
+        return valide;
+    }
+
+    private void effacerErreurs() {
+        errMachine.setText("");
+        errTypePanne.setText("");
+        errDate.setText("");
+        errCout.setText("");
+
+        // Retirer le surlignage rouge
+        String styleNormal = "-fx-background-radius: 6; -fx-border-color: #cbd5e0; " +
+                "-fx-border-radius: 6; -fx-font-size: 13px; -fx-padding: 8;";
+        txtTypePanne.setStyle(styleNormal);
+        txtCout.setStyle(styleNormal);
+        comboMachine.setStyle("-fx-background-radius: 6; -fx-border-color: #cbd5e0; " +
+                "-fx-border-radius: 6; -fx-font-size: 13px;");
+    }
+
+    /** Surligne un champ en rouge pour signaler une erreur */
+    private void surligner(Control control) {
+        control.setStyle(control.getStyle() +
+                "; -fx-border-color: #e74c3c; -fx-border-width: 2;");
+    }
+
+    // ============================================================
+    //  ANNULER
+    // ============================================================
     @FXML
     private void annuler() {
-        // Demander confirmation si des données ont été saisies
-        if (!champsSontVides()) {
-            Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
-            confirmation.setTitle("⚠️ Annulation");
-            confirmation.setHeaderText("Annuler l'ajout de maintenance");
-            confirmation.setContentText("Les données saisies seront perdues.\nVoulez-vous vraiment annuler ?");
-
-            if (confirmation.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
-                fermerFenetre();
-            }
-        } else {
-            fermerFenetre();
-        }
+        fermerFenetre();
     }
 
-    /**
-     * Vérifie si tous les champs sont vides
-     */
-    private boolean champsSontVides() {
-        return (comboMachine.getValue() == null || comboMachine.getValue().isEmpty()) &&
-                txtTypePanne.getText().trim().isEmpty() &&
-                txtCout.getText().trim().isEmpty() &&
-                txtDescription.getText().trim().isEmpty() &&
-                datePickerMaintenance.getValue().equals(LocalDate.now());
-    }
-
+    // ============================================================
+    //  UTILITAIRES
+    // ============================================================
     private void fermerFenetre() {
-        Stage stage = (Stage) txtTypePanne.getScene().getWindow();
+        Stage stage = (Stage) comboMachine.getScene().getWindow();
         stage.close();
     }
 
