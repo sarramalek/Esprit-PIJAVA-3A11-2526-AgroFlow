@@ -17,6 +17,11 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Comparator;
 import java.util.List;
+import javafx.scene.layout.VBox;
+import javafx.geometry.Insets;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
 
 public class ajouterarticleController {
 
@@ -24,24 +29,29 @@ public class ajouterarticleController {
     @FXML private ComboBox<Categorie> cbCategories;
     @FXML private Label lblTitre;
 
-    // Labels d'erreur (doivent exister dans ton FXML)
+    // Labels d'erreur (Assure-toi qu'ils existent dans ton FXML avec ces fx:id)
     @FXML private Label msgNom, msgQuantite, msgSeuil, msgUnite, msgCategorie;
 
-    private ArticleService articleService = new ArticleService();
-    private CategorieService catService = new CategorieService();
+    private final ArticleService articleService = new ArticleService();
+    private final CategorieService catService = new CategorieService();
     private boolean isModification = false;
     private int idArticleActuel;
 
     @FXML
     public void initialize() {
         chargerCategories();
-        nettoyerMessages();
-        ajouterEcouteurs(); // Active la validation en temps réel
-    }
 
-    private void nettoyerMessages() {
-        Label[] labels = {msgNom, msgQuantite, msgSeuil, msgUnite, msgCategorie};
-        for (Label l : labels) { if (l != null) l.setText(""); }
+        // 1. Validation immédiate au démarrage
+        if (!isModification) {
+            afficherFeedback(msgNom, "⚠️ Veuillez remplir le nom (min 3 car.)", true);
+            afficherFeedback(msgQuantite, "⚠️ Veuillez saisir une quantité (≥ 0)", true);
+            afficherFeedback(msgSeuil, "⚠️ Veuillez saisir un seuil (≥ 0)", true);
+            afficherFeedback(msgUnite, "⚠️ Veuillez saisir l'unité", true);
+            afficherFeedback(msgCategorie, "⚠️ Veuillez sélectionner une catégorie", true);
+        }
+
+        // 2. Activation des écouteurs en temps réel
+        ajouterEcouteurs();
     }
 
     private void afficherFeedback(Label label, String texte, boolean estErreur) {
@@ -50,16 +60,13 @@ public class ajouterarticleController {
         label.setStyle(estErreur ? "-fx-text-fill: #e74c3c; -fx-font-weight: bold;" : "-fx-text-fill: #27ae60; -fx-font-weight: bold;");
     }
 
-    // --- VALIDATION EN TEMPS RÉEL (PENDANT LA SAISIE) ---
     private void ajouterEcouteurs() {
-        // Pour le Nom
         tfNom.textProperty().addListener((obs, old, newValue) -> {
             if (newValue.trim().isEmpty()) afficherFeedback(msgNom, "⚠️ Obligatoire", true);
-            else if (newValue.length() < 3) afficherFeedback(msgNom, "⚠️ Trop court", true);
+            else if (newValue.trim().length() < 3) afficherFeedback(msgNom, "⚠️ Trop court", true);
             else afficherFeedback(msgNom, "✅ Correct", false);
         });
 
-        // Pour la Quantité
         tfQuantite.textProperty().addListener((obs, old, newValue) -> {
             try {
                 double val = Double.parseDouble(newValue);
@@ -70,7 +77,6 @@ public class ajouterarticleController {
             }
         });
 
-        // Pour le Seuil
         tfSeuil.textProperty().addListener((obs, old, newValue) -> {
             try {
                 double val = Double.parseDouble(newValue);
@@ -81,39 +87,138 @@ public class ajouterarticleController {
             }
         });
 
-        // Pour l'Unité
         tfUnite.textProperty().addListener((obs, old, newValue) -> {
             if (newValue.trim().isEmpty()) afficherFeedback(msgUnite, "⚠️ Obligatoire", true);
             else afficherFeedback(msgUnite, "✅ Correct", false);
         });
 
-        // Pour la Catégorie
         cbCategories.valueProperty().addListener((obs, old, newValue) -> {
-            if (newValue != null) afficherFeedback(msgCategorie, "✅ Correct", false);
+            if (newValue != null) afficherFeedback(msgCategorie, "✅ Sélectionné", false);
         });
     }
 
-    // --- VALIDATION FINALE (AU CLIC SUR CONFIRMER) ---
-    private boolean verifierTout() {
-        boolean valide = true;
-        if (tfNom.getText().isEmpty() || tfNom.getText().length() < 3) valide = false;
-        if (tfUnite.getText().isEmpty()) valide = false;
-        if (cbCategories.getValue() == null) {
-            afficherFeedback(msgCategorie, "⚠️ Sélectionnez une catégorie", true);
-            valide = false;
-        }
-        try {
-            if (Double.parseDouble(tfQuantite.getText()) < 0) valide = false;
-            if (Double.parseDouble(tfSeuil.getText()) < 0) valide = false;
-        } catch (Exception e) { valide = false; }
+    // --- NAVIGATION (RÉSOUT LES ERREURS LOADEXCEPTION) ---
 
-        return valide;
+    @FXML
+    void allerVersArticles(ActionEvent event) {
+        try { retourListe(event); } catch (IOException e) { e.printStackTrace(); }
     }
 
     @FXML
-    void validerAjout(ActionEvent event) {
+    void allerVersCategories(ActionEvent event) throws IOException {
+        Parent root = FXMLLoader.load(getClass().getResource("/affichercategorie.fxml"));
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        stage.setScene(new Scene(root));
+    }
+
+
+
+    @FXML
+    void allerAjouterCategorie(ActionEvent event) {
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("AgroFlow - Ajout Rapide");
+        dialog.setHeaderText("Créer une nouvelle catégorie");
+
+        DialogPane dialogPane = dialog.getDialogPane();
+        dialogPane.setStyle("-fx-background-color: #fdfae7;"); // Ton thème beige
+
+        // Champs de saisie
+        TextField nomField = new TextField();
+        nomField.setPromptText("Nom (ex: Engrais)");
+        nomField.setPrefHeight(35);
+
+        TextArea descArea = new TextArea();
+        descArea.setPromptText("Description...");
+        descArea.setPrefRowCount(3);
+
+        // Labels de feedback
+        Label msgNomPop = new Label("⚠️ Nom requis (min 3)");
+        Label msgDescPop = new Label("⚠️ Description requise (min 5)");
+
+        String styleErreur = "-fx-text-fill: #e74c3c; -fx-font-weight: bold; -fx-font-size: 11px;";
+        String styleSucces = "-fx-text-fill: #27ae60; -fx-font-weight: bold; -fx-font-size: 11px;";
+        msgNomPop.setStyle(styleErreur);
+        msgDescPop.setStyle(styleErreur);
+
+        // Mise en page
+        VBox layout = new VBox(8, new Label("Nom :"), msgNomPop, nomField, new Label("Description :"), msgDescPop, descArea);
+        layout.setPadding(new Insets(20));
+        dialogPane.setContent(layout);
+
+        ButtonType btnAjouter = new ButtonType("AJOUTER", ButtonBar.ButtonData.OK_DONE);
+        dialogPane.getButtonTypes().addAll(btnAjouter, ButtonType.CANCEL);
+
+        // --- LOGIQUE DE VÉRIFICATION À L'AJOUT ---
+        final Button btOk = (Button) dialogPane.lookupButton(btnAjouter);
+        btOk.addEventFilter(ActionEvent.ACTION, ae -> {
+            String nom = nomField.getText().trim();
+            String desc = descArea.getText().trim();
+
+            try {
+                // 1. Vérifier si le nom existe déjà
+                if (catService.existeDeja(nom)) {
+                    msgNomPop.setText("❌ Ce nom existe déjà !");
+                    msgNomPop.setStyle(styleErreur);
+                    ae.consume(); // Empêche la fermeture de la pop-up
+                }
+                // 2. Vérifier les longueurs minimales
+                else if (nom.length() < 3 || desc.length() < 5) {
+                    msgNomPop.setText(nom.length() < 3 ? "⚠️ Trop court (min 3)" : "✅ Correct");
+                    msgDescPop.setText(desc.length() < 5 ? "⚠️ Trop courte (min 5)" : "✅ Correct");
+                    ae.consume();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
+
+        // --- TRAITEMENT APRÈS VALIDATION ---
+        dialog.showAndWait().ifPresent(response -> {
+            if (response == btnAjouter) {
+                try {
+                    catService.ajouter(new Categorie(0, nomField.getText().trim(), descArea.getText().trim()));
+                    chargerCategories(); // Rafraîchit ta ComboBox d'articles
+
+                    // Sélection automatique de la nouvelle catégorie
+                    cbCategories.getItems().stream()
+                            .filter(c -> c.getNom().equalsIgnoreCase(nomField.getText().trim()))
+                            .findFirst()
+                            .ifPresent(c -> cbCategories.setValue(c));
+
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    @FXML
+    void deconnexion(ActionEvent event) {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/login.fxml"));
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.centerOnScreen();
+        } catch (IOException e) { e.printStackTrace(); }
+    }
+
+    @FXML
+    void retourListe(ActionEvent event) throws IOException {
+        Parent root = FXMLLoader.load(getClass().getResource("/afficherarticle.fxml"));
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        stage.setScene(new Scene(root));
+    }
+
+    // --- LOGIQUE MÉTIER ---
+
+    @FXML
+    void validerAjout(ActionEvent event) throws IOException {
         if (!verifierTout()) {
-            afficherAlerte(Alert.AlertType.WARNING, "Formulaire incomplet", "Veuillez corriger les erreurs affichées au-dessus des champs.");
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Formulaire invalide");
+            alert.setHeaderText(null);
+            alert.setContentText("Veuillez corriger les erreurs avant de confirmer.");
+            alert.show();
             return;
         }
 
@@ -131,29 +236,19 @@ public class ajouterarticleController {
             else articleService.ajouter(a);
 
             retourListe(event);
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
-    // --- Garde tes méthodes chargerCategories, retourListe, preparerModification ici ---
-
-    private void chargerCategories() {
+    private boolean verifierTout() {
         try {
-            List<Categorie> list = catService.recuperer();
-            list.sort(Comparator.comparing(Categorie::getNom, String.CASE_INSENSITIVE_ORDER));
-            cbCategories.setItems(FXCollections.observableArrayList(list));
-            cbCategories.setCellFactory(lv -> new ListCell<Categorie>() {
-                @Override protected void updateItem(Categorie item, boolean empty) {
-                    super.updateItem(item, empty);
-                    setText(empty || item == null ? "" : item.getNom());
-                }
-            });
-            cbCategories.setButtonCell(new ListCell<Categorie>() {
-                @Override protected void updateItem(Categorie item, boolean empty) {
-                    super.updateItem(item, empty);
-                    setText(empty || item == null ? "" : item.getNom());
-                }
-            });
-        } catch (SQLException e) { e.printStackTrace(); }
+            return tfNom.getText().trim().length() >= 3 &&
+                    !tfUnite.getText().trim().isEmpty() &&
+                    cbCategories.getValue() != null &&
+                    Double.parseDouble(tfQuantite.getText()) >= 0 &&
+                    Double.parseDouble(tfSeuil.getText()) >= 0;
+        } catch (Exception e) { return false; }
     }
 
     public void preparerModification(Article a) {
@@ -164,55 +259,34 @@ public class ajouterarticleController {
         tfQuantite.setText(String.valueOf(a.getQuantiteEnStock()));
         tfSeuil.setText(String.valueOf(a.getSeuilAlerte()));
         tfUnite.setText(a.getUniteMesure());
-    }
 
-    private void afficherAlerte(Alert.AlertType type, String titre, String message) {
-        Alert alert = new Alert(type);
-        alert.setTitle(titre);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-
-    @FXML void allerAjouterCategorie(ActionEvent event) throws IOException {
-        Parent root = FXMLLoader.load(getClass().getResource("/ajoutercategorie.fxml"));
-        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        stage.setScene(new Scene(root));
-    }
-
-    @FXML void retourListe(ActionEvent event) throws IOException {
-        Parent root = FXMLLoader.load(getClass().getResource("/afficherarticle.fxml"));
-        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        stage.setScene(new Scene(root));
-    }
-    @FXML
-    void deconnexion(ActionEvent event) {
-        try {
-            // Chargement de la page de connexion
-            Parent root = FXMLLoader.load(getClass().getResource("/login.fxml"));
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.centerOnScreen();
-        } catch (IOException e) {
-            System.err.println("Erreur de déconnexion : " + e.getMessage());
+        // Sélection auto de la catégorie
+        for (Categorie c : cbCategories.getItems()) {
+            if (c.getId() == a.getIdCategorie()) {
+                cbCategories.setValue(c);
+                break;
+            }
         }
     }
-    @FXML
-    void allerVersArticles(ActionEvent event) {
-        // Déjà présent sur la vue
-        System.out.println("Déjà sur la page des articles.");
-    }
 
-    @FXML
-    void allerVersCategories(ActionEvent event) throws IOException {
-        // Redirection vers la gestion des catégories
-        // Assurez-vous que le fichier fxml existe avec ce nom exact
+    private void chargerCategories() {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("/affichercategorie.fxml"));
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root));
-        } catch (Exception e) {
-            System.err.println("Erreur de navigation vers catégories : " + e.getMessage());
-        }
+            List<Categorie> list = catService.recuperer();
+            cbCategories.setItems(FXCollections.observableArrayList(list));
+
+            // Afficher uniquement le NOM dans la liste et dans le champ sélectionné
+            cbCategories.setConverter(new javafx.util.StringConverter<Categorie>() {
+                @Override
+                public String toString(Categorie object) {
+                    return (object == null) ? "" : object.getNom();
+                }
+                @Override
+                public Categorie fromString(String string) {
+                    return cbCategories.getItems().stream()
+                            .filter(c -> c.getNom().equals(string))
+                            .findFirst().orElse(null);
+                }
+            });
+        } catch (SQLException e) { e.printStackTrace(); }
     }
 }

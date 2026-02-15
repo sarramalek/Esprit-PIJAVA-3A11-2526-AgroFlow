@@ -65,4 +65,20 @@ public class CategorieService implements IService<Categorie> {
         }
         return categories;
     }
+    public boolean existeDeja(String nom) throws SQLException {
+        // La requête compte combien de catégories ont déjà ce nom
+        String query = "SELECT COUNT(*) FROM categorie WHERE nom = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setString(1, nom);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    // Si le compte est supérieur à 0, le nom existe déjà
+                    return rs.getInt(1) > 0;
+                }
+            }
+        }
+        return false;
+    }
 }
