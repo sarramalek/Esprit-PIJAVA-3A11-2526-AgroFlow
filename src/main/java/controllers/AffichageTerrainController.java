@@ -16,6 +16,7 @@ import services.TerrainService;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class AffichageTerrainController implements Initializable {
@@ -33,11 +34,19 @@ public class AffichageTerrainController implements Initializable {
     @FXML
     private TableColumn<terrain, Float> colPH;
 
+    @FXML
+    private TextField txtRecherche;
+    @FXML
+    private ComboBox<String> comboTri;
+
     private final TerrainService ts = new TerrainService();
+    private ObservableList<terrain> listeTerrains;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         configurerTableau();
+        configurerRecherche();
+        configurerTri();
         chargerDonnees();
     }
 
@@ -49,9 +58,60 @@ public class AffichageTerrainController implements Initializable {
         colPH.setCellValueFactory(new PropertyValueFactory<>("p_h"));
     }
 
+    private void configurerRecherche() {
+        // Recherche en temps réel
+        txtRecherche.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue == null || newValue.trim().isEmpty()) {
+                chargerDonnees();
+            } else {
+                rechercherTerrains(newValue);
+            }
+        });
+    }
+
+    private void configurerTri() {
+        // Options de tri
+        comboTri.setItems(FXCollections.observableArrayList(
+                "Nom (A-Z)",
+                "Nom (Z-A)",
+                "Surface (croissante)",
+                "Surface (décroissante)",
+                "pH (acide au basique)",
+                "pH (basique à acide)",
+                "Type de sol (A-Z)"
+        ));
+
+        // Action lors du changement de tri
+        comboTri.setOnAction(event -> {
+            String critere = comboTri.getValue();
+            if (critere != null) {
+                trierTerrains(critere);
+            }
+        });
+    }
+
     private void chargerDonnees() {
-        ObservableList<terrain> liste = FXCollections.observableArrayList(ts.afficherTous());
-        tableTerrains.setItems(liste);
+        listeTerrains = FXCollections.observableArrayList(ts.afficherTous());
+        tableTerrains.setItems(listeTerrains);
+    }
+
+    private void rechercherTerrains(String motCle) {
+        List<terrain> resultats = ts.rechercher(motCle);
+        listeTerrains = FXCollections.observableArrayList(resultats);
+        tableTerrains.setItems(listeTerrains);
+    }
+
+    private void trierTerrains(String critere) {
+        List<terrain> resultats = ts.trierPar(critere);
+        listeTerrains = FXCollections.observableArrayList(resultats);
+        tableTerrains.setItems(listeTerrains);
+    }
+
+    @FXML
+    public void reinitialiserRecherche(ActionEvent actionEvent) {
+        txtRecherche.clear();
+        comboTri.setValue(null);
+        chargerDonnees();
     }
 
     @FXML
@@ -67,15 +127,13 @@ public class AffichageTerrainController implements Initializable {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/ModifierTerrain.fxml"));
             Parent root = loader.load();
 
-            // Récupérer le contrôleur et passer le terrain sélectionné
             ModifierTerrainController controller = loader.getController();
             controller.initialiserAvecTerrain(terrainSelectionne);
 
             Stage stage = (Stage) tableTerrains.getScene().getWindow();
-            boolean etaitMaximise = stage.isMaximized();  // ← LIGNE 1 : Sauvegarder
+            boolean etaitMaximise = stage.isMaximized();
 
             stage.setScene(new Scene(root));
-
             stage.setMaximized(etaitMaximise);
             stage.show();
 
@@ -94,7 +152,6 @@ public class AffichageTerrainController implements Initializable {
             return;
         }
 
-        // Message clair pour l'utilisateur
         Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION,
                 "⚠️ ATTENTION ⚠️\n\n" +
                         "Supprimer le terrain '" + terrainSelectionne.getNom_terrain() + "' ?\n\n" +
@@ -107,7 +164,7 @@ public class AffichageTerrainController implements Initializable {
         confirmation.showAndWait().ifPresent(response -> {
             if (response == ButtonType.YES) {
                 try {
-                    ts.supprimerAvecRotations(terrainSelectionne.getId_terrain());  // ← UTILISE LA NOUVELLE MÉTHODE
+                    ts.supprimerAvecRotations(terrainSelectionne.getId_terrain());
                     chargerDonnees();
                     showAlert("Succès", "Terrain et ses rotations supprimés avec succès.", Alert.AlertType.INFORMATION);
                 } catch (RuntimeException e) {
@@ -123,10 +180,9 @@ public class AffichageTerrainController implements Initializable {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/AjoutTerrain.fxml"));
             Parent root = loader.load();
             Stage stage = (Stage) tableTerrains.getScene().getWindow();
-            boolean etaitMaximise = stage.isMaximized();  // ← LIGNE 1 : Sauvegarder
+            boolean etaitMaximise = stage.isMaximized();
 
             stage.setScene(new Scene(root));
-
             stage.setMaximized(etaitMaximise);
             stage.show();
         } catch (IOException e) {
@@ -137,15 +193,13 @@ public class AffichageTerrainController implements Initializable {
 
     @FXML
     public void versAccueil(ActionEvent actionEvent) {
-        // Navigation vers l'accueil - à adapter selon votre fichier
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/acceuilterrain.fxml"));
             Parent root = loader.load();
             Stage stage = (Stage) tableTerrains.getScene().getWindow();
-            boolean etaitMaximise = stage.isMaximized();  // ← LIGNE 1 : Sauvegarder
+            boolean etaitMaximise = stage.isMaximized();
 
             stage.setScene(new Scene(root));
-
             stage.setMaximized(etaitMaximise);
             stage.show();
         } catch (IOException e) {

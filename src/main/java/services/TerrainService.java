@@ -102,4 +102,83 @@ public class TerrainService {
             System.out.println("Erreur : " + e.getMessage());
         }
     }
+    // --- RECHERCHER PAR NOM, TYPE DE SOL OU LOCALISATION ---
+    public List<terrain> rechercher(String motCle) {
+        List<terrain> terrains = new ArrayList<>();
+        String query = "SELECT * FROM terrain WHERE nom_terrain LIKE ? OR type_sol LIKE ? OR localisation LIKE ?";
+
+        try (PreparedStatement pst = connection.prepareStatement(query)) {
+            String pattern = "%" + motCle + "%";
+            pst.setString(1, pattern);
+            pst.setString(2, pattern);
+            pst.setString(3, pattern);
+
+            ResultSet rs = pst.executeQuery();
+            while (rs.next()) {
+                terrains.add(new terrain(
+                        rs.getInt("id_terrain"),
+                        rs.getString("nom_terrain"),
+                        rs.getFloat("surface"),
+                        rs.getString("type_sol"),
+                        rs.getString("localisation"),
+                        rs.getFloat("p_h")
+                ));
+            }
+        } catch (SQLException e) {
+            System.out.println("Erreur Recherche Terrain: " + e.getMessage());
+        }
+        return terrains;
+    }
+
+    // --- TRIER ---
+    public List<terrain> trierPar(String critere) {
+        List<terrain> terrains = new ArrayList<>();
+        String orderBy = "";
+
+        switch (critere) {
+            case "Nom (A-Z)":
+                orderBy = "nom_terrain ASC";
+                break;
+            case "Nom (Z-A)":
+                orderBy = "nom_terrain DESC";
+                break;
+            case "Surface (croissante)":
+                orderBy = "surface ASC";
+                break;
+            case "Surface (décroissante)":
+                orderBy = "surface DESC";
+                break;
+            case "pH (acide au basique)":
+                orderBy = "p_h ASC";
+                break;
+            case "pH (basique à acide)":
+                orderBy = "p_h DESC";
+                break;
+            case "Type de sol (A-Z)":
+                orderBy = "type_sol ASC";
+                break;
+            default:
+                orderBy = "id_terrain ASC";
+        }
+
+        String query = "SELECT * FROM terrain ORDER BY " + orderBy;
+
+        try (Statement st = connection.createStatement();
+             ResultSet rs = st.executeQuery(query)) {
+
+            while (rs.next()) {
+                terrains.add(new terrain(
+                        rs.getInt("id_terrain"),
+                        rs.getString("nom_terrain"),
+                        rs.getFloat("surface"),
+                        rs.getString("type_sol"),
+                        rs.getString("localisation"),
+                        rs.getFloat("p_h")
+                ));
+            }
+        } catch (SQLException e) {
+            System.out.println("Erreur Tri Terrain: " + e.getMessage());
+        }
+        return terrains;
+    }
 }

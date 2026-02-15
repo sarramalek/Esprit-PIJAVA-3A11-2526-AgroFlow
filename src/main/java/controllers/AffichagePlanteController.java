@@ -7,7 +7,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -17,8 +16,8 @@ import services.PlanteService;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
-import javafx.application.Platform;
 
 public class AffichagePlanteController implements Initializable {
 
@@ -33,11 +32,19 @@ public class AffichagePlanteController implements Initializable {
     @FXML
     private TableColumn<plante, Integer> colCycle;
 
+    @FXML
+    private TextField txtRecherche;
+    @FXML
+    private ComboBox<String> comboTri;
+
     private final PlanteService ps = new PlanteService();
+    private ObservableList<plante> listePlantes;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         configurerTableau();
+        configurerRecherche();
+        configurerTri();
         chargerDonnees();
     }
 
@@ -48,9 +55,59 @@ public class AffichagePlanteController implements Initializable {
         colCycle.setCellValueFactory(new PropertyValueFactory<>("cycle_jours"));
     }
 
+    private void configurerRecherche() {
+        // Recherche en temps réel
+        txtRecherche.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue == null || newValue.trim().isEmpty()) {
+                chargerDonnees();
+            } else {
+                rechercherPlantes(newValue);
+            }
+        });
+    }
+
+    private void configurerTri() {
+        // Options de tri
+        comboTri.setItems(FXCollections.observableArrayList(
+                "Nom (A-Z)",
+                "Nom (Z-A)",
+                "Besoin en eau (croissant)",
+                "Besoin en eau (décroissant)",
+                "Cycle (court au long)",
+                "Cycle (long au court)"
+        ));
+
+        // Action lors du changement de tri
+        comboTri.setOnAction(event -> {
+            String critere = comboTri.getValue();
+            if (critere != null) {
+                trierPlantes(critere);
+            }
+        });
+    }
+
     private void chargerDonnees() {
-        ObservableList<plante> liste = FXCollections.observableArrayList(ps.afficherToutes());
-        tablePlantes.setItems(liste);
+        listePlantes = FXCollections.observableArrayList(ps.afficherToutes());
+        tablePlantes.setItems(listePlantes);
+    }
+
+    private void rechercherPlantes(String motCle) {
+        List<plante> resultats = ps.rechercher(motCle);
+        listePlantes = FXCollections.observableArrayList(resultats);
+        tablePlantes.setItems(listePlantes);
+    }
+
+    private void trierPlantes(String critere) {
+        List<plante> resultats = ps.trierPar(critere);
+        listePlantes = FXCollections.observableArrayList(resultats);
+        tablePlantes.setItems(listePlantes);
+    }
+
+    @FXML
+    public void reinitialiserRecherche(ActionEvent actionEvent) {
+        txtRecherche.clear();
+        comboTri.setValue(null);
+        chargerDonnees();
     }
 
     @FXML
@@ -70,19 +127,12 @@ public class AffichagePlanteController implements Initializable {
             controller.initialiserAvecPlante(planteSelectionnee);
 
             Stage stage = (Stage) tablePlantes.getScene().getWindow();
-
-            boolean etaitMaximise = stage.isMaximized();
-
             stage.setScene(new Scene(root));
-
-            if (etaitMaximise) {
-                Platform.runLater(() -> stage.setMaximized(true));
-            }
-
             stage.show();
 
         } catch (IOException e) {
             e.printStackTrace();
+            showAlert("Erreur", "Impossible de charger la page de modification", Alert.AlertType.ERROR);
         }
     }
 
@@ -96,30 +146,46 @@ public class AffichagePlanteController implements Initializable {
         }
 
         Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION,
-                "Voulez-vous vraiment supprimer " + planteSelectionnee.getNom_p() + " ?",
+                "⚠️ ATTENTION ⚠️\n\n" +
+                        "Supprimer la plante '" + planteSelectionnee.getNom_p() + "' ?\n\n" +
+                        "Cela supprimera aussi :\n" +
+                        "• Toutes les rotations de cette plante\n" +
+                        "• L'historique des cultures",
                 ButtonType.YES, ButtonType.NO);
 
         confirmation.showAndWait().ifPresent(response -> {
             if (response == ButtonType.YES) {
-                ps.supprimer(planteSelectionnee.getId_plante());
-                chargerDonnees();
-                showAlert("Succès", "Plante supprimée avec succès.", Alert.AlertType.INFORMATION);
+                try {
+                    ps.supprimerAvecRotations(planteSelectionnee.getId_plante());  // ← CHANGEMENT ICI
+                    chargerDonnees();
+                    showAlert("Succès", "Plante et ses rotations supprimées avec succès.", Alert.AlertType.INFORMATION);
+                } catch (RuntimeException e) {
+                    showAlert("Erreur", "Erreur lors de la suppression : " + e.getMessage(), Alert.AlertType.ERROR);
+                }
             }
         });
     }
 
     @FXML
     public void versAjout(ActionEvent actionEvent) {
-        // Navigation vers l'ajout
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/AjoutPlante.fxml"));
             Parent root = loader.load();
             Stage stage = (Stage) tablePlantes.getScene().getWindow();
-            boolean etaitMaximise = stage.isMaximized();  // ← LIGNE 1 : Sauvegarder
-
             stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-            stage.setMaximized(etaitMaximise);
+    @FXML
+    public void versAccueil(ActionEvent actionEvent) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/acceuilterrain.fxml"));
+            Parent root = loader.load();
+            Stage stage = (Stage) tablePlantes.getScene().getWindow();
+            stage.setScene(new Scene(root));
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
@@ -131,22 +197,5 @@ public class AffichagePlanteController implements Initializable {
         alert.setTitle(titre);
         alert.setContentText(message);
         alert.showAndWait();
-    }
-    @FXML
-    void versAccueil(ActionEvent event) {
-        try {
-            // Assurez-vous que le nom du fichier est exact (AccueilTerrain.fxml ou Accueil.fxml)
-            Parent root = FXMLLoader.load(getClass().getResource("/acceuilterrain.fxml"));
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            boolean etaitMaximise = stage.isMaximized();  // ← LIGNE 1 : Sauvegarder
-
-            stage.setScene(new Scene(root));
-
-            stage.setMaximized(etaitMaximise);
-            stage.setTitle("Accueil Terrain");
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 }

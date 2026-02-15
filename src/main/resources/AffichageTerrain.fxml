@@ -57,7 +57,30 @@
                     <font><Font name="System Bold" size="24.0" /></font>
                 </Text>
 
-                <TableView fx:id="tableTerrains" prefHeight="350.0" prefWidth="750.0">
+                <!-- 🔍 BARRE DE RECHERCHE ET TRI -->
+                <HBox alignment="CENTER_LEFT" spacing="15.0" prefWidth="750.0">
+                    <children>
+                        <!-- Champ de recherche -->
+                        <TextField fx:id="txtRecherche" prefHeight="35.0" prefWidth="350.0"
+                                   promptText="🔍 Rechercher par nom, type de sol ou localisation..."
+                                   style="-fx-border-color: #A8C69F; -fx-border-radius: 5; -fx-background-radius: 5;" />
+
+                        <!-- ComboBox pour le tri -->
+                        <Label text="Trier par :" textFill="#2C3E50">
+                            <font><Font size="13.0" /></font>
+                        </Label>
+                        <ComboBox fx:id="comboTri" prefHeight="35.0" prefWidth="200.0"
+                                  promptText="Choisir un tri"
+                                  style="-fx-border-color: #A8C69F; -fx-border-radius: 5; -fx-background-radius: 5;" />
+
+                        <!-- Bouton réinitialiser -->
+                        <Button onAction="#reinitialiserRecherche" prefHeight="35.0" prefWidth="100.0"
+                                style="-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-cursor: hand;"
+                                text="Réinitialiser" />
+                    </children>
+                </HBox>
+
+                <TableView fx:id="tableTerrains" prefHeight="300.0" prefWidth="750.0">
                     <columns>
                         <TableColumn fx:id="colNom" prefWidth="140.0" text="Nom Terrain" />
                         <TableColumn fx:id="colSurface" prefWidth="100.0" text="Surface (m²)" />

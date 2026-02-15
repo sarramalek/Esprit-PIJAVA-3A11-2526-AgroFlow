@@ -57,7 +57,38 @@
                     <font><Font name="System Bold" size="24.0" /></font>
                 </Text>
 
-                <TableView fx:id="tableRotations" prefHeight="350.0" prefWidth="850.0">
+                <!-- 🔍 BARRE DE RECHERCHE, FILTRE ET TRI -->
+                <HBox alignment="CENTER_LEFT" spacing="10.0" prefWidth="850.0">
+                    <children>
+                        <!-- Champ de recherche -->
+                        <TextField fx:id="txtRecherche" prefHeight="35.0" prefWidth="300.0"
+                                   promptText="🔍 Rechercher par terrain, plante ou variété..."
+                                   style="-fx-border-color: #A8C69F; -fx-border-radius: 5; -fx-background-radius: 5;" />
+
+                        <!-- Filtre par statut -->
+                        <Label text="Statut :" textFill="#2C3E50">
+                            <font><Font size="13.0" /></font>
+                        </Label>
+                        <ComboBox fx:id="comboStatut" prefHeight="35.0" prefWidth="130.0"
+                                  promptText="Tous"
+                                  style="-fx-border-color: #A8C69F; -fx-border-radius: 5; -fx-background-radius: 5;" />
+
+                        <!-- ComboBox pour le tri -->
+                        <Label text="Trier par :" textFill="#2C3E50">
+                            <font><Font size="13.0" /></font>
+                        </Label>
+                        <ComboBox fx:id="comboTri" prefHeight="35.0" prefWidth="180.0"
+                                  promptText="Choisir un tri"
+                                  style="-fx-border-color: #A8C69F; -fx-border-radius: 5; -fx-background-radius: 5;" />
+
+                        <!-- Bouton réinitialiser -->
+                        <Button onAction="#reinitialiserRecherche" prefHeight="35.0" prefWidth="100.0"
+                                style="-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-cursor: hand;"
+                                text="Réinitialiser" />
+                    </children>
+                </HBox>
+
+                <TableView fx:id="tableRotations" prefHeight="300.0" prefWidth="850.0">
                     <columns>
                         <TableColumn fx:id="colTerrain" prefWidth="180.0" text="Terrain" />
                         <TableColumn fx:id="colPlante" prefWidth="150.0" text="Plante" />
