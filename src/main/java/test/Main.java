@@ -1,4 +1,4 @@
-package test;
+/*package test;
 
 import models.*;
 import services.*;
@@ -16,7 +16,7 @@ public class Main {
     private static OffresServicees offreService;
     private static AbonnementService abonnementService;
     private static TacheService tacheService;
-    private static affectService affectationService;
+    //private static affectService affectationService;
 
     public static void main(String[] args) {
         System.out.println("╔════════════════════════════════════════════════╗");
@@ -29,7 +29,7 @@ public class Main {
             offreService = new OffresServicees();
             abonnementService = new AbonnementService();
             tacheService = new TacheService();
-            affectationService = new AffectationService();
+            affectationService = new affectService();
             System.out.println("✓ Tous les services ont été initialisés avec succès!\n");
         } catch (Exception e) {
             System.err.println("✗ Erreur d'initialisation: " + e.getMessage());
@@ -1374,4 +1374,4 @@ public class Main {
         System.out.println("⚠️ Format invalide, date conservée.");
         return dateParDefaut;
     }
-}
+}*/

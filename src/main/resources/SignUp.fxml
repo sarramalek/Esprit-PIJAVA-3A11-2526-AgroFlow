@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.text.Font?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="controllers.SignUp"
+
+            style="-fx-background-color: #e8f5e9;">
+
+    <!-- ══ FOND décoratif — bulles vertes douces ══ -->
+    <Ellipse centerX="-40" centerY="300" radiusX="200" radiusY="350"
+             fill="#c8e6c9" layoutX="0" layoutY="0" opacity="0.6"/>
+    <Ellipse centerX="980" centerY="100" radiusX="160" radiusY="240"
+             fill="#c8e6c9" layoutX="0" layoutY="0" opacity="0.5"/>
+    <Ellipse centerX="820" centerY="580" radiusX="120" radiusY="120"
+             fill="#a5d6a7" layoutX="0" layoutY="0" opacity="0.35"/>
+    <Ellipse centerX="200" centerY="580" radiusX="100" radiusY="80"
+             fill="#a5d6a7" layoutX="0" layoutY="0" opacity="0.25"/>
+
+    <!-- Points décoratifs -->
+    <Circle centerX="80"  centerY="80"  radius="5" fill="#4CAF50" opacity="0.35" layoutX="0" layoutY="0"/>
+    <Circle centerX="150" centerY="170" radius="3" fill="#66BB6A" opacity="0.3"  layoutX="0" layoutY="0"/>
+    <Circle centerX="55"  centerY="490" radius="4" fill="#4CAF50" opacity="0.25" layoutX="0" layoutY="0"/>
+    <Circle centerX="880" centerY="55"  radius="6" fill="#43A047" opacity="0.2"  layoutX="0" layoutY="0"/>
+    <Circle centerX="910" centerY="420" radius="3" fill="#66BB6A" opacity="0.3"  layoutX="0" layoutY="0"/>
+    <Circle centerX="350" centerY="30"  radius="4" fill="#4CAF50" opacity="0.2"  layoutX="0" layoutY="0"/>
+
+    <!-- ══ PARTIE GAUCHE — Branding ══ -->
+    <VBox alignment="CENTER" layoutX="0" layoutY="0"
+          prefWidth="400" prefHeight="620"
+          spacing="26">
+        <padding><Insets top="60" bottom="60" left="55" right="45"/></padding>
+
+        <!-- Logo -->
+        <StackPane prefWidth="140" prefHeight="140"
+                   style="-fx-background-color: rgba(76,175,80,0.15);
+                          -fx-background-radius: 35;
+                          -fx-border-color: rgba(76,175,80,0.4);
+                          -fx-border-radius: 35;
+                          -fx-border-width: 2;
+                          -fx-effect: dropshadow(gaussian, rgba(76,175,80,0.25), 18, 0, 0, 4);">
+            <!-- Remplacez par votre image : -->
+            <ImageView fitWidth="100" fitHeight="100" preserveRatio="true">
+                <image><Image url="/style/logo.png"/></image>
+            </ImageView>
+
+            <Label text="🌱" style="-fx-font-size: 72px;"/>
+        </StackPane>
+
+        <!-- Nom de l'app -->
+        <VBox alignment="CENTER_LEFT" spacing="6">
+            <Label text="AgroFlow"
+                   style="-fx-font-size: 42px; -fx-font-weight: bold;
+                          -fx-text-fill: #1B5E20;
+                          -fx-effect: dropshadow(gaussian, rgba(76,175,80,0.3), 12, 0, 0, 2);">
+                <font><Font name="System Bold" size="42"/></font>
+            </Label>
+            <Label text="Gérez votre exploitation"
+                   style="-fx-font-size: 15px; -fx-text-fill: #558B2F;">
+                <font><Font name="System" size="15"/></font>
+            </Label>
+            <Label text="agricole intelligemment."
+                   style="-fx-font-size: 15px; -fx-text-fill: #558B2F;">
+                <font><Font name="System" size="15"/></font>
+            </Label>
+        </VBox>
+
+        <!-- Séparateur décoratif -->
+        <HBox spacing="8" alignment="CENTER_LEFT">
+            <Rectangle width="40" height="3" arcWidth="3" arcHeight="3" fill="#4CAF50"/>
+            <Rectangle width="14" height="3" arcWidth="3" arcHeight="3" fill="rgba(76,175,80,0.5)"/>
+            <Rectangle width="7"  height="3" arcWidth="3" arcHeight="3" fill="rgba(76,175,80,0.25)"/>
+        </HBox>
+
+        <!-- Features pills -->
+        <VBox spacing="14">
+            <HBox spacing="14" alignment="CENTER_LEFT">
+                <StackPane prefWidth="38" prefHeight="38"
+                           style="-fx-background-color: rgba(76,175,80,0.18);
+                                  -fx-background-radius: 11;">
+                    <Label text="🌾" style="-fx-font-size: 18px;"/>
+                </StackPane>
+                <Label text="Gestion des terrains &amp; cultures"
+                       style="-fx-font-size: 13px; -fx-text-fill: #33691E;">
+                    <font><Font name="System" size="13"/></font>
+                </Label>
+            </HBox>
+            <HBox spacing="14" alignment="CENTER_LEFT">
+                <StackPane prefWidth="38" prefHeight="38"
+                           style="-fx-background-color: rgba(76,175,80,0.18);
+                                  -fx-background-radius: 11;">
+                    <Label text="📊" style="-fx-font-size: 18px;"/>
+                </StackPane>
+                <Label text="Suivi en temps réel des ressources"
+                       style="-fx-font-size: 13px; -fx-text-fill: #33691E;">
+                    <font><Font name="System" size="13"/></font>
+                </Label>
+            </HBox>
+            <HBox spacing="14" alignment="CENTER_LEFT">
+                <StackPane prefWidth="38" prefHeight="38"
+                           style="-fx-background-color: rgba(76,175,80,0.18);
+                                  -fx-background-radius: 11;">
+                    <Label text="👥" style="-fx-font-size: 18px;"/>
+                </StackPane>
+                <Label text="Gestion équipe &amp; affectations"
+                       style="-fx-font-size: 13px; -fx-text-fill: #33691E;">
+                    <font><Font name="System" size="13"/></font>
+                </Label>
+            </HBox>
+        </VBox>
+
+        <Region VBox.vgrow="ALWAYS"/>
+
+        <Label text="© 2025 AgroFlow · Tous droits réservés"
+               style="-fx-font-size: 11px; -fx-text-fill: #A5D6A7;">
+            <font><Font name="System" size="11"/></font>
+        </Label>
+    </VBox>
+
+    <!-- ══ SÉPARATEUR VERTICAL ══ -->
+    <Line startX="0" endX="0" startY="50" endY="570"
+          layoutX="400" layoutY="0"
+          stroke="rgba(76,175,80,0.25)" strokeWidth="1"/>
+
+    <!-- ══ PARTIE DROITE — Formulaire ══ -->
+    <VBox layoutX="400" layoutY="0"
+          prefWidth="560" prefHeight="620"
+          alignment="CENTER" spacing="0">
+        <padding><Insets top="50" bottom="50" left="65" right="65"/></padding>
+
+        <!-- Titre -->
+        <Label text="Inscrivez Vous a AgroFlow  ! 👋"
+               style="-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: #1B5E20;">
+            <font><Font name="System Bold" size="30"/></font>
+        </Label>
+        <Region prefHeight="6"/>
+        <Label text="Inscrivez vous pour bénéficier des services AgroFlow !! "
+               style="-fx-font-size: 14px; -fx-text-fill: #78909C;">
+            <font><Font name="System" size="14"/></font>
+        </Label>
+
+        <Region prefHeight="30"/>
+
+        <!-- ── Toggle rôles ── -->
+        <StackPane prefWidth="420" prefHeight="52"
+                   style="-fx-background-color: #dcedc8;
+                          -fx-background-radius: 14;">
+            <HBox spacing="5" alignment="CENTER" style="-fx-padding: 6;">
+                <ToggleButton fx:id="adminToggle" text="🔐  Admin"
+                              prefWidth="130" prefHeight="38"
+                              style="-fx-background-color: transparent;
+                                     -fx-text-fill: #558B2F;
+                                     -fx-font-size: 13px; -fx-background-radius: 10;
+                                     -fx-cursor: hand; -fx-border-color: transparent;">
+                    <font><Font name="System" size="13"/></font>
+                </ToggleButton>
+                <ToggleButton fx:id="agricoleToggle" text="🌾  Agricole"
+                              prefWidth="130" prefHeight="38"
+                              selected="true"
+                              style="-fx-background-color: #4CAF50;
+                                     -fx-text-fill: white;
+                                     -fx-font-size: 13px; -fx-font-weight: bold;
+                                     -fx-background-radius: 10; -fx-cursor: hand;
+                                     -fx-border-color: transparent;
+                                     -fx-effect: dropshadow(gaussian, rgba(76,175,80,0.45), 10, 0, 0, 2);">
+                    <font><Font name="System Bold" size="13"/></font>
+                </ToggleButton>
+                <ToggleButton fx:id="employeToggle" text="👷  Employé"
+                              prefWidth="130" prefHeight="38"
+                              style="-fx-background-color: transparent;
+                                     -fx-text-fill: #558B2F;
+                                     -fx-font-size: 13px; -fx-background-radius: 10;
+                                     -fx-cursor: hand; -fx-border-color: transparent;">
+                    <font><Font name="System" size="13"/></font>
+                </ToggleButton>
+            </HBox>
+        </StackPane>
+
+        <Region prefHeight="26"/>
+
+        <GridPane hgap="15" vgap="15">
+            <columnConstraints>
+                <ColumnConstraints minWidth="120" prefWidth="120"/>
+                <ColumnConstraints minWidth="250" prefWidth="250"/>
+            </columnConstraints>
+
+            <!-- CIN -->
+            <Label text="CIN *" GridPane.rowIndex="0" GridPane.columnIndex="0"
+                   style="-fx-font-size: 14px; -fx-text-fill: #34495E;"/>
+            <TextField fx:id="cinField" promptText="Ex: 12345678"
+                       GridPane.rowIndex="0" GridPane.columnIndex="1"
+                       style="-fx-font-size: 13px; -fx-padding: 8;"/>
+
+            <!-- Nom -->
+            <Label text="Nom *" GridPane.rowIndex="1" GridPane.columnIndex="0"
+                   style="-fx-font-size: 14px; -fx-text-fill: #34495E;"/>
+            <TextField fx:id="nomField" promptText="Nom de famille"
+                       GridPane.rowIndex="1" GridPane.columnIndex="1"
+                       style="-fx-font-size: 13px; -fx-padding: 8;"/>
+
+            <!-- Prénom -->
+            <Label text="Prénom *" GridPane.rowIndex="2" GridPane.columnIndex="0"
+                   style="-fx-font-size: 14px; -fx-text-fill: #34495E;"/>
+            <TextField fx:id="prenomField" promptText="Prénom"
+                       GridPane.rowIndex="2" GridPane.columnIndex="1"
+                       style="-fx-font-size: 13px; -fx-padding: 8;"/>
+
+            <!-- Email -->
+            <Label text="Email *" GridPane.rowIndex="3" GridPane.columnIndex="0"
+                   style="-fx-font-size: 14px; -fx-text-fill: #34495E;"/>
+            <TextField fx:id="emailField" promptText="exemple@email.com"
+                       GridPane.rowIndex="3" GridPane.columnIndex="1"
+                       style="-fx-font-size: 13px; -fx-padding: 8;"/>
+
+            <!-- Mot de passe -->
+            <Label text="Mot de passe *" GridPane.rowIndex="4" GridPane.columnIndex="0"
+                   style="-fx-font-size: 14px; -fx-text-fill: #34495E;"/>
+            <PasswordField fx:id="passwordField" promptText="Minimum 6 caractères"
+                           GridPane.rowIndex="4" GridPane.columnIndex="1"
+                           style="-fx-font-size: 13px; -fx-padding: 8;"/>
+
+            <!-- Téléphone -->
+            <Label text="Téléphone *" GridPane.rowIndex="5" GridPane.columnIndex="0"
+                   style="-fx-font-size: 14px; -fx-text-fill: #34495E;"/>
+            <TextField fx:id="telField" promptText="Ex: 0612345678"
+                       GridPane.rowIndex="5" GridPane.columnIndex="1"
+                       style="-fx-font-size: 13px; -fx-padding: 8;"/>
+
+            <!-- Date de naissance -->
+            <Label text="Date de naissance" GridPane.rowIndex="6" GridPane.columnIndex="0"
+                   style="-fx-font-size: 14px; -fx-text-fill: #34495E;"/>
+            <DatePicker fx:id="dateNaissancePicker" promptText="Sélectionner une date"
+                        GridPane.rowIndex="6" GridPane.columnIndex="1"
+                        style="-fx-font-size: 13px;" prefWidth="250"/>
+
+            <!-- Adresse -->
+            <Label text="Adresse" GridPane.rowIndex="7" GridPane.columnIndex="0"
+                   style="-fx-font-size: 14px; -fx-text-fill: #34495E;"/>
+            <TextField fx:id="adresseField" promptText="Adresse complète"
+                       GridPane.rowIndex="7" GridPane.columnIndex="1"
+                       style="-fx-font-size: 13px; -fx-padding: 8;"/>
+
+            <!-- Ville -->
+            <Label text="Ville" GridPane.rowIndex="8" GridPane.columnIndex="0"
+                   style="-fx-font-size: 14px; -fx-text-fill: #34495E;"/>
+            <TextField fx:id="villeField" promptText="Ville"
+                       GridPane.rowIndex="8" GridPane.columnIndex="1"
+                       style="-fx-font-size: 13px; -fx-padding: 8;"/>
+        </GridPane>
+
+        <!-- Note obligatoire -->
+        <Label text="* Champs obligatoires" style="-fx-font-size: 11px; -fx-text-fill: #7F8C8D; -fx-font-style: italic;"/>
+
+        <!-- Boutons -->
+        <HBox spacing="10" alignment="CENTER_RIGHT">
+            <Button fx:id="cancelButton" text="Annuler" onAction="#handleCancel"
+                    style="-fx-background-color: #95A5A6; -fx-text-fill: white; -fx-font-size: 14px;
+                       -fx-padding: 10 30; -fx-background-radius: 5; -fx-cursor: hand;"
+                    minWidth="120"/>
+            <Button fx:id="saveButton" text="Enregistrer" onAction="#handleSave"
+                    style="-fx-background-color: #27AE60; -fx-text-fill: white; -fx-font-size: 14px;
+                       -fx-padding: 10 30; -fx-background-radius: 5; -fx-cursor: hand;"
+                    minWidth="120" defaultButton="true"/>
+        </HBox>
+        
+
+        <Region prefHeight="10"/>
+
+        <!-- Mot de passe oublié -->
+        
+
+        <Region prefHeight="20"/>
+
+        <!-- ── Bouton Connexion ── -->
+        
+        <Region prefHeight="18"/>
+
+        <!-- Message erreur -->
+        <Label fx:id="errorLabel" text=""
+               prefWidth="420"
+               style="-fx-text-fill: #C62828; -fx-font-size: 13px;
+                      -fx-background-color: #FFEBEE;
+                      -fx-background-radius: 8; -fx-padding: 10 14;"
+               visible="false">
+            <font><Font name="System" size="13"/></font>
+        </Label>
+
+        <Region prefHeight="18"/>
+
+        <!-- Séparateur -->
+        <HBox alignment="CENTER" spacing="12">
+            <Line startX="0" endX="145" stroke="#c5e1a5" strokeWidth="1"/>
+            <Label text="ou"
+                   style="-fx-font-size: 12px; -fx-text-fill: #A5C8A5;">
+                <font><Font name="System" size="12"/></font>
+            </Label>
+            <Line startX="0" endX="145" stroke="#c5e1a5" strokeWidth="1"/>
+        </HBox>
+
+        <Region prefHeight="18"/>
+
+        <!-- se connecter a un  compte -->
+        <HBox alignment="CENTER" spacing="5">
+            <Label text="Vous avez un compte ?"
+                   style="-fx-font-size: 13px; -fx-text-fill: #90A4AE;">
+                <font><Font name="System" size="13"/></font>
+            </Label>
+            <Hyperlink fx:id="signinLink" text="Connectez vous a votre compte"
+                       onAction="#handleSignup"
+                       style="-fx-text-fill: #2E7D32; -fx-font-size: 13px;
+                              -fx-font-weight: bold; -fx-border-color: transparent;
+                              -fx-cursor: hand;">
+                <font><Font name="System Bold" size="13"/></font>
+            </Hyperlink>
+        </HBox>
+
+    </VBox>
+
+</AnchorPane>

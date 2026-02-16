@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<BorderPane  style="-fx-background-color: #F8F9FA;"
+            xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controllers.AcceuilAgricole">
+
+    <!-- SIDEBAR AGRICOLE -->
+    <left>
+        <VBox prefWidth="250" style="-fx-background-color: linear-gradient(to bottom, #2E7D32, #388E3C, #43A047);">
+            <padding><Insets bottom="20" top="20" /></padding>
+
+            <!-- Logo -->
+            <HBox alignment="CENTER" spacing="12" style="-fx-padding: 0 0 20 0;">
+                <Label style="-fx-font-size: 32px;" text="🌱" />
+                <VBox alignment="CENTER_LEFT" spacing="2">
+                    <Label style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: white;" text="AgroFlow">
+                        <font><Font name="System Bold" size="26" /></font>
+                    </Label>
+                    <Label style="-fx-font-size: 11px; -fx-text-fill: rgba(255,255,255,0.7);" text="Mon Exploitation">
+                        <font><Font name="System" size="11" /></font>
+                    </Label>
+                </VBox>
+            </HBox>
+
+            <!-- Info Utilisateur avec Hyperlink À Propos -->
+            <VBox alignment="CENTER" spacing="8"
+                  style="-fx-background-color: rgba(255,255,255,0.1); -fx-background-radius: 15; -fx-padding: 20; -fx-margin: 10;">
+                <Label style="-fx-font-size: 30px;" text="👨‍🌾" />
+                <Label fx:id="userNameLabel"
+                       style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;"
+                       text="Nom Agriculteur">
+                    <font><Font name="System Bold" size="16" /></font>
+                </Label>
+                <Label fx:id="userRoleLabel"
+                       style="-fx-font-size: 12px; -fx-text-fill: rgba(255,255,255,0.8);
+                              -fx-background-color: rgba(76,175,80,0.3); -fx-padding: 4 12;
+                              -fx-background-radius: 15;"
+                       text="🌾 AGRICULTEUR">
+                    <font><Font name="System Bold" size="12" /></font>
+                </Label>
+                <!-- Hyperlink À Propos -->
+                <Hyperlink fx:id="aproposLink" text="👤 À propos de moi"
+                           onAction="#handleAPropos"
+                           style="-fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 13px;
+                                  -fx-border-color: rgba(255,255,255,0.4); -fx-padding: 5 15;
+                                  -fx-background-radius: 20; -fx-border-radius: 20;
+                                  -fx-cursor: hand;">
+                    <font><Font name="System" size="13" /></font>
+                </Hyperlink>
+            </VBox>
+
+            <!-- Navigation Menu -->
+            <VBox spacing="8" style="-fx-padding: 20 0 0 0;">
+                <Button onAction="#handleDashboard" prefHeight="48" prefWidth="230"
+                        style="-fx-background-color: linear-gradient(to right, #4CAF50, #45a049);
+                               -fx-text-fill: white; -fx-font-size: 14px; -fx-alignment: CENTER-LEFT;
+                               -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand;"
+                        text="📊  Dashboard">
+                    <font><Font name="System Bold" size="14" /></font>
+                </Button>
+                <Button onAction="#handleMesTerrains" prefHeight="48" prefWidth="230"
+                        style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
+                               -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
+                               -fx-background-radius: 12; -fx-cursor: hand;"
+                        text="🌾  Mes Terrains">
+                    <font><Font name="System Bold" size="14" /></font>
+                </Button>
+                <Button onAction="#handleMesAnimaux" prefHeight="48" prefWidth="230"
+                        style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
+                               -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
+                               -fx-background-radius: 12; -fx-cursor: hand;"
+                        text="🐄  Mes Animaux">
+                    <font><Font name="System Bold" size="14" /></font>
+                </Button>
+                <Button onAction="#handleMesStocks" prefHeight="48" prefWidth="230"
+                        style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
+                               -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
+                               -fx-background-radius: 12; -fx-cursor: hand;"
+                        text="📦  Mes Stocks">
+                    <font><Font name="System Bold" size="14" /></font>
+                </Button>
+                <Button onAction="#handleMonMateriel" prefHeight="48" prefWidth="230"
+                        style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
+                               -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
+                               -fx-background-radius: 12; -fx-cursor: hand;"
+                        text="🚜  Mon Matériel">
+                    <font><Font name="System Bold" size="14" /></font>
+                </Button>
+                <Button onAction="#handleMonAbonnement" prefHeight="48" prefWidth="230"
+                        style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
+                               -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
+                               -fx-background-radius: 12; -fx-cursor: hand;"
+                        text="💳  Mes Abonnements">
+                    <font><Font name="System Bold" size="14" /></font>
+                </Button>
+            </VBox>
+
+            <Region VBox.vgrow="ALWAYS" />
+
+            <Button fx:id="logoutBtn" onAction="#handleLogout" prefHeight="50" prefWidth="230"
+                    style="-fx-background-color: #E74C3C; -fx-text-fill: white; -fx-font-size: 14px;
+                           -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22; -fx-background-radius: 12;
+                           -fx-cursor: hand;"
+                    text="🚪  Déconnexion">
+                <font><Font name="System Bold" size="14" /></font>
+            </Button>
+        </VBox>
+    </left>
+
+    <!-- MAIN CONTENT -->
+    <center>
+        <ScrollPane fitToWidth="true" style="-fx-background-color: #F8F9FA; -fx-border-color: transparent;">
+            <VBox spacing="25" style="-fx-background-color: #F8F9FA;">
+                <padding><Insets bottom="35" left="35" right="35" top="35" /></padding>
+
+                <!-- Top Bar -->
+                <HBox alignment="CENTER_LEFT" spacing="25"
+                      style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 25;
+                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 12, 0, 0, 2);">
+                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                        <HBox alignment="CENTER_LEFT" spacing="12">
+                            <Label style="-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: #2E7D32;"
+                                   text="Bienvenue,">
+                                <font><Font name="System Bold" size="30" /></font>
+                            </Label>
+                            <!-- Nom dynamique dans le titre -->
+                            <Label fx:id="welcomeNameLabel"
+                                   style="-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: #4CAF50;"
+                                   text="Agriculteur">
+                                <font><Font name="System Bold" size="30" /></font>
+                            </Label>
+                            <Label style="-fx-background-color: #E8F5E9; -fx-text-fill: #2E7D32;
+                                          -fx-padding: 6 12; -fx-background-radius: 20;
+                                          -fx-font-size: 12px; -fx-font-weight: bold;" text="ACTIF">
+                                <font><Font name="System Bold" size="12" /></font>
+                            </Label>
+                        </HBox>
+                        <Label style="-fx-font-size: 14px; -fx-text-fill: #7F8C8D;"
+                               text="Gérez votre exploitation agricole en toute simplicité">
+                            <font><Font name="System" size="14" /></font>
+                        </Label>
+                    </VBox>
+                    <Label style="-fx-font-size: 28px; -fx-background-color: linear-gradient(to bottom right, #4CAF50, #388E3C);
+                                  -fx-text-fill: white; -fx-padding: 15; -fx-background-radius: 50%;
+                                  -fx-min-width: 60; -fx-min-height: 60; -fx-alignment: center;" text="🌾" />
+                </HBox>
+
+                <!-- Stats Cards -->
+                <GridPane hgap="20" vgap="20">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="ALWAYS" percentWidth="50" />
+                        <ColumnConstraints hgrow="ALWAYS" percentWidth="50" />
+                    </columnConstraints>
+
+                    <VBox spacing="15" GridPane.columnIndex="0" GridPane.rowIndex="0"
+                          style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 25;
+                                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 15, 0, 0, 3);">
+                        <HBox alignment="CENTER_LEFT" spacing="15">
+                            <Label style="-fx-font-size: 36px; -fx-background-color: linear-gradient(to bottom right, #8BC34A, #689F38);
+                                          -fx-text-fill: white; -fx-padding: 12; -fx-background-radius: 12;" text="🌾" />
+                            <VBox spacing="3">
+                                <Label style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;" text="0">
+                                    <font><Font name="System Bold" size="26" /></font>
+                                </Label>
+                                <Label style="-fx-font-size: 13px; -fx-text-fill: #7F8C8D;" text="Terrains" />
+                            </VBox>
+                        </HBox>
+                    </VBox>
+
+                    <VBox spacing="15" GridPane.columnIndex="1" GridPane.rowIndex="0"
+                          style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 25;
+                                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 15, 0, 0, 3);">
+                        <HBox alignment="CENTER_LEFT" spacing="15">
+                            <Label style="-fx-font-size: 36px; -fx-background-color: linear-gradient(to bottom right, #8D6E63, #6D4C41);
+                                          -fx-text-fill: white; -fx-padding: 12; -fx-background-radius: 12;" text="🐄" />
+                            <VBox spacing="3">
+                                <Label style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;" text="0">
+                                    <font><Font name="System Bold" size="26" /></font>
+                                </Label>
+                                <Label style="-fx-font-size: 13px; -fx-text-fill: #7F8C8D;" text="Animaux" />
+                            </VBox>
+                        </HBox>
+                    </VBox>
+
+                    <VBox spacing="15" GridPane.columnIndex="0" GridPane.rowIndex="1"
+                          style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 25;
+                                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 15, 0, 0, 3);">
+                        <HBox alignment="CENTER_LEFT" spacing="15">
+                            <Label style="-fx-font-size: 36px; -fx-background-color: linear-gradient(to bottom right, #FF9800, #F57C00);
+                                          -fx-text-fill: white; -fx-padding: 12; -fx-background-radius: 12;" text="📦" />
+                            <VBox spacing="3">
+                                <Label style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;" text="0">
+                                    <font><Font name="System Bold" size="26" /></font>
+                                </Label>
+                                <Label style="-fx-font-size: 13px; -fx-text-fill: #7F8C8D;" text="Produits en stock" />
+                            </VBox>
+                        </HBox>
+                    </VBox>
+
+                    <VBox spacing="15" GridPane.columnIndex="1" GridPane.rowIndex="1"
+                          style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 25;
+                                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 15, 0, 0, 3);">
+                        <HBox alignment="CENTER_LEFT" spacing="15">
+                            <Label style="-fx-font-size: 36px; -fx-background-color: linear-gradient(to bottom right, #607D8B, #455A64);
+                                          -fx-text-fill: white; -fx-padding: 12; -fx-background-radius: 12;" text="🚜" />
+                            <VBox spacing="3">
+                                <Label style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;" text="0">
+                                    <font><Font name="System Bold" size="26" /></font>
+                                </Label>
+                                <Label style="-fx-font-size: 13px; -fx-text-fill: #7F8C8D;" text="Équipements" />
+                            </VBox>
+                        </HBox>
+                    </VBox>
+                </GridPane>
+
+                <!-- Mes Abonnements -->
+                <VBox spacing="20"
+                      style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 30;
+                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 15, 0, 0, 3);">
+                    <HBox alignment="CENTER_LEFT" spacing="15">
+                        <Label style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;"
+                               text="💳 Mes Abonnements">
+                            <font><Font name="System Bold" size="22" /></font>
+                        </Label>
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Button onAction="#handleMonAbonnement"
+                                style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 13px;
+                                       -fx-padding: 8 18; -fx-background-radius: 8; -fx-cursor: hand;"
+                                text="🔄 Actualiser">
+                            <font><Font name="System Bold" size="13" /></font>
+                        </Button>
+                    </HBox>
+                    <!-- Container rempli dynamiquement -->
+                    <VBox fx:id="abonnementsContainer" spacing="12" />
+                </VBox>
+
+                <!-- Accès Rapide -->
+                <VBox spacing="20"
+                      style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 30;
+                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 15, 0, 0, 3);">
+                    <Label style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;"
+                           text="⚡ Accès Rapide">
+                        <font><Font name="System Bold" size="22" /></font>
+                    </Label>
+                    <GridPane hgap="15" vgap="15">
+                        <Button onAction="#handleMesTerrains" prefHeight="80" prefWidth="180"
+                                style="-fx-background-color: linear-gradient(to bottom right, #8BC34A, #689F38);
+                                       -fx-background-radius: 12; -fx-cursor: hand;"
+                                GridPane.columnIndex="0" GridPane.rowIndex="0">
+                            <graphic>
+                                <VBox alignment="CENTER" spacing="6">
+                                    <Label style="-fx-font-size: 26px;" text="🌾" />
+                                    <Label style="-fx-font-size: 13px; -fx-text-fill: white; -fx-font-weight: bold;" text="Mes Terrains">
+                                        <font><Font name="System Bold" size="13" /></font>
+                                    </Label>
+                                </VBox>
+                            </graphic>
+                        </Button>
+                        <Button onAction="#handleMesAnimaux" prefHeight="80" prefWidth="180"
+                                style="-fx-background-color: linear-gradient(to bottom right, #8D6E63, #6D4C41);
+                                       -fx-background-radius: 12; -fx-cursor: hand;"
+                                GridPane.columnIndex="1" GridPane.rowIndex="0">
+                            <graphic>
+                                <VBox alignment="CENTER" spacing="6">
+                                    <Label style="-fx-font-size: 26px;" text="🐄" />
+                                    <Label style="-fx-font-size: 13px; -fx-text-fill: white; -fx-font-weight: bold;" text="Mes Animaux">
+                                        <font><Font name="System Bold" size="13" /></font>
+                                    </Label>
+                                </VBox>
+                            </graphic>
+                        </Button>
+                        <Button onAction="#handleMesStocks" prefHeight="80" prefWidth="180"
+                                style="-fx-background-color: linear-gradient(to bottom right, #FF9800, #F57C00);
+                                       -fx-background-radius: 12; -fx-cursor: hand;"
+                                GridPane.columnIndex="2" GridPane.rowIndex="0">
+                            <graphic>
+                                <VBox alignment="CENTER" spacing="6">
+                                    <Label style="-fx-font-size: 26px;" text="📦" />
+                                    <Label style="-fx-font-size: 13px; -fx-text-fill: white; -fx-font-weight: bold;" text="Mes Stocks">
+                                        <font><Font name="System Bold" size="13" /></font>
+                                    </Label>
+                                </VBox>
+                            </graphic>
+                        </Button>
+                        <Button onAction="#handleMonMateriel" prefHeight="80" prefWidth="180"
+                                style="-fx-background-color: linear-gradient(to bottom right, #607D8B, #455A64);
+                                       -fx-background-radius: 12; -fx-cursor: hand;"
+                                GridPane.columnIndex="3" GridPane.rowIndex="0">
+                            <graphic>
+                                <VBox alignment="CENTER" spacing="6">
+                                    <Label style="-fx-font-size: 26px;" text="🚜" />
+                                    <Label style="-fx-font-size: 13px; -fx-text-fill: white; -fx-font-weight: bold;" text="Mon Matériel">
+                                        <font><Font name="System Bold" size="13" /></font>
+                                    </Label>
+                                </VBox>
+                            </graphic>
+                        </Button>
+                    </GridPane>
+                </VBox>
+
+            </VBox>
+        </ScrollPane>
+    </center>
+
+</BorderPane>

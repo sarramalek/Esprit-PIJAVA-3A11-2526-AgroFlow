@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<BorderPane  style="-fx-background-color: #fcf8e6;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.AjoutPersonne">
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+
+      spacing="20" style="-fx-background-color: white; -fx-padding: 30;">
+
+    <!-- Titre -->
+    <Label text="Ajouter un Employé" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;">
+        <font>
+            <Font name="System Bold" size="24.0"/>
+        </font>
+    </Label>
+
+    <!-- Message d'erreur -->
+    <Label fx:id="errorLabel" visible="false" wrapText="true"
+           style="-fx-text-fill: #D32F2F; -fx-font-size: 12px;"/>
+
+    <!-- Formulaire -->
+    <GridPane hgap="15" vgap="15">
+        <columnConstraints>
+            <ColumnConstraints minWidth="120" prefWidth="120"/>
+            <ColumnConstraints minWidth="250" prefWidth="250"/>
+        </columnConstraints>
+
+        <!-- CIN -->
+        <Label text="CIN *" GridPane.rowIndex="0" GridPane.columnIndex="0"
+               style="-fx-font-size: 14px; -fx-text-fill: #34495E;"/>
+        <TextField fx:id="cinField" promptText="Ex: 12345678"
+                   GridPane.rowIndex="0" GridPane.columnIndex="1"
+                   style="-fx-font-size: 13px; -fx-padding: 8;"/>
+
+        <!-- Nom -->
+        <Label text="Nom *" GridPane.rowIndex="1" GridPane.columnIndex="0"
+               style="-fx-font-size: 14px; -fx-text-fill: #34495E;"/>
+        <TextField fx:id="nomField" promptText="Nom de famille"
+                   GridPane.rowIndex="1" GridPane.columnIndex="1"
+                   style="-fx-font-size: 13px; -fx-padding: 8;"/>
+
+        <!-- Prénom -->
+        <Label text="Prénom *" GridPane.rowIndex="2" GridPane.columnIndex="0"
+               style="-fx-font-size: 14px; -fx-text-fill: #34495E;"/>
+        <TextField fx:id="prenomField" promptText="Prénom"
+                   GridPane.rowIndex="2" GridPane.columnIndex="1"
+                   style="-fx-font-size: 13px; -fx-padding: 8;"/>
+
+        <!-- Email -->
+        <Label text="Email *" GridPane.rowIndex="3" GridPane.columnIndex="0"
+               style="-fx-font-size: 14px; -fx-text-fill: #34495E;"/>
+        <TextField fx:id="emailField" promptText="exemple@email.com"
+                   GridPane.rowIndex="3" GridPane.columnIndex="1"
+                   style="-fx-font-size: 13px; -fx-padding: 8;"/>
+
+        <!-- Mot de passe -->
+        <Label text="Mot de passe *" GridPane.rowIndex="4" GridPane.columnIndex="0"
+               style="-fx-font-size: 14px; -fx-text-fill: #34495E;"/>
+        <PasswordField fx:id="passwordField" promptText="Minimum 6 caractères"
+                       GridPane.rowIndex="4" GridPane.columnIndex="1"
+                       style="-fx-font-size: 13px; -fx-padding: 8;"/>
+
+        <!-- Téléphone -->
+        <Label text="Téléphone *" GridPane.rowIndex="5" GridPane.columnIndex="0"
+               style="-fx-font-size: 14px; -fx-text-fill: #34495E;"/>
+        <TextField fx:id="telField" promptText="Ex: 0612345678"
+                   GridPane.rowIndex="5" GridPane.columnIndex="1"
+                   style="-fx-font-size: 13px; -fx-padding: 8;"/>
+
+        <!-- Date de naissance -->
+        <Label text="Date de naissance" GridPane.rowIndex="6" GridPane.columnIndex="0"
+               style="-fx-font-size: 14px; -fx-text-fill: #34495E;"/>
+        <DatePicker fx:id="dateNaissancePicker" promptText="Sélectionner une date"
+                    GridPane.rowIndex="6" GridPane.columnIndex="1"
+                    style="-fx-font-size: 13px;" prefWidth="250"/>
+
+        <!-- Adresse -->
+        <Label text="Adresse" GridPane.rowIndex="7" GridPane.columnIndex="0"
+               style="-fx-font-size: 14px; -fx-text-fill: #34495E;"/>
+        <TextField fx:id="adresseField" promptText="Adresse complète"
+                   GridPane.rowIndex="7" GridPane.columnIndex="1"
+                   style="-fx-font-size: 13px; -fx-padding: 8;"/>
+
+        <!-- Ville -->
+        <Label text="Ville" GridPane.rowIndex="8" GridPane.columnIndex="0"
+               style="-fx-font-size: 14px; -fx-text-fill: #34495E;"/>
+        <TextField fx:id="villeField" promptText="Ville"
+                   GridPane.rowIndex="8" GridPane.columnIndex="1"
+                   style="-fx-font-size: 13px; -fx-padding: 8;"/>
+    </GridPane>
+
+    <!-- Note obligatoire -->
+    <Label text="* Champs obligatoires" style="-fx-font-size: 11px; -fx-text-fill: #7F8C8D; -fx-font-style: italic;"/>
+
+    <!-- Boutons -->
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Button fx:id="cancelButton" text="Annuler" onAction="#handleCancel"
+                style="-fx-background-color: #95A5A6; -fx-text-fill: white; -fx-font-size: 14px;
+                       -fx-padding: 10 30; -fx-background-radius: 5; -fx-cursor: hand;"
+                minWidth="120"/>
+        <Button fx:id="saveButton" text="Enregistrer" onAction="#handleSave"
+                style="-fx-background-color: #27AE60; -fx-text-fill: white; -fx-font-size: 14px;
+                       -fx-padding: 10 30; -fx-background-radius: 5; -fx-cursor: hand;"
+                minWidth="120" defaultButton="true"/>
+    </HBox>
+
+</VBox>
+</BorderPane>

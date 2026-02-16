@@ -4,7 +4,7 @@ import java.util.Objects;
 
 public class offres {
     private int id_offres;
-    private String nom_offre;
+    private static String nom_offre;
     private String description;
     private float prix;
     private int duree_offre;
@@ -28,7 +28,7 @@ public class offres {
         this.id_offres = id_offres;
     }
 
-    public String getNom_offre() {
+    public static String getNom_offre() {
         return nom_offre;
     }
 
@@ -82,4 +82,6 @@ public class offres {
                 ", duree_offre=" + duree_offre +
                 '}';
     }
+
+
 }

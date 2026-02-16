@@ -1,5 +1,8 @@
 package models;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+
 public class Abonnements {
     private int id_abonn;
     private int cin;
@@ -82,5 +85,7 @@ public class Abonnements {
                 ", situation='" + situation + '\'' +
                 '}';
     }
+
+
 
 }
