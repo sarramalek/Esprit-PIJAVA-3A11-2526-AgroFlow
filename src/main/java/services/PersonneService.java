@@ -102,6 +102,70 @@ public class PersonneService implements IService<Personne> {
         }
         return null;
     }
+    public Personne authenticate(String email, String password) throws SQLException {
+        String query = "SELECT * FROM users WHERE email = ? AND mdp = ?";
+
+        try (PreparedStatement pst = connection.prepareStatement(query)) {
+            pst.setString(1, email);
+            pst.setString(2, password);
+
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    // Créer l'objet Personne approprié selon le rôle
+                    Personne personne = createPersonneFromResultSet(rs);
+                    System.out.println("✅ Authentification réussie pour: " + email + " (Rôle: " + personne.getRole() + ")");
+                    return personne;
+                } else {
+                    System.out.println("❌ Authentification échouée pour: " + email);
+                    return null;
+                }
+            }
+        }
+    }
+
+    /**
+     * Recherche un utilisateur par son email
+     * @param email L'email à rechercher
+     * @return L'utilisateur trouvé ou null
+     */
+    public Personne rechercherParEmail(String email) throws SQLException {
+        String query = "SELECT * FROM users WHERE email = ?";
+
+        try (PreparedStatement pst = connection.prepareStatement(query)) {
+            pst.setString(1, email);
+
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    return createPersonneFromResultSet(rs);
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Vérifie si un email existe déjà dans la base
+     * @param email L'email à vérifier
+     * @return true si l'email existe
+     */
+    public boolean emailExists(String email) throws SQLException {
+        String query = "SELECT COUNT(*) FROM users WHERE email = ?";
+
+        try (PreparedStatement pst = connection.prepareStatement(query)) {
+            pst.setString(1, email);
+
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        }
+        return false;
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // MÉTHODES EXISTANTES
+    // ═══════════════════════════════════════════════════════════════
 
     // Méthode helper pour créer la bonne instance selon le rôle
     private Personne createPersonneFromResultSet(ResultSet rs) throws SQLException {
@@ -177,5 +241,4 @@ public class PersonneService implements IService<Personne> {
             }
         }
         return admins;
-    }
-}
+    }}

@@ -1,8 +1,5 @@
 package controllers;
 
-import javafx.scene.layout.VBox;
-import models.Personne;
-import services.PersonneService;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -10,257 +7,234 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.event.ActionEvent;
 import javafx.stage.Stage;
+import models.Personne;
+import models.Admin;
+import models.Employe;
+import models.Utilisateur;
+import services.PersonneService;
+import utils.SessionManager;
 
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
+/**
+ * Contrôleur pour la page d'authentification
+ * Compatible avec le système existant (cin, role int, PersonneService)
+ */
 public class Authentification {
-    //sub menu
-    @FXML private VBox gestionSubmenu, operationsSubmenu,gestionContainer;
-    @FXML private Button gestionToggle, operationsToggle;
-    @FXML private Button gestionBtn;
 
-    @FXML private ToggleButton adminToggle;
-    @FXML private ToggleButton agricoleToggle;
-    @FXML private ToggleButton employeToggle;
-    @FXML private TextField emailField;
-    @FXML private PasswordField passwordField;
-    @FXML private Button loginButton;
-    @FXML private Hyperlink forgotPasswordLink;
-    @FXML private Hyperlink signupLink;
-    @FXML private Label errorLabel;
+    @FXML
+    private TextField emailField;
 
-    private ToggleGroup userTypeGroup;
-    private String currentUserType = "Agricole";
+    @FXML
+    private PasswordField passwordField;
+
+    @FXML
+    private Label errorLabel;
+
+    @FXML
+    private Hyperlink forgotPasswordLink;
+
+    @FXML
+    private Hyperlink signupLink;
+
+    @FXML
+    private Button loginButton;
+
     private PersonneService personneService;
 
     /**
      * Initialisation du contrôleur
      */
     @FXML
-    public void initialize() {
-        // Initialiser le service Personne
-        try {
-            personneService = new PersonneService();
-            System.out.println("✓ PersonneService initialisé");
-        } catch (Exception e) {
-            System.err.println("✗ Erreur lors de l'initialisation du PersonneService");
-            e.printStackTrace();
-            showError("Erreur de connexion à la base de données");
-        }
+    private void initialize() {
+        personneService = new PersonneService();
 
-        // Créer un ToggleGroup pour les boutons Admin/Agricole/Employé
-        userTypeGroup = new ToggleGroup();
-        adminToggle.setToggleGroup(userTypeGroup);
-        agricoleToggle.setToggleGroup(userTypeGroup);
-        if (employeToggle != null) {
-            employeToggle.setToggleGroup(userTypeGroup);
-        }
+        // Cacher le message d'erreur au démarrage
+        hideError();
 
-        // Par défaut, sélectionner Agricole
-        agricoleToggle.setSelected(true);
-
-        // Gérer le changement de sélection
-        userTypeGroup.selectedToggleProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue == adminToggle) {
-                currentUserType = "Admin";
-                updateToggleStyles();
-            } else if (newValue == agricoleToggle) {
-                currentUserType = "Agricole";
-                updateToggleStyles();
-            } else if (employeToggle != null && newValue == employeToggle) {
-                currentUserType = "Employé";
-                updateToggleStyles();
+        // Listener pour effacer l'erreur lors de la saisie
+        emailField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (errorLabel.isVisible()) {
+                hideError();
             }
         });
 
-        // Ajouter un effet hover sur le bouton de connexion
-        loginButton.setOnMouseEntered(e ->
-                loginButton.setStyle("-fx-background-color: #45a049; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;")
-        );
-        loginButton.setOnMouseExited(e ->
-                loginButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;")
-        );
-
-        // Permettre la connexion avec la touche Entrée
-        passwordField.setOnAction(event -> handleLogin(event));
+        passwordField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (errorLabel.isVisible()) {
+                hideError();
+            }
+        });
     }
 
     /**
-     * Mettre à jour les styles des boutons toggle
-     */
-    private void updateToggleStyles() {
-        String selectedStyle = "-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 14px; -fx-cursor: hand;";
-        String unselectedStyle = "-fx-background-color: #dcedc8; -fx-text-fill: #666666; -fx-font-size: 14px; -fx-cursor: hand;";
-
-        adminToggle.setStyle(currentUserType.equals("Admin") ? selectedStyle : unselectedStyle);
-        agricoleToggle.setStyle(currentUserType.equals("Agricole") ? selectedStyle : unselectedStyle);
-        if (employeToggle != null) {
-            employeToggle.setStyle(currentUserType.equals("Employé") ? selectedStyle : unselectedStyle);
-        }
-    }
-
-    /**
-     * Gérer la connexion
+     * Gère le clic sur le bouton de connexion
      */
     @FXML
     private void handleLogin(ActionEvent event) {
+        // Récupération des valeurs
         String email = emailField.getText().trim();
         String password = passwordField.getText();
 
-        // Validation des champs
+        // Validation basique
         if (email.isEmpty() || password.isEmpty()) {
             showError("Veuillez remplir tous les champs");
             return;
         }
 
-        // Validation du format email
+        // Validation format email
         if (!isValidEmail(email)) {
             showError("Format d'email invalide");
             return;
         }
 
-        // Désactiver le bouton pendant la connexion
+        // Désactiver le bouton pendant l'authentification
         loginButton.setDisable(true);
-        loginButton.setText("Connexion...");
 
         try {
-            // Authentifier l'utilisateur
-            Personne authenticatedUser = authenticateUser(email, password, currentUserType);
+            // Authentification
+            Personne personne = authenticate(email, password);
 
-            if (authenticatedUser != null) {
+            if (personne != null) {
+                // Authentification réussie
                 hideError();
-                showSuccess("Connexion réussie !");
 
-                // Afficher les informations de l'utilisateur connecté
-                System.out.println("========================================");
-                System.out.println("UTILISATEUR CONNECTÉ:");
-                System.out.println("CIN: " + authenticatedUser.getCin());
-                System.out.println("Nom: " + authenticatedUser.getNom());
-                System.out.println("Prénom: " + authenticatedUser.getPrenom());
-                System.out.println("Email: " + authenticatedUser.getEmail());
-                System.out.println("Rôle: " + authenticatedUser.getRole());
-                System.out.println("Type: " + authenticatedUser.getClass().getSimpleName());
-                System.out.println("========================================");
+                // Sauvegarder la session utilisateur
+                SessionManager.setCurrentUser(personne);
 
-                // NAVIGATION vers le dashboard approprié selon le rôle
-                navigateToDashboard(authenticatedUser);
+                // Afficher un message de bienvenue
+                System.out.println("════════════════════════════════════════");
+                System.out.println("✅ CONNEXION RÉUSSIE");
+                System.out.println("   Utilisateur: " + personne.getPrenom() + " " + personne.getNom());
+                System.out.println("   Email: " + personne.getEmail());
+                System.out.println("   Rôle: " + getRoleName(personne.getRole()));
+                System.out.println("════════════════════════════════════════");
+
+                // Redirection selon le rôle
+                redirectToDashboard(personne);
 
             } else {
-                showError("Email, mot de passe ou type d'utilisateur incorrect");
+                // Authentification échouée
+                showError("Email ou mot de passe incorrect");
             }
+
         } catch (SQLException e) {
-            System.err.println("✗ Erreur SQL lors de l'authentification:");
-            e.printStackTrace();
             showError("Erreur de connexion à la base de données");
-        } catch (Exception e) {
-            System.err.println("✗ Erreur lors de l'authentification:");
             e.printStackTrace();
-            showError("Une erreur est survenue");
+
+        } catch (Exception e) {
+            showError("Erreur lors de la connexion. Veuillez réessayer.");
+            e.printStackTrace();
+
         } finally {
             // Réactiver le bouton
             loginButton.setDisable(false);
-            loginButton.setText("Se connecter");
         }
     }
 
     /**
-     * Naviguer vers le dashboard approprié selon le rôle
+     * Authentifie un utilisateur avec email et mot de passe
+     * Le rôle est récupéré automatiquement depuis la table users
      */
+    private Personne authenticate(String email, String password) throws SQLException {
+        // Récupérer tous les utilisateurs
+        List<Personne> personnes = personneService.recuperer();
+
+        // Chercher l'utilisateur avec l'email et mot de passe correspondants
+        for (Personne p : personnes) {
+            if (p.getEmail().equalsIgnoreCase(email) && p.getMdp().equals(password)) {
+                // Utilisateur trouvé
+                return p;
+            }
+        }
+
+        // Aucun utilisateur trouvé
+        return null;
+    }
+
     /**
-     * Naviguer vers le dashboard approprié selon le rôle
+     * Redirige vers le dashboard approprié selon le rôle de l'utilisateur
      */
-    private void navigateToDashboard(Personne user) {
+    private void redirectToDashboard(Personne personne) {
         try {
             String fxmlPath;
             String title;
 
-            switch (user.getRole()) {
-                case 3 -> {
+            // Déterminer quelle vue charger selon le rôle
+            // role = 1 : Utilisateur (Agricole)
+            // role = 2 : Employé
+            // role = 3 : Admin
+            int role = personne.getRole();
+
+            switch (role) {
+                case 3 -> { // Admin
                     fxmlPath = "/Acceuil.fxml";
                     title = "AgroFlow - Dashboard Admin";
                 }
-                case 2 -> {
+                case 2 -> { // Employé
                     fxmlPath = "/AcceuilEmp.fxml";
                     title = "AgroFlow - Dashboard Employé";
                 }
-                case 1 -> {
+                case 1 -> { // Utilisateur (Agricole)
                     fxmlPath = "/AcceuillAgr.fxml";
-                    title = "AgroFlow - Dashboard Agricole";
+                    title = "AgroFlow - Dashboard Utilisateur";
                 }
                 default -> {
-                    fxmlPath = "/Acceuill.fxml";
-                    title = "AgroFlow - Dashboard";
+                    showError("Rôle utilisateur non reconnu");
+                    return;
                 }
             }
 
+            System.out.println("\n========================================");
             System.out.println("🚀 Navigation vers: " + fxmlPath);
-
-            // Vérifier que le fichier existe
-            var resource = getClass().getResource(fxmlPath);
-            if (resource == null) {
-                System.err.println("✗ FXML introuvable: " + fxmlPath);
-                showError("Fichier " + fxmlPath + " introuvable");
-                return;
-            }
-
-            System.out.println("✓ Fichier FXML trouvé");
+            System.out.println("👤 Utilisateur: " + personne.getNom() + " " + personne.getPrenom());
+            System.out.println("📋 Rôle: " + personne.getRole());
 
             // Charger le FXML
-            FXMLLoader loader = new FXMLLoader(resource);
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
             System.out.println("✓ FXML chargé");
 
-            // CRITIQUE: Récupérer le contrôleur et passer l'utilisateur
+            // Récupérer le contrôleur et transférer l'utilisateur
             Object controller = loader.getController();
 
-            if (controller == null) {
-                System.err.println("✗ ERREUR CRITIQUE: controller est NULL après load() !");
-                showError("Erreur de chargement du contrôleur");
-                return;
-            }
+            if (controller != null) {
+                System.out.println("✓ Contrôleur: " + controller.getClass().getSimpleName());
 
-            System.out.println("✓ Contrôleur récupéré: " + controller.getClass().getSimpleName());
+                // Utiliser instanceof pour chaque type de contrôleur
+                boolean userTransferred = false;
 
-            // Passer l'utilisateur au contrôleur approprié
-            System.out.println("📤 Transfert de l'utilisateur...");
+                if (controller instanceof AcceuilEmploye) {
+                    ((AcceuilEmploye) controller).setCurrentUser(personne);
+                    userTransferred = true;
+                } else if (controller instanceof AcceuilAgricole) {
+                    ((AcceuilAgricole) controller).setCurrentUser(personne);
+                    userTransferred = true;
+                } else if (controller instanceof Acceuil) {
+                    ((Acceuil) controller).setCurrentUser(personne);
+                    userTransferred = true;
+                } else if (controller instanceof DashboardPersonnes) {
+                    ((DashboardPersonnes) controller).setCurrentUser(personne);
+                    userTransferred = true;
+                }
 
-            if (controller instanceof AcceuilEmploye) {
-                System.out.println("  → Contrôleur: AcceuilEmploye");
-                ((AcceuilEmploye) controller).setCurrentUser(user);
-                System.out.println("✓ Utilisateur passé à AcceuilEmploye");
-
-            } else if (controller instanceof AcceuilAgricole) {
-                System.out.println("  → Contrôleur: AcceuilAgricole");
-                ((AcceuilAgricole) controller).setCurrentUser(user);
-                System.out.println("✓ Utilisateur passé à AcceuilAgricole");
-
-            } else if (controller instanceof Acceuil) {
-                System.out.println("  → Contrôleur: Acceuil (Admin)");
-                ((Acceuil) controller).setCurrentUser(user);
-                System.out.println("✓ Utilisateur passé à Acceuil");
-
-            } else if (controller instanceof DashboardPersonnes) {
-                System.out.println("  → Contrôleur: DashboardPersonnes");
-                ((DashboardPersonnes) controller).setCurrentUser(user);
-                System.out.println("✓ Utilisateur passé à DashboardPersonnes");
-
+                if (userTransferred) {
+                    System.out.println("✓ Utilisateur transféré au contrôleur");
+                } else {
+                    System.err.println("⚠️ Type de contrôleur non géré: " + controller.getClass().getName());
+                }
             } else {
-                System.err.println("⚠️ Type de contrôleur inconnu: " + controller.getClass().getName());
-                System.err.println("⚠️ L'utilisateur ne sera pas passé !");
+                System.err.println("✗ Contrôleur est NULL !");
             }
 
-            // Changer de scène
+            // Obtenir la scène actuelle et changer de scène
             Stage stage = (Stage) loginButton.getScene().getWindow();
-            if (stage == null) {
-                System.err.println("✗ Stage est NULL !");
-                return;
-            }
-
-            stage.setScene(new Scene(root, 1200, 700));
+            Scene scene = new Scene(root, 1200, 700);
+            stage.setScene(scene);
             stage.setTitle(title);
             stage.centerOnScreen();
+            stage.show();
 
             System.out.println("✓ Navigation réussie vers le dashboard");
             System.out.println("========================================\n");
@@ -269,142 +243,96 @@ public class Authentification {
             System.err.println("✗ Erreur lors de la navigation:");
             e.printStackTrace();
             showError("Impossible de charger le dashboard: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("✗ Erreur inattendue lors de la redirection:");
+            e.printStackTrace();
+            showError("Erreur lors de la redirection");
         }
     }
+
+
     /**
-     * Authentifier l'utilisateur en utilisant PersonneService
+     * Obtient le nom du rôle en texte
      */
-    private Personne authenticateUser(String email, String password, String userType) throws SQLException {
-        System.out.println("🔍 Tentative de connexion:");
-        System.out.println("  Email: " + email);
-        System.out.println("  Type demandé: " + userType);
-
-        // Déterminer le rôle recherché
-        int roleRecherche = 0;
-        if (userType.equals("Admin")) {
-            roleRecherche = 3; // Admin
-        } else if (userType.equals("Agricole")) {
-            roleRecherche = 1; // Agricole
-        } else if (userType.equals("Employé")) {
-            roleRecherche = 2; // Employé
+    private String getRoleName(int role) {
+        switch (role) {
+            case 1: return "Utilisateur (Agricole)";
+            case 2: return "Employé";
+            case 3: return "Administrateur";
+            default: return "Inconnu";
         }
-
-        System.out.println("  Rôle recherché: " + roleRecherche);
-
-        // Récupérer toutes les personnes
-        List<Personne> personnes = personneService.recuperer();
-
-        // Chercher l'utilisateur avec l'email, le mot de passe et le rôle correspondants
-        for (Personne personne : personnes) {
-            if (personne.getEmail() != null &&
-                    personne.getEmail().equalsIgnoreCase(email) &&
-                    personne.getMdp() != null &&
-                    personne.getMdp().equals(password) &&
-                    personne.getRole() == roleRecherche) {
-
-                System.out.println("✓ Utilisateur trouvé et authentifié!");
-                return personne;
-            }
-        }
-
-        System.out.println("✗ Aucun utilisateur trouvé avec ces identifiants");
-        return null;
     }
 
     /**
-     * Gérer le lien "Mot de passe oublié"
-     */
-    @FXML
-    private void handleForgotPassword(ActionEvent event) {
-        System.out.println("Mot de passe oublié cliqué");
-
-        TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("Récupération de mot de passe");
-        dialog.setHeaderText("Réinitialisation du mot de passe");
-        dialog.setContentText("Entrez votre adresse email:");
-
-        dialog.showAndWait().ifPresent(email -> {
-            if (isValidEmail(email)) {
-                try {
-                    List<Personne> personnes = personneService.recuperer();
-                    boolean emailExists = personnes.stream()
-                            .anyMatch(p -> p.getEmail() != null && p.getEmail().equalsIgnoreCase(email));
-
-                    if (emailExists) {
-                        showInfo(Alert.AlertType.ERROR, "Erreur", "Un email de réinitialisation a été envoyé à: " + email);
-                    } else {
-                        showError("Aucun compte associé à cet email");
-                    }
-                } catch (SQLException e) {
-                    showError("Erreur lors de la vérification de l'email");
-                    e.printStackTrace();
-                }
-            } else {
-                showError("Format d'email invalide");
-            }
-        });
-    }
-
-    /**
-     * Valider le format de l'email
+     * Valide le format de l'email
      */
     private boolean isValidEmail(String email) {
+        if (email == null || email.isEmpty()) {
+            return false;
+        }
         String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
         return email.matches(emailRegex);
     }
 
     /**
-     * Afficher un message d'erreur
+     * Affiche un message d'erreur
      */
     private void showError(String message) {
-        errorLabel.setText("❌ " + message);
-        errorLabel.setStyle("-fx-text-fill: #D32F2F; -fx-font-size: 13px;");
+        errorLabel.setText(message);
         errorLabel.setVisible(true);
     }
 
     /**
-     * Masquer le message d'erreur
+     * Cache le message d'erreur
      */
     private void hideError() {
         errorLabel.setVisible(false);
+        errorLabel.setText("");
     }
 
     /**
-     * Afficher un message de succès
+     * Gère le mot de passe oublié
      */
-    private void showSuccess(String message) {
-        errorLabel.setText("✓ " + message);
-        errorLabel.setStyle("-fx-text-fill: #4CAF50; -fx-font-size: 13px;");
-        errorLabel.setVisible(true);
+    @FXML
+    private void handleForgotPassword(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/ForgotPassword.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = (Stage) forgotPasswordLink.getScene().getWindow();
+            Scene scene = new Scene(root);
+
+            stage.setScene(scene);
+            stage.setTitle("AgroFlow - Mot de passe oublié");
+            stage.show();
+
+        } catch (Exception e) {
+            System.err.println("❌ Impossible de charger la page de récupération");
+            e.printStackTrace();
+            showError("Fonctionnalité temporairement indisponible");
+        }
     }
 
     /**
-     * Afficher un message d'information
+     * Gère la création de compte
      */
-    private void showInfo(Alert.AlertType error, String erreur, String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Information");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-
-    
-    public void handleSignup(ActionEvent actionEvent) {
+    @FXML
+    private void handleSignup(ActionEvent event) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/SignUp.fxml"));
             Parent root = loader.load();
 
-            // Obtenir le stage depuis n'importe quel élément disponible
             Stage stage = (Stage) signupLink.getScene().getWindow();
-
             Scene scene = new Scene(root);
+
             stage.setScene(scene);
-            stage.setTitle("AgroFlow - Inscription");
+            stage.setTitle("AgroFlow - Créer un compte");
             stage.show();
 
-        } catch (IOException e) {
-            showInfo(Alert.AlertType.ERROR, "Erreur", "Impossible de charger la page: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("❌ Impossible de charger la page d'inscription");
+            e.printStackTrace();
+            showError("Fonctionnalité temporairement indisponible");
         }
     }
 }
