@@ -69,11 +69,11 @@ public class AjoutPlanteController {
             Parent root = loader.load();
 
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root));boolean etaitMaximise = stage.isMaximized();  // ← LIGNE 1 : Sauvegarder
+            stage.setScene(new Scene(root));  // ← LIGNE 1 : Sauvegarder
 
-            stage.setScene(new Scene(root));
 
-            stage.setMaximized(etaitMaximise);
+
+
             stage.setTitle("Gestion des Plantes");
             stage.show();
 
