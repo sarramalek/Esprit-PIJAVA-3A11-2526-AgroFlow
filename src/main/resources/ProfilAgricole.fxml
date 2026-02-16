@@ -4,13 +4,12 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-
+<ScrollPane fitToWidth="true" style="-fx-background-color: #fcf8e6; -fx-border-color: transparent;" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controllers.ProfilAgricole">
 <VBox spacing="25" style="-fx-background-color: #F8F9FA; -fx-padding: 40;"
 
-      xmlns="http://javafx.com/javafx/17"
-      xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="controllers.ProfilAgricole">
-    <ScrollPane fitToWidth="true" style="-fx-background-color: #fcf8e6; -fx-border-color: transparent;">
+      xmlns="http://javafx.com/javafx/17">
+
     <!-- Header -->
     <HBox alignment="CENTER_LEFT" spacing="20"
           style="-fx-background-color: linear-gradient(to right, #2E7D32, #4CAF50);
@@ -119,11 +118,12 @@
     </HBox>
 
     <!-- Bouton Fermer -->
-    <Button onAction="#handleFermer" prefHeight="40" prefWidth="120"
+    <Button fx:id="fermerBtn" onAction="#handleFermer" prefHeight="40" prefWidth="120"
             style="-fx-background-color: #95A5A6; -fx-text-fill: white; -fx-font-size: 14px;
                    -fx-background-radius: 8; -fx-cursor: hand;"
             text="Fermer">
         <font><Font name="System" size="14" /></font>
     </Button>
-    </ScrollPane>
+
 </VBox>
+</ScrollPane>

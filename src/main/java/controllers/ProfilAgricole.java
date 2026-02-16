@@ -23,6 +23,7 @@ public class ProfilAgricole {
     @FXML private Label villeLabel;
     @FXML private Label dateNaissLabel;
     @FXML private Button modifierBtn;
+    @FXML private Button fermerBtn;
     @FXML private Button desactiverBtn;
 
     private Personne currentUser;
@@ -127,7 +128,7 @@ public class ProfilAgricole {
 
     @FXML
     private void handleFermer() {
-        Stage stage = (Stage) modifierBtn.getScene().getWindow();
+        Stage stage = (Stage) fermerBtn.getScene().getWindow();
         stage.close();
     }
 

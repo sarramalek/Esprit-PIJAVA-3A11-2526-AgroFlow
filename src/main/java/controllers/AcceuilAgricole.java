@@ -265,7 +265,7 @@ public class AcceuilAgricole {
     // Ajouter cette méthode handleAPropos()
     @FXML
     private void handleAPropos() {
-        navigateTo("/Acceuil_Agr.fxm","ddd");
+        navigateTo("/ProfilAgricole.fxml","ddd");
     }
     private void navigateTo(String fxmlPath, String title) {
         try {

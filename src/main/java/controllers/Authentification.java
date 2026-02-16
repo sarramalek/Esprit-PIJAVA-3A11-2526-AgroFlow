@@ -92,7 +92,7 @@ public class Authentification {
      */
     private void updateToggleStyles() {
         String selectedStyle = "-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 14px; -fx-cursor: hand;";
-        String unselectedStyle = "-fx-background-color: #E8E8E8; -fx-text-fill: #666666; -fx-font-size: 14px; -fx-cursor: hand;";
+        String unselectedStyle = "-fx-background-color: #dcedc8; -fx-text-fill: #666666; -fx-font-size: 14px; -fx-cursor: hand;";
 
         adminToggle.setStyle(currentUserType.equals("Admin") ? selectedStyle : unselectedStyle);
         agricoleToggle.setStyle(currentUserType.equals("Agricole") ? selectedStyle : unselectedStyle);
@@ -168,16 +168,31 @@ public class Authentification {
     /**
      * Naviguer vers le dashboard approprié selon le rôle
      */
+    /**
+     * Naviguer vers le dashboard approprié selon le rôle
+     */
     private void navigateToDashboard(Personne user) {
         try {
             String fxmlPath;
             String title;
 
             switch (user.getRole()) {
-                case 3 -> { fxmlPath = "/Acceuil.fxml";            title = "AgroFlow - Dashboard Admin"; }
-                case 2 -> { fxmlPath = "/AcceuillEmp.fxml"; title = "AgroFlow - Dashboard Employé"; }
-                case 1 -> { fxmlPath = "/AcceuillAgr.fxml";            title = "AgroFlow - Dashboard Agricole"; }
-                default -> { fxmlPath = "/Acceuill.fxml";           title = "AgroFlow - Dashboard"; }
+                case 3 -> {
+                    fxmlPath = "/Acceuil.fxml";
+                    title = "AgroFlow - Dashboard Admin";
+                }
+                case 2 -> {
+                    fxmlPath = "/AcceuilEmp.fxml";
+                    title = "AgroFlow - Dashboard Employé";
+                }
+                case 1 -> {
+                    fxmlPath = "/AcceuillAgr.fxml";
+                    title = "AgroFlow - Dashboard Agricole";
+                }
+                default -> {
+                    fxmlPath = "/Acceuill.fxml";
+                    title = "AgroFlow - Dashboard";
+                }
             }
 
             System.out.println("🚀 Navigation vers: " + fxmlPath);
@@ -185,36 +200,75 @@ public class Authentification {
             // Vérifier que le fichier existe
             var resource = getClass().getResource(fxmlPath);
             if (resource == null) {
-                System.err.println("✗ FXML introuvable: " + fxmlPath + " → fallback Acceuil");
-                resource = getClass().getResource("/Acceuil.fxml");
-                title = "AgroFlow - Dashboard";
+                System.err.println("✗ FXML introuvable: " + fxmlPath);
+                showError("Fichier " + fxmlPath + " introuvable");
+                return;
             }
 
+            System.out.println("✓ Fichier FXML trouvé");
+
+            // Charger le FXML
             FXMLLoader loader = new FXMLLoader(resource);
             Parent root = loader.load();
+            System.out.println("✓ FXML chargé");
 
-            // Le contrôleur doit être casté correctement
+            // CRITIQUE: Récupérer le contrôleur et passer l'utilisateur
             Object controller = loader.getController();
-            if (controller instanceof Acceuil) {
-                ((Acceuil) controller).setCurrentUser(user);
-            } else if (controller instanceof AcceuilAgricole) {
-                ((AcceuilAgricole) controller).setCurrentUser(user);  // ← vérifiez que cette ligne existe
-            } else if (controller instanceof DashboardPersonnes) {
-                ((DashboardPersonnes) controller).setCurrentUser(user);
+
+            if (controller == null) {
+                System.err.println("✗ ERREUR CRITIQUE: controller est NULL après load() !");
+                showError("Erreur de chargement du contrôleur");
+                return;
             }
 
-            Stage stage = (Stage) loginButton.getScene().getWindow();
-            stage.setScene(new Scene(root));
+            System.out.println("✓ Contrôleur récupéré: " + controller.getClass().getSimpleName());
 
+            // Passer l'utilisateur au contrôleur approprié
+            System.out.println("📤 Transfert de l'utilisateur...");
+
+            if (controller instanceof AcceuilEmploye) {
+                System.out.println("  → Contrôleur: AcceuilEmploye");
+                ((AcceuilEmploye) controller).setCurrentUser(user);
+                System.out.println("✓ Utilisateur passé à AcceuilEmploye");
+
+            } else if (controller instanceof AcceuilAgricole) {
+                System.out.println("  → Contrôleur: AcceuilAgricole");
+                ((AcceuilAgricole) controller).setCurrentUser(user);
+                System.out.println("✓ Utilisateur passé à AcceuilAgricole");
+
+            } else if (controller instanceof Acceuil) {
+                System.out.println("  → Contrôleur: Acceuil (Admin)");
+                ((Acceuil) controller).setCurrentUser(user);
+                System.out.println("✓ Utilisateur passé à Acceuil");
+
+            } else if (controller instanceof DashboardPersonnes) {
+                System.out.println("  → Contrôleur: DashboardPersonnes");
+                ((DashboardPersonnes) controller).setCurrentUser(user);
+                System.out.println("✓ Utilisateur passé à DashboardPersonnes");
+
+            } else {
+                System.err.println("⚠️ Type de contrôleur inconnu: " + controller.getClass().getName());
+                System.err.println("⚠️ L'utilisateur ne sera pas passé !");
+            }
+
+            // Changer de scène
+            Stage stage = (Stage) loginButton.getScene().getWindow();
+            if (stage == null) {
+                System.err.println("✗ Stage est NULL !");
+                return;
+            }
+
+            stage.setScene(new Scene(root, 1200, 700));
             stage.setTitle(title);
             stage.centerOnScreen();
 
             System.out.println("✓ Navigation réussie vers le dashboard");
+            System.out.println("========================================\n");
 
         } catch (IOException e) {
             System.err.println("✗ Erreur lors de la navigation:");
             e.printStackTrace();
-            showError("Impossible de charger le dashboard");
+            showError("Impossible de charger le dashboard: " + e.getMessage());
         }
     }
     /**

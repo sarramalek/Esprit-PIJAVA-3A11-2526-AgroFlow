@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<BorderPane  style="-fx-background-color: #F8F9FA;"
+<BorderPane style="-fx-background-color: #F8F9FA;"
             xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="controllers.AcceuilEmploye">
@@ -13,60 +13,85 @@
     <!-- SIDEBAR EMPLOYÉ -->
     <left>
         <VBox prefWidth="250" style="-fx-background-color: linear-gradient(to bottom, #1a237e, #283593, #3949ab);">
-            <padding>
-                <Insets bottom="20" top="20" />
-            </padding>
+            <padding><Insets bottom="20" top="20" /></padding>
 
-            <!-- Logo/Header -->
+            <!-- Logo -->
             <HBox alignment="CENTER" spacing="12" style="-fx-padding: 0 0 35 0;">
                 <Label style="-fx-font-size: 32px;" text="🌱" />
                 <VBox alignment="CENTER_LEFT" spacing="2">
-                    <Label style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: white; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 5, 0, 0, 2);" text="AgroFlow">
+                    <Label style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: white;
+                                  -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 5, 0, 0, 2);"
+                           text="AgroFlow">
                         <font><Font name="System Bold" size="26" /></font>
                     </Label>
-                    <Label style="-fx-font-size: 11px; -fx-text-fill: rgba(255,255,255,0.7);" text="Espace Employé">
+                    <Label style="-fx-font-size: 11px; -fx-text-fill: rgba(255,255,255,0.7);"
+                           text="Espace Employé">
                         <font><Font name="System" size="11" /></font>
                     </Label>
                 </VBox>
             </HBox>
 
             <!-- Info Utilisateur -->
-            <VBox alignment="CENTER" spacing="8" style="-fx-padding: 0 0 30 0; -fx-background-color: rgba(255,255,255,0.1); -fx-background-radius: 15; -fx-padding: 20;">
-                <Label style="-fx-font-size: 24px;" text="👤" />
-                <Label fx:id="userNameLabel" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;" text="Nom Employé">
+            <VBox alignment="CENTER" spacing="8"
+                  style="-fx-background-color: rgba(255,255,255,0.1); -fx-background-radius: 15;
+                         -fx-padding: 20; -fx-margin: 10;">
+                <Label style="-fx-font-size: 30px;" text="👤" />
+                <Label fx:id="userNameLabel"
+                       style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;"
+                       text="Nom Employé">
                     <font><Font name="System Bold" size="16" /></font>
                 </Label>
-                <Label fx:id="userRoleLabel" style="-fx-font-size: 12px; -fx-text-fill: rgba(255,255,255,0.8); -fx-background-color: rgba(76,175,80,0.3); -fx-padding: 4 12; -fx-background-radius: 15;" text="👷 EMPLOYÉ">
+                <Label fx:id="userRoleLabel"
+                       style="-fx-font-size: 12px; -fx-text-fill: rgba(255,255,255,0.8);
+                              -fx-background-color: rgba(76,175,80,0.3); -fx-padding: 4 12;
+                              -fx-background-radius: 15;"
+                       text="👷 EMPLOYÉ">
                     <font><Font name="System Bold" size="12" /></font>
                 </Label>
             </VBox>
 
             <!-- Navigation Menu -->
             <VBox spacing="10" style="-fx-padding: 20 0 0 0;">
-                <!-- Dashboard -->
-                <Button onAction="#handleDashboard" prefHeight="50" prefWidth="230"
-                        style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white; -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand; -fx-border-color: rgba(255,255,255,0.2); -fx-border-width: 1; -fx-border-radius: 12;"
+
+                <!-- Dashboard (actif) -->
+                <Button fx:id="dashboardBtn" onAction="#handleDashboard" prefHeight="50" prefWidth="230"
+                        style="-fx-background-color: linear-gradient(to right, #4CAF50, #45a049);
+                               -fx-text-fill: white; -fx-font-size: 14px; -fx-alignment: CENTER-LEFT;
+                               -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand;
+                               -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0, 0, 2);"
                         text="📊  Dashboard">
                     <font><Font name="System Bold" size="14" /></font>
                 </Button>
 
                 <!-- Mes Tâches -->
                 <Button onAction="#handleMesTaches" prefHeight="50" prefWidth="230"
-                        style="-fx-background-color: linear-gradient(to right, #4CAF50, #45a049); -fx-text-fill: white; -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0, 0, 2);"
+                        style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
+                               -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
+                               -fx-background-radius: 12; -fx-cursor: hand;
+                               -fx-border-color: rgba(255,255,255,0.2); -fx-border-width: 1;
+                               -fx-border-radius: 12;"
                         text="📋  Mes Tâches">
                     <font><Font name="System Bold" size="14" /></font>
                 </Button>
 
                 <!-- Mon Profil -->
                 <Button onAction="#handleMonProfil" prefHeight="50" prefWidth="230"
-                        style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white; -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand; -fx-border-color: rgba(255,255,255,0.2); -fx-border-width: 1; -fx-border-radius: 12;"
+                        style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
+                               -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
+                               -fx-background-radius: 12; -fx-cursor: hand;
+                               -fx-border-color: rgba(255,255,255,0.2); -fx-border-width: 1;
+                               -fx-border-radius: 12;"
                         text="👤  Mon Profil">
                     <font><Font name="System Bold" size="14" /></font>
                 </Button>
 
                 <!-- Rapports -->
                 <Button onAction="#handleRapports" prefHeight="50" prefWidth="230"
-                        style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white; -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand; -fx-border-color: rgba(255,255,255,0.2); -fx-border-width: 1; -fx-border-radius: 12;"
+                        style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
+                               -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
+                               -fx-background-radius: 12; -fx-cursor: hand;
+                               -fx-border-color: rgba(255,255,255,0.2); -fx-border-width: 1;
+                               -fx-border-radius: 12;"
                         text="📈  Rapports">
                     <font><Font name="System Bold" size="14" /></font>
                 </Button>
@@ -74,83 +99,121 @@
 
             <Region VBox.vgrow="ALWAYS" />
 
-            <!-- Logout Button -->
+            <!-- Logout -->
             <Button fx:id="logoutBtn" onAction="#handleLogout" prefHeight="50" prefWidth="230"
-                    style="-fx-background-color: #E74C3C; -fx-text-fill: white; -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 10, 0, 0, 3);"
+                    style="-fx-background-color: #E74C3C; -fx-text-fill: white; -fx-font-size: 14px;
+                           -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22; -fx-background-radius: 12;
+                           -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 10, 0, 0, 3);"
                     text="🚪  Déconnexion">
                 <font><Font name="System Bold" size="14" /></font>
             </Button>
         </VBox>
     </left>
 
-    <!-- Main Content Area -->
+    <!-- CONTENU PRINCIPAL -->
     <center>
         <ScrollPane fitToWidth="true" style="-fx-background-color: #F8F9FA; -fx-border-color: transparent;">
             <VBox spacing="25" style="-fx-background-color: #F8F9FA;">
-                <padding>
-                    <Insets bottom="35" left="35" right="35" top="35" />
-                </padding>
+                <padding><Insets bottom="35" left="35" right="35" top="35" /></padding>
 
-                <!-- Top Bar -->
-                <HBox alignment="CENTER_LEFT" spacing="25" style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 12, 0, 0, 2);">
+                <!-- Header -->
+                <HBox alignment="CENTER_LEFT" spacing="25"
+                      style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 25;
+                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 12, 0, 0, 2);">
                     <VBox spacing="8" HBox.hgrow="ALWAYS">
                         <HBox alignment="CENTER_LEFT" spacing="12">
-                            <Label style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #1a237e;" text="Tableau de Bord Employé">
+                            <Label style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #1a237e;"
+                                   text="Tableau de Bord Employé">
                                 <font><Font name="System Bold" size="32" /></font>
                             </Label>
-                            <Label style="-fx-background-color: #E8EAF6; -fx-text-fill: #3949ab; -fx-padding: 6 12; -fx-background-radius: 20; -fx-font-size: 12px; -fx-font-weight: bold;" text="ACTIF">
+                            <Label style="-fx-background-color: #E8EAF6; -fx-text-fill: #3949ab;
+                                          -fx-padding: 6 12; -fx-background-radius: 20; -fx-font-size: 12px;
+                                          -fx-font-weight: bold;"
+                                   text="ACTIF">
                                 <font><Font name="System Bold" size="12" /></font>
                             </Label>
                         </HBox>
-                        <Label style="-fx-font-size: 15px; -fx-text-fill: #7F8C8D;" text="Gérez vos tâches et consultez vos informations">
+                        <Label style="-fx-font-size: 15px; -fx-text-fill: #7F8C8D;"
+                               text="Gérez vos tâches et consultez vos informations">
                             <font><Font name="System" size="15" /></font>
                         </Label>
                     </VBox>
 
-                    <Label style="-fx-font-size: 28px; -fx-background-color: linear-gradient(to bottom right, #667eea, #764ba2); -fx-text-fill: white; -fx-padding: 15; -fx-background-radius: 50%; -fx-min-width: 60; -fx-min-height: 60; -fx-alignment: center;" text="👷" />
+                    <Label style="-fx-font-size: 28px;
+                                  -fx-background-color: linear-gradient(to bottom right, #667eea, #764ba2);
+                                  -fx-text-fill: white; -fx-padding: 15; -fx-background-radius: 50%;
+                                  -fx-min-width: 60; -fx-min-height: 60; -fx-alignment: center;"
+                           text="👷" />
                 </HBox>
 
                 <!-- Statistiques -->
                 <HBox spacing="20">
-                    <!-- Card Tâches En Cours -->
-                    <VBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 15, 0, 0, 3);" HBox.hgrow="ALWAYS">
+                    <!-- Tâches En Cours -->
+                    <VBox spacing="15"
+                          style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 25;
+                                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 15, 0, 0, 3);"
+                          HBox.hgrow="ALWAYS">
                         <HBox alignment="CENTER_LEFT" spacing="15">
-                            <Label style="-fx-font-size: 40px; -fx-background-color: linear-gradient(to bottom right, #F39C12, #E67E22); -fx-text-fill: white; -fx-padding: 15; -fx-background-radius: 15;" text="📋" />
+                            <Label style="-fx-font-size: 40px;
+                                          -fx-background-color: linear-gradient(to bottom right, #F39C12, #E67E22);
+                                          -fx-text-fill: white; -fx-padding: 15; -fx-background-radius: 15;"
+                                   text="📋" />
                             <VBox spacing="5">
-                                <Label style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;" text="0">
+                                <Label fx:id="tachesEnCoursLabel"
+                                       style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;"
+                                       text="0">
                                     <font><Font name="System Bold" size="28" /></font>
                                 </Label>
-                                <Label style="-fx-font-size: 14px; -fx-text-fill: #7F8C8D;" text="Tâches en cours">
+                                <Label style="-fx-font-size: 14px; -fx-text-fill: #7F8C8D;"
+                                       text="Tâches en cours">
                                     <font><Font name="System" size="14" /></font>
                                 </Label>
                             </VBox>
                         </HBox>
                     </VBox>
 
-                    <!-- Card Tâches Terminées -->
-                    <VBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 15, 0, 0, 3);" HBox.hgrow="ALWAYS">
+                    <!-- Tâches Terminées -->
+                    <VBox spacing="15"
+                          style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 25;
+                                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 15, 0, 0, 3);"
+                          HBox.hgrow="ALWAYS">
                         <HBox alignment="CENTER_LEFT" spacing="15">
-                            <Label style="-fx-font-size: 40px; -fx-background-color: linear-gradient(to bottom right, #27AE60, #229954); -fx-text-fill: white; -fx-padding: 15; -fx-background-radius: 15;" text="✓" />
+                            <Label style="-fx-font-size: 40px;
+                                          -fx-background-color: linear-gradient(to bottom right, #27AE60, #229954);
+                                          -fx-text-fill: white; -fx-padding: 15; -fx-background-radius: 15;"
+                                   text="✓" />
                             <VBox spacing="5">
-                                <Label style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;" text="0">
+                                <Label fx:id="tachesTermineesLabel"
+                                       style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;"
+                                       text="0">
                                     <font><Font name="System Bold" size="28" /></font>
                                 </Label>
-                                <Label style="-fx-font-size: 14px; -fx-text-fill: #7F8C8D;" text="Tâches terminées">
+                                <Label style="-fx-font-size: 14px; -fx-text-fill: #7F8C8D;"
+                                       text="Tâches terminées">
                                     <font><Font name="System" size="14" /></font>
                                 </Label>
                             </VBox>
                         </HBox>
                     </VBox>
 
-                    <!-- Card Tâches En Retard -->
-                    <VBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 15, 0, 0, 3);" HBox.hgrow="ALWAYS">
+                    <!-- Tâches En Retard -->
+                    <VBox spacing="15"
+                          style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 25;
+                                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 15, 0, 0, 3);"
+                          HBox.hgrow="ALWAYS">
                         <HBox alignment="CENTER_LEFT" spacing="15">
-                            <Label style="-fx-font-size: 40px; -fx-background-color: linear-gradient(to bottom right, #E74C3C, #C0392B); -fx-text-fill: white; -fx-padding: 15; -fx-background-radius: 15;" text="⚠️" />
+                            <Label style="-fx-font-size: 40px;
+                                          -fx-background-color: linear-gradient(to bottom right, #E74C3C, #C0392B);
+                                          -fx-text-fill: white; -fx-padding: 15; -fx-background-radius: 15;"
+                                   text="⚠️" />
                             <VBox spacing="5">
-                                <Label style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;" text="0">
+                                <Label fx:id="tachesEnRetardLabel"
+                                       style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;"
+                                       text="0">
                                     <font><Font name="System Bold" size="28" /></font>
                                 </Label>
-                                <Label style="-fx-font-size: 14px; -fx-text-fill: #7F8C8D;" text="En retard">
+                                <Label style="-fx-font-size: 14px; -fx-text-fill: #7F8C8D;"
+                                       text="En retard">
                                     <font><Font name="System" size="14" /></font>
                                 </Label>
                             </VBox>
@@ -159,47 +222,63 @@
                 </HBox>
 
                 <!-- Mes Tâches Récentes -->
-                <VBox spacing="20" style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 30; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 15, 0, 0, 3);">
+                <VBox spacing="20"
+                      style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 30;
+                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 15, 0, 0, 3);">
                     <HBox alignment="CENTER_LEFT" spacing="15">
-                        <Label style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;" text="📋 Mes Tâches Récentes">
+                        <Label style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;"
+                               text="📋 Mes Tâches Récentes">
                             <font><Font name="System Bold" size="22" /></font>
                         </Label>
                         <Region HBox.hgrow="ALWAYS" />
                         <Button onAction="#handleMesTaches"
-                                style="-fx-background-color: #3498DB; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10 20; -fx-background-radius: 8; -fx-cursor: hand;"
+                                style="-fx-background-color: #3498DB; -fx-text-fill: white; -fx-font-size: 14px;
+                                       -fx-padding: 10 20; -fx-background-radius: 8; -fx-cursor: hand;"
                                 text="Voir tout →">
                             <font><Font name="System Bold" size="14" /></font>
                         </Button>
                     </HBox>
 
-                    <!-- Liste vide -->
-                    <VBox alignment="CENTER" spacing="15" style="-fx-padding: 40;">
-                        <Label style="-fx-font-size: 48px;" text="📭" />
-                        <Label style="-fx-font-size: 16px; -fx-text-fill: #95A5A6;" text="Aucune tâche récente">
-                            <font><Font name="System" size="16" /></font>
-                        </Label>
-                        <Label style="-fx-font-size: 14px; -fx-text-fill: #BDC3C7;" text="Vos tâches assignées apparaîtront ici">
-                            <font><Font name="System" size="14" /></font>
-                        </Label>
+                    <!-- Container pour les tâches récentes (rempli dynamiquement) -->
+                    <VBox fx:id="recentTasksContainer" spacing="10">
+                        <!-- État vide par défaut -->
+                        <VBox alignment="CENTER" spacing="15" style="-fx-padding: 40;">
+                            <Label style="-fx-font-size: 48px;" text="📭" />
+                            <Label style="-fx-font-size: 16px; -fx-text-fill: #95A5A6;"
+                                   text="Aucune tâche récente">
+                                <font><Font name="System" size="16" /></font>
+                            </Label>
+                            <Label style="-fx-font-size: 14px; -fx-text-fill: #BDC3C7;"
+                                   text="Vos tâches assignées apparaîtront ici">
+                                <font><Font name="System" size="14" /></font>
+                            </Label>
+                        </VBox>
                     </VBox>
                 </VBox>
 
                 <!-- Informations -->
-                <VBox spacing="20" style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 30; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 15, 0, 0, 3);">
-                    <Label style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;" text="ℹ️ Informations">
+                <VBox spacing="20"
+                      style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 30;
+                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 15, 0, 0, 3);">
+                    <Label style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;"
+                           text="ℹ️ Informations">
                         <font><Font name="System Bold" size="22" /></font>
                     </Label>
                     <VBox spacing="12">
-                        <Label style="-fx-font-size: 14px; -fx-text-fill: #34495E;" text="• Consultez vos tâches assignées dans l'onglet 'Mes Tâches'">
+                        <Label style="-fx-font-size: 14px; -fx-text-fill: #34495E;"
+                               text="• Consultez vos tâches assignées dans l'onglet 'Mes Tâches'">
                             <font><Font name="System" size="14" /></font>
                         </Label>
-                        <Label style="-fx-font-size: 14px; -fx-text-fill: #34495E;" text="• Mettez à jour le statut de vos tâches au fur et à mesure">
+                        <Label style="-fx-font-size: 14px; -fx-text-fill: #34495E;"
+                               text="• Mettez à jour le statut de vos tâches au fur et à mesure">
                             <font><Font name="System" size="14" /></font>
                         </Label>
-                        <Label style="-fx-font-size: 14px; -fx-text-fill: #34495E;" text="• Consultez les rapports d'activité en lecture seule">
+                        <Label style="-fx-font-size: 14px; -fx-text-fill: #34495E;"
+                               text="• Consultez les rapports d'activité en lecture seule">
                             <font><Font name="System" size="14" /></font>
                         </Label>
-                        <Label style="-fx-font-size: 14px; -fx-text-fill: #34495E;" text="• Modifiez votre profil dans l'onglet 'Mon Profil'">
+                        <Label style="-fx-font-size: 14px; -fx-text-fill: #34495E;"
+                               text="• Modifiez votre profil dans l'onglet 'Mon Profil'">
                             <font><Font name="System" size="14" /></font>
                         </Label>
                     </VBox>
