@@ -81,4 +81,23 @@ public class CategorieService implements IService<Categorie> {
         }
         return false;
     }
+    public String getNomById(int id) throws SQLException {
+        if (id <= 0) return "Non défini";
+
+        // REMPLACEZ 'id' PAR LE NOM RÉEL DE VOTRE COLONNE (ex: id_categorie)
+        String query = "SELECT nom FROM categorie WHERE id_categorie = ?";
+
+        try (java.sql.PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, id);
+            try (java.sql.ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("nom");
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Erreur SQL getNomById : " + e.getMessage());
+            throw e;
+        }
+        return "Inconnue";
+    }
 }

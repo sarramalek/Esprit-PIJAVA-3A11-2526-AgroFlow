@@ -13,47 +13,17 @@
                     <font><Font name="System Bold" size="24.0" /></font>
                     <VBox.margin><Insets bottom="20.0" left="20.0" top="30.0" /></VBox.margin>
                 </Label>
-
-                <Button alignment="BASELINE_LEFT" maxWidth="Infinity" prefHeight="45.0" style="-fx-background-color: transparent; -fx-text-fill: #bdc3c7;" text="🐾  Gestion Animaux">
-                    <padding><Insets left="20.0" /></padding>
-                </Button>
-
-                <Button alignment="BASELINE_LEFT" maxWidth="Infinity" prefHeight="45.0" style="-fx-background-color: transparent; -fx-text-fill: #bdc3c7;" text="🚜  Gestion Matériels">
-                    <padding><Insets left="20.0" /></padding>
-                </Button>
-
+                <Button alignment="BASELINE_LEFT" maxWidth="Infinity" prefHeight="45.0" style="-fx-background-color: transparent; -fx-text-fill: #bdc3c7;" text="🐾  Gestion Animaux" />
+                <Button alignment="BASELINE_LEFT" maxWidth="Infinity" prefHeight="45.0" style="-fx-background-color: transparent; -fx-text-fill: #bdc3c7;" text="🚜  Gestion Matériels" />
                 <VBox spacing="0.0" style="-fx-background-color: #2c3e50;">
                     <children>
-                        <Button alignment="BASELINE_LEFT" maxWidth="Infinity" prefHeight="45.0" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-weight: bold;" text="📦  Gestion Stocks">
-                            <padding><Insets left="20.0" /></padding>
-                        </Button>
-                        <Button alignment="BASELINE_LEFT" onAction="#allerVersArticles" maxWidth="Infinity" prefHeight="35.0" style="-fx-background-color: #2d5a27; -fx-text-fill: white;" text="      • Gestion Articles">
-                            <padding><Insets left="20.0" /></padding>
-                        </Button>
-                        <Button alignment="BASELINE_LEFT" onAction="#allerVersCategories" maxWidth="Infinity" prefHeight="35.0" style="-fx-background-color: transparent; -fx-text-fill: #bdc3c7;" text="      • Gestion Catégories">
-                            <padding><Insets left="20.0" /></padding>
-                        </Button>
+                        <Button alignment="BASELINE_LEFT" maxWidth="Infinity" prefHeight="45.0" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-weight: bold;" text="📦  Gestion Stocks" />
+                        <Button alignment="BASELINE_LEFT" onAction="#allerVersArticles" maxWidth="Infinity" prefHeight="35.0" style="-fx-background-color: #2d5a27; -fx-text-fill: white;" text="      • Gestion Articles" />
+                        <Button alignment="BASELINE_LEFT" onAction="#allerVersCategories" maxWidth="Infinity" prefHeight="35.0" style="-fx-background-color: transparent; -fx-text-fill: #bdc3c7;" text="      • Gestion Catégories" />
                     </children>
                 </VBox>
-
-                <Button alignment="BASELINE_LEFT" maxWidth="Infinity" prefHeight="45.0" style="-fx-background-color: transparent; -fx-text-fill: #bdc3c7;" text="🌱  Gestion Terrains">
-                    <padding><Insets left="20.0" /></padding>
-                </Button>
-
-                <Button alignment="BASELINE_LEFT" maxWidth="Infinity" prefHeight="45.0" style="-fx-background-color: transparent; -fx-text-fill: #bdc3c7;" text="📅  Événements">
-                    <padding><Insets left="20.0" /></padding>
-                </Button>
-
-                <Button alignment="BASELINE_LEFT" maxWidth="Infinity" prefHeight="45.0" style="-fx-background-color: transparent; -fx-text-fill: #bdc3c7;" text="👥  Utilisateurs">
-                    <padding><Insets left="20.0" /></padding>
-                </Button>
-
                 <Pane VBox.vgrow="ALWAYS" />
-
-                <Button alignment="CENTER" onAction="#deconnexion" maxWidth="Infinity" prefHeight="45.0"
-                        style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 0;" text="Déconnexion">
-                    <VBox.margin><Insets bottom="10.0" /></VBox.margin>
-                </Button>
+                <Button alignment="CENTER" onAction="#deconnexion" maxWidth="Infinity" prefHeight="45.0" style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold;" text="Déconnexion" />
             </children>
         </VBox>
 
@@ -63,44 +33,43 @@
                     <font><Font name="System Bold" size="30.0" /></font>
                 </Label>
 
-                <GridPane vgap="20.0"> <columnConstraints>
-                    <ColumnConstraints prefWidth="200.0" />
-                    <ColumnConstraints prefWidth="450.0" />
-                </columnConstraints>
+                <GridPane vgap="15.0">
+                    <columnConstraints>
+                        <ColumnConstraints prefWidth="200.0" />
+                        <ColumnConstraints prefWidth="450.0" />
+                    </columnConstraints>
                     <children>
                         <Label text="Désignation :" GridPane.rowIndex="0"/>
                         <VBox spacing="2.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                            <Label fx:id="msgNom" text="" style="-fx-font-size: 11px;"/>
+                            <Label fx:id="msgNom" text="" style="-fx-font-size: 11px;" />
                             <TextField fx:id="tfNom" prefHeight="35.0" promptText="Ex: Engrais NPK" />
                         </VBox>
 
                         <Label text="Quantité en Stock :" GridPane.rowIndex="1" />
                         <VBox spacing="2.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                            <Label fx:id="msgQuantite" text="" style="-fx-font-size: 11px;"/>
+                            <Label fx:id="msgQuantite" text="" style="-fx-font-size: 11px;" />
                             <TextField fx:id="tfQuantite" prefHeight="35.0" />
                         </VBox>
 
                         <Label text="Seuil d'Alerte :" GridPane.rowIndex="2" />
                         <VBox spacing="2.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
-                            <Label fx:id="msgSeuil" text="" style="-fx-font-size: 11px;"/>
+                            <Label fx:id="msgSeuil" text="" style="-fx-font-size: 11px;" />
                             <TextField fx:id="tfSeuil" prefHeight="35.0" />
                         </VBox>
 
                         <Label text="Unité de mesure :" GridPane.rowIndex="3" />
                         <VBox spacing="2.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
-                            <Label fx:id="msgUnite" text="" style="-fx-font-size: 11px;"/>
+                            <Label fx:id="msgUnite" text="" style="-fx-font-size: 11px;" />
                             <TextField fx:id="tfUnite" prefHeight="35.0" />
                         </VBox>
 
                         <Label text="Catégorie :" GridPane.rowIndex="4" />
                         <VBox spacing="2.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
-                            <Label fx:id="msgCategorie" text="" style="-fx-font-size: 11px;"/>
+                            <Label fx:id="msgCategorie" text="" style="-fx-font-size: 11px;" />
                             <HBox spacing="10.0" alignment="CENTER_LEFT">
                                 <children>
                                     <ComboBox fx:id="cbCategories" prefHeight="35.0" prefWidth="350.0" promptText="Choisir une catégorie" />
-                                    <Button onAction="#allerAjouterCategorie" prefHeight="35.0" prefWidth="40.0"
-                                            style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5;"
-                                            text="+" />
+                                    <Button onAction="#allerAjouterCategorie" prefHeight="35.0" prefWidth="40.0" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold;" text="+" />
                                 </children>
                             </HBox>
                         </VBox>
@@ -110,7 +79,7 @@
                 <HBox spacing="20.0">
                     <children>
                         <Button onAction="#validerAjout" prefHeight="40.0" prefWidth="200.0" style="-fx-background-color: #2d5a27; -fx-text-fill: white; -fx-font-weight: bold;" text="CONFIRMER" />
-                        <Button onAction="#retourListe" prefHeight="40.0" prefWidth="120.0" style="-fx-background-color: white; -fx-border-color: #34495e;" text="ANNULER" />
+                        <Button onAction="#allerVersArticles" prefHeight="40.0" prefWidth="120.0" style="-fx-background-color: white; -fx-border-color: #34495e;" text="ANNULER" />
                     </children>
                 </HBox>
             </children>

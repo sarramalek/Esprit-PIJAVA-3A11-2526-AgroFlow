@@ -26,7 +26,7 @@
                         <Button alignment="BASELINE_LEFT" maxWidth="Infinity" prefHeight="45.0" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-weight: bold;" text="📦  Gestion Stocks">
                             <padding><Insets left="20.0" /></padding>
                         </Button>
-                        <Button alignment="BASELINE_LEFT" onAction="#allerVersArticles" maxWidth="Infinity" prefHeight="35.0" style="-fx-background-color: #2d5a27; -fx-text-fill: white;" text="      • Gestion Articles">
+                        <Button alignment="BASELINE_LEFT" maxWidth="Infinity" prefHeight="35.0" style="-fx-background-color: #2d5a27; -fx-text-fill: white;" text="      • Gestion Articles">
                             <padding><Insets left="20.0" /></padding>
                         </Button>
                         <Button alignment="BASELINE_LEFT" onAction="#allerVersCategories" maxWidth="Infinity" prefHeight="35.0" style="-fx-background-color: transparent; -fx-text-fill: #bdc3c7;" text="      • Gestion Catégories">
@@ -39,18 +39,9 @@
                     <padding><Insets left="20.0" /></padding>
                 </Button>
 
-                <Button alignment="BASELINE_LEFT" maxWidth="Infinity" prefHeight="45.0" style="-fx-background-color: transparent; -fx-text-fill: #bdc3c7;" text="📅  Événements">
-                    <padding><Insets left="20.0" /></padding>
-                </Button>
-
-                <Button alignment="BASELINE_LEFT" maxWidth="Infinity" prefHeight="45.0" style="-fx-background-color: transparent; -fx-text-fill: #bdc3c7;" text="👥  Utilisateurs">
-                    <padding><Insets left="20.0" /></padding>
-                </Button>
-
                 <Pane VBox.vgrow="ALWAYS" />
 
-                <Button alignment="CENTER" onAction="#deconnexion" maxWidth="Infinity" prefHeight="45.0"
-                        style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 0;" text="Déconnexion">
+                <Button alignment="CENTER" onAction="#deconnexion" maxWidth="Infinity" prefHeight="45.0" style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 0;" text="Déconnexion">
                     <VBox.margin><Insets bottom="10.0" /></VBox.margin>
                 </Button>
             </children>
@@ -62,22 +53,23 @@
                     <font><Font name="System Bold" size="28.0" /></font>
                 </Label>
 
-                <HBox alignment="CENTER_LEFT" prefHeight="75.0" spacing="15.0" style="-fx-background-color: rgba(52, 73, 94, 0.08); -fx-background-radius: 12; -fx-border-color: rgba(52, 73, 94, 0.15); -fx-border-radius: 12;">
+                <HBox alignment="CENTER_LEFT" prefHeight="75.0" spacing="15.0" style="-fx-background-color: rgba(52, 73, 94, 0.08); -fx-background-radius: 12;">
                     <padding><Insets left="15.0" right="15.0" /></padding>
                     <children>
                         <Button onAction="#ouvrirFormulaireAjout" prefHeight="35.0" prefWidth="120.0" style="-fx-background-color: #2d5a27; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5;" text="+ AJOUTER" />
-                        <Button onAction="#modifierArticle" prefHeight="35.0" prefWidth="120.0" style="-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5;" text="✏ MODIFIER" />
-                        <Button onAction="#supprimerArticle" prefHeight="35.0" prefWidth="120.0" style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5;" text="🗑 SUPPRIMER" />
+
+                        <Region HBox.hgrow="ALWAYS" /> <Label text="Rechercher :" style="-fx-font-weight: bold;" />
+                        <TextField fx:id="tfRecherche" prefHeight="35.0" prefWidth="250.0" promptText="Nom de l'article..." style="-fx-background-radius: 15; -fx-border-color: #bdc3c7; -fx-border-radius: 15;" />
                     </children>
                 </HBox>
 
-                <TableView fx:id="tableArticles" prefHeight="450.0" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent; -fx-border-color: transparent;">
+                <TableView fx:id="tableArticles" prefHeight="450.0" VBox.vgrow="ALWAYS" style="-fx-background-color: white;">
                     <columns>
-                        <TableColumn fx:id="colNom" prefWidth="300.0" text="Nom de l'article" />
-                        <TableColumn fx:id="colQuantite" prefWidth="120.0" text="Quantité" />
-                        <TableColumn fx:id="colUnite" prefWidth="100.0" text="Unité" />
-                        <TableColumn fx:id="colSeuil" prefWidth="120.0" text="Seuil d'alerte" />
-                    </columns>
+                        <TableColumn fx:id="colNom" prefWidth="200.0" text="Nom de l'article" />
+                        <TableColumn fx:id="colCategorie" prefWidth="150.0" text="Catégorie" /> <TableColumn fx:id="colQuantite" prefWidth="100.0" text="Quantité" />
+                        <TableColumn fx:id="colUnite" prefWidth="80.0" text="Unité" />
+                        <TableColumn fx:id="colSeuil" prefWidth="100.0" text="Seuil d'alerte" />
+                        <TableColumn fx:id="colActions" prefWidth="180.0" text="Actions" /> </columns>
                     <columnResizePolicy>
                         <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                     </columnResizePolicy>
