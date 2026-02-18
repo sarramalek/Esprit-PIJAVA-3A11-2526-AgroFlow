@@ -41,7 +41,7 @@ class animauxserviceTestTest {
 
         // Utilise anyMatch pour chercher l'animal partout dans la liste (Style Mr)
         boolean trouve = liste.stream()
-                .anyMatch(a -> ((animaux)a).getNom().equalsIgnoreCase("bobo"));
+                .anyMatch(a -> ((animaux)a).getNom().equalsIgnoreCase("luca"));
 
         Assertions.assertTrue(trouve, "L'animal 'bobo' n'a pas été trouvé dans la base !");
     }
@@ -55,7 +55,7 @@ class animauxserviceTestTest {
 
         // 2. Modifier le nom ET le poids (comme demandé)
         animal.setNom("luca");
-        animal.setPoids(500.5f); // On change le poids à 500.5 (le 'f' est pour float)
+        animal.setPoids(500f); // On change le poids à 500.5 (le 'f' est pour float)
 
         // 3. Appeler la méthode de service pour mettre à jour la base de données
         service.modifier(animal);

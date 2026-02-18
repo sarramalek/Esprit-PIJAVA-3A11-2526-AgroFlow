@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<BorderPane  style="-fx-background-color: #fcf8e6;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.Terrains.AjoutPlanteController">
+
+    <left>
+        <VBox prefWidth="230.0" spacing="5.0" style="-fx-background-color: #2C3E50; -fx-padding: 15;">
+            <children>
+                <Text fill="WHITE" text="AGROFLOW">
+                    <font><Font name="System Bold" size="24.0" /></font>
+                </Text>
+                <Separator opacity="0.2" prefHeight="20.0" />
+
+                <Button  maxWidth="Infinity" alignment="BASELINE_LEFT" prefHeight="45.0"
+                        style="-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;" text="🐾 Gestion Animaux" />
+
+                <Button  maxWidth="Infinity" alignment="BASELINE_LEFT" prefHeight="45.0"
+                        style="-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;" text="⚙️ Gestion Matériels" />
+
+                <Button  maxWidth="Infinity" alignment="BASELINE_LEFT" prefHeight="45.0"
+                        style="-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;" text="📦 Gestion Stocks" />
+
+                <Button  maxWidth="Infinity" alignment="BASELINE_LEFT" prefHeight="45.0"
+                        style="-fx-background-color: #2D5A27; -fx-text-fill: white; -fx-cursor: hand;" text="🌱 Gestion Terrains" />
+
+                <Button  maxWidth="Infinity" alignment="BASELINE_LEFT" prefHeight="45.0"
+                        style="-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;" text="📅 Événements" />
+
+                <Button  maxWidth="Infinity" alignment="BASELINE_LEFT" prefHeight="45.0"
+                        style="-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;" text="👥 Utilisateurs" />
+
+                <Region VBox.vgrow="ALWAYS" />
+
+                <Separator opacity="0.1" />
+                <Button maxWidth="Infinity" style="-fx-background-color: #E74C3C; -fx-text-fill: white;" text="Déconnexion" />
+            </children>
+        </VBox>
+    </left>
+
+    <center>
+        <VBox spacing="30.0" style="-fx-padding: 50;">
+            <children>
+                <VBox spacing="5.0">
+                    <children>
+                        <Text fill="#2C3E50" text="Nouvelle Plante">
+                            <font><Font name="System Bold" size="28.0" /></font>
+                        </Text>
+                        <Text fill="#A8C69F" text="Remplissez les informations ci-dessous pour enregistrer la plante." />
+                    </children>
+                </VBox>
+
+                <GridPane hgap="20.0" vgap="20.0">
+                    <columnConstraints>
+                        <ColumnConstraints minWidth="120.0" prefWidth="150.0" />
+                        <ColumnConstraints minWidth="300.0" prefWidth="400.0" />
+                    </columnConstraints>
+
+                    <children>
+                        <Label text="Nom de la plante :" textFill="#2C3E50" GridPane.rowIndex="0" />
+                        <TextField fx:id="txtNom" prefHeight="40.0" promptText="Ex: Tomate" style="-fx-background-radius: 5; -fx-border-color: #A8C69F; -fx-border-radius: 5;" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                        <Label text="Variété :" textFill="#2C3E50" GridPane.rowIndex="1" />
+                        <TextField fx:id="txtVariete" prefHeight="40.0" promptText="Ex: Roma, Cherry..." style="-fx-background-radius: 5; -fx-border-color: #A8C69F; -fx-border-radius: 5;" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                        <Label text="Besoin en Eau (L) :" textFill="#2C3E50" GridPane.rowIndex="2" />
+                        <TextField fx:id="txtBesoinEau" prefHeight="40.0" promptText="Ex: 5.5" style="-fx-background-radius: 5; -fx-border-color: #A8C69F; -fx-border-radius: 5;" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                        <Label text="Cycle (jours) :" textFill="#2C3E50" GridPane.rowIndex="3" />
+                        <TextField fx:id="txtCycle" prefHeight="40.0" promptText="Ex: 90" style="-fx-background-radius: 5; -fx-border-color: #A8C69F; -fx-border-radius: 5;" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                    </children>
+                </GridPane>
+
+                <HBox spacing="20.0">
+                    <children>
+                        <Button onAction="#ajouterPlante" prefHeight="45.0" prefWidth="180.0" style="-fx-background-color: #2D5A27; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-cursor: hand;" text="CONFIRMER L'AJOUT" />
+                        <Button onAction="#retourListe" prefHeight="45.0" prefWidth="120.0" style="-fx-background-color: white; -fx-text-fill: #2C3E50; -fx-border-color: #2C3E50; -fx-border-radius: 5; -fx-background-radius: 5; -fx-cursor: hand;" text="ANNULER" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+    </center>
+</BorderPane>

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.image.*?>
+
+<BorderPane prefHeight="600.0" prefWidth="900.0"
+            style="-fx-background-color: #fcf8e6;"
+            xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controllers.Terrains.AccueilTerrainController">
+
+    <left>
+        <VBox prefWidth="230.0" spacing="5.0" style="-fx-background-color: #2C3E50; -fx-padding: 15;">
+            <children>
+                <Text fill="WHITE" text="AGROFLOW">
+                    <font><Font name="System Bold" size="24.0" /></font>
+                </Text>
+                <Separator opacity="0.2" prefHeight="20.0" />
+                <Button maxWidth="Infinity" alignment="BASELINE_LEFT" prefHeight="45.0" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;" text="🐾 Gestion Animaux" />
+                <Button maxWidth="Infinity" alignment="BASELINE_LEFT" prefHeight="45.0" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;" text="⚙️ Gestion Matériels" />
+                <Button maxWidth="Infinity" alignment="BASELINE_LEFT" prefHeight="45.0" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;" text="📦 Gestion Stocks" />
+                <Button maxWidth="Infinity" alignment="BASELINE_LEFT" prefHeight="45.0" style="-fx-background-color: #2D5A27; -fx-text-fill: white; -fx-cursor: hand;" text="🌱 Gestion Terrains" />
+                <Button maxWidth="Infinity" alignment="BASELINE_LEFT" prefHeight="45.0" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;" text="📅 Événements" />
+                <Button maxWidth="Infinity" alignment="BASELINE_LEFT" prefHeight="45.0" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;" text="👥 Utilisateurs" />
+                <Region VBox.vgrow="ALWAYS" />
+                <Separator opacity="0.1" />
+                <Button maxWidth="Infinity" style="-fx-background-color: #E74C3C; -fx-text-fill: white;" text="Déconnexion" />
+            </children>
+        </VBox>
+    </left>
+
+    <center>
+        <VBox spacing="40" alignment="CENTER" style="-fx-padding: 40;">
+            <children>
+
+                <Text text="selectionner Terrains ou plantes ou rotations"
+                      fill="#2C3E50">
+                    <font>
+                        <Font name="System Bold" size="28"/>
+                    </font>
+                </Text>
+
+                <HBox spacing="40" alignment="CENTER">
+
+                    <VBox spacing="15" alignment="CENTER"
+                          onMouseClicked="#ouvrirTerrains"
+                          style="-fx-background-color: white; -fx-padding: 25;
+                                 -fx-border-radius: 10; -fx-background-radius: 10;
+                                 -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);">
+                        <children>
+                            <Text text="🚜" style="-fx-font-size: 48px;"/>
+                            <Text text="Terrains" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+                        </children>
+                    </VBox>
+
+                    <VBox spacing="15" alignment="CENTER"
+                          onMouseClicked="#ouvrirPlantes"
+                          style="-fx-background-color: white; -fx-padding: 25;
+                                 -fx-border-radius: 10; -fx-background-radius: 10;
+                                 -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);">
+                        <children>
+                            <Text text="🌱" style="-fx-font-size: 48px;"/>
+                            <Text text="Plantes" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+                        </children>
+                    </VBox>
+
+                    <VBox spacing="15" alignment="CENTER"
+                          onMouseClicked="#ouvrirRotations"
+                          style="-fx-background-color: white; -fx-padding: 25;
+                                 -fx-border-radius: 10; -fx-background-radius: 10;
+                                 -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);">
+                        <children>
+                            <Text text="📋" style="-fx-font-size: 48px;"/>
+                            <Text text="Rotations" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+                        </children>
+                    </VBox>
+
+                </HBox>
+            </children>
+        </VBox>
+    </center>
+
+</BorderPane>
