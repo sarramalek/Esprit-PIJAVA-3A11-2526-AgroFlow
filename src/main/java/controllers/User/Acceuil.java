@@ -326,9 +326,33 @@ this.ouvrirTaches(event);
             System.out.println("✓ Module Affectations chargé");
 
         } catch (IOException e) {
+            System.err.println("✗ Erreur lors de l'ouverture du module Animaux");
+            e.printStackTrace();
+            showInfo("À venir", "Le module Affectations sera disponible prochainement");
+        }
+    }
+
+    public static void ouvrirStocks(MouseEvent event) {
+        System.out.println("🔄 Ouverture du module stocks...");
+
+        try {
+            FXMLLoader loader = new FXMLLoader(Acceuil.class.getResource("/StocksInterface/afficherarticle.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+            Scene scene = new Scene(root, 1200, 700);
+            stage.setScene(scene);
+            stage.setTitle("AgroFlow - Gestion des Affectations");
+
+            System.out.println("✓ Module stocks chargé");
+
+        } catch (IOException e) {
             System.err.println("✗ Erreur lors de l'ouverture du module Affectations");
             e.printStackTrace();
             showInfo("À venir", "Le module Affectations sera disponible prochainement");
         }
+    }
+    public void handleStocks(MouseEvent mouseEvent) {
+        this.ouvrirStocks(mouseEvent);
     }
 }

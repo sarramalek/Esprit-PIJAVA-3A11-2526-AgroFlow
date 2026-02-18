@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<HBox prefHeight="650.0" prefWidth="1050.0" style="-fx-background-color: #fdfae7;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.Stocks.ajoutercategorieController">
+    <children>
+        <VBox prefWidth="250.0" spacing="5.0" style="-fx-background-color: #34495e;">
+            <children>
+                <Label text="AGROFLOW" textFill="WHITE">
+                    <font><Font name="System Bold" size="24.0" /></font>
+                    <VBox.margin><Insets bottom="20.0" left="20.0" top="30.0" /></VBox.margin>
+                </Label>
+                <Button alignment="BASELINE_LEFT" onAction="#retourListe" prefHeight="40.0" prefWidth="250.0" style="-fx-background-color: transparent; -fx-text-fill: white;" text="⬅ Retour à la liste">
+                    <padding><Insets left="20.0" /></padding>
+                </Button>
+            </children>
+        </VBox>
+
+        <VBox HBox.hgrow="ALWAYS" spacing="25.0" style="-fx-padding: 40;">
+            <children>
+                <Label fx:id="lblTitre" text="Nouvelle Catégorie" textFill="#2c3e50">
+                    <font><Font name="System Bold" size="30.0" /></font>
+                </Label>
+
+                <GridPane vgap="20.0">
+                    <columnConstraints>
+                        <ColumnConstraints prefWidth="200.0" />
+                        <ColumnConstraints prefWidth="450.0" />
+                    </columnConstraints>
+                    <children>
+                        <Label text="Nom de catégorie :" GridPane.rowIndex="0"/>
+                        <VBox spacing="2.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                            <Label fx:id="msgNom" text="" style="-fx-font-size: 11px;"/>
+                            <TextField fx:id="tfNom" prefHeight="35.0" promptText="Ex: Engrais, Semences..." />
+                        </VBox>
+
+                        <Label text="Description :" GridPane.rowIndex="1" />
+                        <VBox spacing="2.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                            <Label fx:id="msgDescription" text="" style="-fx-font-size: 11px;"/>
+                            <TextArea fx:id="taDescription" prefHeight="100.0" promptText="Détails sur la catégorie..." wrapText="true" />
+                        </VBox>
+                    </children>
+                </GridPane>
+
+                <HBox spacing="20.0">
+                    <children>
+                        <Button onAction="#validerAjout" prefHeight="40.0" prefWidth="200.0" style="-fx-background-color: #2d5a27; -fx-text-fill: white; -fx-font-weight: bold;" text="CONFIRMER" />
+                        <Button onAction="#retourListe" prefHeight="40.0" prefWidth="120.0" style="-fx-background-color: white; -fx-border-color: #34495e;" text="ANNULER" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+    </children>
+</HBox>
