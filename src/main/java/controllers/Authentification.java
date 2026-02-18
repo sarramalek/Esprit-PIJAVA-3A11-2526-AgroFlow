@@ -143,7 +143,7 @@ public class Authentification {
 
         // Chercher l'utilisateur avec l'email et mot de passe correspondants
         for (Personne p : personnes) {
-            if (p.getEmail().equalsIgnoreCase(email) && p.getMdp().equals(password)) {
+            if (p.getEmail() != null && p.getEmail().equalsIgnoreCase(email) && p.getMdp() != null && p.getMdp().equals(password)) {
                 // Utilisateur trouvé
                 return p;
             }
