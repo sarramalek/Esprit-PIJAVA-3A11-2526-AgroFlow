@@ -1,7 +1,7 @@
 package services;
 
 import models.CategorieEvenement;
-import utilis.MyDatabase;
+import utils.MyDatabase;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -19,7 +19,7 @@ public class CategorieEvenementService implements IService<CategorieEvenement> {
 
     @Override
     public void ajouter(CategorieEvenement categorie) throws SQLException {
-        String sql = "INSERT INTO categorieevenement (nom_categorie, description) VALUES (?, ?)";
+        String sql = "INSERT INTO categorieevenement (nom_categorie, description_categorie) VALUES (?, ?)";
 
         PreparedStatement ps = connection.prepareStatement(sql);
         ps.setString(1, categorie.getNom_categorie());
@@ -30,7 +30,7 @@ public class CategorieEvenementService implements IService<CategorieEvenement> {
 
     @Override
     public void modifier(CategorieEvenement categorie) throws SQLException {
-        String sql = "UPDATE categorieevenement SET nom_categorie = ?, description = ? WHERE id_categorie = ?";
+        String sql = "UPDATE categorieevenement SET nom_categorie = ?, description_categorie = ? WHERE id_categorie = ?";
 
         PreparedStatement ps = connection.prepareStatement(sql);
         ps.setString(1, categorie.getNom_categorie());
@@ -60,9 +60,43 @@ public class CategorieEvenementService implements IService<CategorieEvenement> {
             CategorieEvenement c = new CategorieEvenement();
             c.setId_categorie(rs.getInt("id_categorie"));
             c.setNom_categorie(rs.getString("nom_categorie"));
-            c.setDescription_categorie(rs.getString("description"));
+            c.setDescription_categorie(rs.getString("description_categorie"));
             categories.add(c);
         }
         return categories;
+    }
+
+    public String getNomCategorieById(int idCategorie) throws SQLException {
+        String sql = "SELECT nom_categorie FROM categorieevenement WHERE id_categorie = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, idCategorie);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return rs.getString("nom_categorie");
+            }
+        }
+
+        return "Non défini";
+    }
+
+    public CategorieEvenement getCategorieById(int idCategorie) throws SQLException {
+        String sql = "SELECT * FROM categorieevenement WHERE id_categorie = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, idCategorie);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                CategorieEvenement c = new CategorieEvenement();
+                c.setId_categorie(rs.getInt("id_categorie"));
+                c.setNom_categorie(rs.getString("nom_categorie"));
+                c.setDescription_categorie(rs.getString("description_categorie"));
+                return c;
+            }
+        }
+
+        return null;
     }
 }

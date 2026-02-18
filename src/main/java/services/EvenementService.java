@@ -1,7 +1,7 @@
 package services;
 
 import models.Evenement;
-import utilis.MyDatabase;
+import utils.MyDatabase;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -81,5 +81,45 @@ public class EvenementService implements IService<Evenement> {
             evenements.add(e);
         }
         return evenements;
+    }
+
+    public Evenement getEvenementById(int idEvenement) throws SQLException {
+        String sql = "SELECT * FROM evenement WHERE id_evenement = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, idEvenement);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                Evenement e = new Evenement();
+                e.setIdEvenement(rs.getInt("id_evenement"));
+                e.setTitre(rs.getString("titre"));
+                e.setDescription(rs.getString("description"));
+                e.setTypeEvenement(rs.getString("type_evenement"));
+                e.setDateDebut(rs.getDate("date_debut"));
+                e.setDateFin(rs.getDate("date_fin"));
+                e.setLieu(rs.getString("lieu"));
+                e.setStatut(rs.getString("statut"));
+                e.setIdCategorie(rs.getInt("id_categorie"));
+                return e;
+            }
+        }
+
+        return null;
+    }
+
+    public String getNomEvenementById(int idEvenement) throws SQLException {
+        String sql = "SELECT titre FROM evenement WHERE id_evenement = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, idEvenement);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return rs.getString("titre");
+            }
+        }
+
+        return "Non défini";
     }
 }
