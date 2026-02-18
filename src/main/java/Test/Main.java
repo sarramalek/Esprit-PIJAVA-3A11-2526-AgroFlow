@@ -1,11 +1,11 @@
 package Test;
 
-import models.Materiels.Machine;
-import models.Materiels.Maintenance;
-import models.Materiels.Achat;
-import services.Materiels.MachineService;
-import services.Materiels.MaintenanceService;
-import services.Materiels.AchatService;
+import entities.Machine;
+import entities.Maintenance;
+import entities.Achat;
+import services.MachineService;
+import services.MaintenanceService;
+import services.AchatService;
 
 import java.sql.SQLException;
 import java.time.LocalDate;

@@ -380,4 +380,34 @@ this.ouvrirTaches(event);
     public void handleTerrains(MouseEvent mouseEvent) {
         this.ouvrirTerrains(mouseEvent);
     }
+
+
+   //
+
+    public static void ouvrirMateriels(MouseEvent event) {
+        System.out.println("🔄 Ouverture du module Materiels...");
+
+        try {
+            FXMLLoader loader = new FXMLLoader(Acceuil.class.getResource("/MaterielsInterface/AccueilMateriel.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+            Scene scene = new Scene(root, 1200, 700);
+            stage.setScene(scene);
+            stage.setTitle("AgroFlow - Gestion des Materiels");
+
+            System.out.println("✓ Module stocks chargé");
+
+        } catch (IOException e) {
+            System.err.println("✗ Erreur lors de l'ouverture du module Materiels");
+            e.printStackTrace();
+            showInfo("À venir", "Le module Terrains sera disponible prochainement");
+        }
+    }
+
+    public void handleMateriels(MouseEvent mouseEvent) {
+        this.ouvrirMateriels(mouseEvent);
+    }
+
+
 }
