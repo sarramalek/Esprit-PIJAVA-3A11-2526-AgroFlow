@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<BorderPane style="-fx-background-color: #fcf8e6;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.User.AjoutAbonnements">
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+
+      spacing="20" style="-fx-background-color: white; -fx-padding: 30;">
+
+    <!-- Titre -->
+    <Label text="Nouvel Abonnement" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;">
+        <font>
+            <Font name="System Bold" size="24.0"/>
+        </font>
+    </Label>
+
+    <!-- Message d'erreur -->
+    <Label fx:id="errorLabel" visible="false" wrapText="true"
+           style="-fx-text-fill: #D32F2F; -fx-font-size: 12px;"/>
+
+    <!-- Formulaire -->
+    <GridPane hgap="15" vgap="15">
+        <columnConstraints>
+            <ColumnConstraints minWidth="120" prefWidth="120"/>
+            <ColumnConstraints minWidth="300" prefWidth="300"/>
+        </columnConstraints>
+
+        <!-- CIN -->
+        <Label text="CIN *" GridPane.rowIndex="0" GridPane.columnIndex="0"
+               style="-fx-font-size: 14px; -fx-text-fill: #34495E;">
+            <font>
+                <Font name="System" size="14"/>
+            </font>
+        </Label>
+        <TextField fx:id="cinField" promptText="Ex: 12345678"
+                   GridPane.rowIndex="0" GridPane.columnIndex="1"
+                   style="-fx-font-size: 13px; -fx-padding: 10;">
+            <font>
+                <Font name="System" size="13"/>
+            </font>
+        </TextField>
+
+        <!-- ID Offre -->
+        <Label text="Offre *" GridPane.rowIndex="1" GridPane.columnIndex="0"
+               style="-fx-font-size: 14px; -fx-text-fill: #34495E;">
+            <font>
+                <Font name="System" size="14"/>
+            </font>
+        </Label>
+        <ComboBox fx:id="offreComboBox" promptText="Sélectionnez une offre..."
+                  GridPane.rowIndex="1" GridPane.columnIndex="1"
+                  prefWidth="300"
+                  style="-fx-font-size: 13px;">
+            <padding>
+                <Insets bottom="10" left="10" right="10" top="10" />
+            </padding>
+        </ComboBox>
+
+        <!-- Date inscription -->
+        <Label text="Date inscription *" GridPane.rowIndex="2" GridPane.columnIndex="0"
+               style="-fx-font-size: 14px; -fx-text-fill: #34495E;">
+            <font>
+                <Font name="System" size="14"/>
+            </font>
+        </Label>
+        <DatePicker fx:id="dateInscriptionPicker" promptText="Choisir la date"
+                    GridPane.rowIndex="2" GridPane.columnIndex="1"
+                    prefWidth="300"
+                    style="-fx-font-size: 13px;">
+        </DatePicker>
+
+        <!-- Date expiration -->
+        <Label text="Date expiration *" GridPane.rowIndex="3" GridPane.columnIndex="0"
+               style="-fx-font-size: 14px; -fx-text-fill: #34495E;">
+            <font>
+                <Font name="System" size="14"/>
+            </font>
+        </Label>
+        <DatePicker fx:id="dateExpirationPicker" promptText="Choisir la date"
+                    GridPane.rowIndex="3" GridPane.columnIndex="1"
+                    prefWidth="300"
+                    style="-fx-font-size: 13px;">
+        </DatePicker>
+
+        <!-- Situation -->
+        <Label text="Situation *" GridPane.rowIndex="4" GridPane.columnIndex="0"
+               style="-fx-font-size: 14px; -fx-text-fill: #34495E;">
+            <font>
+                <Font name="System" size="14"/>
+            </font>
+        </Label>
+        <ComboBox fx:id="situationComboBox" promptText="Sélectionnez..."
+                  GridPane.rowIndex="4" GridPane.columnIndex="1"
+                  prefWidth="300"
+                  style="-fx-font-size: 13px;">
+            <padding>
+                <Insets bottom="10" left="10" right="10" top="10" />
+            </padding>
+        </ComboBox>
+
+    </GridPane>
+
+    <!-- Note obligatoire -->
+    <Label text="* Champs obligatoires"
+           style="-fx-font-size: 11px; -fx-text-fill: #7F8C8D; -fx-font-style: italic;">
+        <font>
+            <Font name="System Italic" size="11"/>
+        </font>
+    </Label>
+
+    <!-- Boutons -->
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Button fx:id="cancelButton" text="Annuler" onAction="#handleCancel"
+                style="-fx-background-color: #95A5A6; -fx-text-fill: white; -fx-font-size: 14px;
+                       -fx-padding: 10 30; -fx-background-radius: 5; -fx-cursor: hand;"
+                minWidth="120">
+            <font>
+                <Font name="System" size="14"/>
+            </font>
+        </Button>
+        <Button fx:id="saveButton" text="Enregistrer" onAction="#handleSave"
+                style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 14px;
+                       -fx-padding: 10 30; -fx-background-radius: 5; -fx-cursor: hand;"
+                minWidth="120" defaultButton="true">
+            <font>
+                <Font name="System Bold" size="14"/>
+            </font>
+        </Button>
+    </HBox>
+
+</VBox>
+</BorderPane>

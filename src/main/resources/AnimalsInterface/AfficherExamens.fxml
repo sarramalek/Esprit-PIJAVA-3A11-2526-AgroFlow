@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane prefHeight="700.0" prefWidth="1050.0" style="-fx-background-color: #FDFBF0;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.Animaux.AfficherExamensController">
+    <children>
+        <VBox prefWidth="250.0" spacing="5.0" style="-fx-background-color: #2C3E50;"
+              AnchorPane.bottomAnchor="0.0"
+              AnchorPane.leftAnchor="0.0"
+              AnchorPane.topAnchor="0.0">
+            <children>
+                <Text fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="AGROFLOW" textAlignment="CENTER" wrappingWidth="250.0">
+                    <font><Font name="System Bold" size="30.0" /></font>
+                    <VBox.margin><Insets bottom="30.0" top="30.0" /></VBox.margin>
+                </Text>
+                <Separator opacity="0.1" prefWidth="200.0" />
+
+                <Button alignment="BASELINE_LEFT" onAction="#naviguerVersAnimaux" prefHeight="50.0" prefWidth="250.0" style="-fx-background-color: transparent; -fx-text-fill: #D5D8DC; -fx-font-size: 16; -fx-padding: 0 0 0 20;" text="🐾  Gestion Animaux" />
+                <Button alignment="BASELINE_LEFT" prefHeight="50.0" prefWidth="250.0" style="-fx-background-color: transparent; -fx-text-fill: #D5D8DC; -fx-font-size: 16; -fx-padding: 0 0 0 20;" text="⚙️  Gestion Matériels" />
+                <Button alignment="BASELINE_LEFT" prefHeight="50.0" prefWidth="250.0" style="-fx-background-color: transparent; -fx-text-fill: #D5D8DC; -fx-font-size: 16; -fx-padding: 0 0 0 20;" text="📦  Gestion Stocks" />
+                <Button alignment="BASELINE_LEFT" prefHeight="50.0" prefWidth="250.0" style="-fx-background-color: transparent; -fx-text-fill: #D5D8DC; -fx-font-size: 16; -fx-padding: 0 0 0 20;" text="🌱  Gestion Terrains" />
+                <Button alignment="BASELINE_LEFT" prefHeight="50.0" prefWidth="250.0" style="-fx-background-color: transparent; -fx-text-fill: #D5D8DC; -fx-font-size: 16; -fx-padding: 0 0 0 20;" text="📅  Événements" />
+                <Button alignment="BASELINE_LEFT" prefHeight="50.0" prefWidth="250.0" style="-fx-background-color: transparent; -fx-text-fill: #D5D8DC; -fx-font-size: 16; -fx-padding: 0 0 0 20;" text="👥  Utilisateurs" />
+
+                <Region VBox.vgrow="ALWAYS"/>
+                <Separator opacity="0.1" prefWidth="200.0"/>
+                <Button onAction="#handleDeconnexion" prefHeight="40.0" prefWidth="220.0"
+                        style="-fx-background-color: #E74C3C; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5;"
+                        text="Déconnexion">
+                    <VBox.margin><Insets bottom="20.0" left="15.0" /></VBox.margin>
+                </Button>
+            </children>
+        </VBox>
+
+        <VBox layoutX="280.0" layoutY="30.0" spacing="20.0" AnchorPane.bottomAnchor="30.0" AnchorPane.leftAnchor="280.0" AnchorPane.rightAnchor="30.0" AnchorPane.topAnchor="30.0">
+            <children>
+                <HBox alignment="CENTER">
+                    <children>
+                        <Text fill="#2C3E50" text="Gestion des Examens"><font><Font name="System Bold" size="24.0" /></font></Text>
+                        <HBox alignment="CENTER" spacing="10.0" style="-fx-padding: 10;">
+                            <children>
+                                <Button onAction="#naviguerVersAnimaux" prefWidth="150.0" text="Table Animaux"
+                                        style="-fx-background-color: #A3C1AD; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 20;" />
+                                <Button prefWidth="150.0" text="Table Examens"
+                                        style="-fx-background-color: #A3C1AD; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 20;" />
+                            </children>
+                        </HBox>
+                    </children>
+                    <VBox.margin><Insets bottom="10.0" top="10.0" /></VBox.margin>
+                </HBox>
+
+                <TableView fx:id="tvExamens"  prefHeight="380.0" prefWidth="650.0" VBox.vgrow="ALWAYS" style="-fx-background-radius: 5; -fx-border-color: #D5D8DC;">
+                    <columns>
+                        <TableColumn fx:id="colAnimal" prefWidth="100.0" text="ID Animal" />
+                        <TableColumn fx:id="colType" prefWidth="150.0" text="Type Examen" />
+                        <TableColumn fx:id="colDate" prefWidth="120.0" text="Date Examen" />
+                        <TableColumn fx:id="colDiagnostic" prefWidth="180.0" text="Diagnostic" />
+                        <TableColumn fx:id="colTraitement" prefWidth="180.0" text="Traitement" />
+                    </columns>
+                </TableView>
+
+                <HBox alignment="CENTER" spacing="30.0">
+                    <children>
+                        <Button onAction="#naviguerAjout" prefHeight="45.0" prefWidth="180.0" style="-fx-background-color: #2D5A27; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5;" text="+ AJOUTER" />
+                        <Button onAction="#handleModifier" prefHeight="45.0" prefWidth="180.0" style="-fx-background-color: #A3C1AD; -fx-text-fill: #2C3E50; -fx-font-weight: bold; -fx-background-radius: 5;" text="MODIFIER" />
+                        <Button onAction="#handleSupprimer" prefHeight="45.0" prefWidth="180.0" style="-fx-background-color: #E74C3C; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5;" text="SUPPRIMER" />
+                    </children>
+                    <VBox.margin><Insets top="10.0" /></VBox.margin>
+                </HBox>
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>

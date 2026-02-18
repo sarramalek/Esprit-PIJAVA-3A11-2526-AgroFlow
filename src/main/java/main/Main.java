@@ -1,7 +1,11 @@
 package main;
 
-import entities.*;
-import services.*;
+import models.Animaux.Sexe;
+import models.Animaux.animaux;
+import models.Animaux.examens;
+import services.Animaux.ServiceAnimal;
+import services.Animaux.ServiceExamen;
+
 import java.sql.SQLException;
 import java.util.Date;
 

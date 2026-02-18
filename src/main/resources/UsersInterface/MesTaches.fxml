@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<BorderPane style="-fx-background-color: #F8F9FA;"
+            xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controllers.User.MesTaches">
+
+    <!-- SIDEBAR EMPLOYÉ -->
+    <left>
+        <VBox prefWidth="250" style="-fx-background-color: linear-gradient(to bottom, #1a237e, #283593, #3949ab);">
+            <padding><Insets bottom="20" top="20" /></padding>
+
+            <!-- Logo -->
+            <HBox alignment="CENTER" spacing="12" style="-fx-padding: 0 0 35 0;">
+                <Label style="-fx-font-size: 32px;" text="🌱" />
+                <VBox alignment="CENTER_LEFT" spacing="2">
+                    <Label style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: white;
+                                  -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 5, 0, 0, 2);"
+                           text="AgroFlow">
+                        <font><Font name="System Bold" size="26" /></font>
+                    </Label>
+                    <Label style="-fx-font-size: 11px; -fx-text-fill: rgba(255,255,255,0.7);"
+                           text="Espace Employé">
+                        <font><Font name="System" size="11" /></font>
+                    </Label>
+                </VBox>
+            </HBox>
+
+            <!-- Info Utilisateur -->
+            <VBox alignment="CENTER" spacing="8"
+                  style="-fx-background-color: rgba(255,255,255,0.1); -fx-background-radius: 15;
+                         -fx-padding: 20; -fx-margin: 10;">
+                <Label style="-fx-font-size: 30px;" text="👤" />
+                <Label fx:id="userNameLabel"
+                       style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;"
+                       text="Nom Employé">
+                    <font><Font name="System Bold" size="16" /></font>
+                </Label>
+                <Label fx:id="userRoleLabel"
+                       style="-fx-font-size: 12px; -fx-text-fill: rgba(255,255,255,0.8);
+                              -fx-background-color: rgba(76,175,80,0.3); -fx-padding: 4 12;
+                              -fx-background-radius: 15;"
+                       text="👷 EMPLOYÉ">
+                    <font><Font name="System Bold" size="12" /></font>
+                </Label>
+            </VBox>
+
+            <!-- Navigation Menu -->
+            <VBox spacing="10" style="-fx-padding: 20 0 0 0;">
+
+                <!-- Dashboard -->
+                <Button onAction="#handleDashboard" prefHeight="50" prefWidth="230"
+                        style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
+                               -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
+                               -fx-background-radius: 12; -fx-cursor: hand;
+                               -fx-border-color: rgba(255,255,255,0.2); -fx-border-width: 1;
+                               -fx-border-radius: 12;"
+                        text="📊  Dashboard">
+                    <font><Font name="System Bold" size="14" /></font>
+                </Button>
+
+                <!-- Mes Tâches (actif) -->
+                <Button fx:id="dashboardBtn" onAction="#handleDashboard" prefHeight="50" prefWidth="230"
+                        style="-fx-background-color: linear-gradient(to right, #4CAF50, #45a049);
+                               -fx-text-fill: white; -fx-font-size: 14px; -fx-alignment: CENTER-LEFT;
+                               -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand;
+                               -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0, 0, 2);"
+                        text="📋  Mes Tâches">
+                    <font><Font name="System Bold" size="14" /></font>
+                </Button>
+
+                <!-- Mon Profil -->
+                <Button onAction="#handleMonProfil" prefHeight="50" prefWidth="230"
+                        style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
+                               -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
+                               -fx-background-radius: 12; -fx-cursor: hand;
+                               -fx-border-color: rgba(255,255,255,0.2); -fx-border-width: 1;
+                               -fx-border-radius: 12;"
+                        text="👤  Mon Profil">
+                    <font><Font name="System Bold" size="14" /></font>
+                </Button>
+
+                <!-- Rapports -->
+                <Button onAction="#handleRapports" prefHeight="50" prefWidth="230"
+                        style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
+                               -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
+                               -fx-background-radius: 12; -fx-cursor: hand;
+                               -fx-border-color: rgba(255,255,255,0.2); -fx-border-width: 1;
+                               -fx-border-radius: 12;"
+                        text="📈  Rapports">
+                    <font><Font name="System Bold" size="14" /></font>
+                </Button>
+            </VBox>
+
+            <Region VBox.vgrow="ALWAYS" />
+
+            <!-- Logout -->
+            <Button fx:id="logoutBtn" onAction="#handleLogout" prefHeight="50" prefWidth="230"
+                    style="-fx-background-color: #E74C3C; -fx-text-fill: white; -fx-font-size: 14px;
+                           -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22; -fx-background-radius: 12;
+                           -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 10, 0, 0, 3);"
+                    text="🚪  Déconnexion">
+                <font><Font name="System Bold" size="14" /></font>
+            </Button>
+        </VBox>
+    </left>
+
+    <!-- CONTENU PRINCIPAL -->
+    <center>
+        <VBox spacing="20" style="-fx-background-color: #F8F9FA;">
+            <padding><Insets top="30" right="30" bottom="30" left="30" /></padding>
+
+            <!-- Header -->
+            <HBox alignment="CENTER_LEFT" spacing="20"
+                  style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 20;
+                         -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 2);">
+                <VBox spacing="5" HBox.hgrow="ALWAYS">
+                    <Label style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #1a237e;"
+                           text="📋 Mes Tâches">
+                        <font><Font name="System Bold" size="28" /></font>
+                    </Label>
+                    <Label style="-fx-font-size: 14px; -fx-text-fill: #7F8C8D;"
+                           text="Gérez vos tâches assignées">
+                        <font><Font name="System" size="14" /></font>
+                    </Label>
+                </VBox>
+
+                <!-- Barre de recherche -->
+                <TextField fx:id="searchField" promptText="🔍 Rechercher une tâche..."
+                           prefWidth="300"
+                           style="-fx-background-color: #F5F6FA; -fx-background-radius: 8;
+                                  -fx-border-color: #E0E0E0; -fx-border-radius: 8; -fx-padding: 10;"/>
+
+                <!-- Bouton rafraîchir -->
+                <Button fx:id="refreshBtn" onAction="#handleRefresh"
+                        style="-fx-background-color: #3498DB; -fx-text-fill: white;
+                               -fx-background-radius: 8; -fx-padding: 10 20; -fx-cursor: hand;"
+                        text="🔄 Actualiser">
+                    <font><Font name="System Bold" size="13" /></font>
+                </Button>
+            </HBox>
+
+            <!-- Table des tâches -->
+            <VBox style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 20;
+                         -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 2);"
+                  VBox.vgrow="ALWAYS">
+
+                <TableView fx:id="taskTable" VBox.vgrow="ALWAYS"
+                           style="-fx-background-color: transparent;">
+                    <columns>
+                        <TableColumn fx:id="idColumn" text="ID" prefWidth="60" />
+                        <TableColumn fx:id="titleColumn" text="Titre" prefWidth="200" />
+                        <TableColumn fx:id="descriptionColumn" text="Description" prefWidth="250" />
+                        <TableColumn fx:id="statutColumn" text="Statut" prefWidth="120" />
+                        <TableColumn fx:id="prioriteColumn" text="Priorité" prefWidth="100" />
+                        <TableColumn fx:id="dateColumn" text="Échéance" prefWidth="120" />
+                        <TableColumn fx:id="actionsColumn" text="Actions" prefWidth="180" />
+                    </columns>
+                    <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                    </columnResizePolicy>
+                </TableView>
+            </VBox>
+
+        </VBox>
+    </center>
+
+</BorderPane>

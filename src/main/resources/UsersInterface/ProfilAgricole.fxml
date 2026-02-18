@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<ScrollPane fitToWidth="true" style="-fx-background-color: #fcf8e6; -fx-border-color: transparent;" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controllers.User.ProfilAgricole">
+<VBox spacing="25" style="-fx-background-color: #F8F9FA; -fx-padding: 40;"
+
+      xmlns="http://javafx.com/javafx/17">
+
+    <!-- Header -->
+    <HBox alignment="CENTER_LEFT" spacing="20"
+          style="-fx-background-color: linear-gradient(to right, #2E7D32, #4CAF50);
+                 -fx-background-radius: 15; -fx-padding: 25;">
+        <Label style="-fx-font-size: 50px;" text="👨‍🌾" />
+        <VBox spacing="5">
+            <Label fx:id="profileNameLabel"
+                   style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: white;"
+                   text="Nom Prénom">
+                <font><Font name="System Bold" size="22" /></font>
+            </Label>
+            <Label style="-fx-font-size: 13px; -fx-text-fill: rgba(255,255,255,0.85);
+                          -fx-background-color: rgba(255,255,255,0.2); -fx-padding: 4 12;
+                          -fx-background-radius: 15;" text="🌾 AGRICULTEUR" />
+        </VBox>
+    </HBox>
+
+    <!-- Infos du compte -->
+    <VBox spacing="0"
+          style="-fx-background-color: white; -fx-background-radius: 15;
+                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 12, 0, 0, 2);">
+
+        <!-- CIN -->
+        <HBox spacing="15" alignment="CENTER_LEFT"
+              style="-fx-padding: 18 25; -fx-border-color: transparent transparent #F0F0F0 transparent; -fx-border-width: 1;">
+            <Label style="-fx-font-size: 20px;" text="🪪" />
+            <VBox spacing="2" HBox.hgrow="ALWAYS">
+                <Label style="-fx-font-size: 11px; -fx-text-fill: #95A5A6;" text="CIN" />
+                <Label fx:id="cinLabel" style="-fx-font-size: 15px; -fx-text-fill: #2C3E50; -fx-font-weight: bold;" text="—">
+                    <font><Font name="System Bold" size="15" /></font>
+                </Label>
+            </VBox>
+        </HBox>
+
+        <!-- Email -->
+        <HBox spacing="15" alignment="CENTER_LEFT"
+              style="-fx-padding: 18 25; -fx-border-color: transparent transparent #F0F0F0 transparent; -fx-border-width: 1;">
+            <Label style="-fx-font-size: 20px;" text="📧" />
+            <VBox spacing="2" HBox.hgrow="ALWAYS">
+                <Label style="-fx-font-size: 11px; -fx-text-fill: #95A5A6;" text="Email" />
+                <Label fx:id="emailLabel" style="-fx-font-size: 15px; -fx-text-fill: #2C3E50;" text="—" />
+            </VBox>
+        </HBox>
+
+        <!-- Téléphone -->
+        <HBox spacing="15" alignment="CENTER_LEFT"
+              style="-fx-padding: 18 25; -fx-border-color: transparent transparent #F0F0F0 transparent; -fx-border-width: 1;">
+            <Label style="-fx-font-size: 20px;" text="📞" />
+            <VBox spacing="2" HBox.hgrow="ALWAYS">
+                <Label style="-fx-font-size: 11px; -fx-text-fill: #95A5A6;" text="Téléphone" />
+                <Label fx:id="telLabel" style="-fx-font-size: 15px; -fx-text-fill: #2C3E50;" text="—" />
+            </VBox>
+        </HBox>
+
+        <!-- Adresse -->
+        <HBox spacing="15" alignment="CENTER_LEFT"
+              style="-fx-padding: 18 25; -fx-border-color: transparent transparent #F0F0F0 transparent; -fx-border-width: 1;">
+            <Label style="-fx-font-size: 20px;" text="📍" />
+            <VBox spacing="2" HBox.hgrow="ALWAYS">
+                <Label style="-fx-font-size: 11px; -fx-text-fill: #95A5A6;" text="Adresse" />
+                <Label fx:id="adresseLabel" style="-fx-font-size: 15px; -fx-text-fill: #2C3E50;" text="—" />
+            </VBox>
+        </HBox>
+
+        <!-- Ville -->
+        <HBox spacing="15" alignment="CENTER_LEFT"
+              style="-fx-padding: 18 25; -fx-border-color: transparent transparent #F0F0F0 transparent; -fx-border-width: 1;">
+            <Label style="-fx-font-size: 20px;" text="🏙️" />
+            <VBox spacing="2" HBox.hgrow="ALWAYS">
+                <Label style="-fx-font-size: 11px; -fx-text-fill: #95A5A6;" text="Ville" />
+                <Label fx:id="villeLabel" style="-fx-font-size: 15px; -fx-text-fill: #2C3E50;" text="—" />
+            </VBox>
+        </HBox>
+
+        <!-- Date naissance -->
+        <HBox spacing="15" alignment="CENTER_LEFT" style="-fx-padding: 18 25;">
+            <Label style="-fx-font-size: 20px;" text="🎂" />
+            <VBox spacing="2" HBox.hgrow="ALWAYS">
+                <Label style="-fx-font-size: 11px; -fx-text-fill: #95A5A6;" text="Date de naissance" />
+                <Label fx:id="dateNaissLabel" style="-fx-font-size: 15px; -fx-text-fill: #2C3E50;" text="—" />
+            </VBox>
+        </HBox>
+    </VBox>
+
+    <!-- Boutons d'action -->
+    <HBox spacing="15" alignment="CENTER">
+        <!-- Modifier -->
+        <Button fx:id="modifierBtn" onAction="#handleModifier"
+                prefHeight="48" prefWidth="200"
+                style="-fx-background-color: #3498DB; -fx-text-fill: white; -fx-font-size: 15px;
+                       -fx-background-radius: 10; -fx-cursor: hand;
+                       -fx-effect: dropshadow(gaussian, rgba(52,152,219,0.4), 10, 0, 0, 3);"
+                text="✏️  Modifier mes données">
+            <font><Font name="System Bold" size="15" /></font>
+        </Button>
+
+        <!-- Désactiver / Supprimer compte -->
+        <Button fx:id="desactiverBtn" onAction="#handleDesactiver"
+                prefHeight="48" prefWidth="200"
+                style="-fx-background-color: #E74C3C; -fx-text-fill: white; -fx-font-size: 15px;
+                       -fx-background-radius: 10; -fx-cursor: hand;
+                       -fx-effect: dropshadow(gaussian, rgba(231,76,60,0.4), 10, 0, 0, 3);"
+                text="🗑️  Désactiver mon compte">
+            <font><Font name="System Bold" size="15" /></font>
+        </Button>
+    </HBox>
+
+    <!-- Bouton Fermer -->
+    <Button fx:id="fermerBtn" onAction="#handleFermer" prefHeight="40" prefWidth="120"
+            style="-fx-background-color: #95A5A6; -fx-text-fill: white; -fx-font-size: 14px;
+                   -fx-background-radius: 8; -fx-cursor: hand;"
+            text="Fermer">
+        <font><Font name="System" size="14" /></font>
+    </Button>
+
+</VBox>
+</ScrollPane>
