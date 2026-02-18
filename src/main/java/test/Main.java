@@ -1,4 +1,4 @@
-package Test;
+package test;
 
 import models.Materiels.Machine;
 import models.Materiels.Maintenance;
