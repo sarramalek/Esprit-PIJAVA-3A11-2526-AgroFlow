@@ -5,6 +5,9 @@ import utiles.MyDatabase; // Vérifie si ton package est 'utiles' ou 'utils'
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.net.URLEncoder; // Pour transformer le texte en format URL
+import java.nio.charset.StandardCharsets; // Pour définir l'encodage (UTF-8)
+
 
 public class ArticleService implements IService<Article> {
 
@@ -37,6 +40,15 @@ public class ArticleService implements IService<Article> {
         ps.setInt(5, article.getIdCategorie());
         ps.setInt(6, article.getId());
         ps.executeUpdate();
+
+        // --- LOGIQUE D'EMAIL UNIQUE ---
+        // On vérifie si l'article modifié est en alerte
+        if (article.getQuantiteEnStock() <= article.getSeuilAlerte()) {
+            new Thread(() -> {
+                // L'envoi se fait ici, une seule fois pour cet article
+                services.EmailService.envoyerMailAlerte(article.getNom(), article.getQuantiteEnStock());
+            }).start();
+        }
     }
 
     @Override
@@ -65,5 +77,15 @@ public class ArticleService implements IService<Article> {
             articles.add(a);
         }
         return articles;
+    }
+    public String genererLienQRCode(Article a) {
+        // On ne garde que le nom de l'article pour le contenu du QR Code
+        String data = a.getNom();
+
+        // Encodage pour que l'URL soit valide (ex: "Pomme de terre" -> "Pomme%20de%20terre")
+        String encodedData = java.net.URLEncoder.encode(data, java.nio.charset.StandardCharsets.UTF_8);
+
+        // Retourne l'URL de l'API (taille 200x200)
+        return "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + encodedData;
     }
 }

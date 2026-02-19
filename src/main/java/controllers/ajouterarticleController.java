@@ -120,27 +120,45 @@ public class ajouterarticleController {
         dialog.setHeaderText("Créer une nouvelle catégorie");
 
         DialogPane dialogPane = dialog.getDialogPane();
-        dialogPane.setStyle("-fx-background-color: #fdfae7;"); // Ton thème beige
+        dialogPane.setStyle("-fx-background-color: #fdfae7;");
 
-        // Champs de saisie
+        // Éléments de saisie
         TextField nomField = new TextField();
         nomField.setPromptText("Nom (ex: Engrais)");
-        nomField.setPrefHeight(35);
-
         TextArea descArea = new TextArea();
         descArea.setPromptText("Description...");
-        descArea.setPrefRowCount(3);
 
         // Labels de feedback
-        Label msgNomPop = new Label("⚠️ Nom requis (min 3)");
-        Label msgDescPop = new Label("⚠️ Description requise (min 5)");
+        Label msgNomPop = new Label("(!) Nom requis (min 3)");
+        Label msgDescPop = new Label("(!) Description requise (min 5)");
 
         String styleErreur = "-fx-text-fill: #e74c3c; -fx-font-weight: bold; -fx-font-size: 11px;";
         String styleSucces = "-fx-text-fill: #27ae60; -fx-font-weight: bold; -fx-font-size: 11px;";
+
         msgNomPop.setStyle(styleErreur);
         msgDescPop.setStyle(styleErreur);
 
-        // Mise en page
+        // --- AJOUT DES ÉCOUTEURS EN TEMPS RÉEL ---
+        nomField.textProperty().addListener((obs, old, nv) -> {
+            if (nv.trim().length() >= 3) {
+                msgNomPop.setText("(OK) Nom valide");
+                msgNomPop.setStyle(styleSucces);
+            } else {
+                msgNomPop.setText("(!) Nom requis (min 3)");
+                msgNomPop.setStyle(styleErreur);
+            }
+        });
+
+        descArea.textProperty().addListener((obs, old, nv) -> {
+            if (nv.trim().length() >= 5) {
+                msgDescPop.setText("(OK) Description valide");
+                msgDescPop.setStyle(styleSucces);
+            } else {
+                msgDescPop.setText("(!) Description requise (min 5)");
+                msgDescPop.setStyle(styleErreur);
+            }
+        });
+
         VBox layout = new VBox(8, new Label("Nom :"), msgNomPop, nomField, new Label("Description :"), msgDescPop, descArea);
         layout.setPadding(new Insets(20));
         dialogPane.setContent(layout);
@@ -148,46 +166,21 @@ public class ajouterarticleController {
         ButtonType btnAjouter = new ButtonType("AJOUTER", ButtonBar.ButtonData.OK_DONE);
         dialogPane.getButtonTypes().addAll(btnAjouter, ButtonType.CANCEL);
 
-        // --- LOGIQUE DE VÉRIFICATION À L'AJOUT ---
         final Button btOk = (Button) dialogPane.lookupButton(btnAjouter);
-        btOk.addEventFilter(ActionEvent.ACTION, ae -> {
-            String nom = nomField.getText().trim();
-            String desc = descArea.getText().trim();
 
-            try {
-                // 1. Vérifier si le nom existe déjà
-                if (catService.existeDeja(nom)) {
-                    msgNomPop.setText("❌ Ce nom existe déjà !");
-                    msgNomPop.setStyle(styleErreur);
-                    ae.consume(); // Empêche la fermeture de la pop-up
-                }
-                // 2. Vérifier les longueurs minimales
-                else if (nom.length() < 3 || desc.length() < 5) {
-                    msgNomPop.setText(nom.length() < 3 ? "⚠️ Trop court (min 3)" : "✅ Correct");
-                    msgDescPop.setText(desc.length() < 5 ? "⚠️ Trop courte (min 5)" : "✅ Correct");
-                    ae.consume();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
+        // Vérification finale au clic
+        btOk.addEventFilter(ActionEvent.ACTION, ae -> {
+            if (nomField.getText().trim().length() < 3 || descArea.getText().trim().length() < 5) {
+                ae.consume(); // Bloque si c'est encore incorrect
             }
         });
 
-        // --- TRAITEMENT APRÈS VALIDATION ---
         dialog.showAndWait().ifPresent(response -> {
             if (response == btnAjouter) {
                 try {
                     catService.ajouter(new Categorie(0, nomField.getText().trim(), descArea.getText().trim()));
-                    chargerCategories(); // Rafraîchit ta ComboBox d'articles
-
-                    // Sélection automatique de la nouvelle catégorie
-                    cbCategories.getItems().stream()
-                            .filter(c -> c.getNom().equalsIgnoreCase(nomField.getText().trim()))
-                            .findFirst()
-                            .ifPresent(c -> cbCategories.setValue(c));
-
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
+                    chargerCategories();
+                } catch (SQLException e) { e.printStackTrace(); }
             }
         });
     }
