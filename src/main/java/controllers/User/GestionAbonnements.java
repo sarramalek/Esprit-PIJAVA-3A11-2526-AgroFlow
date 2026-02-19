@@ -299,7 +299,7 @@ public class GestionAbonnements {
 
             Stage stage = new Stage();
             stage.setTitle("Modifier l'Abonnement");
-            stage.setScene(new Scene(root));
+            stage.setScene(new Scene(root,600,700));
             stage.setResizable(true);
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.centerOnScreen();
@@ -346,7 +346,7 @@ public class GestionAbonnements {
 
     @FXML
     private void handlePersonnes() {
-        navigateTo("/DashboardPersonnes.fxml", "AgroFlow - Gestion du Personnel");
+        navigateTo("/UsersInterface/DashboardPersonnes.fxml", "AgroFlow - Gestion du Personnel");
     }
 
     @FXML
@@ -374,9 +374,11 @@ public class GestionAbonnements {
             }
 
             Stage stage = (Stage) dashboardBtn.getScene().getWindow();
-            Scene scene = new Scene(root);
+            Scene scene = new Scene(root,1500,700);
             stage.setScene(scene);
             stage.setTitle(title);
+            stage.setMaximized(true);
+
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -398,9 +400,11 @@ public class GestionAbonnements {
                 Parent root = loader.load();
 
                 Stage stage = (Stage) logoutBtn.getScene().getWindow();
-                Scene scene = new Scene(root);
+                Scene scene = new Scene(root,1500,700);
                 stage.setScene(scene);
                 stage.setTitle("AgroFlow - Connexion");
+                stage.setMaximized(true);
+
 
             } catch (IOException e) {
                 e.printStackTrace();

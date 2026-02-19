@@ -1,6 +1,7 @@
 package controllers.User;
 
 import javafx.event.ActionEvent;
+import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
@@ -350,8 +351,8 @@ public class DashboardPersonnes {
      * Gérer le bouton Dashboard
      */
     @FXML
-    private void handleDashboard() {
-      navigateTo("/UsersInterface/Acceuil.fxml", "AgroFlow - Accueil");
+    private void handleDashboard(MouseEvent event) {
+      navigateTo(event, "/UsersInterface/Acceuil.fxml","Acceuil - Agroflow ");
 
     }
 
@@ -359,7 +360,7 @@ public class DashboardPersonnes {
      * Gérer l'ajout d'un employé
      */
     @FXML
-    private void handleAddEmployee() {
+    private void handleAddEmployee(MouseEvent event) {
         System.out.println("➕ Ajouter un employé cliqué");
 
         try {
@@ -488,6 +489,8 @@ public class DashboardPersonnes {
             Scene scene = new Scene(root, 1200, 700);
             stage.setScene(scene);
             stage.setTitle("AgroFlow - Gestion des Tâches");
+            stage.setMaximized(true);
+
 
             System.out.println("✓ Navigation réussie vers Gestion des Tâches");
 
@@ -517,9 +520,11 @@ public class DashboardPersonnes {
                 Parent root = loader.load();
 
                 Stage stage = (Stage) logoutBtn.getScene().getWindow();
-                Scene scene = new Scene(root, 900, 600);
+                Scene scene = new Scene(root, 1200, 700);
                 stage.setScene(scene);
                 stage.setTitle("AgroFlow - Connexion");
+                stage.setMaximized(true);
+
 
                 System.out.println("✓ Déconnexion réussie");
 
@@ -610,26 +615,23 @@ public class DashboardPersonnes {
     public void handleRefresh(ActionEvent actionEvent) {
 
     }
-    private void navigateTo(String fxmlPath, String title) {
+    private void navigateTo(MouseEvent event,String fxmlPath, String title) {
         try {
-            FXMLLoader loader = new FXMLLoader(GestionAbonnements.class.getResource(fxmlPath));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
 
-            Object controller = loader.getController();
-            if (controller != null && currentUser != null) {
-                try {
-                    controller.getClass().getMethod("setCurrentUser", Personne.class).invoke(controller, currentUser);
-                } catch (Exception ignored) {}
-            }
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
 
-            Stage stage = (Stage) dashboardBtn.getScene().getWindow();
-            Scene scene = new Scene(root);
-            stage.setScene(scene);
+            boolean etaitMaximise = stage.isMaximized();  // ← SAUVEGARDER AVANT
+
+            stage.setScene(new Scene(root));
             stage.setTitle(title);
+            stage.setMaximized(etaitMaximise);  // ← RESTAURER APRÈS
 
+            stage.show();
         } catch (IOException e) {
+            System.err.println("Erreur de chargement FXML : " + fxmlPath);
             e.printStackTrace();
-            showInfo("À venir", "Ce module sera disponible prochainement");
         }
     }
 

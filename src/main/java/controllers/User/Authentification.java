@@ -227,10 +227,10 @@ public class Authentification {
 
             // Obtenir la scène actuelle et changer de scène
             Stage stage = (Stage) loginButton.getScene().getWindow();
-            Scene scene = new Scene(root, 1200, 700);
+            Scene scene = new Scene(root, 1500, 700);
             stage.setScene(scene);
             stage.setTitle(title);
-            stage.centerOnScreen();
+            stage.setMaximized(true);
             stage.show();
 
             System.out.println("✓ Navigation réussie vers le dashboard");
@@ -324,6 +324,7 @@ public class Authentification {
 
             stage.setScene(scene);
             stage.setTitle("AgroFlow - Créer un compte");
+            stage.setMaximized(true);
             stage.show();
 
         } catch (Exception e) {

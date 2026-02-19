@@ -403,6 +403,8 @@ public class MesTaches {
                 if (stage != null) {
                     stage.setScene(new Scene(root, 900, 600));
                     stage.setTitle("AgroFlow - Connexion");
+                    stage.setMaximized(true);
+
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -478,6 +480,8 @@ public class MesTaches {
                     if (stage != null) {
                         stage.setScene(new Scene(root, 900, 600));
                         stage.setTitle("AgroFlow - Connexion");
+                        stage.setMaximized(true);
+
                         System.out.println("✓ Déconnexion réussie");
                     }
                 } catch (IOException e) {
@@ -557,6 +561,8 @@ public class MesTaches {
             if (stage != null) {
                 stage.setScene(new Scene(root, width, height));
                 stage.setTitle(title);
+                stage.setMaximized(true);
+
                 System.out.println("✓ Navigation réussie vers " + title);
             } else {
                 System.err.println("✗ Stage est NULL");

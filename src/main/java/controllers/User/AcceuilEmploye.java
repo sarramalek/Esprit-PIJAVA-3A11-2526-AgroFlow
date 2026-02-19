@@ -245,7 +245,7 @@ public class AcceuilEmploye {
             return;
         }
 
-        navigateTo("/UsersInterface/MesTaches.fxml", "AgroFlow - Mes Tâches", 1200, 700);
+        navigateTo("/UsersInterface/MesTaches.fxml", "AgroFlow - Mes Tâches", 1500, 700);
     }
 
     @FXML
@@ -269,7 +269,7 @@ public class AcceuilEmploye {
 
             Stage stage = new Stage();
             stage.setTitle("Mon Profil - Employé");
-            stage.setScene(new Scene(root, 600, 700));
+            stage.setScene(new Scene(root, 1500, 700));
             stage.setResizable(false);
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.centerOnScreen();
@@ -309,8 +309,9 @@ public class AcceuilEmploye {
 
                     Stage stage = getStage();
                     if (stage != null) {
-                        stage.setScene(new Scene(root, 900, 600));
+                        stage.setScene(new Scene(root, 1500, 600));
                         stage.setTitle("AgroFlow - Connexion");
+                        stage.setMaximized(true);
                         System.out.println("✓ Déconnexion réussie");
                     }
                 } catch (IOException e) {
@@ -356,6 +357,7 @@ public class AcceuilEmploye {
             if (stage != null) {
                 stage.setScene(new Scene(root, width, height));
                 stage.setTitle(title);
+                stage.setMaximized(true);
                 System.out.println("✓ Navigation réussie");
             } else {
                 showError("Erreur", "Impossible d'obtenir la fenêtre principale");

@@ -332,8 +332,8 @@ public class GestionTache {
 
             Stage stage = new Stage();
             stage.setTitle("Ajouter une Tâche");
-            stage.setScene(new Scene(root, 600, 520));
-            stage.setResizable(false);
+            stage.setScene(new Scene(root, 1500, 520));
+            stage.setResizable(true);
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.centerOnScreen();
             stage.showAndWait();
@@ -434,8 +434,10 @@ public class GestionTache {
             if (currentUser != null) controller.setCurrentUser(currentUser);
 
             Stage stage = (Stage) dashboardBtn.getScene().getWindow();
-            stage.setScene(new Scene(root, 1200, 700));
+            stage.setScene(new Scene(root, 1500, 700));
             stage.setTitle("AgroFlow - Dashboard");
+            stage.setMaximized(true);
+
         } catch (IOException e) {
             e.printStackTrace();
             showError("Erreur", "Impossible de charger le dashboard");
@@ -457,6 +459,8 @@ public class GestionTache {
                 Stage stage = (Stage) logoutBtn.getScene().getWindow();
                 stage.setScene(new Scene(root, 900, 600));
                 stage.setTitle("AgroFlow - Connexion");
+                stage.setMaximized(true);
+
             } catch (IOException e) {
                 e.printStackTrace();
                 showError("Erreur", "Impossible de retourner à la page de connexion");

@@ -119,6 +119,7 @@ public class Acceuil {
             Scene scene = new Scene(root);
             stage.setScene(scene);
             stage.setTitle("AgroFlow - Gestion des Tâches");
+            stage.setMaximized(true);
             stage.show();
 
             System.out.println("✓ Module Tâches chargé");
@@ -150,6 +151,7 @@ public class Acceuil {
             Scene scene = new Scene(root, 1200, 700);
             stage.setScene(scene);
             stage.setTitle("AgroFlow - Gestion des Offres");
+            stage.setMaximized(true);
 
             System.out.println("✓ Module Offres chargé");
 
@@ -175,6 +177,7 @@ public class Acceuil {
             Scene scene = new Scene(root, 1200, 700);
             stage.setScene(scene);
             stage.setTitle("AgroFlow - Gestion des Abonnements");
+            stage.setMaximized(true);
 
             System.out.println("✓ Module Abonnements chargé");
 
@@ -200,6 +203,7 @@ public class Acceuil {
             Scene scene = new Scene(root, 1200, 700);
             stage.setScene(scene);
             stage.setTitle("AgroFlow - Gestion des Affectations");
+            stage.setMaximized(true);
 
             System.out.println("✓ Module Affectations chargé");
 
@@ -232,6 +236,7 @@ public class Acceuil {
                 Scene scene = new Scene(root, 900, 600);
                 stage.setScene(scene);
                 stage.setTitle("AgroFlow - Connexion");
+                stage.setMaximized(true);
 
                 System.out.println("✓ Déconnexion réussie");
 
@@ -322,6 +327,7 @@ this.ouvrirTaches(event);
             Scene scene = new Scene(root, 1200, 700);
             stage.setScene(scene);
             stage.setTitle("AgroFlow - Gestion des Affectations");
+            stage.setMaximized(true);
 
             System.out.println("✓ Module Affectations chargé");
 
@@ -343,6 +349,7 @@ this.ouvrirTaches(event);
             Scene scene = new Scene(root, 1200, 700);
             stage.setScene(scene);
             stage.setTitle("AgroFlow - Gestion des Affectations");
+            stage.setMaximized(true);
 
             System.out.println("✓ Module stocks chargé");
 
@@ -367,6 +374,7 @@ this.ouvrirTaches(event);
             Scene scene = new Scene(root, 1200, 700);
             stage.setScene(scene);
             stage.setTitle("AgroFlow - Gestion des Terrains");
+            stage.setMaximized(true);
 
             System.out.println("✓ Module stocks chargé");
 
@@ -395,6 +403,7 @@ this.ouvrirTaches(event);
             Scene scene = new Scene(root, 1200, 700);
             stage.setScene(scene);
             stage.setTitle("AgroFlow - Gestion des Materiels");
+            stage.setMaximized(true);
 
             System.out.println("✓ Module stocks chargé");
 

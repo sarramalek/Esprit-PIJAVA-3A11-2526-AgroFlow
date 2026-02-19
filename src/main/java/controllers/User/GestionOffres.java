@@ -342,7 +342,7 @@ public class GestionOffres {
      */
     @FXML
     private void handleDashboard() {
-        navigateTo("/Accueil.fxml", "AgroFlow - Accueil");
+        navigateTo("/UsersInterface/Accueil.fxml", "AgroFlow - Accueil");
     }
 
     /**
@@ -398,6 +398,8 @@ public class GestionOffres {
             Scene scene = new Scene(root, 1200, 700);
             stage.setScene(scene);
             stage.setTitle(title);
+            stage.setMaximized(true);
+
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -425,6 +427,8 @@ public class GestionOffres {
                 Scene scene = new Scene(root, 900, 600);
                 stage.setScene(scene);
                 stage.setTitle("AgroFlow - Connexion");
+                stage.setMaximized(true);
+
 
             } catch (IOException e) {
                 e.printStackTrace();

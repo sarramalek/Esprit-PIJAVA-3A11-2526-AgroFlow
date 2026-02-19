@@ -206,8 +206,9 @@ public class AcceuilAgricole {
                     FXMLLoader loader = new FXMLLoader(AcceuilAgricole.class.getResource("/UsersInterface/login.fxml"));
                     Parent root = loader.load();
                     Stage stage = (Stage) logoutBtn.getScene().getWindow();
-                    stage.setScene(new Scene(root, 900, 600));
+                    stage.setScene(new Scene(root, 1500, 700));
                     stage.setTitle("AgroFlow - Connexion");
+                    stage.setMaximized(true);
                     System.out.println("✓ Déconnexion réussie");
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -283,10 +284,10 @@ public class AcceuilAgricole {
                 return;
             }
 
-            Scene scene = new Scene(root);
+            Scene scene = new Scene(root,1500,700);
             stage.setScene(scene);
             stage.setTitle(title);
-            stage.centerOnScreen(); // Centrer la fenêtre
+            stage.setMaximized(true);; // Centrer la fenêtre
 
             System.out.println("✓ Navigation vers: " + title);
 

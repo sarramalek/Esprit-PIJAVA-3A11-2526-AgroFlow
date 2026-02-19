@@ -10,6 +10,7 @@
 <AnchorPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="controllers.User.Authentification"
+            prefHeight="800.0" prefWidth="1500.0"
             style="-fx-background-color: #e8f5e9;">
 
     <!-- ══ FOND décoratif — bulles vertes douces ══ -->

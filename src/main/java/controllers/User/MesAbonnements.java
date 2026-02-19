@@ -595,8 +595,10 @@ public class MesAbonnements {
 
                     Stage stage = getStage();
                     if (stage != null) {
-                        stage.setScene(new Scene(root, 900, 600));
+                        stage.setScene(new Scene(root, 1500, 700));
                         stage.setTitle("AgroFlow - Connexion");
+                        stage.setMaximized(true);
+
                         System.out.println("✓ Déconnexion réussie");
                     }
                 } catch (IOException e) {
@@ -635,6 +637,8 @@ public class MesAbonnements {
             if (stage != null) {
                 stage.setScene(new Scene(root, width, height));
                 stage.setTitle(title);
+                stage.setMaximized(true);
+
             } else {
                 showError("Erreur", "Impossible d'obtenir la fenêtre principale");
             }

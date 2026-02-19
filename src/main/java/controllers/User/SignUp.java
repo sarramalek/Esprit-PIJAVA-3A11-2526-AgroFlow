@@ -389,6 +389,7 @@ public class SignUp implements Initializable {
             Scene scene = new Scene(root);
             stage.setScene(scene);
             stage.setTitle("AgroFlow - Connexion");
+            stage.setMaximized(true);
             stage.show();
 
         } catch (IOException e) {
