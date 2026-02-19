@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<BorderPane prefHeight="700.0" prefWidth="1200.0"
+            style="-fx-background-color: #fcf8e6;"
+            xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controllers.Events.AjouterCategorieController">
+
+    <!-- Sidebar Navigation -->
+    <left>
+        <VBox prefWidth="230.0" spacing="10.0"
+              style="-fx-background-color: #2C3E50; -fx-padding: 15;">
+            <children>
+                <Text fill="WHITE" text="AGROFLOW">
+                    <font>
+                        <Font name="System Bold" size="24.0" />
+                    </font>
+                </Text>
+
+                <Separator opacity="0.2" />
+
+                <Button maxWidth="Infinity"
+                        style="-fx-background-color: transparent; -fx-text-fill: white;"
+                        text="🐾 Gestion Animaux" />
+
+                <Button maxWidth="Infinity"
+                        style="-fx-background-color: transparent; -fx-text-fill: white;"
+                        text="⚙️ Gestion Matériels" />
+
+                <Button maxWidth="Infinity"
+                        style="-fx-background-color: transparent; -fx-text-fill: white;"
+                        text="📦 Gestion Stocks" />
+
+                <Button maxWidth="Infinity"
+                        style="-fx-background-color: transparent; -fx-text-fill: white;"
+                        text="🌱 Gestion Terrains" />
+
+                <Button maxWidth="Infinity"
+                        style="-fx-background-color: #2D5A27; -fx-text-fill: white;"
+                        text="📅 Événements"
+                        onAction="#retourAccueil" />
+
+                <Button maxWidth="Infinity"
+                        style="-fx-background-color: transparent; -fx-text-fill: white;"
+                        text="👥 Utilisateurs" />
+
+                <Region VBox.vgrow="ALWAYS" />
+
+                <Separator opacity="0.1" />
+                <Button maxWidth="Infinity"
+                        style="-fx-background-color: #E74C3C; -fx-text-fill: white;"
+                        text="Déconnexion" />
+            </children>
+        </VBox>
+    </left>
+
+    <!-- Main Content Area -->
+    <center>
+        <VBox spacing="30" alignment="TOP_CENTER">
+            <padding>
+                <Insets bottom="40" left="40" right="40" top="40" />
+            </padding>
+
+            <!-- Header -->
+            <VBox spacing="8" alignment="CENTER">
+                <Label style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;"
+                       text="Ajouter une Catégorie">
+                    <font>
+                        <Font name="System Bold" size="32" />
+                    </font>
+                </Label>
+                <Label style="-fx-font-size: 14px; -fx-text-fill: #7F8C8D;"
+                       text="Créez une nouvelle catégorie d'événement">
+                    <font>
+                        <Font name="System" size="14" />
+                    </font>
+                </Label>
+            </VBox>
+
+            <!-- Form Card -->
+            <VBox spacing="25"
+                  style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 40; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);"
+                  maxWidth="600" alignment="TOP_LEFT">
+
+                <!-- Nom de la catégorie -->
+                <VBox spacing="8">
+                    <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;"
+                           text="Nom de la catégorie *">
+                        <font>
+                            <Font name="System Bold" size="14" />
+                        </font>
+                    </Label>
+                    <TextField fx:id="tfNom"
+                               promptText="Ex: Conférence, Formation, Atelier..."
+                               prefHeight="40"
+                               style="-fx-background-color: #F8F9FA; -fx-background-radius: 8; -fx-border-color: #E0E0E0; -fx-border-radius: 8; -fx-padding: 10; -fx-font-size: 14px;">
+                        <font>
+                            <Font name="System" size="14" />
+                        </font>
+                    </TextField>
+                </VBox>
+
+                <!-- Description -->
+                <VBox spacing="8">
+                    <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;"
+                           text="Description *">
+                        <font>
+                            <Font name="System Bold" size="14" />
+                        </font>
+                    </Label>
+                    <TextArea fx:id="taDescription"
+                              promptText="Décrivez cette catégorie d'événement..."
+                              prefHeight="120"
+                              wrapText="true"
+                              style="-fx-background-color: #F8F9FA; -fx-background-radius: 8; -fx-border-color: #E0E0E0; -fx-border-radius: 8; -fx-padding: 10; -fx-font-size: 14px;">
+                        <font>
+                            <Font name="System" size="14" />
+                        </font>
+                    </TextArea>
+                </VBox>
+
+                <!-- Message d'erreur (initialement caché) -->
+                <Label fx:id="errorLabel"
+                       style="-fx-text-fill: #E74C3C; -fx-font-size: 13px; -fx-background-color: #FADBD8; -fx-padding: 10; -fx-background-radius: 6;"
+                       visible="false"
+                       wrapText="true">
+                    <font>
+                        <Font name="System" size="13" />
+                    </font>
+                </Label>
+
+                <!-- Buttons -->
+                <HBox spacing="15" alignment="CENTER">
+                    <Button text="✓ Enregistrer"
+                            onAction="#ajouterCategorie"
+                            prefWidth="180"
+                            prefHeight="40"
+                            style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 14px; -fx-background-radius: 8; -fx-cursor: hand; -fx-font-weight: bold;">
+                        <font>
+                            <Font name="System Bold" size="14" />
+                        </font>
+                    </Button>
+
+                    <Button text="✕ Annuler"
+                            onAction="#retourCategories"
+                            prefWidth="180"
+                            prefHeight="40"
+                            style="-fx-background-color: #95A5A6; -fx-text-fill: white; -fx-font-size: 14px; -fx-background-radius: 8; -fx-cursor: hand;">
+                        <font>
+                            <Font name="System" size="14" />
+                        </font>
+                    </Button>
+                </HBox>
+
+                <!-- Info text -->
+                <Label style="-fx-font-size: 12px; -fx-text-fill: #95A5A6; -fx-alignment: center;"
+                       text="* Champs obligatoires"
+                       alignment="CENTER">
+                    <font>
+                        <Font name="System Italic" size="12" />
+                    </font>
+                </Label>
+            </VBox>
+
+        </VBox>
+    </center>
+
+</BorderPane>

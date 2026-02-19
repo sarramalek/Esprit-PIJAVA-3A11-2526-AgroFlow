@@ -1,36 +1,29 @@
 package main;
 
-import models.Animaux.Sexe;
-import models.Animaux.animaux;
-import models.Animaux.examens;
-import services.Animaux.ServiceAnimal;
-import services.Animaux.ServiceExamen;
+import models.Events.Evenement;
+import services.Events.EvenementService;
 
+import java.sql.Date;
 import java.sql.SQLException;
-import java.util.Date;
 
 public class Main {
     public static void main(String[] args) {
-        ServiceAnimal sa = new ServiceAnimal();
-        ServiceExamen se = new ServiceExamen();
+        EvenementService ps = new EvenementService();
 
         try {
-            // Test Animal
-            animaux v = new animaux(0, "Marguerite", "Bovin", "Holstein", new Date(), Sexe.FEMELLE, 550f);
-            sa.ajouter(v);
-            System.out.println("Animaux : " + sa.afficher());
-
-            animaux c = new animaux(2,"kiki", "vache", "pure", new Date(), Sexe.MALE, 550f);
-            sa.ajouter(c);
-            System.out.println("Animaux : " + sa.afficher());
-
-            // Test Examen (Assurez-vous que l'ID animal 1 existe)
-            examens ex = new examens(0, new Date(), "Vaccin", "OK", "Repos", 1);
-            se.ajouter(ex);
-            System.out.println("Examens : " + se.afficher());
-
+            ps.ajouter(new Evenement(
+                    "Atelier de formation sur l’irrigation intelligente",
+                    "Atelier pratique destiné aux agriculteurs pour présenter les techniques modernes " +
+                            "d’irrigation intelligente et l’optimisation de la consommation d’eau.",
+                    "FORMATION",
+                    Date.valueOf("2026-03-15"),
+                    Date.valueOf("2026-03-15"),
+                    "Centre de formation agricole de Sfax",
+                    "PLANIFIE",
+                    2
+            ));
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
         }
     }
 }

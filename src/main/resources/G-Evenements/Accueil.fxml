@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.image.*?>
+
+<BorderPane prefHeight="600.0" prefWidth="900.0"
+            style="-fx-background-color: #fcf8e6;"
+            xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controllers.Events.AccueilEvenementController">
+
+    <!-- ================= SIDEBAR (INCHANGÉE) ================= -->
+    <left>
+        <VBox prefWidth="230.0" spacing="10.0"
+              style="-fx-background-color: #2C3E50; -fx-padding: 15;">
+            <children>
+                <Text fill="WHITE" text="AGROFLOW">
+                    <font>
+                        <Font name="System Bold" size="24.0"/>
+                    </font>
+                </Text>
+
+                <Separator opacity="0.2"/>
+
+                <Button text="🐾 Gestion Animaux"
+                        maxWidth="Infinity"
+                        style="-fx-background-color: transparent; -fx-text-fill: white;"/>
+
+                <Button text="⚙️ Gestion Matériels"
+                        maxWidth="Infinity"
+                        style="-fx-background-color: transparent; -fx-text-fill: white;"/>
+
+                <Button text="📦 Gestion Stocks"
+                        maxWidth="Infinity"
+                        style="-fx-background-color: transparent; -fx-text-fill: white;"/>
+
+                <Button text="🌱 Gestion Terrains"
+                        maxWidth="Infinity"
+                        style="-fx-background-color: transparent; -fx-text-fill: white;"/>
+
+                <Button text="📅 Événements"
+                        maxWidth="Infinity"
+                        style="-fx-background-color: #2D5A27; -fx-text-fill: white;"/>
+
+                <Button text="👥 Utilisateurs"
+                        maxWidth="Infinity"
+                        style="-fx-background-color: transparent; -fx-text-fill: white;"/>
+
+                <Region VBox.vgrow="ALWAYS"/>
+
+                <Separator opacity="0.1"/>
+                <Button text="Déconnexion"
+                        maxWidth="Infinity"
+                        style="-fx-background-color: #E74C3C; -fx-text-fill: white;"/>
+            </children>
+        </VBox>
+    </left>
+
+    <!-- ================= CENTER ================= -->
+    <center>
+        <VBox spacing="40" alignment="CENTER" style="-fx-padding: 40;">
+            <children>
+
+                <Text text="Module Événements"
+                      fill="#2C3E50">
+                    <font>
+                        <Font name="System Bold" size="28"/>
+                    </font>
+                </Text>
+
+                <HBox spacing="40" alignment="CENTER">
+
+                    <!-- EVENEMENTS -->
+                    <VBox spacing="15" alignment="CENTER"
+                          onMouseClicked="#ouvrirEvenements"
+                          style="-fx-background-color: white; -fx-padding: 25;
+                                 -fx-border-radius: 10; -fx-background-radius: 10;
+                                 -fx-cursor: hand;">
+                        <children>
+                            <Text text="📅" style="-fx-font-size: 48px;"/>
+                            <Text text="Événements" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+                        </children>
+                    </VBox>
+
+                    <!-- CATEGORIES -->
+                    <VBox spacing="15" alignment="CENTER"
+                          onMouseClicked="#ouvrirCategories"
+                          style="-fx-background-color: white; -fx-padding: 25;
+                                 -fx-border-radius: 10; -fx-background-radius: 10;
+                                 -fx-cursor: hand;">
+                        <children>
+                            <Text text="🏷️" style="-fx-font-size: 48px;"/>
+                            <Text text="Catégories" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+                        </children>
+                    </VBox>
+
+                    <!-- PARTICIPATIONS -->
+                    <VBox spacing="15" alignment="CENTER"
+                          onMouseClicked="#ouvrirParticipations"
+                          style="-fx-background-color: white; -fx-padding: 25;
+                                 -fx-border-radius: 10; -fx-background-radius: 10;
+                                 -fx-cursor: hand;">
+                        <children>
+                            <Text text="👥" style="-fx-font-size: 48px;"/>
+                            <Text text="Participations" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+                        </children>
+                    </VBox>
+
+                </HBox>
+            </children>
+        </VBox>
+    </center>
+
+</BorderPane>

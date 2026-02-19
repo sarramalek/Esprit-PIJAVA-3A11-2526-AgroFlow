@@ -1,7 +1,7 @@
 package services.Materiels;
 
-import entities.Achat;
-import entities.Machine;
+import models.Materiels.Achat;
+import models.Materiels.Machine;
 import org.junit.jupiter.api.*;
 
 import java.sql.SQLException;

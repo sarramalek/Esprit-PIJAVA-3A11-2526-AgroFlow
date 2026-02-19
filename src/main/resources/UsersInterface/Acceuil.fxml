@@ -91,7 +91,7 @@
                         text="🔧  Matériel">
                     <font><Font name="System" size="14" /></font>
                 </Button>
-                <Button fx:id="evenementsBtn" prefHeight="48" prefWidth="230"
+                <Button fx:id="evenementsBtn" prefHeight="48" prefWidth="230" onMouseClicked="#handleEvents"
                         style="-fx-background-color: rgba(255,255,255,0.1); -fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand;"
                         text="🎉  Événements">
                     <font><Font name="System" size="14" /></font>

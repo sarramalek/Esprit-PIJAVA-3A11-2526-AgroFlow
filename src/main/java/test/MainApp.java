@@ -14,7 +14,7 @@ public class MainApp extends Application {
         Parent root = FXMLLoader.load(getClass().getResource("/UsersInterface/login.fxml"));
 
         // Créer la scène
-        Scene scene = new Scene(root, 900, 600);
+        Scene scene = new Scene(root, 1500, 800);
 
         // Configurer la fenêtre
         primaryStage.setTitle("AgroFlow - Connexion");

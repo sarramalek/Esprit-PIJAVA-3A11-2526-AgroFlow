@@ -312,111 +312,51 @@ this.ouvrirTaches(event);
     }
 
     public void handleAnimals(MouseEvent mouseEvent) {
-        this.ouvrirAnimaux(mouseEvent);
+        this.navigateTo(mouseEvent,"/AnimalsInterface/AfficherAnimaux.fxml","Gestion Animaux - AgroFlow ");
 
     }
 
-    public static void ouvrirAnimaux(MouseEvent event) {
-        System.out.println("🔄 Ouverture du module Animaux...");
 
-        try {
-            FXMLLoader loader = new FXMLLoader(Acceuil.class.getResource("/AnimalsInterface/AfficherAnimaux.fxml"));
-            Parent root = loader.load();
 
-            Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
-            Scene scene = new Scene(root, 1200, 700);
-            stage.setScene(scene);
-            stage.setTitle("AgroFlow - Gestion des Affectations");
-            stage.setMaximized(true);
 
-            System.out.println("✓ Module Affectations chargé");
-
-        } catch (IOException e) {
-            System.err.println("✗ Erreur lors de l'ouverture du module Animaux");
-            e.printStackTrace();
-            showInfo("À venir", "Le module Affectations sera disponible prochainement");
-        }
-    }
-
-    public static void ouvrirStocks(MouseEvent event) {
-        System.out.println("🔄 Ouverture du module stocks...");
-
-        try {
-            FXMLLoader loader = new FXMLLoader(Acceuil.class.getResource("/StocksInterface/afficherarticle.fxml"));
-            Parent root = loader.load();
-
-            Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
-            Scene scene = new Scene(root, 1200, 700);
-            stage.setScene(scene);
-            stage.setTitle("AgroFlow - Gestion des Affectations");
-            stage.setMaximized(true);
-
-            System.out.println("✓ Module stocks chargé");
-
-        } catch (IOException e) {
-            System.err.println("✗ Erreur lors de l'ouverture du module Affectations");
-            e.printStackTrace();
-            showInfo("À venir", "Le module Affectations sera disponible prochainement");
-        }
-    }
     public void handleStocks(MouseEvent mouseEvent) {
-        this.ouvrirStocks(mouseEvent);
+        this.navigateTo(mouseEvent,"/StocksInterface/afficherarticle.fxml","Gestion Stocks - Agroflow ");
     }
 
-    public static void ouvrirTerrains(MouseEvent event) {
-        System.out.println("🔄 Ouverture du module Terrains...");
 
-        try {
-            FXMLLoader loader = new FXMLLoader(Acceuil.class.getResource("/TerrainsInterface/acceuilterrain.fxml"));
-            Parent root = loader.load();
-
-            Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
-            Scene scene = new Scene(root, 1200, 700);
-            stage.setScene(scene);
-            stage.setTitle("AgroFlow - Gestion des Terrains");
-            stage.setMaximized(true);
-
-            System.out.println("✓ Module stocks chargé");
-
-        } catch (IOException e) {
-            System.err.println("✗ Erreur lors de l'ouverture du module Terrains");
-            e.printStackTrace();
-            showInfo("À venir", "Le module Terrains sera disponible prochainement");
-        }
-    }
 
     public void handleTerrains(MouseEvent mouseEvent) {
-        this.ouvrirTerrains(mouseEvent);
+        this.navigateTo(mouseEvent,"/TerrainsInterface/acceuilterrain.fxml","gestion Terrains - AgroFlow ");
     }
 
 
    //
+   public void handleEvents(MouseEvent mouseEvent) {
+       this.navigateTo(mouseEvent,"/G-Evenements/Accueil.fxml","gestion Evenements - AgroFlow ");
+   }
 
-    public static void ouvrirMateriels(MouseEvent event) {
-        System.out.println("🔄 Ouverture du module Materiels...");
-
-        try {
-            FXMLLoader loader = new FXMLLoader(Acceuil.class.getResource("/MaterielsInterface/AccueilMateriel.fxml"));
-            Parent root = loader.load();
-
-            Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
-            Scene scene = new Scene(root, 1200, 700);
-            stage.setScene(scene);
-            stage.setTitle("AgroFlow - Gestion des Materiels");
-            stage.setMaximized(true);
-
-            System.out.println("✓ Module stocks chargé");
-
-        } catch (IOException e) {
-            System.err.println("✗ Erreur lors de l'ouverture du module Materiels");
-            e.printStackTrace();
-            showInfo("À venir", "Le module Terrains sera disponible prochainement");
-        }
-    }
 
     public void handleMateriels(MouseEvent mouseEvent) {
-        this.ouvrirMateriels(mouseEvent);
+        this.navigateTo(mouseEvent,"/MaterielsInterface/AccueilMateriel.fxml","gestion Materiels - AgroFlow ");
     }
+    private void navigateTo(MouseEvent event,String fxmlPath, String title) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            Parent root = loader.load();
 
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+
+            boolean etaitMaximise = stage.isMaximized();  // ← SAUVEGARDER AVANT
+
+            stage.setScene(new Scene(root));
+            stage.setTitle(title);
+            stage.setMaximized(etaitMaximise);  // ← RESTAURER APRÈS
+
+            stage.show();
+        } catch (IOException e) {
+            System.err.println("Erreur de chargement FXML : " + fxmlPath);
+            e.printStackTrace();
+        }
+    }
 
 }
