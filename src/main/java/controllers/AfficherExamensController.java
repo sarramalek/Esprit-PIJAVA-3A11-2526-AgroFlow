@@ -123,6 +123,7 @@ public class AfficherExamensController {
             e.printStackTrace();
         }
     }
+
     // Méthode utilitaire pour simplifier la navigation
     private void changerScene(ActionEvent event, String fxmlPath) {
         try {

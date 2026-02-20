@@ -1,15 +1,16 @@
 package controllers;
 
 import entities.animaux;
+import entities.examens; // AJOUTÉ : Pour corriger "Cannot resolve symbol 'examens'"
 import entities.Sexe;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.collections.transformation.FilteredList; // MANQUANT
-import javafx.collections.transformation.SortedList;   // MANQUANT
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable; // INDISPENSABLE pour initialize
+import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -17,16 +18,19 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import services.ServiceAnimal;
+import services.ServiceExamen;
+import services.PdfService;
 
 import java.io.IOException;
-import java.net.URL; // MANQUANT
+import java.net.URL;
 import java.sql.SQLException;
 import java.util.Date;
-import java.util.List; // MANQUANT
+import java.util.List; // Import propre
 import java.util.Optional;
-import java.util.ResourceBundle; // MANQUANT
+import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
-public class AfficherAnimauxController implements Initializable { // Ajout de implements Initializable
+public class AfficherAnimauxController implements Initializable {
 
     @FXML private TableView<animaux> tableAnimaux;
     @FXML private TableColumn<animaux, String> colNom;
@@ -40,7 +44,7 @@ public class AfficherAnimauxController implements Initializable { // Ajout de im
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // Initialisation des colonnes
+        // Liaison des colonnes
         colNom.setCellValueFactory(new PropertyValueFactory<>("nom"));
         colEspece.setCellValueFactory(new PropertyValueFactory<>("espece"));
         colPoids.setCellValueFactory(new PropertyValueFactory<>("poids"));
@@ -54,10 +58,7 @@ public class AfficherAnimauxController implements Initializable { // Ajout de im
         try {
             List<animaux> list = service.afficher();
             ObservableList<animaux> observableList = FXCollections.observableArrayList(list);
-
-            // On configure la recherche avec la liste fraîchement chargée
             setupSearch(observableList);
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -71,9 +72,7 @@ public class AfficherAnimauxController implements Initializable { // Ajout de im
                 if (newValue == null || newValue.isEmpty()) {
                     return true;
                 }
-
                 String lowerCaseFilter = newValue.toLowerCase();
-
                 if (animal.getNom().toLowerCase().contains(lowerCaseFilter)) {
                     return true;
                 } else if (animal.getEspece().toLowerCase().contains(lowerCaseFilter)) {
@@ -84,12 +83,37 @@ public class AfficherAnimauxController implements Initializable { // Ajout de im
         });
 
         SortedList<animaux> sortedData = new SortedList<>(filteredData);
-        // CORRECTION : Utilisation de tableAnimaux (ton ID FXML) au lieu de tvAnimaux
         sortedData.comparatorProperty().bind(tableAnimaux.comparatorProperty());
         tableAnimaux.setItems(sortedData);
     }
 
-    // --- Méthodes de Gestion ---
+    @FXML
+    void handleGenererPDF(ActionEvent event) {
+        animaux selectionne = tableAnimaux.getSelectionModel().getSelectedItem();
+        if (selectionne != null) {
+            try {
+                ServiceExamen sEx = new ServiceExamen();
+                // Utilisation de .collect(Collectors.toList()) pour la compatibilité
+                List<examens> historique = sEx.afficher().stream()
+                        .filter(e -> e.getId_animal() == selectionne.getId())
+                        .collect(Collectors.toList());
+
+                PdfService pdfService = new PdfService();
+                pdfService.genererCarnetSante(selectionne, historique);
+
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Succès");
+                alert.setHeaderText(null);
+                alert.setContentText("Le carnet de santé de " + selectionne.getNom() + " a été généré !");
+                alert.show();
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } else {
+            alerteSelection();
+        }
+    }
 
     @FXML
     void handleSupprimer(ActionEvent event) {
@@ -127,6 +151,7 @@ public class AfficherAnimauxController implements Initializable { // Ajout de im
     void versAjout(ActionEvent event) {
         changerScene(event, "ajoutAnimaux.fxml");
     }
+
     @FXML
     void ouvrirStats(ActionEvent event) {
         try {
@@ -135,12 +160,8 @@ public class AfficherAnimauxController implements Initializable { // Ajout de im
             stage.setTitle("Statistiques - AgroFlow");
             stage.setScene(new Scene(root));
             stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        } catch (IOException e) { e.printStackTrace(); }
     }
-
-    // --- Navigation ---
 
     private void changerScene(ActionEvent event, String fxmlFile) {
         try {

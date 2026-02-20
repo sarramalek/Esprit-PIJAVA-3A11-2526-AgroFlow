@@ -65,6 +65,7 @@
                         <Button onAction="#versAjout" prefHeight="40.0" prefWidth="140.0" style="-fx-background-color: #2D5A27; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" text="+ AJOUTER" />
                         <Button onAction="#versModifier" prefHeight="40.0" prefWidth="140.0" style="-fx-background-color: #A8C69F; -fx-text-fill: #2C3E50; -fx-font-weight: bold; -fx-cursor: hand;" text="MODIFIER" />
                         <Button onAction="#handleSupprimer" prefHeight="40.0" prefWidth="140.0" style="-fx-background-color: #E74C3C; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" text="SUPPRIMER" />
+                        <Button onAction="#handleGenererPDF" style="-fx-background-color: #E67E22; -fx-text-fill: white;" text="📄 CARNET PDF" />
                         <Button onAction="#ouvrirStats" prefHeight="40.0" style="-fx-background-color: #3498DB; -fx-text-fill: white; -fx-font-weight: bold;" text="📊 VOIR STATS" />
                     </children>
                 </HBox>
