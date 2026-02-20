@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.*?>
+
+<VBox alignment="CENTER" prefHeight="500.0" prefWidth="700.0" spacing="20.0" style="-fx-background-color: #fcf8e6; -fx-padding: 20;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.StatsExamensController">
+    <children>
+        <Text fill="#2C3E50" text="Activité Médicale : Examens par Mois">
+            <font><Font name="System Bold" size="22.0" /></font>
+        </Text>
+        <BarChart fx:id="barChart" prefHeight="400.0">
+            <xAxis><CategoryAxis label="Mois" side="BOTTOM" fx:id="xAxis" /></xAxis>
+            <yAxis><NumberAxis label="Nombre d'examens" side="LEFT" /></yAxis>
+        </BarChart>
+    </children>
+</VBox>

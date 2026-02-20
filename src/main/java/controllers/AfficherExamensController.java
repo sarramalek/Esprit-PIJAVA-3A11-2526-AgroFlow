@@ -111,7 +111,18 @@ public class AfficherExamensController {
     void naviguerVersAnimaux(ActionEvent event) {
         changerScene(event, "/AfficherAnimaux.fxml");
     }
-
+    @FXML
+    void ouvrirStats(ActionEvent event) {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/StatsExamens.fxml"));
+            Stage stage = new Stage();
+            stage.setTitle("Statistiques Examens - AgroFlow");
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     // Méthode utilitaire pour simplifier la navigation
     private void changerScene(ActionEvent event, String fxmlPath) {
         try {

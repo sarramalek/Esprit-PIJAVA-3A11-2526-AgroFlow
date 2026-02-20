@@ -67,6 +67,7 @@
                         <Button onAction="#naviguerAjout" prefHeight="45.0" prefWidth="180.0" style="-fx-background-color: #2D5A27; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5;" text="+ AJOUTER" />
                         <Button onAction="#handleModifier" prefHeight="45.0" prefWidth="180.0" style="-fx-background-color: #A3C1AD; -fx-text-fill: #2C3E50; -fx-font-weight: bold; -fx-background-radius: 5;" text="MODIFIER" />
                         <Button onAction="#handleSupprimer" prefHeight="45.0" prefWidth="180.0" style="-fx-background-color: #E74C3C; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5;" text="SUPPRIMER" />
+                        <Button onAction="#ouvrirStats" prefHeight="40.0" style="-fx-background-color: #3498DB; -fx-text-fill: white; -fx-font-weight: bold;" text="📊 STATS MENSUELLES" />
                     </children>
                     <VBox.margin><Insets top="10.0" /></VBox.margin>
                 </HBox>
