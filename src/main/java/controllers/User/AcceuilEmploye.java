@@ -2,9 +2,11 @@ package controllers.User;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -235,7 +237,7 @@ public class AcceuilEmploye {
     }
 
     @FXML
-    private void handleMesTaches() {
+    private void handleMesTaches(MouseEvent event) {
         System.out.println("📋 Ouverture Mes Tâches...");
 
         // Vérifier que l'utilisateur existe
@@ -245,7 +247,7 @@ public class AcceuilEmploye {
             return;
         }
 
-        navigateTo("/UsersInterface/MesTaches.fxml", "AgroFlow - Mes Tâches", 1500, 700);
+        navigateTo(event,"/UsersInterface/MesTaches.fxml", "AgroFlow - Mes Tâches");
     }
 
     @FXML
@@ -290,88 +292,34 @@ public class AcceuilEmploye {
     }
 
     @FXML
-    private void handleLogout() {
+    private void handleLogout(MouseEvent event) {
         System.out.println("🚪 Déconnexion Employé...");
-
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Confirmation");
-        alert.setHeaderText("Déconnexion");
-        alert.setContentText("Voulez-vous vraiment vous déconnecter ?");
-
-        alert.showAndWait().ifPresent(response -> {
-            if (response == ButtonType.OK) {
-                try {
-                    // Nettoyer la session
-                    currentUser = null;
-
-                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/login.fxml"));
-                    Parent root = loader.load();
-
-                    Stage stage = getStage();
-                    if (stage != null) {
-                        stage.setScene(new Scene(root, 1500, 600));
-                        stage.setTitle("AgroFlow - Connexion");
-                        stage.setMaximized(true);
-                        System.out.println("✓ Déconnexion réussie");
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    showError("Erreur", "Impossible de se déconnecter: " + e.getMessage());
-                }
-            }
-        });
+navigateTo(event,"/UsersInterface/login.fxml", "Login");
     }
 
     // ══════════════════════════════════════════════════════════════
     // Navigation Utility
     // ══════════════════════════════════════════════════════════════
 
-    private void navigateTo(String fxmlPath, String title, int width, int height) {
-        System.out.println("\n=== Navigation vers: " + fxmlPath + " ===");
-
-        if (currentUser == null) {
-            System.err.println("✗ ERREUR: currentUser est NULL");
-            showError("Erreur de session", "Votre session a expiré. Veuillez vous reconnecter.");
-            return;
-        }
-
-        System.out.println("✓ currentUser: " + currentUser.getNom());
-
+    private void navigateTo(MouseEvent event, String fxmlPath, String title) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
 
-            Object controller = loader.getController();
-            if (controller != null && currentUser != null) {
-                try {
-                    controller.getClass()
-                            .getMethod("setCurrentUser", Personne.class)
-                            .invoke(controller, currentUser);
-                    System.out.println("✓ Utilisateur transféré");
-                } catch (Exception e) {
-                    System.err.println("⚠️ Erreur transfert utilisateur: " + e.getMessage());
-                }
-            }
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
 
-            Stage stage = getStage();
-            if (stage != null) {
-                stage.setScene(new Scene(root, width, height));
-                stage.setTitle(title);
-                stage.setMaximized(true);
-                System.out.println("✓ Navigation réussie");
-            } else {
-                showError("Erreur", "Impossible d'obtenir la fenêtre principale");
-            }
+            boolean etaitMaximise = stage.isMaximized();  // ← SAUVEGARDER AVANT
 
+            stage.setScene(new Scene(root));
+            stage.setTitle(title);
+            stage.setMaximized(etaitMaximise);  // ← RESTAURER APRÈS
+
+            stage.show();
         } catch (IOException e) {
+            System.err.println("Erreur de chargement FXML : " + fxmlPath);
             e.printStackTrace();
-            showError("Erreur de navigation",
-                    "Impossible de charger " + title + ": " + e.getMessage());
         }
-
-        System.out.println("=====================================\n");
     }
-
     // ══════════════════════════════════════════════════════════════
     // UI Helpers
     // ══════════════════════════════════════════════════════════════

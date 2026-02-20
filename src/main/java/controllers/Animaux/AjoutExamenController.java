@@ -28,6 +28,7 @@ public class AjoutExamenController {
 
     @FXML
     public void initialize() {
+
         try {
             // Chargement de la liste des animaux dans le ComboBox
             cbAnimal.getItems().setAll(serviceAn.afficher());

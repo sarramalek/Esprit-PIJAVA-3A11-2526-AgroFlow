@@ -1,6 +1,7 @@
 package controllers.User;
 
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -68,151 +69,6 @@ public class Acceuil {
     /**
      * Ouvrir le module Personnes
      */
-    @FXML
-    public static void ouvrirPersonnes(MouseEvent event) {
-        System.out.println("👥 Ouverture du module Personnes...");
-
-        try {
-            FXMLLoader loader = new FXMLLoader(Acceuil.class.getResource("/UsersInterface/DahboardPersonne.fxml"));
-            Parent root = loader.load();
-
-            // Passer l'utilisateur au contrôleur
-            DashboardPersonnes controller = loader.getController();
-            if (currentUser != null) {
-                controller.setCurrentUser(currentUser);
-            }
-
-            Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
-            Scene scene = new Scene(root, 1200, 700);
-            stage.setScene(scene);
-            stage.setTitle("AgroFlow - Gestion du Personnel");
-
-            System.out.println("✓ Module Personnes chargé");
-
-        } catch (IOException e) {
-            System.err.println("✗ Erreur lors de l'ouverture du module Personnes");
-            e.printStackTrace();
-            showError("Erreur", "Impossible de charger le module Personnes");
-        }
-    }
-
-    /**
-     * Ouvrir le module Tâches
-     */
-    public static void ouvrirTaches(MouseEvent event) {
-        try {
-            System.out.println("🗂️ Ouverture du module Tâches...");
-
-            // Charger le bon fichier FXML
-            FXMLLoader loader = new FXMLLoader(Acceuil.class.getResource("/UsersInterface/GestionTache.fxml"));
-            Parent root = loader.load();
-
-            // Récupérer le controller (optionnel, seulement si nécessaire)
-            GestionTache controller = loader.getController();
-
-            // Passer l'utilisateur si nécessaire
-            // if (currentUser != null) {
-            //     controller.setCurrentUser(currentUser);
-            // }
-
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            Scene scene = new Scene(root);
-            stage.setScene(scene);
-            stage.setTitle("AgroFlow - Gestion des Tâches");
-            stage.setMaximized(true);
-            stage.show();
-
-            System.out.println("✓ Module Tâches chargé");
-
-        } catch (IOException e) {
-            System.err.println("✗ Erreur lors du chargement du module Tâches");
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Ouvrir le module Offres
-     */
-    @FXML
-    public static void ouvrirOffres(MouseEvent event) {
-        System.out.println("🏷️ Ouverture du module Offres...");
-
-        try {
-            FXMLLoader loader = new FXMLLoader(Acceuil.class.getResource("/UsersInterface/GestionOffre.fxml"));
-            Parent root = loader.load();
-
-            // Passer l'utilisateur au contrôleur si nécessaire
-            // GestionOffresController controller = loader.getController();
-            // if (currentUser != null) {
-            //     controller.setCurrentUser(currentUser);
-            // }
-
-            Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
-            Scene scene = new Scene(root, 1200, 700);
-            stage.setScene(scene);
-            stage.setTitle("AgroFlow - Gestion des Offres");
-            stage.setMaximized(true);
-
-            System.out.println("✓ Module Offres chargé");
-
-        } catch (IOException e) {
-            System.err.println("✗ Erreur lors de l'ouverture du module Offres");
-            e.printStackTrace();
-            showInfo("À venir", "Le module Offres sera disponible prochainement");
-        }
-    }
-
-    /**
-     * Ouvrir le module Abonnements
-     */
-    @FXML
-    public static void ouvrirAbonnements(MouseEvent event) {
-        System.out.println("📋 Ouverture du module Abonnements...");
-
-        try {
-            FXMLLoader loader = new FXMLLoader(Acceuil.class.getResource("/UsersInterface/GestionAbonnements.fxml"));
-            Parent root = loader.load();
-
-            Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
-            Scene scene = new Scene(root, 1200, 700);
-            stage.setScene(scene);
-            stage.setTitle("AgroFlow - Gestion des Abonnements");
-            stage.setMaximized(true);
-
-            System.out.println("✓ Module Abonnements chargé");
-
-        } catch (IOException e) {
-            System.err.println("✗ Erreur lors de l'ouverture du module Abonnements");
-            e.printStackTrace();
-            showInfo("À venir", "Le module Abonnements sera disponible prochainement");
-        }
-    }
-
-    /**
-     * Ouvrir le module Affectations
-     */
-    @FXML
-    public static void ouvrirAffectations(MouseEvent event) {
-        System.out.println("🔄 Ouverture du module Affectations...");
-
-        try {
-            FXMLLoader loader = new FXMLLoader(Acceuil.class.getResource("/GestionAffectation.fxml"));
-            Parent root = loader.load();
-
-            Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
-            Scene scene = new Scene(root, 1200, 700);
-            stage.setScene(scene);
-            stage.setTitle("AgroFlow - Gestion des Affectations");
-            stage.setMaximized(true);
-
-            System.out.println("✓ Module Affectations chargé");
-
-        } catch (IOException e) {
-            System.err.println("✗ Erreur lors de l'ouverture du module Affectations");
-            e.printStackTrace();
-            showInfo("À venir", "Le module Affectations sera disponible prochainement");
-        }
-    }
 
     /**
      * Gérer la déconnexion
@@ -282,18 +138,19 @@ public class Acceuil {
 
     @FXML
     private void handlePersonnes(MouseEvent event )  {
-        this.ouvrirPersonnes(event);
-    }
+        this.navigateTo(event,"/UsersInterface/DahboardPersonne.fxml","Personnes - Agroflow");}
 
-    @FXML private void handleTaches(MouseEvent event ) { /* Charger vue Tâches */
-this.ouvrirTaches(event);
-    }
-    @FXML private void handleAffectations(MouseEvent event) { /* Charger vue Affectations */
-    this.ouvrirAffectations(event);}
+
+    @FXML private void handleTaches(Event event ) { /* Charger vue Tâches */
+        this.navigateTo(event,"/UsersInterface/GestionTache.fxml","Taches - Agroflow");}
+
+
+
     @FXML private void handleAbonnements(MouseEvent event) { /* Charger vue Abonnements */
-    this.ouvrirAbonnements(event);}
+    this.navigateTo(event,"/UsersInterface/GestionAbonnements.fxml","Abonnement - Agroflow");}
     @FXML private void handleOffres(MouseEvent event) { /* Charger vue Offres */
-    this.ouvrirOffres(event);}
+        this.navigateTo(event,"/UsersInterface/GestionOffre.fxml","Offres - Agroflow");}
+
     @FXML private void handleGestion(MouseEvent event) { /* Vue principale Gestion */
     }
 
@@ -339,7 +196,7 @@ this.ouvrirTaches(event);
     public void handleMateriels(MouseEvent mouseEvent) {
         this.navigateTo(mouseEvent,"/MaterielsInterface/AccueilMateriel.fxml","gestion Materiels - AgroFlow ");
     }
-    private void navigateTo(MouseEvent event,String fxmlPath, String title) {
+    private void navigateTo(Event event, String fxmlPath, String title) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();

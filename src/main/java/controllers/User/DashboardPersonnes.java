@@ -583,19 +583,17 @@ public class DashboardPersonnes {
 
     @FXML
     private void handlePersonnes(MouseEvent event )  {
-        Acceuil.ouvrirPersonnes(event);
-    }
+        this.navigateTo(event,"/UsersInterface/Acceuil.fxml","Personnes - agroflow ");    }
 
 
     @FXML private void handleTaches(MouseEvent event ) { /* Charger vue Tâches */
-        Acceuil.ouvrirTaches(event);
+        this.navigateTo(event,"/UsersInterface/GestionTache.fxml","taches - agroflow ");
     }
-    @FXML private void handleAffectations(MouseEvent event) { /* Charger vue Affectations */
-        Acceuil.ouvrirAffectations(event);}
+
     @FXML private void handleAbonnements(MouseEvent event) { /* Charger vue Abonnements */
-        Acceuil.ouvrirAbonnements(event);}
+        this.navigateTo(event,"/UsersInterface/GestionAbonnements.fxml","Abonnementss - agroflow ");}
     @FXML private void handleOffres(MouseEvent event) { /* Charger vue Offres */
-        Acceuil.ouvrirOffres(event);}
+        this.navigateTo(event,"/UsersInterface/GestionOffre.fxml","Offres - agroflow ");}
     @FXML private void handleGestion(MouseEvent event) { /* Vue principale Gestion */
     }
     private void showGestionSubmenu() {
@@ -635,4 +633,32 @@ public class DashboardPersonnes {
         }
     }
 
+    public void handleAnimals(MouseEvent mouseEvent) {
+        this.navigateTo(mouseEvent,"/AnimalsInterface/AfficherAnimaux.fxml","Gestion Animaux - AgroFlow ");
+
+    }
+
+
+
+
+    public void handleStocks(MouseEvent mouseEvent) {
+        this.navigateTo(mouseEvent,"/StocksInterface/afficherarticle.fxml","Gestion Stocks - Agroflow ");
+    }
+
+
+
+    public void handleTerrains(MouseEvent mouseEvent) {
+        this.navigateTo(mouseEvent,"/TerrainsInterface/acceuilterrain.fxml","gestion Terrains - AgroFlow ");
+    }
+
+
+    //
+    public void handleEvents(MouseEvent mouseEvent) {
+        this.navigateTo(mouseEvent,"/G-Evenements/Accueil.fxml","gestion Evenements - AgroFlow ");
+    }
+
+
+    public void handleMateriels(MouseEvent mouseEvent) {
+        this.navigateTo(mouseEvent,"/MaterielsInterface/AccueilMateriel.fxml","gestion Materiels - AgroFlow ");
+    }
 }

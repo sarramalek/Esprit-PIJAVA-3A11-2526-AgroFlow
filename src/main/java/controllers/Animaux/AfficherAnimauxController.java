@@ -1,5 +1,7 @@
 package controllers.Animaux;
 
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.VBox;
 import models.Animaux.animaux;
 import models.Animaux.Sexe;
 import javafx.collections.FXCollections;
@@ -28,11 +30,36 @@ public class AfficherAnimauxController {
     @FXML private TableColumn<animaux, Float> colPoids;
     @FXML private TableColumn<animaux, Date> colDate; // Nouvelle colonne
     @FXML private TableColumn<animaux, Sexe> colSexe; // Nouvelle colonne
+    @FXML private Button gestionToggle, operationsToggle;
+    @FXML private Button gestionBtn;
+    @FXML private Button dashboardBtn;
+    @FXML private Button logoutBtn;
+    @FXML private VBox gestionSubmenu,gestionContainer;
+
 
     private ServiceAnimal service = new ServiceAnimal();
 
     @FXML
     public void initialize() {
+        // Cacher submenu par défaut
+        gestionSubmenu.setVisible(false);
+        gestionSubmenu.setManaged(false);
+
+        // 1. Hover sur le bouton Gestion → Ouvre submenu
+        gestionBtn.setOnMouseEntered(e -> {
+            showGestionSubmenu();
+        });
+
+        // 2. Hover sur TOUT le container Gestion → Garde submenu ouvert
+        gestionContainer.setOnMouseEntered(e -> {
+            showGestionSubmenu();
+        });
+
+        // 3. SOURIS SORT DU CONTAINER ENTIER → Ferme submenu
+        gestionContainer.setOnMouseExited(e -> {
+            hideGestionSubmenu();
+        });
+
         // Liaison de TOUTES les colonnes
         colNom.setCellValueFactory(new PropertyValueFactory<>("nom"));
         colEspece.setCellValueFactory(new PropertyValueFactory<>("espece"));
@@ -119,7 +146,7 @@ public class AfficherAnimauxController {
         }
     }
     @FXML
-    void naviguerVersExamens(ActionEvent event) {
+    void naviguerVersExamens( MouseEvent event) {
         try {
             // Le nom du fichier doit être EXACT (attention aux majuscules)
             Parent root = FXMLLoader.load(getClass().getResource("/AnimalsInterface/AfficherExamens.fxml"));
@@ -147,26 +174,144 @@ public class AfficherAnimauxController {
         }
     }
     // Dans tes contrôleurs (ou une classe Helper)
-    private void changerScene(ActionEvent event, String fxmlFile) {
+    private void changerScene( MouseEvent event, String fxmlFile) {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("/" + fxmlFile));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
+            Parent root = loader.load();
+
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+
+            boolean etaitMaximise = stage.isMaximized();  // ← SAUVEGARDER AVANT
+
             stage.setScene(new Scene(root));
+
+            stage.setMaximized(etaitMaximise);  // ← RESTAURER APRÈS
+
             stage.show();
         } catch (IOException e) {
-            System.err.println("Erreur de navigation vers " + fxmlFile + " : " + e.getMessage());
+            System.err.println("Erreur de chargement FXML : " + fxmlFile);
+            e.printStackTrace();
         }
     }
 
-    @FXML void naviguerAnimaux(ActionEvent event) { changerScene(event, "AnimalsInterface/AfficherAnimaux.fxml"); }
-    @FXML void naviguerMateriels(ActionEvent event) { changerScene(event, "AfficherMateriels.fxml"); }
-    @FXML void naviguerStocks(ActionEvent event) { changerScene(event, "AfficherStocks.fxml"); }
-    @FXML void naviguerTerrains(ActionEvent event) { changerScene(event, "AfficherTerrains.fxml"); }
-    @FXML void naviguerEvenements(ActionEvent event) { changerScene(event, "AfficherEvenements.fxml"); }
-    @FXML void naviguerUsers(ActionEvent event) { changerScene(event, "AfficherUsers.fxml"); }
+
     private void alerteSelection() {
         Alert alert = new Alert(Alert.AlertType.WARNING);
         alert.setContentText("Veuillez sélectionner un animal dans le tableau.");
         alert.show();
     }
+
+    //navigation vers les autres modules
+    @FXML
+    private void handlePersonnes(MouseEvent event )  {
+        this.changerScene(event,"/UsersInterface/DahboardPersonne.fxml");}
+
+
+    @FXML private void handleTaches(MouseEvent event ) { /* Charger vue Tâches */
+        this.changerScene(event,"/UsersInterface/GestionTache.fxml");}
+
+
+
+    @FXML private void handleAbonnements(MouseEvent event) { /* Charger vue Abonnements */
+        this.changerScene(event,"/UsersInterface/GestionAbonnements.fxml");}
+    @FXML private void handleOffres(MouseEvent event) { /* Charger vue Offres */
+        this.changerScene(event,"/UsersInterface/GestionOffre.fxml");}
+
+    @FXML private void handleGestion(MouseEvent event) { /* Vue principale Gestion */
+    }
+
+    private void showGestionSubmenu() {
+        gestionSubmenu.setVisible(true);
+        gestionSubmenu.setManaged(true);
+    }
+
+    private void hideGestionSubmenu() {
+        gestionSubmenu.setVisible(false);
+        gestionSubmenu.setManaged(false);
+    }
+
+    public void handleDashboard(MouseEvent actionEvent) {
+        this.changerScene(actionEvent,"/UsersInterface/Acceuil.fxml");
+    }
+
+    public void handleAnimals(MouseEvent mouseEvent) {
+        this.changerScene(mouseEvent,"/AnimalsInterface/AfficherAnimaux.fxml");
+
+    }
+
+
+
+
+    public void handleStocks(MouseEvent mouseEvent) {
+        this.changerScene(mouseEvent,"/StocksInterface/afficherarticle.fxml");
+    }
+
+
+
+    public void handleTerrains(MouseEvent mouseEvent) {
+        this.changerScene(mouseEvent,"/TerrainsInterface/acceuilterrain.fxml");
+    }
+
+
+    //
+    public void handleEvents(MouseEvent mouseEvent) {
+        this.changerScene(mouseEvent,"/G-Evenements/Accueil.fxml");
+    }
+
+
+    public void handleMateriels(MouseEvent mouseEvent) {
+        this.changerScene(mouseEvent,"/MaterielsInterface/AccueilMateriel.fxml");
+    }
+    @FXML
+    private void handleLogout() {
+        System.out.println("🚪 Déconnexion...");
+
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirmation");
+        alert.setHeaderText("Déconnexion");
+        alert.setContentText("Voulez-vous vraiment vous déconnecter ?");
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/login.fxml"));
+                Parent root = loader.load();
+
+                Stage stage = (Stage) logoutBtn.getScene().getWindow();
+                Scene scene = new Scene(root, 900, 600);
+                stage.setScene(scene);
+                stage.setTitle("AgroFlow - Connexion");
+                stage.setMaximized(true);
+
+                System.out.println("✓ Déconnexion réussie");
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                showError("Erreur", "Impossible de retourner à la page de connexion");
+            }
+        }
+    }
+
+    /**
+     * Afficher une erreur
+     */
+    private static void showError(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    /**
+     * Afficher une information
+     */
+    private static void showInfo(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
 }

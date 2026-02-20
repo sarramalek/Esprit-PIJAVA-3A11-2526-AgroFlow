@@ -3,9 +3,11 @@ package controllers.User;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -525,29 +527,29 @@ public class MesAbonnements {
     // ══════════════════════════════════════════════════════════════
 
     @FXML
-    private void handleDashboard() {
+    private void handleDashboard(MouseEvent event) {
         System.out.println("📊 Retour au dashboard...");
-        navigateTo("/UsersInterface/AcceuillAgr.fxml", "AgroFlow - Dashboard Agricole", 1200, 700);
+        navigateTo(event,"/UsersInterface/AcceuillAgr.fxml", "AgroFlow - Dashboard Agricole");
     }
 
     @FXML
-    private void handleMesTerrains() {
-        navigateTo("/MesTerrains.fxml", "Mes Terrains", 1200, 700);
+    private void handleMesTerrains(MouseEvent event) {
+        navigateTo(event,"/MesTerrains.fxml", "Mes Terrains");
     }
 
     @FXML
-    private void handleMesAnimaux() {
-        navigateTo("/MesAnimaux.fxml", "Mes Animaux", 1200, 700);
+    private void handleMesAnimaux(MouseEvent event) {
+        navigateTo(event,"/MesAnimaux.fxml", "Mes Animaux");
     }
 
     @FXML
-    private void handleMesStocks() {
-        navigateTo("/MesStocks.fxml", "Mes Stocks", 1200, 700);
+    private void handleMesStocks(MouseEvent event) {
+        navigateTo(event,"/MesStocks.fxml", "Mes Stocks");
     }
 
     @FXML
-    private void handleMonMateriel() {
-        navigateTo("/MonMateriel.fxml", "Mon Matériel", 1200, 700);
+    private void handleMonMateriel(MouseEvent event) {
+        navigateTo(event,"/MonMateriel.fxml", "Mon Matériel");
     }
 
     @FXML
@@ -616,37 +618,23 @@ public class MesAbonnements {
     /**
      * Navigation générique vers une autre vue
      */
-    private void navigateTo(String fxmlPath, String title, int width, int height) {
+    private void navigateTo(MouseEvent event, String fxmlPath, String title) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
 
-            // Transférer l'utilisateur
-            Object controller = loader.getController();
-            if (controller != null && currentUser != null) {
-                try {
-                    controller.getClass()
-                            .getMethod("setCurrentUser", Personne.class)
-                            .invoke(controller, currentUser);
-                } catch (Exception e) {
-                    System.err.println("⚠️ Le contrôleur ne supporte pas setCurrentUser()");
-                }
-            }
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
 
-            Stage stage = getStage();
-            if (stage != null) {
-                stage.setScene(new Scene(root, width, height));
-                stage.setTitle(title);
-                stage.setMaximized(true);
+            boolean etaitMaximise = stage.isMaximized();  // ← SAUVEGARDER AVANT
 
-            } else {
-                showError("Erreur", "Impossible d'obtenir la fenêtre principale");
-            }
+            stage.setScene(new Scene(root));
+            stage.setTitle(title);
+            stage.setMaximized(etaitMaximise);  // ← RESTAURER APRÈS
 
+            stage.show();
         } catch (IOException e) {
+            System.err.println("Erreur de chargement FXML : " + fxmlPath);
             e.printStackTrace();
-            showError("Erreur de navigation",
-                    "Impossible de charger " + title + ": " + e.getMessage());
         }
     }
 

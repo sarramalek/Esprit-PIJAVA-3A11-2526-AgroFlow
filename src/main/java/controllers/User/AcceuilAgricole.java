@@ -2,9 +2,11 @@ package controllers.User;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.geometry.Pos;
 import javafx.stage.Stage;
@@ -95,7 +97,7 @@ public class AcceuilAgricole {
                 Button btnSouscrire = new Button("➕ Voir les offres");
                 btnSouscrire.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; " +
                         "-fx-font-size: 14px; -fx-padding: 10 20; -fx-background-radius: 8; -fx-cursor: hand;");
-                btnSouscrire.setOnAction(e -> handleMonAbonnement());
+                btnSouscrire.setOnMouseClicked(e -> handleMonAbonnement(e));
 
                 emptyBox.getChildren().addAll(icon, msg1, msg2, btnSouscrire);
                 abonnementsContainer.getChildren().add(emptyBox);
@@ -187,9 +189,9 @@ public class AcceuilAgricole {
 
     // ✓ CORRECT
     @FXML
-    private void handleMonAbonnement() {
+    private void handleMonAbonnement(MouseEvent event) {
         System.out.println("💳 Ouverture Mon Abonnement...");
-        navigateTo("/UsersInterface/MesAbonnements.fxml","Mes Abonnements");
+        navigateTo(event,"/UsersInterface/MesAbonnements.fxml","Mes Abonnements");
     }
     // ── Logout ────────────────────────────────────────────────────────────────
 
@@ -262,37 +264,26 @@ public class AcceuilAgricole {
 
     // Ajouter cette méthode handleAPropos()
     @FXML
-    private void handleAPropos() {
-        navigateTo("/UsersInterface/ProfilAgricole.fxml","ddd");
+    private void handleAPropos(MouseEvent event) {
+        navigateTo(event,"/UsersInterface/ProfilAgricole.fxml","ddd");
     }
-    private void navigateTo(String fxmlPath, String title) {
+    private void navigateTo(MouseEvent event, String fxmlPath, String title) {
         try {
-            // 1. Charger le fichier FXML
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
 
-            // 2. Transférer l'utilisateur courant au nouveau contrôleur
-            Object controller = loader.getController();
-            if (controller != null && currentUser != null) {
-                transferUserToController(controller);
-            }
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
 
-            // 3. Obtenir le stage et changer de scène
-            Stage stage = getStage();
-            if (stage == null) {
-                showError("Impossible d'obtenir la fenêtre principale");
-                return;
-            }
+            boolean etaitMaximise = stage.isMaximized();  // ← SAUVEGARDER AVANT
 
-            Scene scene = new Scene(root,1500,700);
-            stage.setScene(scene);
+            stage.setScene(new Scene(root));
             stage.setTitle(title);
-            stage.setMaximized(true);; // Centrer la fenêtre
+            stage.setMaximized(etaitMaximise);  // ← RESTAURER APRÈS
 
-            System.out.println("✓ Navigation vers: " + title);
-
+            stage.show();
         } catch (IOException e) {
-            handleNavigationError(fxmlPath, title, e);
+            System.err.println("Erreur de chargement FXML : " + fxmlPath);
+            e.printStackTrace();
         }
     }
 

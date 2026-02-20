@@ -1,5 +1,7 @@
 package controllers.Stocks;
 
+import javafx.event.Event;
+import javafx.scene.input.MouseEvent;
 import models.Stocks.Article;
 import models.Stocks.Categorie;
 import javafx.collections.FXCollections;
@@ -16,6 +18,8 @@ import services.Stocks.CategorieService;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
+
 import javafx.scene.layout.VBox;
 import javafx.geometry.Insets;
 import javafx.scene.control.ButtonBar;
@@ -23,7 +27,8 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 
 public class ajouterarticleController {
-
+    @FXML private Button logoutBtn,gestionBtn;
+    @FXML private VBox gestionSubmenu,gestionContainer;
     @FXML private TextField tfNom, tfQuantite, tfSeuil, tfUnite;
     @FXML private ComboBox<Categorie> cbCategories;
     @FXML private Label lblTitre;
@@ -38,6 +43,20 @@ public class ajouterarticleController {
 
     @FXML
     public void initialize() {
+
+            // Cacher submenu par défaut
+            gestionSubmenu.setVisible(false);
+            gestionSubmenu.setManaged(false);
+
+            // 1. Hover sur le bouton Gestion → Ouvre submenu
+            gestionBtn.setOnMouseEntered(e -> {
+                showGestionSubmenu();
+            });
+
+            // 2. Hover sur TOUT le container Gestion → Garde submenu ouvert
+            gestionContainer.setOnMouseEntered(e -> {
+                showGestionSubmenu();
+            });
         chargerCategories();
 
         // 1. Validation immédiate au démarrage
@@ -288,4 +307,136 @@ public class ajouterarticleController {
             });
         } catch (SQLException e) { e.printStackTrace(); }
     }
+    //navigation vers les autres modules
+    @FXML
+    private void handlePersonnes(MouseEvent event )  {
+        this.changerScene(event,"/UsersInterface/DahboardPersonne.fxml");}
+
+
+    @FXML private void handleTaches(Event event ) { /* Charger vue Tâches */
+        this.changerScene(event,"/UsersInterface/GestionTache.fxml");}
+
+
+
+    @FXML private void handleAbonnements(MouseEvent event) { /* Charger vue Abonnements */
+        this.changerScene(event,"/UsersInterface/GestionAbonnements.fxml");}
+    @FXML private void handleOffres(MouseEvent event) { /* Charger vue Offres */
+        this.changerScene(event,"/UsersInterface/GestionOffre.fxml");}
+
+    @FXML private void handleGestion(MouseEvent event) { /* Vue principale Gestion */
+    }
+
+    private void showGestionSubmenu() {
+        gestionSubmenu.setVisible(true);
+        gestionSubmenu.setManaged(true);
+    }
+
+    private void hideGestionSubmenu() {
+        gestionSubmenu.setVisible(false);
+        gestionSubmenu.setManaged(false);
+    }
+
+    public void handleDashboard(MouseEvent actionEvent) throws IOException {
+        this.changerScene(actionEvent, "/UsersInterface/Acceuil.fxml");
+
+    }
+    public void handleAnimals(MouseEvent mouseEvent) {
+        this.changerScene(mouseEvent,"/AnimalsInterface/AfficherAnimaux.fxml");
+
+    }
+
+
+
+
+    public void handleStocks(MouseEvent mouseEvent) {
+        this.changerScene(mouseEvent,"/StocksInterface/afficherarticle.fxml");
+    }
+
+
+
+    public void handleTerrains(MouseEvent mouseEvent) {
+        this.changerScene(mouseEvent,"/TerrainsInterface/acceuilterrain.fxml");
+    }
+
+
+    //
+    public void handleEvents(MouseEvent mouseEvent) {
+        this.changerScene(mouseEvent,"/G-Evenements/Accueil.fxml");
+    }
+
+
+    public void handleMateriels(MouseEvent mouseEvent) {
+        this.changerScene(mouseEvent,"/MaterielsInterface/AccueilMateriel.fxml");
+    }
+    @FXML
+    private void handleLogout() {
+        System.out.println("🚪 Déconnexion...");
+
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirmation");
+        alert.setHeaderText("Déconnexion");
+        alert.setContentText("Voulez-vous vraiment vous déconnecter ?");
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/login.fxml"));
+                Parent root = loader.load();
+
+                Stage stage = (Stage) logoutBtn.getScene().getWindow();
+                Scene scene = new Scene(root, 900, 600);
+                stage.setScene(scene);
+                stage.setTitle("AgroFlow - Connexion");
+                stage.setMaximized(true);
+
+                System.out.println("✓ Déconnexion réussie");
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                showError("Erreur", "Impossible de retourner à la page de connexion");
+            }
+        }
+    }
+
+    /**
+     * Afficher une erreur
+     */
+    private static void showError(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    /**
+     * Afficher une information
+     */
+    private static void showInfo(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+    private void changerScene(Event event, String fxmlFile) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
+            Parent root = loader.load();
+
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+
+            boolean etaitMaximise = stage.isMaximized();  // ← SAUVEGARDER AVANT
+
+            stage.setScene(new Scene(root));
+
+            stage.setMaximized(etaitMaximise);  // ← RESTAURER APRÈS
+
+            stage.show();
+        } catch (IOException e) {
+            System.err.println("Erreur de chargement FXML : " + fxmlFile);
+            e.printStackTrace();
+        }
+    }
+
 }

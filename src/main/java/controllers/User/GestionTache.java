@@ -4,6 +4,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -418,11 +419,10 @@ public class GestionTache {
 
     // ── Navigation ────────────────────────────────────────────────────────────
 
-    @FXML private void handlePersonnes(MouseEvent event)    { Acceuil.ouvrirPersonnes(event); }
+    @FXML private void handlePersonnes(MouseEvent event)    {this.navigateTo(event,"/UsersInterface/DahboardPersonne.fxml","Personnes - agroflow "); }
     @FXML private void handleTaches(MouseEvent event)       { /* déjà sur cette page */ }
-    @FXML private void handleAffectations(MouseEvent event) { Acceuil.ouvrirAffectations(event); }
-    @FXML private void handleAbonnements(MouseEvent event)  { Acceuil.ouvrirAbonnements(event); }
-    @FXML private void handleOffres(MouseEvent event)       { Acceuil.ouvrirOffres(event); }
+    @FXML private void handleAbonnements(MouseEvent event)  { this.navigateTo(event,"/UsersInterface/GestionAbonnements.fxml","Abonnements - agroflow "); }
+    @FXML private void handleOffres(MouseEvent event)       { this.navigateTo(event,"/UsersInterface/GestionOffre.fxml","Offres - agroflow "); }
     @FXML private void handleGestion(MouseEvent event)      { }
 
     @FXML
@@ -457,7 +457,7 @@ public class GestionTache {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/login.fxml"));
                 Parent root = loader.load();
                 Stage stage = (Stage) logoutBtn.getScene().getWindow();
-                stage.setScene(new Scene(root, 900, 600));
+                stage.setScene(new Scene(root, 1500, 700));
                 stage.setTitle("AgroFlow - Connexion");
                 stage.setMaximized(true);
 
@@ -501,4 +501,52 @@ public class GestionTache {
         alert.setContentText(message);
         alert.showAndWait();
     }
+    private void navigateTo(MouseEvent event, String fxmlPath, String title) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            Parent root = loader.load();
+
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+
+            boolean etaitMaximise = stage.isMaximized();  // ← SAUVEGARDER AVANT
+
+            stage.setScene(new Scene(root));
+            stage.setTitle(title);
+            stage.setMaximized(etaitMaximise);  // ← RESTAURER APRÈS
+
+            stage.show();
+        } catch (IOException e) {
+            System.err.println("Erreur de chargement FXML : " + fxmlPath);
+            e.printStackTrace();
+        }
+    }
+    public void handleAnimals(MouseEvent mouseEvent) {
+        this.navigateTo(mouseEvent,"/AnimalsInterface/AfficherAnimaux.fxml","Gestion Animaux - AgroFlow ");
+
+    }
+
+
+
+
+    public void handleStocks(MouseEvent mouseEvent) {
+        this.navigateTo(mouseEvent,"/StocksInterface/afficherarticle.fxml","Gestion Stocks - Agroflow ");
+    }
+
+
+
+    public void handleTerrains(MouseEvent mouseEvent) {
+        this.navigateTo(mouseEvent,"/TerrainsInterface/acceuilterrain.fxml","gestion Terrains - AgroFlow ");
+    }
+
+
+    //
+    public void handleEvents(MouseEvent mouseEvent) {
+        this.navigateTo(mouseEvent,"/G-Evenements/Accueil.fxml","gestion Evenements - AgroFlow ");
+    }
+
+
+    public void handleMateriels(MouseEvent mouseEvent) {
+        this.navigateTo(mouseEvent,"/MaterielsInterface/AccueilMateriel.fxml","gestion Materiels - AgroFlow ");
+    }
+
 }

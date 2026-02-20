@@ -2,15 +2,24 @@ package controllers.Materiels;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import models.Materiels.Machine;
 import models.Materiels.Maintenance;
 import services.Materiels.MachineService;
 import services.Materiels.MaintenanceService;
 
+import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -19,7 +28,8 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class ModifierMaintenanceController implements Initializable {
-
+    @FXML private Button logoutBtn,gestionBtn;
+    @FXML private VBox gestionSubmenu,gestionContainer;
     // ============================================================
     //  CHAMPS FXML
     // ============================================================
@@ -57,6 +67,20 @@ public class ModifierMaintenanceController implements Initializable {
     // ============================================================
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+
+            // Cacher submenu par défaut
+            gestionSubmenu.setVisible(false);
+            gestionSubmenu.setManaged(false);
+
+            // 1. Hover sur le bouton Gestion → Ouvre submenu
+            gestionBtn.setOnMouseEntered(e -> {
+                showGestionSubmenu();
+            });
+
+            // 2. Hover sur TOUT le container Gestion → Garde submenu ouvert
+            gestionContainer.setOnMouseEntered(e -> {
+                showGestionSubmenu();
+            });
         configurerComboMachine();
     }
 
@@ -375,5 +399,135 @@ public class ModifierMaintenanceController implements Initializable {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    //navigguer vers les autres modules
+
+    @FXML
+    private void handlePersonnes(MouseEvent event )  {
+        this.naviguerVers("/UsersInterface/DahboardPersonne.fxml",event);}
+
+
+    @FXML private void handleTaches(MouseEvent event ) { /* Charger vue Tâches */
+        this.naviguerVers("/UsersInterface/GestionTache.fxml",event);}
+
+
+
+    @FXML
+    private void handleAbonnements(MouseEvent event) { /* Charger vue Abonnements */
+        this.naviguerVers("/UsersInterface/GestionAbonnements.fxml",event);}
+    @FXML private void handleOffres(MouseEvent event) { /* Charger vue Offres */
+        this.naviguerVers("/UsersInterface/GestionOffre.fxml",event);}
+
+
+    private void showGestionSubmenu() {
+        gestionSubmenu.setVisible(true);
+        gestionSubmenu.setManaged(true);
+    }
+
+    private void hideGestionSubmenu() {
+        gestionSubmenu.setVisible(false);
+        gestionSubmenu.setManaged(false);
+    }
+
+    public void handleDashboard(MouseEvent actionEvent) {
+        this.naviguerVers("/UsersInterface/Acceuil.fxml", actionEvent);
+
+    }
+    public void handleAnimals(MouseEvent mouseEvent) {
+        this.naviguerVers("/AnimalsInterface/AfficherAnimaux.fxml",mouseEvent);
+
+    }
+
+
+
+
+    public void handleStocks(MouseEvent mouseEvent) {
+        this.naviguerVers("/StocksInterface/afficherarticle.fxml",mouseEvent);
+    }
+
+
+
+    public void handleTerrains(MouseEvent mouseEvent) {
+        this.naviguerVers("/TerrainsInterface/acceuilterrain.fxml",mouseEvent);
+    }
+
+
+    //
+    public void handleEvents(MouseEvent mouseEvent) {
+        this.naviguerVers("/G-Evenements/Accueil.fxml",mouseEvent);
+    }
+
+
+    public void handleMateriels(MouseEvent mouseEvent) {
+        this.naviguerVers("/MaterielsInterface/AccueilMateriel.fxml",mouseEvent);
+    }
+    @FXML
+    private void handleLogout() {
+        System.out.println("🚪 Déconnexion...");
+
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirmation");
+        alert.setHeaderText("Déconnexion");
+        alert.setContentText("Voulez-vous vraiment vous déconnecter ?");
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/login.fxml"));
+                Parent root = loader.load();
+
+                Stage stage = (Stage) logoutBtn.getScene().getWindow();
+                Scene scene = new Scene(root, 900, 600);
+                stage.setScene(scene);
+                stage.setTitle("AgroFlow - Connexion");
+                stage.setMaximized(true);
+
+                System.out.println("✓ Déconnexion réussie");
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                showError("Erreur", "Impossible de retourner à la page de connexion");
+            }
+        }
+    }
+
+
+    /**
+     * Afficher une information
+     */
+    private static void showInfo(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+    // ================= ALERT METHODS =================
+    private void showError(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+    private void naviguerVers(String fxmlPath , Event event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            Parent root = loader.load();
+
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+
+            boolean etaitMaximise = stage.isMaximized();  // ← SAUVEGARDER AVANT
+
+            stage.setScene(new Scene(root));
+
+            stage.setMaximized(etaitMaximise);  // ← RESTAURER APRÈS
+
+            stage.show();
+        } catch (IOException e) {
+            System.err.println("Erreur de chargement FXML : " + fxmlPath);
+            e.printStackTrace();
+        }
     }
 }

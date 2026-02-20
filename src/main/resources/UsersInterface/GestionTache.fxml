@@ -8,6 +8,7 @@
 <BorderPane  style="-fx-background-color: #fcf8e6;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.User.GestionTache">
 
     <!-- SIDEBAR MODERNISÉE -->
+    <!-- SIDEBAR MODERNISÉE -->
     <left>
         <VBox prefWidth="250" style="-fx-background-color:  #2C3E50;">
             <padding>
@@ -71,27 +72,27 @@
                 </VBox>
 
                 <!-- Autres boutons MODERNISÉS -->
-                <Button fx:id="stocksBtn" prefHeight="48" prefWidth="230"
+                <Button fx:id="stocksBtn" prefHeight="48" prefWidth="230" onMouseClicked="#handleStocks"
                         style="-fx-background-color: rgba(255,255,255,0.1); -fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand;"
                         text="📦  Stocks">
                     <font><Font name="System" size="14" /></font>
                 </Button>
-                <Button fx:id="terrainsBtn" prefHeight="48" prefWidth="230"
+                <Button fx:id="terrainsBtn" prefHeight="48" prefWidth="230" onMouseClicked="#handleTerrains"
                         style="-fx-background-color: rgba(255,255,255,0.1); -fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand;"
                         text="🌾  Terrains">
                     <font><Font name="System" size="14" /></font>
                 </Button>
-                <Button fx:id="animauxBtn" prefHeight="48" prefWidth="230"
+                <Button fx:id="animauxBtn" prefHeight="48" prefWidth="230" onMouseClicked="#handleAnimals"
                         style="-fx-background-color: rgba(255,255,255,0.1); -fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand;"
                         text="🐄  Animaux">
                     <font><Font name="System" size="14" /></font>
                 </Button>
-                <Button fx:id="materielBtn" prefHeight="48" prefWidth="230"
+                <Button fx:id="materielBtn" prefHeight="48" prefWidth="230 " onMouseClicked="#handleMateriels"
                         style="-fx-background-color: rgba(255,255,255,0.1); -fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand;"
                         text="🔧  Matériel">
                     <font><Font name="System" size="14" /></font>
                 </Button>
-                <Button fx:id="evenementsBtn" prefHeight="48" prefWidth="230"
+                <Button fx:id="evenementsBtn" prefHeight="48" prefWidth="230" onMouseClicked="#handleEvents"
                         style="-fx-background-color: rgba(255,255,255,0.1); -fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand;"
                         text="🎉  Événements">
                     <font><Font name="System" size="14" /></font>

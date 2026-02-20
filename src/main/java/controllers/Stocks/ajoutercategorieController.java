@@ -1,5 +1,8 @@
 package controllers.Stocks;
 
+import javafx.event.Event;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.VBox;
 import models.Stocks.Categorie;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -12,9 +15,11 @@ import javafx.stage.Stage;
 import services.Stocks.CategorieService;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Optional;
 
 public class ajoutercategorieController {
-
+    @FXML private Button logoutBtn,gestionBtn;
+    @FXML private VBox gestionSubmenu,gestionContainer ;
     @FXML private TextField tfNom;
     @FXML private TextArea taDescription;
     @FXML private Label lblTitre, msgNom, msgDescription;
@@ -25,6 +30,20 @@ public class ajoutercategorieController {
 
     @FXML
     public void initialize() {
+
+            // Cacher submenu par défaut
+            gestionSubmenu.setVisible(false);
+            gestionSubmenu.setManaged(false);
+
+            // 1. Hover sur le bouton Gestion → Ouvre submenu
+            gestionBtn.setOnMouseEntered(e -> {
+                showGestionSubmenu();
+            });
+
+            // 2. Hover sur TOUT le container Gestion → Garde submenu ouvert
+            gestionContainer.setOnMouseEntered(e -> {
+                showGestionSubmenu();
+            });
         // Validation immédiate au démarrage pour guider l'utilisateur
         if (!isModification) {
             afficherFeedback(msgNom, "⚠️ Veuillez remplir le nom (min 3 car.)", true);
@@ -130,4 +149,136 @@ public class ajoutercategorieController {
         alert.setContentText(message);
         alert.showAndWait();
     }
+    //navigation vers les autres modules
+    @FXML
+    private void handlePersonnes(MouseEvent event )  {
+        this.changerScene(event,"/UsersInterface/DahboardPersonne.fxml");}
+
+
+    @FXML private void handleTaches(Event event ) { /* Charger vue Tâches */
+        this.changerScene(event,"/UsersInterface/GestionTache.fxml");}
+
+
+
+    @FXML private void handleAbonnements(MouseEvent event) { /* Charger vue Abonnements */
+        this.changerScene(event,"/UsersInterface/GestionAbonnements.fxml");}
+    @FXML private void handleOffres(MouseEvent event) { /* Charger vue Offres */
+        this.changerScene(event,"/UsersInterface/GestionOffre.fxml");}
+
+    @FXML private void handleGestion(MouseEvent event) { /* Vue principale Gestion */
+    }
+
+    private void showGestionSubmenu() {
+        gestionSubmenu.setVisible(true);
+        gestionSubmenu.setManaged(true);
+    }
+
+    private void hideGestionSubmenu() {
+        gestionSubmenu.setVisible(false);
+        gestionSubmenu.setManaged(false);
+    }
+
+    public void handleDashboard(MouseEvent actionEvent) throws IOException {
+        this.changerScene(actionEvent, "/UsersInterface/Acceuil.fxml");
+
+    }
+    public void handleAnimals(MouseEvent mouseEvent) {
+        this.changerScene(mouseEvent,"/AnimalsInterface/AfficherAnimaux.fxml");
+
+    }
+
+
+
+
+    public void handleStocks(MouseEvent mouseEvent) {
+        this.changerScene(mouseEvent,"/StocksInterface/afficherarticle.fxml");
+    }
+
+
+
+    public void handleTerrains(MouseEvent mouseEvent) {
+        this.changerScene(mouseEvent,"/TerrainsInterface/acceuilterrain.fxml");
+    }
+
+
+    //
+    public void handleEvents(MouseEvent mouseEvent) {
+        this.changerScene(mouseEvent,"/G-Evenements/Accueil.fxml");
+    }
+
+
+    public void handleMateriels(MouseEvent mouseEvent) {
+        this.changerScene(mouseEvent,"/MaterielsInterface/AccueilMateriel.fxml");
+    }
+    @FXML
+    private void handleLogout() {
+        System.out.println("🚪 Déconnexion...");
+
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirmation");
+        alert.setHeaderText("Déconnexion");
+        alert.setContentText("Voulez-vous vraiment vous déconnecter ?");
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/login.fxml"));
+                Parent root = loader.load();
+
+                Stage stage = (Stage) logoutBtn.getScene().getWindow();
+                Scene scene = new Scene(root, 900, 600);
+                stage.setScene(scene);
+                stage.setTitle("AgroFlow - Connexion");
+                stage.setMaximized(true);
+
+                System.out.println("✓ Déconnexion réussie");
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                showError("Erreur", "Impossible de retourner à la page de connexion");
+            }
+        }
+    }
+
+    /**
+     * Afficher une erreur
+     */
+    private static void showError(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    /**
+     * Afficher une information
+     */
+    private static void showInfo(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+    private void changerScene(Event event, String fxmlFile) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
+            Parent root = loader.load();
+
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+
+            boolean etaitMaximise = stage.isMaximized();  // ← SAUVEGARDER AVANT
+
+            stage.setScene(new Scene(root));
+
+            stage.setMaximized(etaitMaximise);  // ← RESTAURER APRÈS
+
+            stage.show();
+        } catch (IOException e) {
+            System.err.println("Erreur de chargement FXML : " + fxmlFile);
+            e.printStackTrace();
+        }
+    }
+
 }

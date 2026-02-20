@@ -1,4 +1,7 @@
 package controllers.Stocks;
+import javafx.event.Event;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.VBox;
 import services.Stocks.ArticleService ;
 import models.Stocks.Article;
 import javafx.beans.property.SimpleStringProperty;
@@ -20,9 +23,11 @@ import services.Stocks.CategorieService;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Optional;
 
 public class afficherarticleController {
-
+    @FXML private Button logoutBtn,gestionBtn;
+    @FXML private VBox gestionSubmenu,gestionContainer;
     @FXML private TableView<Article> tableArticles;
     @FXML private TableColumn<Article, String> colNom, colUnite, colCategorie;
     @FXML private TableColumn<Article, Double> colQuantite, colSeuil;
@@ -35,6 +40,20 @@ public class afficherarticleController {
 
     @FXML
     public void initialize() {
+
+            // Cacher submenu par défaut
+            gestionSubmenu.setVisible(false);
+            gestionSubmenu.setManaged(false);
+
+            // 1. Hover sur le bouton Gestion → Ouvre submenu
+            gestionBtn.setOnMouseEntered(e -> {
+                showGestionSubmenu();
+            });
+
+            // 2. Hover sur TOUT le container Gestion → Garde submenu ouvert
+            gestionContainer.setOnMouseEntered(e -> {
+                showGestionSubmenu();
+            });
         // 1. Liaison des colonnes de base
         colNom.setCellValueFactory(new PropertyValueFactory<>("nom"));
         colQuantite.setCellValueFactory(new PropertyValueFactory<>("quantiteEnStock"));
@@ -155,12 +174,140 @@ public class afficherarticleController {
     }
 
     @FXML void ouvrirFormulaireAjout(ActionEvent event) { ouvrirFormulaire(null, event); }
-    @FXML void allerVersCategories(ActionEvent event) throws IOException { changerScene("/StocksInterface/affichercategorie.fxml", event); }
+    @FXML void allerVersCategories(MouseEvent event) throws IOException { changerScene("/StocksInterface/affichercategorie.fxml", event); }
     @FXML void deconnexion(ActionEvent event) throws IOException { changerScene("/UsersInterface/login.fxml", event); }
 
-    private void changerScene(String fxml, ActionEvent event) throws IOException {
-        Parent root = FXMLLoader.load(getClass().getResource(fxml));
-        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        stage.setScene(new Scene(root));
+    private void changerScene(String fxml, Event event) throws IOException {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxml));
+            Parent root = loader.load();
+
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+
+            boolean etaitMaximise = stage.isMaximized();  // ← SAUVEGARDER AVANT
+
+            stage.setScene(new Scene(root));
+
+            stage.setMaximized(etaitMaximise);  // ← RESTAURER APRÈS
+
+            stage.show();
+        } catch (IOException e) {
+            System.err.println("Erreur de chargement FXML : " + fxml);
+            e.printStackTrace();
+        }
     }
+
+    //navigation vers les autres modules
+    @FXML
+    private void handlePersonnes(MouseEvent event ) throws IOException {
+        this.changerScene("/UsersInterface/DahboardPersonne.fxml",event);}
+
+
+    @FXML private void handleTaches(MouseEvent event ) throws IOException { /* Charger vue Tâches */
+        this.changerScene("/UsersInterface/GestionTache.fxml",event);}
+
+
+
+    @FXML private void handleAbonnements(MouseEvent event) throws IOException { /* Charger vue Abonnements */
+        this.changerScene("/UsersInterface/GestionAbonnements.fxml",event);}
+    @FXML private void handleOffres(MouseEvent event) throws IOException { /* Charger vue Offres */
+        this.changerScene("/UsersInterface/GestionOffre.fxml",event);}
+
+    @FXML private void handleGestion(MouseEvent event) { /* Vue principale Gestion */
+    }
+
+    private void showGestionSubmenu() {
+        gestionSubmenu.setVisible(true);
+        gestionSubmenu.setManaged(true);
+    }
+
+    private void hideGestionSubmenu() {
+        gestionSubmenu.setVisible(false);
+        gestionSubmenu.setManaged(false);
+    }
+
+    public void handleDashboard(MouseEvent actionEvent) throws IOException {
+        this.changerScene("/UsersInterface/Acceuil.fxml", actionEvent);
+
+    }
+    public void handleAnimals(MouseEvent mouseEvent) throws IOException {
+        this.changerScene("/AnimalsInterface/AfficherAnimaux.fxml",mouseEvent);
+
+    }
+
+
+
+
+    public void handleStocks(MouseEvent mouseEvent) throws IOException {
+        this.changerScene("/StocksInterface/afficherarticle.fxml",mouseEvent);
+    }
+
+
+
+    public void handleTerrains(MouseEvent mouseEvent) throws IOException {
+        this.changerScene("/TerrainsInterface/acceuilterrain.fxml",mouseEvent);
+    }
+
+
+    //
+    public void handleEvents(MouseEvent mouseEvent) throws IOException {
+        this.changerScene("/G-Evenements/Accueil.fxml",mouseEvent);
+    }
+
+
+    public void handleMateriels(MouseEvent mouseEvent) throws IOException {
+        this.changerScene("/MaterielsInterface/AccueilMateriel.fxml",mouseEvent);
+    }
+    @FXML
+    private void handleLogout() {
+        System.out.println("🚪 Déconnexion...");
+
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirmation");
+        alert.setHeaderText("Déconnexion");
+        alert.setContentText("Voulez-vous vraiment vous déconnecter ?");
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/login.fxml"));
+                Parent root = loader.load();
+
+                Stage stage = (Stage) logoutBtn.getScene().getWindow();
+                Scene scene = new Scene(root, 900, 600);
+                stage.setScene(scene);
+                stage.setTitle("AgroFlow - Connexion");
+                stage.setMaximized(true);
+
+                System.out.println("✓ Déconnexion réussie");
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                showError("Erreur", "Impossible de retourner à la page de connexion");
+            }
+        }
+    }
+
+    /**
+     * Afficher une erreur
+     */
+    private static void showError(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    /**
+     * Afficher une information
+     */
+    private static void showInfo(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
 }

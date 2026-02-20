@@ -1,5 +1,7 @@
 package controllers.Animaux;
 
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.VBox;
 import models.Animaux.Sexe;
 import models.Animaux.animaux;
 import javafx.event.ActionEvent;
@@ -14,10 +16,13 @@ import services.Animaux.ServiceAnimal;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Optional;
 
 public class ModifierAnimalController {
 
     // 1. Déclaration des champs FXML (doivent correspondre aux fx:id du fichier .fxml)
+    @FXML private Button logoutBtn,gestionBtn ;
+    @FXML private VBox gestionSubmenu, gestionContainer;
     @FXML private TextField tfNom;
     @FXML private TextField tfEspece;
     @FXML private TextField tfPoids;
@@ -30,6 +35,24 @@ public class ModifierAnimalController {
 
     @FXML
     public void initialize() {
+        // Cacher submenu par défaut
+        gestionSubmenu.setVisible(false);
+        gestionSubmenu.setManaged(false);
+
+        // 1. Hover sur le bouton Gestion → Ouvre submenu
+        gestionBtn.setOnMouseEntered(e -> {
+            showGestionSubmenu();
+        });
+
+        // 2. Hover sur TOUT le container Gestion → Garde submenu ouvert
+        gestionContainer.setOnMouseEntered(e -> {
+            showGestionSubmenu();
+        });
+
+        // 3. SOURIS SORT DU CONTAINER ENTIER → Ferme submenu
+        gestionContainer.setOnMouseExited(e -> {
+            hideGestionSubmenu();
+        });
         // Remplit le combo box au chargement de la page
         cbSexe.getItems().setAll(Sexe.values());
     }
@@ -58,7 +81,7 @@ public class ModifierAnimalController {
     }
 
     @FXML
-    void handleModifier(ActionEvent event) {
+    void handleModifier(MouseEvent event) {
         if (estValide()) { // On appelle la même méthode de contrôle
             try {
                 animaux a = new animaux();
@@ -78,7 +101,7 @@ public class ModifierAnimalController {
     }
 
     @FXML
-    void retourListe(ActionEvent event) {
+    void retourListe(MouseEvent event) {
         try {
             Parent root = FXMLLoader.load(getClass().getResource("/AnimalsInterface/AfficherAnimaux.fxml"));
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
@@ -89,13 +112,6 @@ public class ModifierAnimalController {
         }
     }
 
-    // Méthodes de navigation pour la SIDEBAR (Gestion globale)
-    @FXML void naviguerAnimaux(ActionEvent event) { retourListe(event); }
-    @FXML void naviguerMateriels(ActionEvent event) { /* charger AfficherMateriels.fxml */ }
-    @FXML void naviguerStocks(ActionEvent event) { /* charger AfficherStocks.fxml */ }
-    @FXML void naviguerTerrains(ActionEvent event) { /* charger AfficherTerrains.fxml */ }
-    @FXML void naviguerEvenements(ActionEvent event) { /* charger AfficherEvenements.fxml */ }
-    @FXML void naviguerUsers(ActionEvent event) { /* charger AfficherUsers.fxml */ }
 
     private void afficherAlerte(String titre, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -146,4 +162,135 @@ public class ModifierAnimalController {
 
         return true;
     }
+
+    //naviguer vers les autres modules :
+    @FXML
+    private void handlePersonnes(MouseEvent event )  {
+        this.changerScene(event,"/UsersInterface/DahboardPersonne.fxml");}
+
+
+    @FXML private void handleTaches(MouseEvent event ) { /* Charger vue Tâches */
+        this.changerScene(event,"/UsersInterface/GestionTache.fxml");}
+
+
+
+    @FXML private void handleAbonnements(MouseEvent event) { /* Charger vue Abonnements */
+        this.changerScene(event,"/UsersInterface/GestionAbonnements.fxml");}
+    @FXML private void handleOffres(MouseEvent event) { /* Charger vue Offres */
+        this.changerScene(event,"/UsersInterface/GestionOffre.fxml");}
+
+
+
+    private void showGestionSubmenu() {
+        gestionSubmenu.setVisible(true);
+        gestionSubmenu.setManaged(true);
+    }
+
+    private void hideGestionSubmenu() {
+        gestionSubmenu.setVisible(false);
+        gestionSubmenu.setManaged(false);
+    }
+
+    public void handleDashboard(MouseEvent actionEvent) {
+        this.changerScene(actionEvent,"/UsersInterface/Acceuil.fxml");
+    }
+    public void handleAnimals( MouseEvent mouseEvent) {
+        this.changerScene(mouseEvent,"/AnimalsInterface/AfficherAnimaux.fxml");
+
+    }
+
+
+
+
+    public void handleStocks(MouseEvent mouseEvent) {
+        this.changerScene(mouseEvent,"/StocksInterface/afficherarticle.fxml");
+    }
+
+
+
+    public void handleTerrains(MouseEvent mouseEvent) {
+        this.changerScene(mouseEvent,"/TerrainsInterface/acceuilterrain.fxml");
+    }
+
+
+    //
+    public void handleEvents(MouseEvent mouseEvent) {
+        this.changerScene(mouseEvent,"/G-Evenements/Accueil.fxml");
+    }
+
+
+    public void handleMateriels(MouseEvent mouseEvent) {
+        this.changerScene(mouseEvent,"/MaterielsInterface/AccueilMateriel.fxml");
+    }
+    @FXML
+    private void handleLogout() {
+        System.out.println("🚪 Déconnexion...");
+
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirmation");
+        alert.setHeaderText("Déconnexion");
+        alert.setContentText("Voulez-vous vraiment vous déconnecter ?");
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/login.fxml"));
+                Parent root = loader.load();
+
+                Stage stage = (Stage) logoutBtn.getScene().getWindow();
+                Scene scene = new Scene(root, 900, 600);
+                stage.setScene(scene);
+                stage.setTitle("AgroFlow - Connexion");
+                stage.setMaximized(true);
+
+                System.out.println("✓ Déconnexion réussie");
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                showError("Erreur", "Impossible de retourner à la page de connexion");
+            }
+        }
+    }
+    // Méthode utilitaire pour simplifier la navigation
+    private void changerScene(MouseEvent event, String fxmlFile) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
+            Parent root = loader.load();
+
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+
+            boolean etaitMaximise = stage.isMaximized();  // ← SAUVEGARDER AVANT
+
+            stage.setScene(new Scene(root));
+
+            stage.setMaximized(etaitMaximise);  // ← RESTAURER APRÈS
+
+            stage.show();
+        } catch (IOException e) {
+            System.err.println("Erreur de chargement FXML : " + fxmlFile);
+            e.printStackTrace();
+        }
+    }
+    /**
+     * Afficher une erreur
+     */
+    private static void showError(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    /**
+     * Afficher une information
+     */
+    private static void showInfo(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
 }

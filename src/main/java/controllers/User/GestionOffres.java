@@ -6,6 +6,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -67,6 +68,19 @@ public class GestionOffres {
      */
     @FXML
     public void initialize() {
+        // Cacher submenu par défaut
+        gestionSubmenu.setVisible(false);
+        gestionSubmenu.setManaged(false);
+
+        // 1. Hover sur le bouton Gestion → Ouvre submenu
+        gestionBtn.setOnMouseEntered(e -> {
+            showGestionSubmenu();
+        });
+
+        // 2. Hover sur TOUT le container Gestion → Garde submenu ouvert
+        gestionContainer.setOnMouseEntered(e -> {
+            showGestionSubmenu();
+        });
         try {
             offresService = new OffresServicees();
             System.out.println("✓ GestionOffresController initialisé");
@@ -341,72 +355,57 @@ public class GestionOffres {
      * Navigation vers Dashboard
      */
     @FXML
-    private void handleDashboard() {
-        navigateTo("/UsersInterface/Accueil.fxml", "AgroFlow - Accueil");
+    private void handleDashboard(MouseEvent event) {
+        navigateTo(event,"/UsersInterface/Accueil.fxml", "AgroFlow - Accueil");
     }
 
     /**
      * Navigation vers Personnes
      */
     @FXML
-    private void handlePersonnes() {
-        navigateTo("/UsersInterface/DahboardPersonne.fxml", "AgroFlow - Gestion du Personnel");
+    private void handlePersonnes(MouseEvent event) {
+        navigateTo(event,"/UsersInterface/DahboardPersonne.fxml", "AgroFlow - Gestion du Personnel");
     }
 
     /**
      * Navigation vers Tâches
      */
     @FXML
-    private void handleTaches() {
-        navigateTo("/GestionTaches.fxml", "AgroFlow - Gestion des Tâches");
+    private void handleTaches(MouseEvent event) {
+        navigateTo(event,"/UsersInterface/GestionTaches.fxml", "AgroFlow - Gestion des Tâches");
     }
 
     /**
      * Navigation vers Abonnements
      */
     @FXML
-    private void handleAbonnements() {
-        navigateTo("/UsersInterface/GestionAbonnements.fxml", "AgroFlow - Gestion des Abonnements");
+    private void handleAbonnements(MouseEvent event) {
+        navigateTo(event,"/UsersInterface/GestionAbonnements.fxml", "AgroFlow - Gestion des Abonnements");
     }
 
-    /**
-     * Navigation vers Affectations
-     */
-    @FXML
-    private void handleAffectations() {
-        navigateTo("/GestionAffectations.fxml", "AgroFlow - Gestion des Affectations");
-    }
 
     /**
      * Méthode générique de navigation
      */
-    private void navigateTo(String fxmlPath, String title) {
+    private void navigateTo(MouseEvent event,String fxmlPath, String title) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
 
-            // Passer l'utilisateur si le contrôleur le supporte
-            Object controller = loader.getController();
-            if (controller != null && currentUser != null) {
-                try {
-                    controller.getClass().getMethod("setCurrentUser", Personne.class).invoke(controller, currentUser);
-                } catch (Exception ignored) {
-                }
-            }
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
 
-            Stage stage = (Stage) dashboardBtn.getScene().getWindow();
-            Scene scene = new Scene(root, 1200, 700);
-            stage.setScene(scene);
+            boolean etaitMaximise = stage.isMaximized();  // ← SAUVEGARDER AVANT
+
+            stage.setScene(new Scene(root));
             stage.setTitle(title);
-            stage.setMaximized(true);
+            stage.setMaximized(etaitMaximise);  // ← RESTAURER APRÈS
 
-
+            stage.show();
         } catch (IOException e) {
+            System.err.println("Erreur de chargement FXML : " + fxmlPath);
             e.printStackTrace();
-            showInfo("À venir", "Ce module sera disponible prochainement");
         }
     }
-
     /**
      * Gérer la déconnexion
      */
@@ -469,21 +468,7 @@ public class GestionOffres {
         alert.setContentText(message);
         alert.showAndWait();
     }
-    private void handlePersonnes(MouseEvent event )  {
-        Acceuil.ouvrirPersonnes(event);
-    }
 
-    @FXML private void handleTaches(MouseEvent event ) { /* Charger vue Tâches */
-        Acceuil.ouvrirTaches(event);
-    }
-    @FXML private void handleAffectations(MouseEvent event) { /* Charger vue Affectations */
-        Acceuil.ouvrirAffectations(event);}
-    @FXML private void handleAbonnements(MouseEvent event) { /* Charger vue Abonnements */
-        Acceuil.ouvrirAbonnements(event);}
-    @FXML private void handleOffres(MouseEvent event) { /* Charger vue Offres */
-        Acceuil.ouvrirOffres(event);}
-    @FXML private void handleGestion(MouseEvent event) { /* Vue principale Gestion */
-    }
     private void showGestionSubmenu() {
         gestionSubmenu.setVisible(true);
         gestionSubmenu.setManaged(true);
@@ -494,12 +479,32 @@ public class GestionOffres {
         gestionSubmenu.setManaged(false);
     }
 
-    public void handleAddTask(ActionEvent actionEvent) {
+    public void handleAnimals(MouseEvent mouseEvent) {
+        this.navigateTo(mouseEvent,"/AnimalsInterface/AfficherAnimaux.fxml","Gestion Animaux - AgroFlow ");
 
     }
 
-    public void handleRefresh(ActionEvent actionEvent) {
 
+
+
+    public void handleStocks(MouseEvent mouseEvent) {
+        this.navigateTo(mouseEvent,"/StocksInterface/afficherarticle.fxml","Gestion Stocks - Agroflow ");
     }
 
+
+
+    public void handleTerrains(MouseEvent mouseEvent) {
+        this.navigateTo(mouseEvent,"/TerrainsInterface/acceuilterrain.fxml","gestion Terrains - AgroFlow ");
+    }
+
+
+    //
+    public void handleEvents(MouseEvent mouseEvent) {
+        this.navigateTo(mouseEvent,"/G-Evenements/Accueil.fxml","gestion Evenements - AgroFlow ");
+    }
+
+
+    public void handleMateriels(MouseEvent mouseEvent) {
+        this.navigateTo(mouseEvent,"/MaterielsInterface/AccueilMateriel.fxml","gestion Materiels - AgroFlow ");
+    }
 }
