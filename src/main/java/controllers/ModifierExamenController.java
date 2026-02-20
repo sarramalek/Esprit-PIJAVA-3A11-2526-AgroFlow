@@ -2,9 +2,12 @@ package controllers;
 
 import entities.examens;
 import entities.animaux;
+import javafx.collections.FXCollections; // AJOUTÉ
+import javafx.collections.ObservableList; // AJOUTÉ
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable; // AJOUTÉ
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -12,46 +15,66 @@ import javafx.scene.control.*;
 import javafx.stage.Stage;
 import services.ServiceExamen;
 import services.ServiceAnimal;
-import java.io.IOException;
-import java.sql.SQLException;
-import java.time.LocalDate;
 
-public class ModifierExamenController {
+import java.io.IOException;
+import java.net.URL; // AJOUTÉ
+import java.sql.SQLException;
+import java.util.ResourceBundle; // AJOUTÉ
+
+public class ModifierExamenController implements Initializable { // AJOUT de Initializable
 
     @FXML private ComboBox<animaux> cbAnimal;
-    @FXML private TextField tfType;
+    @FXML private ComboBox<String> cbType;
+    @FXML private ComboBox<String> cbDiagnostic; // AJOUTÉ
+    @FXML private ComboBox<String> cbTraitement; // AJOUTÉ
     @FXML private DatePicker dpDate;
-    @FXML private TextArea taDiagnostic;
-    @FXML private TextArea taTraitement;
 
     private ServiceExamen serviceEx = new ServiceExamen();
     private ServiceAnimal serviceAn = new ServiceAnimal();
     private examens examenSelectionne;
 
+    @Override
+    public void initialize(URL url, ResourceBundle rb) {
+        try {
+            // 1. Charger les animaux
+            cbAnimal.getItems().setAll(serviceAn.afficher());
+
+            // 2. Remplir impérativement les listes de choix
+            cbType.setItems(FXCollections.observableArrayList(
+                    "Vaccin", "Radio", "Scanner", "Consultation"
+            ));
+
+            cbDiagnostic.setItems(FXCollections.observableArrayList(
+                    "En bonne santé", "Infection", "Fracture", "Urgence"
+            ));
+
+            cbTraitement.setItems(FXCollections.observableArrayList(
+                    "Repos", "Antibiotiques", "Observation", "Chirurgie"
+            ));
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void chargerDonnees(examens e) {
         this.examenSelectionne = e;
 
-        try {
-            cbAnimal.getItems().setAll(serviceAn.afficher());
-            for (animaux a : cbAnimal.getItems()) {
-                if (a.getId() == e.getId_animal()) {
-                    cbAnimal.setValue(a);
-                    break;
-                }
+        // Sélection de l'animal
+        for (animaux a : cbAnimal.getItems()) {
+            if (a.getId() == e.getId_animal()) {
+                cbAnimal.setValue(a);
+                break;
             }
-        } catch (SQLException ex) {
-            ex.printStackTrace();
         }
 
-        tfType.setText(e.getType_examen());
-        taDiagnostic.setText(e.getDiagnostic());
-        taTraitement.setText(e.getTraitement());
+        // Maintenant que les listes ont des items, setValue fonctionnera !
+        cbType.setValue(e.getType_examen());
+        cbDiagnostic.setValue(e.getDiagnostic());
+        cbTraitement.setValue(e.getTraitement());
 
-        // --- CORRECTION ICI : De l'entité (Date) vers le DatePicker (LocalDate) ---
         if (e.getDate_examen() != null) {
-            // On s'assure de traiter la valeur comme une java.util.Date
-            java.util.Date utilDate = e.getDate_examen();
-            java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
+            java.sql.Date sqlDate = new java.sql.Date(e.getDate_examen().getTime());
             dpDate.setValue(sqlDate.toLocalDate());
         }
     }
@@ -61,11 +84,12 @@ public class ModifierExamenController {
         if (estValide()) {
             try {
                 examenSelectionne.setId_animal(cbAnimal.getValue().getId());
-                examenSelectionne.setType_examen(tfType.getText());
-                examenSelectionne.setDiagnostic(taDiagnostic.getText());
-                examenSelectionne.setTraitement(taTraitement.getText());
+                examenSelectionne.setType_examen(cbType.getValue());
 
-                // --- DEUXIÈME CONVERSION : Du DatePicker vers l'Entité ---
+                // Mise à jour avec les ComboBox
+                examenSelectionne.setDiagnostic(cbDiagnostic.getValue());
+                examenSelectionne.setTraitement(cbTraitement.getValue());
+
                 if (dpDate.getValue() != null) {
                     examenSelectionne.setDate_examen(java.sql.Date.valueOf(dpDate.getValue()));
                 }
@@ -77,18 +101,20 @@ public class ModifierExamenController {
             }
         }
     }
-
     private boolean estValide() {
         String msg = "";
         if (cbAnimal.getValue() == null) msg += "- Animal requis.\n";
-        if (tfType.getText().trim().isEmpty()) msg += "- Type d'examen requis.\n";
+        if (cbType.getValue() == null || cbType.getValue().isEmpty()) msg += "- Type requis.\n";
         if (dpDate.getValue() == null) msg += "- Date requise.\n";
-        if (taDiagnostic.getText().trim().isEmpty()) msg += "- Diagnostic requis.\n";
+
+        // CORRECTION : On vérifie la ComboBox au lieu du TextArea
+        if (cbDiagnostic.getValue() == null || cbDiagnostic.getValue().isEmpty()) {
+            msg += "- Diagnostic requis.\n";
+        }
 
         if (!msg.isEmpty()) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Erreur de modification");
-            alert.setHeaderText("Veuillez corriger :");
             alert.setContentText(msg);
             alert.showAndWait();
             return false;

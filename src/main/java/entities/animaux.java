@@ -41,6 +41,6 @@ public class animaux {
 
     @Override
     public String toString() {
-        return "Animal [id=" + id + ", nom=" + nom + ", espece=" + espece + ", sexe=" + sexe + "]";
+        return "Animal [ nom=" + nom + ", espece=" + espece + ", sexe=" + sexe + "]";
     }
 }

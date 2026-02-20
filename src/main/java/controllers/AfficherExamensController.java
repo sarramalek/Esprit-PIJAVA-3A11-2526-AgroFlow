@@ -2,6 +2,8 @@ package controllers;
 
 import java.sql.SQLException;
 import entities.examens;
+import entities.animaux; // Importation nécessaire
+import javafx.beans.property.SimpleStringProperty; // Pour transformer l'ID en Nom
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -14,13 +16,16 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import javafx.scene.Cursor;
 import services.ServiceExamen;
+import services.ServiceAnimal; // Importation du service
 import java.io.IOException;
+import java.net.URL;
 import java.util.Optional;
 
 public class AfficherExamensController {
 
     @FXML private TableView<examens> tvExamens;
-    @FXML private TableColumn<examens, Integer> colAnimal;
+    // CORRECTION DU TYPE : String car on veut afficher le NOM de l'animal
+    @FXML private TableColumn<examens, String> colAnimal;
     @FXML private TableColumn<examens, String> colType;
     @FXML private TableColumn<examens, java.sql.Date> colDate;
     @FXML private TableColumn<examens, String> colDiagnostic;
@@ -29,11 +34,30 @@ public class AfficherExamensController {
     @FXML private Button btnAjouter;
 
     private ServiceExamen service = new ServiceExamen();
+    // SOLUTION : Déclaration du service animal qui manquait
+    private ServiceAnimal serviceAn = new ServiceAnimal();
 
     @FXML
     public void initialize() {
-        // Liaison des colonnes
-        colAnimal.setCellValueFactory(new PropertyValueFactory<>("id_animal"));
+        // Liaison personnalisée pour afficher le Nom au lieu de l'ID
+        colAnimal.setCellValueFactory(cellData -> {
+            int idAnimal = cellData.getValue().getId_animal();
+            try {
+                // On récupère le nom de l'animal via son ID dans la base
+                animaux a = serviceAn.afficher().stream()
+                        .filter(an -> an.getId() == idAnimal)
+                        .findFirst()
+                        .orElse(null);
+
+                if (a != null) {
+                    return new SimpleStringProperty(a.getNom()); // Retourne le Nom
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            return new SimpleStringProperty("Inconnu (" + idAnimal + ")");
+        });
+
         colType.setCellValueFactory(new PropertyValueFactory<>("type_examen"));
         colDate.setCellValueFactory(new PropertyValueFactory<>("date_examen"));
         colDiagnostic.setCellValueFactory(new PropertyValueFactory<>("diagnostic"));
@@ -84,19 +108,7 @@ public class AfficherExamensController {
     void handleModifier(ActionEvent event) {
         examens selection = tvExamens.getSelectionModel().getSelectedItem();
         if (selection != null) {
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/ModifierExamen.fxml"));
-                Parent root = loader.load();
-
-                // Transmission de l'objet au contrôleur de modification
-                ModifierExamenController controller = loader.getController();
-                controller.chargerDonnees(selection);
-
-                Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-                stage.setScene(new Scene(root));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            changerScene(event, "/ModifierExamen.fxml", selection);
         } else {
             afficherAlerteSelection();
         }
@@ -104,13 +116,14 @@ public class AfficherExamensController {
 
     @FXML
     void naviguerAjout(ActionEvent event) {
-        changerScene(event, "/AjoutExamen.fxml");
+        changerScene(event, "/AjoutExamen.fxml", null);
     }
 
     @FXML
     void naviguerVersAnimaux(ActionEvent event) {
-        changerScene(event, "/AfficherAnimaux.fxml");
+        changerScene(event, "/AfficherAnimaux.fxml", null);
     }
+
     @FXML
     void ouvrirStats(ActionEvent event) {
         try {
@@ -120,18 +133,32 @@ public class AfficherExamensController {
             stage.setScene(new Scene(root));
             stage.show();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Erreur ouverture stats : " + e.getMessage());
         }
     }
 
-    // Méthode utilitaire pour simplifier la navigation
-    private void changerScene(ActionEvent event, String fxmlPath) {
+    private void changerScene(ActionEvent event, String fxmlPath, examens examenAModifier) {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource(fxmlPath));
+            URL resource = getClass().getResource(fxmlPath);
+            if (resource == null) {
+                System.err.println("Fichier introuvable : " + fxmlPath);
+                return;
+            }
+
+            FXMLLoader loader = new FXMLLoader(resource);
+            Parent root = loader.load();
+
+            if (examenAModifier != null) {
+                ModifierExamenController controller = loader.getController();
+                controller.chargerDonnees(examenAModifier);
+            }
+
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setScene(new Scene(root));
+            stage.show();
         } catch (IOException e) {
-            System.err.println("Erreur de navigation : " + e.getMessage());
+            System.err.println("Erreur de navigation vers " + fxmlPath + " : " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -140,15 +167,9 @@ public class AfficherExamensController {
         alert.setContentText("Veuillez sélectionner un examen dans le tableau.");
         alert.show();
     }
+
     @FXML
     void handleDeconnexion(ActionEvent event) {
-        try {
-            // Remplacez "/Login.fxml" par le nom exact de votre page de connexion
-            Parent root = FXMLLoader.load(getClass().getResource("/Login.fxml"));
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root));
-        } catch (IOException e) {
-            System.err.println("Erreur lors de la déconnexion : " + e.getMessage());
-        }
+        changerScene(event, "/Login.fxml", null);
     }
 }

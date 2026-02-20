@@ -10,13 +10,11 @@ import java.util.List;
 // Implémentation de l'interface IService pour gérer les opérations sur l'entité 'animaux'
 public class ServiceAnimal implements IService<animaux> {
     private Connection cnx;
-
-    // Constructeur : récupère l'instance unique de connexion à la base de données
+   // Constructeur : récupère l'instance unique de connexion à la base de données
     public ServiceAnimal() {
         cnx = MyDatabase.getInstance().connection;
     }
-
-    @Override
+     @Override
     public void ajouter(animaux a) throws SQLException {
         // Requête SQL paramétrée pour éviter les injections SQL
         String sql = "INSERT INTO animaux (nom, espece, race, date_naissance, sexe, poids) VALUES (?, ?, ?, ?, ?, ?)";
