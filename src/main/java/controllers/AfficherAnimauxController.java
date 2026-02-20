@@ -20,7 +20,7 @@ import javafx.stage.Stage;
 import services.ServiceAnimal;
 import services.ServiceExamen;
 import services.PdfService;
-
+import javafx.stage.Modality;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
@@ -194,6 +194,21 @@ public class AfficherAnimauxController implements Initializable {
             stage.setScene(new Scene(root));
             stage.show();
         } catch (IOException e) { e.printStackTrace(); }
+    }
+    @FXML
+    void ouvrirSuggestions(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/SuggestionFood.fxml"));
+            Parent root = loader.load();
+            Stage stage = new Stage();
+            stage.setTitle("Aide à l'alimentation");
+            stage.setScene(new Scene(root));
+            // Bloque l'interaction avec la fenêtre principale tant que la pop-up est ouverte
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void changerScene(ActionEvent event, String fxmlFile) {

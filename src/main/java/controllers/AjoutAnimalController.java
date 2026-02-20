@@ -43,26 +43,11 @@ public class AjoutAnimalController {
             cbSexe.getItems().setAll(Sexe.values());
         }
 
-        // 3. Écouteur pour l'API : déclenche la recherche quand l'espèce change
-        comboEspece.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal != null) {
-                chargerSuggestions(newVal);
-            }
-        });
+
+
     }
 
-    private void chargerSuggestions(String espece) {
-        new Thread(() -> {
-            try {
-                List<String> resultats = foodApi.chercherAliments(espece);
-                Platform.runLater(() -> {
-                    lvSuggestions.setItems(FXCollections.observableArrayList(resultats));
-                });
-            } catch (Exception e) {
-                System.err.println("Erreur de chargement API : " + e.getMessage());
-            }
-        }).start();
-    }
+
 
     @FXML
     void handleAjouter(ActionEvent event) {

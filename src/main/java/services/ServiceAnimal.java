@@ -83,4 +83,17 @@ public class ServiceAnimal implements IService<animaux> {
             return new ArrayList<>();
         }
     }
+    public String getNomAnimalById(int id) throws SQLException {
+        String nom = "Inconnu";
+        String sql = "SELECT nom FROM animaux WHERE id = ?";
+
+        PreparedStatement ps = cnx.prepareStatement(sql);
+        ps.setInt(1, id);
+        ResultSet rs = ps.executeQuery();
+
+        if (rs.next()) {
+            nom = rs.getString("nom");
+        }
+        return nom;
+    }
 }

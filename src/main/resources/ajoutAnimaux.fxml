@@ -62,9 +62,7 @@
                                 <Label text="Sexe :" textFill="#2D5A27" GridPane.rowIndex="4" />
                                 <ComboBox fx:id="cbSexe" prefHeight="40.0" prefWidth="Infinity" style="-fx-border-color: #2D5A27;" GridPane.columnIndex="1" GridPane.rowIndex="4" />
 
-                                <Label text="Suggestions d'aliments :" textFill="#2D5A27" GridPane.rowIndex="5" />
-                                <ListView fx:id="lvSuggestions" prefHeight="120.0" prefWidth="400.0" style="-fx-border-color: #2D5A27; -fx-border-radius: 5;" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-                            </children>
+                                </children>
                         </GridPane>
 
                         <HBox spacing="20.0">

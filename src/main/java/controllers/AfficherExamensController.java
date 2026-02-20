@@ -4,9 +4,11 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import entities.examens;
 import entities.animaux;
-import javafx.animation.FadeTransition; // IMPORT NÉCESSAIRE POUR L'ANIMATION
+import javafx.animation.FadeTransition;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList; // IMPORTANT
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -27,7 +29,6 @@ import java.util.Optional;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.util.Duration;
-import java.time.LocalDate;
 
 public class AfficherExamensController {
 
@@ -38,10 +39,19 @@ public class AfficherExamensController {
     @FXML private TableColumn<examens, String> colDiagnostic;
     @FXML private TableColumn<examens, String> colTraitement;
 
+    // Éléments pour les alertes (Gardés pour éviter le NullPointerException)
     @FXML private Circle badgeRouge;
     @FXML private Label lblNbAlertes;
     @FXML private StackPane paneNotification;
+
     @FXML private Button btnAjouter;
+
+    // --- NOUVEAUX CHAMPS POUR LE FILTRE ---
+    @FXML private TextField filterType;
+    @FXML private DatePicker filterDate;
+
+    private ObservableList<examens> masterData = FXCollections.observableArrayList();
+    private FilteredList<examens> filteredData;
 
     private ServiceExamen service = new ServiceExamen();
     private ServiceAnimal serviceAn = new ServiceAnimal();
@@ -77,24 +87,65 @@ public class AfficherExamensController {
         }
 
         chargerDonnees();
+
+        // --- INITIALISATION DU FILTRE ---
+        filteredData = new FilteredList<>(masterData, p -> true);
+
+        // Listener pour le champ texte (Type)
+        filterType.textProperty().addListener((observable, oldValue, newValue) -> {
+            appliquerFiltres();
+        });
+
+        // Listener pour le DatePicker (Date)
+        filterDate.valueProperty().addListener((observable, oldValue, newValue) -> {
+            appliquerFiltres();
+        });
+
+        tvExamens.setItems(filteredData);
+
         demarrerSystemeAlerte();
     }
 
     private void chargerDonnees() {
         try {
-            tvExamens.setItems(FXCollections.observableArrayList(service.afficher()));
+            masterData.setAll(service.afficher());
         } catch (Exception e) {
             System.err.println("Erreur lors du chargement des examens : " + e.getMessage());
         }
     }
 
+    // --- LOGIQUE DE FILTRAGE ---
+    private void appliquerFiltres() {
+        filteredData.setPredicate(examen -> {
+            // Filtre par Type
+            String typeFilter = filterType.getText();
+            if (typeFilter != null && !typeFilter.isEmpty()) {
+                if (!examen.getType_examen().toLowerCase().contains(typeFilter.toLowerCase())) {
+                    return false;
+                }
+            }
+
+            // Filtre par Date
+            if (filterDate.getValue() != null) {
+                String dateExamenStr = examen.getDate_examen().toString(); // format yyyy-MM-dd
+                String selectedDateStr = filterDate.getValue().toString(); // format yyyy-MM-dd
+                if (!dateExamenStr.equals(selectedDateStr)) {
+                    return false;
+                }
+            }
+            return true;
+        });
+    }
+
+    @FXML
+    void reinitialiserFiltres() {
+        filterType.clear();
+        filterDate.setValue(null);
+    }
+
     // --- SYSTÈME D'ALERTES ---
-
     private void demarrerSystemeAlerte() {
-        // Vérification immédiate au lancement
         verifierRappelsAujourdhui();
-
-        // Puis vérification toutes les 60 secondes
         Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(60), event -> {
             verifierRappelsAujourdhui();
         }));
@@ -104,12 +155,9 @@ public class AfficherExamensController {
 
     private void verifierRappelsAujourdhui() {
         try {
-            // On récupère la date d'aujourd'hui au format SQL (AAAA-MM-JJ)
             String today = java.sql.Date.valueOf(java.time.LocalDate.now()).toString();
-
             long nbAlertes = service.afficher().stream()
-                    .filter(e -> e.getDate_examen() != null &&
-                            e.getDate_examen().toString().equals(today)) // Comparaison textuelle simple
+                    .filter(e -> e.getDate_examen() != null && e.getDate_examen().toString().equals(today))
                     .count();
 
             if (nbAlertes > 0) {
@@ -123,7 +171,6 @@ public class AfficherExamensController {
         }
     }
 
-    // MÉTHODE AJOUTÉE : Elle manquait dans ton code précédent
     private void declencherAnimationCloche(long nb) {
         if (badgeRouge != null && lblNbAlertes != null) {
             badgeRouge.setVisible(true);
@@ -141,16 +188,15 @@ public class AfficherExamensController {
 
     @FXML
     void ouvrirDetailsAlertes() {
-        // Optionnel : afficher une petite alerte avec la liste des animaux concernés
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Rappels du jour");
         alert.setHeaderText("Examens à effectuer aujourd'hui");
-        alert.setContentText("Vous avez " + lblNbAlertes.getText() + " examen(s) prévu(s).");
+        String nb = (lblNbAlertes != null) ? lblNbAlertes.getText() : "0";
+        alert.setContentText("Vous avez " + nb + " examen(s) prévu(s).");
         alert.show();
     }
 
     // --- NAVIGATION ET ACTIONS ---
-
     @FXML
     void handleSupprimer(ActionEvent event) {
         examens selection = tvExamens.getSelectionModel().getSelectedItem();
@@ -184,15 +230,8 @@ public class AfficherExamensController {
         }
     }
 
-    @FXML
-    void naviguerAjout(ActionEvent event) {
-        changerScene(event, "/AjoutExamen.fxml", null);
-    }
-
-    @FXML
-    void naviguerVersAnimaux(ActionEvent event) {
-        changerScene(event, "/AfficherAnimaux.fxml", null);
-    }
+    @FXML void naviguerAjout(ActionEvent event) { changerScene(event, "/AjoutExamen.fxml", null); }
+    @FXML void naviguerVersAnimaux(ActionEvent event) { changerScene(event, "/AfficherAnimaux.fxml", null); }
 
     @FXML
     void ouvrirStats(ActionEvent event) {
@@ -209,13 +248,7 @@ public class AfficherExamensController {
 
     private void changerScene(ActionEvent event, String fxmlPath, examens examenAModifier) {
         try {
-            URL resource = getClass().getResource(fxmlPath);
-            if (resource == null) {
-                System.err.println("Fichier introuvable : " + fxmlPath);
-                return;
-            }
-
-            FXMLLoader loader = new FXMLLoader(resource);
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
 
             if (examenAModifier != null) {
@@ -227,7 +260,6 @@ public class AfficherExamensController {
             stage.setScene(new Scene(root));
             stage.show();
         } catch (IOException e) {
-            System.err.println("Erreur de navigation vers " + fxmlPath + " : " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -238,8 +270,5 @@ public class AfficherExamensController {
         alert.show();
     }
 
-    @FXML
-    void handleDeconnexion(ActionEvent event) {
-        changerScene(event, "/Login.fxml", null);
-    }
+    @FXML void handleDeconnexion(ActionEvent event) { changerScene(event, "/Login.fxml", null); }
 }

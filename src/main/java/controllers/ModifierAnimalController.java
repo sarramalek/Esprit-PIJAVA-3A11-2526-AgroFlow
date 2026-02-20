@@ -13,7 +13,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 import services.ServiceAnimal;
-import services.FoodApiService; // Import du service API
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -27,10 +26,9 @@ public class ModifierAnimalController {
     @FXML private TextField tfPoids;
     @FXML private DatePicker dpDate;
     @FXML private ComboBox<Sexe> cbSexe;
-    @FXML private ListView<String> lvSuggestions; // Liaison avec le FXML
 
     private ServiceAnimal service = new ServiceAnimal();
-    private FoodApiService foodApi = new FoodApiService(); // Instance API
+
     private int idAnimalActuel;
 
     @FXML
@@ -40,26 +38,10 @@ public class ModifierAnimalController {
                 "Chien", "Chat", "Vache", "Chèvre", "Mouton", "Cheval"
         ));
 
-        // Écouteur pour charger les suggestions dès que l'espèce change
-        comboEspece.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal != null) {
-                chargerSuggestions(newVal);
-            }
-        });
+
     }
 
-    private void chargerSuggestions(String espece) {
-        new Thread(() -> {
-            try {
-                List<String> resultats = foodApi.chercherAliments(espece);
-                Platform.runLater(() -> {
-                    lvSuggestions.setItems(FXCollections.observableArrayList(resultats));
-                });
-            } catch (Exception e) {
-                System.err.println("Erreur API : " + e.getMessage());
-            }
-        }).start();
-    }
+
 
     public void chargerDonnees(animaux a) {
         this.idAnimalActuel = a.getId();
@@ -72,10 +54,7 @@ public class ModifierAnimalController {
         }
         cbSexe.setValue(a.getSexe());
 
-        // Charger les suggestions initiales basées sur l'espèce de l'animal
-        if (a.getEspece() != null) {
-            chargerSuggestions(a.getEspece());
-        }
+
     }
 
     @FXML

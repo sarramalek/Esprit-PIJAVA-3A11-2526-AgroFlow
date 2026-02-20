@@ -14,55 +14,67 @@ public class FoodApiService {
     public List<String> chercherAliments(String espece) {
         List<String> suggestions = new ArrayList<>();
 
-        // 1. On utilise des termes très simples pour éviter de perdre le serveur
-        String query = traduireEspece(espece);
+        // 1. On prépare des secours de qualité pour CHAQUE espèce
+        List<String> secours = obtenirSecours(espece);
 
+        // 2. Traduction simple pour l'URL
+        String query = traduireEspece(espece);
         String urlString = "https://world.openfoodfacts.org/cgi/search.pl?search_terms="
-                + query.replace(" ", "%20")
-                + "&json=1&page_size=5";
+                + query.replace(" ", "%20") + "&json=1&page_size=5";
 
         try {
             URL url = new URL(urlString);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
-            conn.setRequestProperty("User-Agent", "AgroFlowApp - Java - Version 1.0");
+            conn.setRequestProperty("User-Agent", "AgroFlowApp/1.0");
 
-            // 2. On définit un temps limite de 5 secondes pour ne pas bloquer l'appli
+            // On réduit le timeout à 5 secondes pour plus de réactivité
             conn.setConnectTimeout(5000);
             conn.setReadTimeout(5000);
 
-            int responseCode = conn.getResponseCode();
-            if (responseCode == 200) { // Si tout va bien
+            if (conn.getResponseCode() == 200) {
                 BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
                 StringBuilder response = new StringBuilder();
-                String inputLine;
-                while ((inputLine = in.readLine()) != null) { response.append(inputLine); }
+                String line;
+                while ((line = in.readLine()) != null) response.append(line);
                 in.close();
 
-                JSONObject jsonResponse = new JSONObject(response.toString());
-                if (jsonResponse.has("products")) {
-                    JSONArray products = jsonResponse.getJSONArray("products");
+                JSONObject json = new JSONObject(response.toString());
+                JSONArray products = json.optJSONArray("products");
+
+                if (products != null && products.length() > 0) {
                     for (int i = 0; i < products.length(); i++) {
-                        JSONObject item = products.getJSONObject(i);
-                        if (item.has("product_name")) {
-                            suggestions.add(item.getString("product_name"));
-                        }
+                        String name = products.getJSONObject(i).optString("product_name");
+                        if (!name.isEmpty()) suggestions.add(name);
                     }
                 }
             }
         } catch (Exception e) {
-            System.err.println("Erreur API (" + espece + ") : " + e.getMessage());
+            System.err.println("Note : API trop lente pour " + espece + ", passage au mode local.");
         }
 
-        // 3. Système de secours : si l'API échoue ou ne trouve rien, on donne une base
-        if (suggestions.isEmpty()) {
-            suggestions.add("Foin de prairie");
-            suggestions.add("Mélange de céréales standard");
-        }
-
-        return suggestions;
+        // 3. Si l'API a crashé (Timeout) ou est vide, on utilise le secours
+        return suggestions.isEmpty() ? secours : suggestions;
     }
 
+    private List<String> obtenirSecours(String espece) {
+        List<String> liste = new ArrayList<>();
+        switch (espece.toLowerCase()) {
+            case "vache":
+                liste.add("Foin de luzerne"); liste.add("Granulés bovins croissance"); break;
+            case "mouton":
+                liste.add("Mélange céréales ovins"); liste.add("Bloc à lécher minéral"); break;
+            case "chèvre":
+                liste.add("Fourrage sec chèvre"); liste.add("Complément orge/avoine"); break;
+            case "chien":
+                liste.add("Croquettes premium chien"); liste.add("Pâtée équilibrée"); break;
+            case "chat":
+                liste.add("Croquettes saumon chat"); liste.add("Sachets fraîcheur"); break;
+            default:
+                liste.add("Aliment complet animal");
+        }
+        return liste;
+    }
     private String traduireEspece(String espece) {
         if (espece == null) return "";
         switch (espece.toLowerCase()) {
