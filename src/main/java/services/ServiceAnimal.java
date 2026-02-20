@@ -6,6 +6,7 @@ import utils.MyDatabase;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 // Implémentation de l'interface IService pour gérer les opérations sur l'entité 'animaux'
 public class ServiceAnimal implements IService<animaux> {
@@ -79,5 +80,17 @@ public class ServiceAnimal implements IService<animaux> {
             ));
         }
         return liste;
+    }
+    public List<animaux> trouverPartenaires(animaux selectionne) {
+        try {
+            return afficher().stream()
+                    .filter(a -> a.getId() != selectionne.getId()) // Pas lui-même
+                    .filter(a -> a.getEspece().equalsIgnoreCase(selectionne.getEspece())) // Même espèce
+                    .filter(a -> !a.getSexe().equals(selectionne.getSexe())) // Sexe opposé
+                    .collect(Collectors.toList());
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return new java.util.ArrayList<>();
+        }
     }
 }

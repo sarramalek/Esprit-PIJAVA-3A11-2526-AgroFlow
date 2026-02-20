@@ -116,6 +116,39 @@ public class AfficherAnimauxController implements Initializable {
     }
 
     @FXML
+    void handleGenererCouples(ActionEvent event) {
+        // CORRECTION : Utilisation de 'tableAnimaux' au lieu de 'tvAnimaux'
+        animaux selection = tableAnimaux.getSelectionModel().getSelectedItem();
+
+        if (selection != null) {
+            // CORRECTION : Utilisation de 'service' au lieu de 'serviceAn'
+            List<animaux> partenaires = service.trouverPartenaires(selection);
+
+            if (partenaires.isEmpty()) {
+                afficherAlerte("Aucun partenaire trouvé pour " + selection.getNom());
+            } else {
+                String liste = partenaires.stream()
+                        .map(a -> a.getNom() + " (ID: " + a.getId() + ")")
+                        .collect(Collectors.joining("\n"));
+
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Partenaires Potentiels");
+                alert.setHeaderText("Candidats pour " + selection.getNom());
+                alert.setContentText(liste);
+                alert.show();
+            }
+        } else {
+            afficherAlerte("Veuillez d'abord sélectionner un animal !");
+        }
+    }
+
+    // Ajoute cette petite méthode utilitaire pour corriger l'erreur 'afficherAlerte'
+    private void afficherAlerte(String message) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setContentText(message);
+        alert.show();
+    }
+    @FXML
     void handleSupprimer(ActionEvent event) {
         animaux selectionne = tableAnimaux.getSelectionModel().getSelectedItem();
         if (selectionne != null) {
