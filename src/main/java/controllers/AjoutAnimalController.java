@@ -105,11 +105,20 @@ public class AjoutAnimalController {
 
     private void changerScene(ActionEvent event, String fxmlFile) {
         try {
+            // 1. Chargement du fichier FXML (le design de la nouvelle page)
+            // getClass().getResource() cherche le fichier dans vos dossiers de ressources.
             Parent root = FXMLLoader.load(getClass().getResource("/" + fxmlFile));
+            // 2. Récupération de la "fenêtre" actuelle (le Stage)
+            // On part du bouton qui a cliqué (event.getSource), on remonte à sa scène, puis à sa fenêtre.
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            // 3. Mise en place de la nouvelle scène
+            // On crée un nouvel objet Scene avec le contenu (root) chargé précédemment.
             stage.setScene(new Scene(root));
+            // 4. Affichage de la fenêtre mise à jour
             stage.show();
+
         } catch (IOException e) {
+            // En cas de problème (ex: fichier FXML introuvable ou mal orthographié)
             System.err.println("Erreur de navigation : " + e.getMessage());
         }
     }

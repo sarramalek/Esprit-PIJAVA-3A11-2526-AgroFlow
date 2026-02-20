@@ -1,5 +1,4 @@
-
-
+// Importations pour les entités et les outils de test JUnit 5
 import entities.Sexe;
 import entities.animaux;
 import org.junit.jupiter.api.*;
@@ -7,87 +6,64 @@ import services.ServiceAnimal;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
+// Importation statique des méthodes de vérification (assertEquals, assertTrue, etc.)
 import static org.junit.jupiter.api.Assertions.*;
 
+// Définit que les tests seront exécutés dans l'ordre choisi via l'annotation @Order
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class animauxserviceTestTest {
     private static ServiceAnimal service;
 
+    // S'exécute une seule fois avant tous les tests pour initialiser le service
     @BeforeAll
-     static void setUp() {
-        System.out.println("setUp");
+    static void setUp() {
+        System.out.println("Initialisation du service de test...");
         service = new ServiceAnimal();
-
     }
 
-    /*@AfterAll
-    static void tearDown() throws SQLException {
-        System.out.println("Cleaning up after all tests...");
-        List<animaux> liste = service.afficher();
-        if (!liste.isEmpty()) {
-            animaux animal = liste.get(liste.size() - 1);
-            service.supprimer(animal.getId());
-            assertFalse(service.afficher().stream().anyMatch(a -> a.getId() == animal.getId()));
-        }
-    }*/
     @Test
-    @Order(1)
+    @Order(1) // Premier test à s'exécuter
     void ajouter() throws SQLException {
-        System.out.println("Running ajouter test...");
+        System.out.println("Test de l'ajout en cours...");
+        // Création d'un animal test
         animaux animal = new animaux(0, "luca", "chien", "bichon maltais", new java.util.Date(), Sexe.MALE, 250f);
 
+        // Action : on tente l'ajout en base de données
         service.ajouter(animal);
 
+        // Vérification : la liste ne doit plus être vide
         List<animaux> liste = service.afficher();
         Assertions.assertFalse(liste.isEmpty());
 
-        // Utilise anyMatch pour chercher l'animal partout dans la liste (Style Mr)
+        // Utilisation des Streams pour vérifier si l'animal "luca" existe bien dans la liste
         boolean trouve = liste.stream()
-                .anyMatch(a -> ((animaux)a).getNom().equalsIgnoreCase("bobo"));
+                .anyMatch(a -> a.getNom().equalsIgnoreCase("luca"));
 
-        Assertions.assertTrue(trouve, "L'animal 'bobo' n'a pas été trouvé dans la base !");
+        // Si 'trouve' est faux, le test échoue avec le message indiqué
+        Assertions.assertTrue(trouve, "L'animal 'luca' n'a pas été trouvé dans la base !");
     }
+
     @Test
-    @Order(2)
+    @Order(2) // Deuxième test (après l'ajout)
     void modifier() throws SQLException {
-        System.out.println("Running modifier test...");
+        System.out.println("Test de la modification en cours...");
 
-        // 1. Récupérer le dernier animal de la liste avec le cast (animaux)
-        animaux animal = (animaux) service.afficher().get(service.afficher().size() - 1);
+        // 1. Récupération du dernier animal ajouté (le plus récent)
+        List<animaux> all = service.afficher();
+        animaux animal = all.get(all.size() - 1);
 
-        // 2. Modifier le nom ET le poids (comme demandé)
-        animal.setNom("luca");
-        animal.setPoids(500.5f); // On change le poids à 500.5 (le 'f' est pour float)
+        // 2. Modification des attributs de l'objet local
+        animal.setNom("luca_modifie");
+        animal.setPoids(500.5f);
 
-        // 3. Appeler la méthode de service pour mettre à jour la base de données
+        // 3. Action : Mise à jour dans la base de données via le service
         service.modifier(animal);
 
-        // 4. Vérification selon le style de ton prof (Stream)
+        // 4. Vérification : On recharge la liste et on vérifie si les changements sont appliqués
         List<animaux> animauxList = service.afficher();
-
-        // On vérifie si un animal possède à la fois le nouveau nom ET le nouveau poids
         boolean trouve = animauxList.stream()
-                .anyMatch(a -> a.getNom().equals("NomModifie") && a.getPoids() == 500.5f);
+                .anyMatch(a -> a.getNom().equals("luca_modifie") && a.getPoids() == 500.5f);
 
-        Assertions.assertTrue(trouve);
+        Assertions.assertTrue(trouve, "La modification n'a pas été enregistrée en base !");
     }
-    /*@Test
-    @Order(3)
-    void supprimer() throws SQLException { // <--- Ajouté throws pour corriger l'erreur rouge
-        System.out.println("Running supprimer test...");
-
-        // Récupération du dernier animal pour avoir son ID
-        animaux animal = (animaux) service.afficher().get(service.afficher().size() - 1);
-        int idASupprimer = animal.getId();
-
-        // CORRECTION : On passe l'ID (int) et non l'objet animal entier
-        service.supprimer(idASupprimer);
-
-        List<animaux> animauxList = service.afficher();
-        boolean existe = animauxList.stream()
-                .anyMatch(a -> a.getId() == idASupprimer);
-
-        Assertions.assertFalse(existe);
-    }*/
-    }
-
+}
