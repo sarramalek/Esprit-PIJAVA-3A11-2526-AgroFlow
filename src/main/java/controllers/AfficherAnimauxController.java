@@ -127,6 +127,18 @@ public class AfficherAnimauxController implements Initializable { // Ajout de im
     void versAjout(ActionEvent event) {
         changerScene(event, "ajoutAnimaux.fxml");
     }
+    @FXML
+    void ouvrirStats(ActionEvent event) {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/StatsAnimaux.fxml"));
+            Stage stage = new Stage();
+            stage.setTitle("Statistiques - AgroFlow");
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     // --- Navigation ---
 
