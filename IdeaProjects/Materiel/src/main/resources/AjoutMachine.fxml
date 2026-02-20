@@ -5,166 +5,200 @@
 <?import javafx.scene.text.*?>
 <?import javafx.geometry.Insets?>
 
-<BorderPane prefHeight="600.0" prefWidth="900.0"
-            style="-fx-background-color: #fcf8e6;"
+<BorderPane prefHeight="650.0" prefWidth="950.0"
+            style="-fx-background-color: #f0f2f5;"
             xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="controllers.AjoutMachineController">
 
     <!-- ================= SIDEBAR ================= -->
     <left>
-        <VBox prefWidth="230.0" spacing="5.0" style="-fx-background-color: #2C3E50; -fx-padding: 15;">
-            <children>
-                <Text fill="WHITE" text="AGROFLOW">
-                    <font><Font name="System Bold" size="24.0" /></font>
-                </Text>
-                <Separator opacity="0.2" prefHeight="20.0" />
+        <VBox prefWidth="240" spacing="0"
+              style="-fx-background-color: #1e2a38; -fx-padding: 0;">
 
-                <Button onAction="#naviguerAnimaux" maxWidth="Infinity" alignment="BASELINE_LEFT" prefHeight="45.0"
-                        style="-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;"
-                        text="🐾 Gestion Animaux" />
+            <!-- Logo -->
+            <VBox style="-fx-background-color: #141d27; -fx-padding: 22 18 16 18; -fx-spacing: 4;">
+                <Label text="🌿 AGROFLOW"
+                       style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;"/>
+                <Label text="Gestion Agricole"
+                       style="-fx-text-fill: #6c7a89; -fx-font-size: 11px;"/>
+            </VBox>
 
-                <Button onAction="#naviguerMateriels" maxWidth="Infinity" alignment="BASELINE_LEFT" prefHeight="45.0"
-                        style="-fx-background-color: #2D5A27; -fx-text-fill: white; -fx-cursor: hand;"
-                        text="⚙️ Gestion Matériels" />
+            <Separator style="-fx-background-color: #2c3e50;"/>
 
-                <Button onAction="#naviguerStocks" maxWidth="Infinity" alignment="BASELINE_LEFT" prefHeight="45.0"
-                        style="-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;"
-                        text="📦 Gestion Stocks" />
+            <!-- Menu items -->
+            <VBox spacing="4" style="-fx-padding: 14 10 10 10;">
 
-                <Button onAction="#naviguerTerrains" maxWidth="Infinity" alignment="BASELINE_LEFT" prefHeight="45.0"
-                        style="-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;"
-                        text="🌱 Gestion Terrains" />
+                <Button text="🐄  Gestion Animaux" onAction="#naviguerAnimaux"
+                        prefWidth="220" prefHeight="44"
+                        style="-fx-background-color: transparent; -fx-text-fill: #b0bec5;
+                               -fx-font-size: 13px; -fx-alignment: center-left;
+                               -fx-padding: 0 16; -fx-border-width: 0;
+                               -fx-cursor: hand; -fx-background-radius: 8;"/>
 
-                <Button onAction="#naviguerEvenements" maxWidth="Infinity" alignment="BASELINE_LEFT" prefHeight="45.0"
-                        style="-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;"
-                        text="📅 Événements" />
+                <Button text="🚜  Gestion Matériels" onAction="#naviguerMateriels"
+                        prefWidth="220" prefHeight="44"
+                        style="-fx-background-color: #27ae60; -fx-text-fill: white;
+                               -fx-font-size: 13px; -fx-alignment: center-left;
+                               -fx-padding: 0 16; -fx-border-width: 0;
+                               -fx-font-weight: bold; -fx-cursor: hand;
+                               -fx-background-radius: 8;"/>
 
-                <Button onAction="#naviguerUsers" maxWidth="Infinity" alignment="BASELINE_LEFT" prefHeight="45.0"
-                        style="-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;"
-                        text="👥 Utilisateurs" />
+                <Button text="📦  Gestion Stocks" onAction="#naviguerStocks"
+                        prefWidth="220" prefHeight="44"
+                        style="-fx-background-color: transparent; -fx-text-fill: #b0bec5;
+                               -fx-font-size: 13px; -fx-alignment: center-left;
+                               -fx-padding: 0 16; -fx-border-width: 0;
+                               -fx-cursor: hand; -fx-background-radius: 8;"/>
 
-                <Region VBox.vgrow="ALWAYS" />
+                <Button text="🌾  Gestion Terrains" onAction="#naviguerTerrains"
+                        prefWidth="220" prefHeight="44"
+                        style="-fx-background-color: transparent; -fx-text-fill: #b0bec5;
+                               -fx-font-size: 13px; -fx-alignment: center-left;
+                               -fx-padding: 0 16; -fx-border-width: 0;
+                               -fx-cursor: hand; -fx-background-radius: 8;"/>
 
-                <Separator opacity="0.1" />
-                <Button maxWidth="Infinity" prefHeight="40.0"
-                        style="-fx-background-color: #E74C3C; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;"
-                        text="Déconnexion" />
-            </children>
+                <Button text="📅  Événements" onAction="#naviguerEvenements"
+                        prefWidth="220" prefHeight="44"
+                        style="-fx-background-color: transparent; -fx-text-fill: #b0bec5;
+                               -fx-font-size: 13px; -fx-alignment: center-left;
+                               -fx-padding: 0 16; -fx-border-width: 0;
+                               -fx-cursor: hand; -fx-background-radius: 8;"/>
+
+                <Button text="👥  Utilisateurs" onAction="#naviguerUsers"
+                        prefWidth="220" prefHeight="44"
+                        style="-fx-background-color: transparent; -fx-text-fill: #b0bec5;
+                               -fx-font-size: 13px; -fx-alignment: center-left;
+                               -fx-padding: 0 16; -fx-border-width: 0;
+                               -fx-cursor: hand; -fx-background-radius: 8;"/>
+            </VBox>
+
+            <Region VBox.vgrow="ALWAYS"/>
+
+            <!-- Déconnexion -->
+            <Button text="🔴  Déconnexion" onAction="#deconnexion"
+                    prefWidth="240" prefHeight="52"
+                    style="-fx-background-color: #c0392b; -fx-text-fill: white;
+                           -fx-font-size: 13px; -fx-border-width: 0;
+                           -fx-font-weight: bold; -fx-cursor: hand;"/>
         </VBox>
     </left>
 
     <!-- ================= CENTER ================= -->
     <center>
-        <VBox spacing="20.0" style="-fx-padding: 30;" alignment="TOP_CENTER">
-            <children>
+        <VBox spacing="20.0" style="-fx-padding: 30; -fx-background-color: #f0f2f5;"
+              alignment="TOP_CENTER">
 
-                <!-- Titre -->
-                <Text fill="#2C3E50" text="Ajouter une Machine">
-                    <font><Font name="System Bold" size="26.0" /></font>
-                </Text>
+            <!-- En-tête avec bouton retour + titre -->
+            <HBox alignment="CENTER_LEFT" spacing="14">
+                <Button text="← Retour" onAction="#handleAnnuler"
+                        style="-fx-background-color: #95a5a6; -fx-text-fill: white;
+                               -fx-font-size: 13px; -fx-padding: 9 16;
+                               -fx-background-radius: 7; -fx-cursor: hand;
+                               -fx-font-weight: bold;"/>
+                <Label text="➕  Ajouter une Machine"
+                       style="-fx-font-size: 22px; -fx-font-weight: bold;
+                              -fx-text-fill: #2c3e50;"/>
+            </HBox>
 
-                <!-- Formulaire dans un conteneur blanc -->
-                <VBox spacing="0" alignment="CENTER" maxWidth="650.0">
-                    <children>
-                        <GridPane hgap="15.0" vgap="18.0"
-                                  style="-fx-background-color: white;
-                                        -fx-padding: 40;
-                                        -fx-background-radius: 10;
-                                        -fx-border-color: #ddd;
-                                        -fx-border-width: 1;
-                                        -fx-border-radius: 10;
-                                        -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);">
+            <Separator/>
 
-                            <columnConstraints>
-                                <ColumnConstraints minWidth="130.0" prefWidth="130.0" />
-                                <ColumnConstraints minWidth="350.0" prefWidth="350.0" />
-                            </columnConstraints>
+            <!-- Formulaire -->
+            <VBox spacing="0" alignment="CENTER" maxWidth="660.0">
+                <GridPane hgap="15.0" vgap="16.0"
+                          style="-fx-background-color: white;
+                                 -fx-padding: 36 40 36 40;
+                                 -fx-background-radius: 12;
+                                 -fx-border-color: #dfe6e9;
+                                 -fx-border-width: 1;
+                                 -fx-border-radius: 12;
+                                 -fx-effect: dropshadow(gaussian,rgba(0,0,0,0.10),12,0,0,3);">
 
-                            <!-- 1. Marque (ordre Machine: marque) -->
-                            <Label text="Marque :" GridPane.columnIndex="0" GridPane.rowIndex="0"
-                                   style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #2C3E50;"/>
-                            <TextField fx:id="tfMarque" promptText="Entrez la marque"
-                                       GridPane.columnIndex="1" GridPane.rowIndex="0"
-                                       style="-fx-font-size: 14px; -fx-padding: 10; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: #bdc3c7;"/>
+                    <columnConstraints>
+                        <ColumnConstraints minWidth="130.0" prefWidth="140.0"/>
+                        <ColumnConstraints minWidth="350.0" prefWidth="370.0"/>
+                    </columnConstraints>
 
-                            <!-- 2. Modèle (ordre Machine: modele) -->
-                            <Label text="Modèle :" GridPane.columnIndex="0" GridPane.rowIndex="1"
-                                   style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #2C3E50;"/>
-                            <TextField fx:id="tfModele" promptText="Entrez le modèle"
-                                       GridPane.columnIndex="1" GridPane.rowIndex="1"
-                                       style="-fx-font-size: 14px; -fx-padding: 10; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: #bdc3c7;"/>
+                    <!-- Marque -->
+                    <Label text="Marque :" GridPane.columnIndex="0" GridPane.rowIndex="0"
+                           style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #2c3e50;"/>
+                    <TextField fx:id="tfMarque" promptText="Ex : John Deere, Case..."
+                               GridPane.columnIndex="1" GridPane.rowIndex="0"
+                               style="-fx-font-size: 14px; -fx-padding: 10;
+                                      -fx-background-radius: 6; -fx-border-radius: 6;
+                                      -fx-border-color: #bdc3c7; -fx-border-width: 1.2;"/>
 
-                            <!-- 3. État (ordre Machine: etatM) -->
-                            <Label text="État :" GridPane.columnIndex="0" GridPane.rowIndex="2"
-                                   style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #2C3E50;"/>
-                            <TextField fx:id="tfEtatM" promptText="Ex: Neuf, Bon, Occasion, Disponible"
-                                       GridPane.columnIndex="1" GridPane.rowIndex="2"
-                                       style="-fx-font-size: 14px; -fx-padding: 10; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: #bdc3c7;"/>
+                    <!-- Modèle -->
+                    <Label text="Modèle :" GridPane.columnIndex="0" GridPane.rowIndex="1"
+                           style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #2c3e50;"/>
+                    <TextField fx:id="tfModele" promptText="Ex : MX100, X70..."
+                               GridPane.columnIndex="1" GridPane.rowIndex="1"
+                               style="-fx-font-size: 14px; -fx-padding: 10;
+                                      -fx-background-radius: 6; -fx-border-radius: 6;
+                                      -fx-border-color: #bdc3c7; -fx-border-width: 1.2;"/>
 
-                            <!-- 4. N° Série (ordre Machine: numeroSerie) -->
-                            <Label text="N° Série :" GridPane.columnIndex="0" GridPane.rowIndex="3"
-                                   style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #2C3E50;"/>
-                            <TextField fx:id="tfNumeroSerie" promptText="Entrez le numéro de série"
-                                       GridPane.columnIndex="1" GridPane.rowIndex="3"
-                                       style="-fx-font-size: 14px; -fx-padding: 10; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: #bdc3c7;"/>
+                    <!-- État -->
+                    <Label text="État :" GridPane.columnIndex="0" GridPane.rowIndex="2"
+                           style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #2c3e50;"/>
+                    <ComboBox fx:id="tfEtatM" promptText="Sélectionnez l'état"
+                              GridPane.columnIndex="1" GridPane.rowIndex="2"
+                              maxWidth="Infinity"
+                              style="-fx-font-size: 14px; -fx-background-radius: 6;
+                                     -fx-border-radius: 6; -fx-border-color: #bdc3c7;
+                                     -fx-border-width: 1.2;"/>
 
-                            <!-- 5. Date d'Achat (ordre Machine: dateAchat) -->
-                            <Label text="Date d'Achat :" GridPane.columnIndex="0" GridPane.rowIndex="4"
-                                   style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #2C3E50;"/>
-                            <DatePicker fx:id="dpDateAchat" promptText="Sélectionnez la date d'achat"
-                                        GridPane.columnIndex="1" GridPane.rowIndex="4"
-                                        maxWidth="Infinity"
-                                        style="-fx-font-size: 14px; -fx-padding: 5;"/>
+                    <!-- N° Série -->
+                    <Label text="N° Série :" GridPane.columnIndex="0" GridPane.rowIndex="3"
+                           style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #2c3e50;"/>
+                    <TextField fx:id="tfNumeroSerie" promptText="Ex : SN12345..."
+                               GridPane.columnIndex="1" GridPane.rowIndex="3"
+                               style="-fx-font-size: 14px; -fx-padding: 10;
+                                      -fx-background-radius: 6; -fx-border-radius: 6;
+                                      -fx-border-color: #bdc3c7; -fx-border-width: 1.2;"/>
 
-                            <!-- 6. Nom (ordre Machine: nom) -->
-                            <Label text="Nom :" GridPane.columnIndex="0" GridPane.rowIndex="5"
-                                   style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #2C3E50;"/>
-                            <TextField fx:id="tfNom" promptText="Entrez le nom de la machine"
-                                       GridPane.columnIndex="1" GridPane.rowIndex="5"
-                                       style="-fx-font-size: 14px; -fx-padding: 10; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: #bdc3c7;"/>
+                    <!-- Date Achat -->
+                    <Label text="Date d'Achat :" GridPane.columnIndex="0" GridPane.rowIndex="4"
+                           style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #2c3e50;"/>
+                    <DatePicker fx:id="dpDateAchat" promptText="Sélectionnez la date"
+                                GridPane.columnIndex="1" GridPane.rowIndex="4"
+                                maxWidth="Infinity"
+                                style="-fx-font-size: 14px; -fx-padding: 5;"/>
 
-                        </GridPane>
-                    </children>
-                </VBox>
+                    <!-- Nom -->
+                    <Label text="Nom :" GridPane.columnIndex="0" GridPane.rowIndex="5"
+                           style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #2c3e50;"/>
+                    <TextField fx:id="tfNom" promptText="Nom de la machine"
+                               GridPane.columnIndex="1" GridPane.rowIndex="5"
+                               style="-fx-font-size: 14px; -fx-padding: 10;
+                                      -fx-background-radius: 6; -fx-border-radius: 6;
+                                      -fx-border-color: #bdc3c7; -fx-border-width: 1.2;"/>
 
-                <!-- Boutons d'action -->
-                <HBox spacing="20.0" alignment="CENTER" style="-fx-padding: 10 0 0 0;">
-                    <children>
-                        <Button text="✓ AJOUTER" onAction="#handleAjouter"
-                                prefWidth="160.0" prefHeight="45.0"
-                                style="-fx-background-color: #2D5A27;
-                                      -fx-text-fill: white;
-                                      -fx-font-weight: bold;
-                                      -fx-font-size: 15px;
-                                      -fx-cursor: hand;
-                                      -fx-background-radius: 5;
-                                      -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 2);"/>
+                </GridPane>
+            </VBox>
 
-                        <Button text="✗ ANNULER" onAction="#handleAnnuler"
-                                prefWidth="160.0" prefHeight="45.0"
-                                style="-fx-background-color: #95a5a6;
-                                      -fx-text-fill: white;
-                                      -fx-font-weight: bold;
-                                      -fx-font-size: 15px;
-                                      -fx-cursor: hand;
-                                      -fx-background-radius: 5;
-                                      -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 2);"/>
-                    </children>
-                </HBox>
+            <!-- Boutons d'action -->
+            <HBox spacing="20.0" alignment="CENTER">
+                <Button text="➕  AJOUTER" onAction="#handleAjouter"
+                        prefWidth="180.0" prefHeight="48.0"
+                        style="-fx-background-color: #27ae60; -fx-text-fill: white;
+                               -fx-font-weight: bold; -fx-font-size: 15px;
+                               -fx-cursor: hand; -fx-background-radius: 9;
+                               -fx-effect: dropshadow(gaussian,rgba(39,174,96,0.4),10,0,0,3);"/>
 
-                <!-- Message d'aide -->
-                <Text text="Remplissez tous les champs et cliquez sur AJOUTER pour enregistrer la nouvelle machine"
-                      fill="#7f8c8d"
-                      textAlignment="CENTER"
-                      wrappingWidth="600"
-                      style="-fx-font-size: 12px; -fx-font-style: italic;">
-                    <VBox.margin>
-                        <Insets top="10.0" />
-                    </VBox.margin>
-                </Text>
+                <Button text="✖  ANNULER" onAction="#handleAnnuler"
+                        prefWidth="180.0" prefHeight="48.0"
+                        style="-fx-background-color: #95a5a6; -fx-text-fill: white;
+                               -fx-font-weight: bold; -fx-font-size: 15px;
+                               -fx-cursor: hand; -fx-background-radius: 9;
+                               -fx-effect: dropshadow(gaussian,rgba(0,0,0,0.2),8,0,0,2);"/>
+            </HBox>
 
-            </children>
+            <!-- Message d'aide -->
+            <Label text="ℹ  Remplissez tous les champs puis cliquez sur AJOUTER pour enregistrer la machine."
+                   wrapText="true" maxWidth="620"
+                   style="-fx-font-size: 12px; -fx-font-style: italic;
+                          -fx-text-fill: #7f8c8d; -fx-text-alignment: center;"/>
+
         </VBox>
     </center>
 

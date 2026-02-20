@@ -12,68 +12,87 @@
 
     <!-- ================= SIDEBAR ================= -->
     <left>
-        <VBox prefWidth="230.0" spacing="10.0"
-              style="-fx-background-color: #2C3E50; -fx-padding: 15;">
+        <VBox prefWidth="230.0" spacing="5.0"
+              style="-fx-background-color: #1e2a35; -fx-padding: 20 15 20 15;">
             <children>
-                <Text fill="WHITE" text="AGROFLOW">
+                <!-- Logo AGROFLOW avec icône -->
+                <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 0 0 5 5;">
+                    <children>
+                        <Text fill="WHITE" text="❋" style="-fx-font-size: 22px;"/>
+                        <Text fill="WHITE" text="AGROFLOW">
+                            <font>
+                                <Font name="System Bold" size="20.0"/>
+                            </font>
+                        </Text>
+                    </children>
+                </HBox>
+                <Text fill="#95a5a6" text="Gestion Agricole" style="-fx-font-size: 13px; -fx-padding: 0 0 0 5;">
                     <font>
-                        <Font name="System Bold" size="24.0"/>
+                        <Font name="System Regular" size="13.0"/>
                     </font>
                 </Text>
 
-                <Separator opacity="0.2"/>
+                <Separator opacity="0.15" style="-fx-padding: 10 0 10 0;"/>
 
-                <Button text="🐾 Gestion Animaux"
+                <!-- Gestion Animaux -->
+                <Button text="  🐄  Gestion Animaux"
                         onAction="#naviguerAnimaux"
                         maxWidth="Infinity"
                         alignment="BASELINE_LEFT"
                         prefHeight="45.0"
-                        style="-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;"/>
+                        style="-fx-background-color: transparent; -fx-text-fill: #b0bec5; -fx-cursor: hand; -fx-font-size: 14px; -fx-padding: 0 0 0 10; -fx-background-radius: 8;"/>
 
-                <Button text="⚙️ Gestion Matériels"
+                <!-- Gestion Matériels — ACTIF -->
+                <Button text="  🚜  Gestion Matériels"
                         onAction="#naviguerMateriels"
                         maxWidth="Infinity"
                         alignment="BASELINE_LEFT"
                         prefHeight="45.0"
-                        style="-fx-background-color: #2D5A27; -fx-text-fill: white; -fx-cursor: hand;"/>
+                        style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-cursor: hand; -fx-font-size: 14px; -fx-font-weight: bold; -fx-padding: 0 0 0 10; -fx-background-radius: 8;"/>
 
-                <Button text="📦 Gestion Stocks"
+                <!-- Gestion Stocks -->
+                <Button text="  📦  Gestion Stocks"
                         onAction="#naviguerStocks"
                         maxWidth="Infinity"
                         alignment="BASELINE_LEFT"
                         prefHeight="45.0"
-                        style="-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;"/>
+                        style="-fx-background-color: transparent; -fx-text-fill: #b0bec5; -fx-cursor: hand; -fx-font-size: 14px; -fx-padding: 0 0 0 10; -fx-background-radius: 8;"/>
 
-                <Button text="🌱 Gestion Terrains"
+                <!-- Gestion Terrains -->
+                <Button text="  🗺️  Gestion Terrains"
                         onAction="#naviguerTerrains"
                         maxWidth="Infinity"
                         alignment="BASELINE_LEFT"
                         prefHeight="45.0"
-                        style="-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;"/>
+                        style="-fx-background-color: transparent; -fx-text-fill: #b0bec5; -fx-cursor: hand; -fx-font-size: 14px; -fx-padding: 0 0 0 10; -fx-background-radius: 8;"/>
 
-                <Button text="📅 Événements"
+                <!-- Événements -->
+                <Button text="  📅  Événements"
                         onAction="#naviguerEvenements"
                         maxWidth="Infinity"
                         alignment="BASELINE_LEFT"
                         prefHeight="45.0"
-                        style="-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;"/>
+                        style="-fx-background-color: transparent; -fx-text-fill: #b0bec5; -fx-cursor: hand; -fx-font-size: 14px; -fx-padding: 0 0 0 10; -fx-background-radius: 8;"/>
 
-                <Button text="👥 Utilisateurs"
+                <!-- Utilisateurs -->
+                <Button text="  👥  Utilisateurs"
                         onAction="#naviguerUsers"
                         maxWidth="Infinity"
                         alignment="BASELINE_LEFT"
                         prefHeight="45.0"
-                        style="-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;"/>
+                        style="-fx-background-color: transparent; -fx-text-fill: #b0bec5; -fx-cursor: hand; -fx-font-size: 14px; -fx-padding: 0 0 0 10; -fx-background-radius: 8;"/>
 
                 <Region VBox.vgrow="ALWAYS"/>
 
-                <Separator opacity="0.1"/>
+                <Separator opacity="0.15"/>
 
-                <Button text="Déconnexion"
+                <!-- Déconnexion -->
+                <Button text="⚪  Déconnexion"
                         onAction="#deconnexion"
                         maxWidth="Infinity"
-                        prefHeight="40.0"
-                        style="-fx-background-color: #E74C3C; -fx-text-fill: white; -fx-cursor: hand; -fx-font-weight: bold;"/>
+                        alignment="CENTER"
+                        prefHeight="45.0"
+                        style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-cursor: hand; -fx-font-size: 14px; -fx-font-weight: bold; -fx-background-radius: 8;"/>
             </children>
         </VBox>
     </left>
@@ -106,10 +125,10 @@
                                  -fx-border-color: #e0e0e0;
                                  -fx-border-width: 1;">
                         <children>
-                            <Text text="⚙️" style="-fx-font-size: 60px;"/>
+                            <Text text="🚜" style="-fx-font-size: 64px;"/>
                             <Text text="Machines"
                                   style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-fill: #2C3E50;"/>
-                            <Text text="Gérer les machines"
+                            <Text text="Gérer les machines agricoles"
                                   style="-fx-font-size: 12px; -fx-fill: #7f8c8d;"/>
                         </children>
                     </VBox>
@@ -128,10 +147,10 @@
                                  -fx-border-color: #e0e0e0;
                                  -fx-border-width: 1;">
                         <children>
-                            <Text text="🔧" style="-fx-font-size: 60px;"/>
+                            <Text text="🔧" style="-fx-font-size: 64px;"/>
                             <Text text="Maintenances"
                                   style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-fill: #2C3E50;"/>
-                            <Text text="Suivi des maintenances"
+                            <Text text="Planifier les maintenances"
                                   style="-fx-font-size: 12px; -fx-fill: #7f8c8d;"/>
                         </children>
                     </VBox>
@@ -150,17 +169,17 @@
                                  -fx-border-color: #e0e0e0;
                                  -fx-border-width: 1;">
                         <children>
-                            <Text text="🛒" style="-fx-font-size: 60px;"/>
+                            <Text text="🛒" style="-fx-font-size: 64px;"/>
                             <Text text="Achats"
                                   style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-fill: #2C3E50;"/>
-                            <Text text="Gérer les achats"
+                            <Text text="Suivre les achats"
                                   style="-fx-font-size: 12px; -fx-fill: #7f8c8d;"/>
                         </children>
                     </VBox>
 
                 </HBox>
 
-                <!-- Message d'information optionnel -->
+                <!-- Message d'information -->
                 <Text text="Cliquez sur une carte pour accéder au module correspondant"
                       fill="#95a5a6"
                       style="-fx-font-size: 14px; -fx-font-style: italic;"/>

@@ -19,20 +19,11 @@ import java.util.ResourceBundle;
 
 public class AjouterMaintenanceController implements Initializable {
 
-    // ============================================================
-    //  CHAMPS FXML
-    // ============================================================
-
-    /**
-     * ComboBox<Machine> : affiche le NOM de la machine (via cellFactory)
-     * mais stocke l'objet Machine complet → on récupère l'idM proprement.
-     */
     @FXML private ComboBox<Machine> comboMachine;
-
-    @FXML private TextField  txtTypePanne;
-    @FXML private DatePicker datePickerMain;
-    @FXML private TextField  txtCout;
-    @FXML private TextArea   txtDescription;
+    @FXML private TextField         txtTypePanne;
+    @FXML private DatePicker        datePickerMain;
+    @FXML private TextField         txtCout;
+    @FXML private TextArea          txtDescription;
 
     // Labels d'erreur inline
     @FXML private Label errMachine;
@@ -40,9 +31,6 @@ public class AjouterMaintenanceController implements Initializable {
     @FXML private Label errDate;
     @FXML private Label errCout;
 
-    // ============================================================
-    //  SERVICES
-    // ============================================================
     private final MachineService     machineService     = new MachineService();
     private final MaintenanceService maintenanceService = new MaintenanceService();
 
@@ -51,17 +39,10 @@ public class AjouterMaintenanceController implements Initializable {
     // ============================================================
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        configurerComboMachine();   // JOINTURE : charge les machines et configure l'affichage
-        datePickerMain.setValue(LocalDate.now());  // date par défaut = aujourd'hui
+        configurerComboMachine();
+        datePickerMain.setValue(LocalDate.now());
     }
 
-    /**
-     * Configure le ComboBox pour :
-     * - afficher uniquement le NOM de la machine dans la liste
-     * - stocker l'objet Machine complet (idM accessible via machine.getIdM())
-     *
-     * C'est LA clé de la jointure idM ↔ nom_machine.
-     */
     private void configurerComboMachine() {
         try {
             List<Machine> machines = machineService.recuperer();
@@ -73,12 +54,9 @@ public class AjouterMaintenanceController implements Initializable {
                 return;
             }
 
-            ObservableList<Machine> listeMachines = FXCollections.observableArrayList(machines);
-            comboMachine.setItems(listeMachines);
+            comboMachine.setItems(FXCollections.observableArrayList(machines));
 
-            // -------------------------------------------------------
-            //  cellFactory  : affiche le NOM dans chaque ligne de la liste déroulante
-            // -------------------------------------------------------
+            // Affiche uniquement le NOM dans la liste deroulante
             comboMachine.setCellFactory(lv -> new ListCell<Machine>() {
                 @Override
                 protected void updateItem(Machine machine, boolean empty) {
@@ -86,15 +64,12 @@ public class AjouterMaintenanceController implements Initializable {
                     if (empty || machine == null) {
                         setText(null);
                     } else {
-                        // Affiche : "Tracteur  (ID: 3)"  — retirez la partie ID si non souhaitée
-                        setText(machine.getNom() + "   (ID: " + machine.getIdM() + ")");
+                        setText(machine.getNom());  // NOM seulement, sans ID
                     }
                 }
             });
 
-            // -------------------------------------------------------
-            //  buttonCell  : affiche le NOM dans le bouton du ComboBox après sélection
-            // -------------------------------------------------------
+            // Affiche uniquement le NOM apres selection dans le bouton
             comboMachine.setButtonCell(new ListCell<Machine>() {
                 @Override
                 protected void updateItem(Machine machine, boolean empty) {
@@ -103,13 +78,11 @@ public class AjouterMaintenanceController implements Initializable {
                         setText("Selectionner une machine");
                         setStyle("-fx-text-fill: #a0aec0;");
                     } else {
-                        setText(machine.getNom());
+                        setText(machine.getNom());  // NOM seulement, sans ID
                         setStyle("-fx-text-fill: #2c3e50; -fx-font-weight: bold;");
                     }
                 }
             });
-
-            System.out.println("[OK] " + machines.size() + " machine(s) chargee(s) dans le ComboBox");
 
         } catch (SQLException e) {
             afficherAlerte("Erreur", "Impossible de charger les machines : " + e.getMessage(),
@@ -123,34 +96,27 @@ public class AjouterMaintenanceController implements Initializable {
     // ============================================================
     @FXML
     private void enregistrer() {
-        // 1. Réinitialiser les erreurs
         effacerErreurs();
-
-        // 2. Valider les champs
         if (!valider()) return;
 
-        // 3. Récupérer la machine sélectionnée → idM via JOINTURE
         Machine machineSelectionnee = comboMachine.getValue();
-        int idM = machineSelectionnee.getIdM();  // clé étrangère vers table Machine
-
-        // 4. Construire l'objet Maintenance
-        String   typePanne   = txtTypePanne.getText().trim();
-        LocalDate date       = datePickerMain.getValue();
-        double   cout        = Double.parseDouble(txtCout.getText().trim().replace(",", "."));
-        String   description = txtDescription.getText().trim();
+        int     idM         = machineSelectionnee.getIdM();
+        String  typePanne   = txtTypePanne.getText().trim();
+        LocalDate date      = datePickerMain.getValue();
+        double  cout        = Double.parseDouble(txtCout.getText().trim().replace(",", "."));
+        String  description = txtDescription.getText().trim();
 
         Maintenance maintenance = new Maintenance();
-        maintenance.setIdM(idM);                // FK → Machine.idM  (jointure)
+        maintenance.setIdM(idM);
         maintenance.setTypePanne(typePanne);
         maintenance.setDateMain(date);
         maintenance.setCout(cout);
         maintenance.setDescription(description.isEmpty() ? null : description);
 
-        // 5. Persister
         try {
             maintenanceService.ajouter(maintenance);
             afficherAlerte("Succes",
-                    "Maintenance ajoutee avec succes pour la machine : " + machineSelectionnee.getNom(),
+                    "Maintenance ajoutee avec succes pour : " + machineSelectionnee.getNom(),
                     Alert.AlertType.INFORMATION);
             fermerFenetre();
         } catch (SQLException e) {
@@ -166,21 +132,18 @@ public class AjouterMaintenanceController implements Initializable {
     private boolean valider() {
         boolean valide = true;
 
-        // Machine obligatoire
         if (comboMachine.getValue() == null) {
             errMachine.setText("Veuillez selectionner une machine.");
             surligner(comboMachine);
             valide = false;
         }
 
-        // Type de panne obligatoire
         if (txtTypePanne.getText().trim().isEmpty()) {
             errTypePanne.setText("Le type de panne est obligatoire.");
             surligner(txtTypePanne);
             valide = false;
         }
 
-        // Date obligatoire
         if (datePickerMain.getValue() == null) {
             errDate.setText("Veuillez choisir une date.");
             valide = false;
@@ -189,7 +152,6 @@ public class AjouterMaintenanceController implements Initializable {
             valide = false;
         }
 
-        // Coût : obligatoire + numérique + positif
         String coutStr = txtCout.getText().trim().replace(",", ".");
         if (coutStr.isEmpty()) {
             errCout.setText("Le cout est obligatoire.");
@@ -219,7 +181,6 @@ public class AjouterMaintenanceController implements Initializable {
         errDate.setText("");
         errCout.setText("");
 
-        // Retirer le surlignage rouge
         String styleNormal = "-fx-background-radius: 6; -fx-border-color: #cbd5e0; " +
                 "-fx-border-radius: 6; -fx-font-size: 13px; -fx-padding: 8;";
         txtTypePanne.setStyle(styleNormal);
@@ -228,10 +189,8 @@ public class AjouterMaintenanceController implements Initializable {
                 "-fx-border-radius: 6; -fx-font-size: 13px;");
     }
 
-    /** Surligne un champ en rouge pour signaler une erreur */
     private void surligner(Control control) {
-        control.setStyle(control.getStyle() +
-                "; -fx-border-color: #e74c3c; -fx-border-width: 2;");
+        control.setStyle(control.getStyle() + "; -fx-border-color: #e74c3c; -fx-border-width: 2;");
     }
 
     // ============================================================
@@ -242,9 +201,6 @@ public class AjouterMaintenanceController implements Initializable {
         fermerFenetre();
     }
 
-    // ============================================================
-    //  UTILITAIRES
-    // ============================================================
     private void fermerFenetre() {
         Stage stage = (Stage) comboMachine.getScene().getWindow();
         stage.close();

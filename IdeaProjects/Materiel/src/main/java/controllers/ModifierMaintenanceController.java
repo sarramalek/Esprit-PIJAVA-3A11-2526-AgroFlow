@@ -20,36 +20,20 @@ import java.util.ResourceBundle;
 
 public class ModifierMaintenanceController implements Initializable {
 
-    // ============================================================
-    //  CHAMPS FXML
-    // ============================================================
-
-    /**
-     * ComboBox<Machine> : affiche le NOM (via cellFactory/buttonCell)
-     * stocke l'objet Machine complet → idM récupéré proprement.
-     * Même pattern que AjouterMaintenanceController.
-     */
     @FXML private ComboBox<Machine> comboMachine;
+    @FXML private TextField         txtTypePanne;
+    @FXML private DatePicker        datePickerMaintenance;
+    @FXML private TextField         txtCout;
+    @FXML private TextArea          txtDescription;
 
-    @FXML private TextField  txtTypePanne;
-    @FXML private DatePicker datePickerMaintenance;
-    @FXML private TextField  txtCout;
-    @FXML private TextArea   txtDescription;
-
-    // Labels d'erreur inline
     @FXML private Label errMachine;
     @FXML private Label errTypePanne;
     @FXML private Label errDate;
     @FXML private Label errCout;
     @FXML private Label errDescription;
 
-    // ============================================================
-    //  SERVICES + ETAT
-    // ============================================================
     private final MachineService     machineService     = new MachineService();
     private final MaintenanceService maintenanceService = new MaintenanceService();
-
-    /** La maintenance passée par AfficherMaintenancesController */
     private Maintenance maintenanceAModifier;
 
     // ============================================================
@@ -60,40 +44,26 @@ public class ModifierMaintenanceController implements Initializable {
         configurerComboMachine();
     }
 
-    /**
-     * Appelé par AfficherMaintenancesController juste après le chargement du FXML.
-     * Configure le ComboBox PUIS pré-remplit les champs avec la maintenance à modifier.
-     */
     public void initialiserDonnees(Maintenance maintenance) {
         this.maintenanceAModifier = maintenance;
         remplirChamps();
     }
 
     // ============================================================
-    //  CONFIGURATION COMBOBOX (JOINTURE idM ↔ nom)
+    //  CONFIGURATION COMBOBOX — NOM seulement, sans ID
     // ============================================================
-
-    /**
-     * Charge toutes les machines et configure le ComboBox pour :
-     *  - afficher le NOM dans la liste déroulante  (cellFactory)
-     *  - afficher le NOM dans le bouton            (buttonCell)
-     *  - stocker l'objet Machine complet           → machine.getIdM() = clé étrangère
-     */
     private void configurerComboMachine() {
         try {
             List<Machine> machines = machineService.recuperer();
 
             if (machines.isEmpty()) {
-                afficherAlerte("Attention",
-                        "Aucune machine disponible.",
-                        Alert.AlertType.WARNING);
+                afficherAlerte("Attention", "Aucune machine disponible.", Alert.AlertType.WARNING);
                 return;
             }
 
-            ObservableList<Machine> listeMachines = FXCollections.observableArrayList(machines);
-            comboMachine.setItems(listeMachines);
+            comboMachine.setItems(FXCollections.observableArrayList(machines));
 
-            // Affichage dans la liste déroulante : "Tracteur  (ID: 3)"
+            // Affiche uniquement le NOM dans la liste deroulante
             comboMachine.setCellFactory(lv -> new ListCell<Machine>() {
                 @Override
                 protected void updateItem(Machine machine, boolean empty) {
@@ -101,12 +71,12 @@ public class ModifierMaintenanceController implements Initializable {
                     if (empty || machine == null) {
                         setText(null);
                     } else {
-                        setText(machine.getNom() + "   (ID: " + machine.getIdM() + ")");
+                        setText(machine.getNom());  // NOM seulement, sans ID
                     }
                 }
             });
 
-            // Affichage dans le bouton après sélection : juste "Tracteur"
+            // Affiche uniquement le NOM apres selection dans le bouton
             comboMachine.setButtonCell(new ListCell<Machine>() {
                 @Override
                 protected void updateItem(Machine machine, boolean empty) {
@@ -115,17 +85,14 @@ public class ModifierMaintenanceController implements Initializable {
                         setText("Selectionner une machine");
                         setStyle("-fx-text-fill: #a0aec0;");
                     } else {
-                        setText(machine.getNom());
+                        setText(machine.getNom());  // NOM seulement, sans ID
                         setStyle("-fx-text-fill: #2c3e50; -fx-font-weight: bold;");
                     }
                 }
             });
 
-            System.out.println("[OK] " + machines.size() + " machine(s) chargee(s) dans le ComboBox");
-
         } catch (SQLException e) {
-            afficherAlerte("Erreur",
-                    "Impossible de charger les machines : " + e.getMessage(),
+            afficherAlerte("Erreur", "Impossible de charger les machines : " + e.getMessage(),
                     Alert.AlertType.ERROR);
             e.printStackTrace();
         }
@@ -134,35 +101,18 @@ public class ModifierMaintenanceController implements Initializable {
     // ============================================================
     //  PRE-REMPLISSAGE DES CHAMPS
     // ============================================================
-
-    /**
-     * Pré-remplit tous les champs avec les valeurs de la maintenance existante.
-     * Pour la machine : cherche dans la liste du ComboBox l'objet dont l'idM
-     * correspond à maintenance.getIdM() → sélection directe, sans Map<String, Machine>.
-     */
     private void remplirChamps() {
         if (maintenanceAModifier == null) return;
 
-        // --- Machine : JOINTURE idM -> objet Machine dans le ComboBox ---
+        // Machine : JOINTURE idM -> objet Machine dans le ComboBox
         int idMRecherche = maintenanceAModifier.getIdM();
-        Machine machineSelectionnee = null;
-
         for (Machine m : comboMachine.getItems()) {
             if (m.getIdM() == idMRecherche) {
-                machineSelectionnee = m;
+                comboMachine.setValue(m);
                 break;
             }
         }
 
-        if (machineSelectionnee != null) {
-            comboMachine.setValue(machineSelectionnee);
-            System.out.println("[OK] Machine pre-selectionnee : " + machineSelectionnee.getNom()
-                    + " (idM=" + idMRecherche + ")");
-        } else {
-            System.err.println("[WARN] Aucune machine trouvee pour idM=" + idMRecherche);
-        }
-
-        // --- Autres champs ---
         txtTypePanne.setText(maintenanceAModifier.getTypePanne() != null
                 ? maintenanceAModifier.getTypePanne() : "");
 
@@ -181,15 +131,12 @@ public class ModifierMaintenanceController implements Initializable {
     @FXML
     private void modifier() {
         effacerErreurs();
-
         if (!valider()) return;
 
         try {
-            // --- JOINTURE : récupérer l'idM depuis la machine sélectionnée ---
             Machine machine = comboMachine.getValue();
-            int idM = machine.getIdM();  // clé étrangère vers table Machine
+            int idM = machine.getIdM();
 
-            // --- Mettre à jour l'objet ---
             maintenanceAModifier.setIdM(idM);
             maintenanceAModifier.setTypePanne(txtTypePanne.getText().trim());
             maintenanceAModifier.setDateMain(datePickerMaintenance.getValue());
@@ -198,13 +145,6 @@ public class ModifierMaintenanceController implements Initializable {
             String desc = txtDescription.getText().trim();
             maintenanceAModifier.setDescription(desc.isEmpty() ? null : desc);
 
-            System.out.println("[OK] Modification :");
-            System.out.println("     Machine  : " + machine.getNom() + " (idM=" + idM + ")");
-            System.out.println("     Type     : " + maintenanceAModifier.getTypePanne());
-            System.out.println("     Date     : " + maintenanceAModifier.getDateMain());
-            System.out.println("     Cout     : " + maintenanceAModifier.getCout() + " DT");
-
-            // --- Persister ---
             maintenanceService.modifier(maintenanceAModifier);
 
             afficherAlerte("Succes",
@@ -216,8 +156,7 @@ public class ModifierMaintenanceController implements Initializable {
             errCout.setText("Valeur numerique invalide.");
             txtCout.requestFocus();
         } catch (SQLException e) {
-            afficherAlerte("Erreur",
-                    "Erreur base de donnees : " + e.getMessage(),
+            afficherAlerte("Erreur", "Erreur base de donnees : " + e.getMessage(),
                     Alert.AlertType.ERROR);
             e.printStackTrace();
         }
@@ -246,7 +185,7 @@ public class ModifierMaintenanceController implements Initializable {
             errTypePanne.setText("Minimum 3 caracteres requis.");
             surligner(txtTypePanne);
             ok = false;
-        } else if (!type.matches("^[a-zA-ZÀ-ÿ\\s'\\-]+$")) {
+        } else if (!type.matches("^[a-zA-ZA-z\\s'\\-]+$")) {
             errTypePanne.setText("Lettres, espaces, apostrophes et tirets uniquement.");
             surligner(txtTypePanne);
             ok = false;
@@ -261,7 +200,6 @@ public class ModifierMaintenanceController implements Initializable {
             errDate.setText("La date ne peut pas etre dans le futur.");
             ok = false;
         } else if (date.isBefore(LocalDate.now().minusYears(10))) {
-            // Confirmation pour date ancienne (non bloquant)
             Alert conf = new Alert(Alert.AlertType.CONFIRMATION);
             conf.setTitle("Date ancienne");
             conf.setHeaderText("La date selectionnee est tres ancienne (" + date + ").");
@@ -270,7 +208,7 @@ public class ModifierMaintenanceController implements Initializable {
             if (res.isEmpty() || res.get() != ButtonType.OK) ok = false;
         }
 
-        // Coût
+        // Cout
         String coutStr = txtCout.getText().trim().replace(",", ".");
         if (coutStr.isEmpty()) {
             errCout.setText("Le cout est obligatoire.");
@@ -342,8 +280,7 @@ public class ModifierMaintenanceController implements Initializable {
     }
 
     private void surligner(Control control) {
-        control.setStyle(control.getStyle() +
-                "; -fx-border-color: #e74c3c; -fx-border-width: 2;");
+        control.setStyle(control.getStyle() + "; -fx-border-color: #e74c3c; -fx-border-width: 2;");
     }
 
     // ============================================================
@@ -356,14 +293,9 @@ public class ModifierMaintenanceController implements Initializable {
         conf.setHeaderText("Annuler la modification ?");
         conf.setContentText("Les modifications ne seront pas enregistrees.");
         Optional<ButtonType> res = conf.showAndWait();
-        if (res.isPresent() && res.get() == ButtonType.OK) {
-            fermerFenetre();
-        }
+        if (res.isPresent() && res.get() == ButtonType.OK) fermerFenetre();
     }
 
-    // ============================================================
-    //  UTILITAIRES
-    // ============================================================
     private void fermerFenetre() {
         Stage stage = (Stage) txtTypePanne.getScene().getWindow();
         stage.close();
