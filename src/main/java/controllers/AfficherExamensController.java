@@ -1,9 +1,11 @@
 package controllers;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
 import entities.examens;
-import entities.animaux; // Importation nécessaire
-import javafx.beans.property.SimpleStringProperty; // Pour transformer l'ID en Nom
+import entities.animaux;
+import javafx.animation.FadeTransition; // IMPORT NÉCESSAIRE POUR L'ANIMATION
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -13,44 +15,48 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.StackPane;
+import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.scene.Cursor;
 import services.ServiceExamen;
-import services.ServiceAnimal; // Importation du service
+import services.ServiceAnimal;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Optional;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.util.Duration;
+import java.time.LocalDate;
 
 public class AfficherExamensController {
 
     @FXML private TableView<examens> tvExamens;
-    // CORRECTION DU TYPE : String car on veut afficher le NOM de l'animal
     @FXML private TableColumn<examens, String> colAnimal;
     @FXML private TableColumn<examens, String> colType;
     @FXML private TableColumn<examens, java.sql.Date> colDate;
     @FXML private TableColumn<examens, String> colDiagnostic;
     @FXML private TableColumn<examens, String> colTraitement;
 
+    @FXML private Circle badgeRouge;
+    @FXML private Label lblNbAlertes;
+    @FXML private StackPane paneNotification;
     @FXML private Button btnAjouter;
 
     private ServiceExamen service = new ServiceExamen();
-    // SOLUTION : Déclaration du service animal qui manquait
     private ServiceAnimal serviceAn = new ServiceAnimal();
 
     @FXML
     public void initialize() {
-        // Liaison personnalisée pour afficher le Nom au lieu de l'ID
         colAnimal.setCellValueFactory(cellData -> {
             int idAnimal = cellData.getValue().getId_animal();
             try {
-                // On récupère le nom de l'animal via son ID dans la base
                 animaux a = serviceAn.afficher().stream()
                         .filter(an -> an.getId() == idAnimal)
                         .findFirst()
                         .orElse(null);
-
                 if (a != null) {
-                    return new SimpleStringProperty(a.getNom()); // Retourne le Nom
+                    return new SimpleStringProperty(a.getNom());
                 }
             } catch (SQLException ex) {
                 ex.printStackTrace();
@@ -71,6 +77,7 @@ public class AfficherExamensController {
         }
 
         chargerDonnees();
+        demarrerSystemeAlerte();
     }
 
     private void chargerDonnees() {
@@ -80,6 +87,69 @@ public class AfficherExamensController {
             System.err.println("Erreur lors du chargement des examens : " + e.getMessage());
         }
     }
+
+    // --- SYSTÈME D'ALERTES ---
+
+    private void demarrerSystemeAlerte() {
+        // Vérification immédiate au lancement
+        verifierRappelsAujourdhui();
+
+        // Puis vérification toutes les 60 secondes
+        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(60), event -> {
+            verifierRappelsAujourdhui();
+        }));
+        timeline.setCycleCount(Timeline.INDEFINITE);
+        timeline.play();
+    }
+
+    private void verifierRappelsAujourdhui() {
+        try {
+            // On récupère la date d'aujourd'hui au format SQL (AAAA-MM-JJ)
+            String today = java.sql.Date.valueOf(java.time.LocalDate.now()).toString();
+
+            long nbAlertes = service.afficher().stream()
+                    .filter(e -> e.getDate_examen() != null &&
+                            e.getDate_examen().toString().equals(today)) // Comparaison textuelle simple
+                    .count();
+
+            if (nbAlertes > 0) {
+                declencherAnimationCloche(nbAlertes);
+            } else if (badgeRouge != null) {
+                badgeRouge.setVisible(false);
+                lblNbAlertes.setVisible(false);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // MÉTHODE AJOUTÉE : Elle manquait dans ton code précédent
+    private void declencherAnimationCloche(long nb) {
+        if (badgeRouge != null && lblNbAlertes != null) {
+            badgeRouge.setVisible(true);
+            lblNbAlertes.setVisible(true);
+            lblNbAlertes.setText(String.valueOf(nb));
+
+            FadeTransition fade = new FadeTransition(Duration.seconds(0.5), badgeRouge);
+            fade.setFromValue(1.0);
+            fade.setToValue(0.3);
+            fade.setCycleCount(6);
+            fade.setAutoReverse(true);
+            fade.play();
+        }
+    }
+
+    @FXML
+    void ouvrirDetailsAlertes() {
+        // Optionnel : afficher une petite alerte avec la liste des animaux concernés
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Rappels du jour");
+        alert.setHeaderText("Examens à effectuer aujourd'hui");
+        alert.setContentText("Vous avez " + lblNbAlertes.getText() + " examen(s) prévu(s).");
+        alert.show();
+    }
+
+    // --- NAVIGATION ET ACTIONS ---
 
     @FXML
     void handleSupprimer(ActionEvent event) {
