@@ -215,5 +215,15 @@ public class Acceuil {
             e.printStackTrace();
         }
     }
+    @FXML
+    private void openDashboard(MouseEvent event ) throws IOException {
+        FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/UsersInterface/StatsDashboard.fxml"));
+        Parent root = loader.load();
+        Stage stage = new Stage();
+        stage.setTitle("Statistiques AgroFlow");
+        stage.setScene(new Scene(root));
+        stage.show();
 
+    }
 }

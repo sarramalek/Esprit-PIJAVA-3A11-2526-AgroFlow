@@ -7,7 +7,11 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import models.User.Personne;
 import models.User.Employe;
+import models.User.Utilisateur;
 import services.User.PersonneService;
+import services.User.PdfReportService;
+import services.User.AbonnementService;
+import models.User.Abonnements;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -17,20 +21,22 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.geometry.Pos;
 
+import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
 public class DashboardPersonnes {
-//sub menu
-    @FXML private VBox gestionSubmenu, operationsSubmenu,gestionContainer;
 
-
+    // sub menu
+    @FXML private VBox gestionSubmenu, operationsSubmenu, gestionContainer;
     @FXML private Button gestionToggle, operationsToggle;
     @FXML private Button gestionBtn;
 
@@ -40,164 +46,154 @@ public class DashboardPersonnes {
     @FXML private Button filterEmployeBtn;
     @FXML private Button filterAdminBtn;
 
-    // Boutons de navigation
+    // Navigation
     @FXML private Button dashboardBtn;
     @FXML private Button tachesBtn;
     @FXML private Button logoutBtn;
     @FXML private Button addEmployeeBtn;
-    @FXML private Label userNameLabel;
+    @FXML private Label  userNameLabel;
     @FXML private TextField searchField;
 
-    // Table et colonnes - CHANGÉ EN PERSONNE
+    // Bouton PDF (à ajouter dans le FXML)
+    @FXML private Button pdfBtn;
+    @FXML private Label  selectedPersonLabel;
+
+    // Table
     @FXML private TableView<Personne> employeeTable;
-    @FXML private TableColumn<Personne, String> nomColumn;
-    @FXML private TableColumn<Personne, String> emailColumn;
+    @FXML private TableColumn<Personne, String>  nomColumn;
+    @FXML private TableColumn<Personne, String>  emailColumn;
     @FXML private TableColumn<Personne, Integer> roleColumn;
-    @FXML private TableColumn<Personne, String> dateColumn;
-    @FXML private TableColumn<Personne, Void> actionsColumn;
+    @FXML private TableColumn<Personne, String>  dateColumn;
+    @FXML private TableColumn<Personne, Void>    actionsColumn;
 
-    // Formulaire d'assignation de tâche
+    // Formulaire tâche
     @FXML private ComboBox<String> employeeComboBox;
-    @FXML private TextField taskDescriptionField;
-    @FXML private DatePicker dueDatePicker;
-    @FXML private Button assignTaskBtn;
+    @FXML private TextField        taskDescriptionField;
+    @FXML private DatePicker       dueDatePicker;
+    @FXML private Button           assignTaskBtn;
 
-    private PersonneService personneService;
+    private PersonneService    personneService;
+    private AbonnementService  abonnementService;
+    private PdfReportService   pdfReportService;
+
     private ObservableList<Personne> employeeList;
     private ObservableList<Personne> allPersonsList;
     private Personne currentUser;
-    private String currentFilter = "all";
+    private Personne selectedPersonne;   // ← personne cliquée dans la table
+    private String   currentFilter = "all";
 
-    /**
-     * Initialisation du contrôleur
-     */
+    // ═══════════════════════════════════════════════════════════════════
+    // INITIALISATION
+    // ═══════════════════════════════════════════════════════════════════
+
     @FXML
     public void initialize() {
-        // Cacher submenu par défaut
         gestionSubmenu.setVisible(false);
         gestionSubmenu.setManaged(false);
 
-        // 1. Hover sur le bouton Gestion → Ouvre submenu
-        gestionBtn.setOnMouseEntered(e -> {
-            showGestionSubmenu();
-        });
+        gestionBtn.setOnMouseEntered(e -> showGestionSubmenu());
+        gestionContainer.setOnMouseEntered(e -> showGestionSubmenu());
+        gestionContainer.setOnMouseExited(e -> hideGestionSubmenu());
 
-        // 2. Hover sur TOUT le container Gestion → Garde submenu ouvert
-        gestionContainer.setOnMouseEntered(e -> {
-            showGestionSubmenu();
-        });
-
-        // 3. SOURIS SORT DU CONTAINER ENTIER → Ferme submenu
-        gestionContainer.setOnMouseExited(e -> {
-            hideGestionSubmenu();
-        });
         try {
-            personneService = new PersonneService();
-            System.out.println("✓ DashboardController initialisé");
+            personneService   = new PersonneService();
+            abonnementService = new AbonnementService();
+            pdfReportService  = new PdfReportService();
 
-            // Configurer la table
             setupTable();
-
-            // Charger les personnes
             loadEmployees();
-
-            // Configurer la recherche
             setupSearch();
+           // setupPdfButton();
 
         } catch (Exception e) {
-            System.err.println("✗ Erreur lors de l'initialisation du dashboard");
-            e.printStackTrace();
             showError("Erreur d'initialisation", "Impossible de charger le dashboard");
+            e.printStackTrace();
         }
     }
 
-    /**
-     * Définir l'utilisateur connecté
-     */
     public void setCurrentUser(Personne user) {
         this.currentUser = user;
-        if (user != null) {
-            userNameLabel.setText(user.getPrenom() + " " + user.getNom());
-            System.out.println("✓ Utilisateur défini: " + user.getNom());
-        }
+        if (user != null) userNameLabel.setText(user.getPrenom() + " " + user.getNom());
     }
 
-    /**
-     * Configurer la table
-     */
+    @FXML
+    private void handleExportStats() {
+        PdfReportService pdfService = new PdfReportService();
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Enregistrer le rapport");
+        fileChooser.setInitialFileName("rapport_stats_" +
+                LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")) + ".pdf");
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("PDF Files", "*.pdf")
+        );
+        File file = fileChooser.showSaveDialog(pdfBtn.getScene().getWindow());
+
+        if (file != null) {
+            try {
+                pdfService.generateStatistiquesPdf(file.getAbsolutePath());
+                showSuccess("Rapport exporté !");
+            } catch (Exception e) {
+                showAlert("Erreur : " + e.getMessage());
+            }
+        }
+    }
+    private void showAlert(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Erreur");
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    private void showSuccess(String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Succès");
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+    // ═══════════════════════════════════════════════════════════════════
+    // TABLE
+    // ═══════════════════════════════════════════════════════════════════
+
     private void setupTable() {
-        // Nom
         nomColumn.setCellValueFactory(cellData -> {
             Personne p = cellData.getValue();
             return new javafx.beans.property.SimpleStringProperty(p.getPrenom() + " " + p.getNom());
         });
 
-        // Email
         emailColumn.setCellValueFactory(new PropertyValueFactory<>("email"));
 
-        // Rôle avec couleurs
         roleColumn.setCellValueFactory(new PropertyValueFactory<>("role"));
         roleColumn.setCellFactory(col -> new TableCell<Personne, Integer>() {
             @Override
             protected void updateItem(Integer role, boolean empty) {
                 super.updateItem(role, empty);
-                if (empty || role == null) {
-                    setText(null);
-                    setStyle("");
-                } else {
-                    String roleText;
-                    String color;
-                    switch (role) {
-                        case 1: // Agricole/Utilisateur
-                            roleText = "🌾 Agricole";
-                            color = "#27AE60";
-                            break;
-                        case 2: // Employé
-                            roleText = "👷 Employé";
-                            color = "#F39C12";
-                            break;
-                        case 3: // Admin
-                            roleText = "👑 Admin";
-                            color = "#9B59B6";
-                            break;
-                        default:
-                            roleText = "Inconnu";
-                            color = "#95A5A6";
-                    }
-                    setText(roleText);
-                    setStyle("-fx-text-fill: " + color + "; -fx-font-weight: bold;");
+                if (empty || role == null) { setText(null); setStyle(""); return; }
+                String txt; String color;
+                switch (role) {
+                    case 1: txt = "🌾 Agricole"; color = "#27AE60"; break;
+                    case 2: txt = "👷 Employé";  color = "#F39C12"; break;
+                    case 3: txt = "👑 Admin";    color = "#9B59B6"; break;
+                    default: txt = "Inconnu";    color = "#95A5A6";
                 }
+                setText(txt);
+                setStyle("-fx-text-fill:" + color + "; -fx-font-weight:bold;");
             }
         });
 
-        // Date
         dateColumn.setCellValueFactory(new PropertyValueFactory<>("date_creationcpt"));
 
-        // Colonne Actions
         actionsColumn.setCellFactory(param -> new TableCell<>() {
-            private final Button editBtn = new Button("Modifier");
+            private final Button editBtn   = new Button("Modifier");
             private final Button deleteBtn = new Button("Supprimer");
-            private final HBox hbox = new HBox(10, editBtn, deleteBtn);
-
+            private final HBox   hbox      = new HBox(8, editBtn, deleteBtn);
             {
                 hbox.setAlignment(Pos.CENTER);
-
-                editBtn.setStyle("-fx-background-color: #3498DB; -fx-text-fill: white; " +
-                        "-fx-background-radius: 5; -fx-padding: 5 15; -fx-cursor: hand;");
-                deleteBtn.setStyle("-fx-background-color: #E74C3C; -fx-text-fill: white; " +
-                        "-fx-background-radius: 5; -fx-padding: 5 15; -fx-cursor: hand;");
-
-                editBtn.setOnAction(event -> {
-                    Personne p = getTableView().getItems().get(getIndex());
-                    handleEditEmployee(p);
-                });
-
-                deleteBtn.setOnAction(event -> {
-                    Personne p = getTableView().getItems().get(getIndex());
-                    handleDeleteEmployee(p);
-                });
+                editBtn.setStyle("-fx-background-color:#3498DB;-fx-text-fill:white;-fx-background-radius:5;-fx-padding:5 12;-fx-cursor:hand;");
+                deleteBtn.setStyle("-fx-background-color:#E74C3C;-fx-text-fill:white;-fx-background-radius:5;-fx-padding:5 12;-fx-cursor:hand;");
+                editBtn.setOnAction(e   -> handleEditEmployee(getTableView().getItems().get(getIndex())));
+                deleteBtn.setOnAction(e -> handleDeleteEmployee(getTableView().getItems().get(getIndex())));
             }
-
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
@@ -205,460 +201,270 @@ public class DashboardPersonnes {
             }
         });
 
-        employeeTable.setStyle("-fx-background-color: transparent;");
+        // Highlight de la ligne sélectionnée
+        employeeTable.setRowFactory(tv -> {
+            TableRow<Personne> row = new TableRow<>();
+            row.selectedProperty().addListener((obs, wasSelected, isSelected) -> {
+                if (isSelected) row.setStyle("-fx-background-color: #e8f5e9;");
+                else            row.setStyle("");
+            });
+            return row;
+        });
+
+        employeeTable.setStyle("-fx-background-color:transparent;");
     }
 
-    /**
-     * Charger toutes les personnes
-     */
     public void loadEmployees() {
         try {
             List<Personne> personnes = personneService.recuperer();
             allPersonsList = FXCollections.observableArrayList(personnes);
-            employeeList = FXCollections.observableArrayList(personnes);
+            employeeList   = FXCollections.observableArrayList(personnes);
             employeeTable.setItems(employeeList);
 
-            // Remplir le ComboBox
-            ObservableList<String> employeeNames = FXCollections.observableArrayList();
-            for (Personne p : personnes) {
-                employeeNames.add(p.getPrenom() + " " + p.getNom());
-            }
-            if (employeeComboBox != null) {
-                employeeComboBox.setItems(employeeNames);
-            }
-
-            System.out.println("✓ " + personnes.size() + " personnes chargées");
+            ObservableList<String> names = FXCollections.observableArrayList();
+            personnes.forEach(p -> names.add(p.getPrenom() + " " + p.getNom()));
+            if (employeeComboBox != null) employeeComboBox.setItems(names);
 
         } catch (SQLException e) {
-            System.err.println("✗ Erreur lors du chargement des personnes");
-            e.printStackTrace();
             showError("Erreur", "Impossible de charger les personnes");
+            e.printStackTrace();
         }
     }
 
-    /**
-     * Configurer la recherche
-     */
+    // ═══════════════════════════════════════════════════════════════════
+    // RECHERCHE & FILTRES
+    // ═══════════════════════════════════════════════════════════════════
+
     private void setupSearch() {
-        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
-            applyFilters();
-        });
+        searchField.textProperty().addListener((obs, o, n) -> applyFilters());
     }
 
-    /**
-     * Filtrer - Afficher tous
-     */
-    @FXML
-    private void handleFilterAll() {
-        System.out.println("🔍 Filtre: Tous");
-        currentFilter = "all";
-        applyFilters();
-        updateFilterButtonStyles();
-    }
+    @FXML private void handleFilterAll()     { currentFilter = "all";     applyFilters(); updateFilterButtonStyles(); }
+    @FXML private void handleFilterAgricole(){ currentFilter = "agricole"; applyFilters(); updateFilterButtonStyles(); }
+    @FXML private void handleFilterEmploye() { currentFilter = "employe";  applyFilters(); updateFilterButtonStyles(); }
+    @FXML private void handleFilterAdmin()   { currentFilter = "admin";    applyFilters(); updateFilterButtonStyles(); }
 
-    /**
-     * Filtrer - Agricoles uniquement
-     */
-    @FXML
-    private void handleFilterAgricole() {
-        System.out.println("🔍 Filtre: Agricoles (rôle 1)");
-        currentFilter = "agricole";
-        applyFilters();
-        updateFilterButtonStyles();
-    }
-
-    /**
-     * Filtrer - Employés uniquement
-     */
-    @FXML
-    private void handleFilterEmploye() {
-        System.out.println("🔍 Filtre: Employés (rôle 2)");
-        currentFilter = "employe";
-        applyFilters();
-        updateFilterButtonStyles();
-    }
-
-    /**
-     * Filtrer - Admins uniquement
-     */
-    @FXML
-    private void handleFilterAdmin() {
-        System.out.println("🔍 Filtre: Admins (rôle 3)");
-        currentFilter = "admin";
-        applyFilters();
-        updateFilterButtonStyles();
-    }
-
-    /**
-     * Appliquer les filtres (recherche + rôle)
-     */
     private void applyFilters() {
         if (allPersonsList == null) return;
-
-        String searchText = searchField.getText().toLowerCase();
-        ObservableList<Personne> filteredList = FXCollections.observableArrayList();
+        String search = searchField.getText().toLowerCase();
+        ObservableList<Personne> filtered = FXCollections.observableArrayList();
 
         for (Personne p : allPersonsList) {
-            // Filtre par recherche
-            boolean matchesSearch = searchText.isEmpty() ||
-                    (p.getNom() != null && p.getNom().toLowerCase().contains(searchText)) ||
-                    (p.getPrenom() != null && p.getPrenom().toLowerCase().contains(searchText)) ||
-                    (p.getEmail() != null && p.getEmail().toLowerCase().contains(searchText));
-
-            // Filtre par rôle
-            boolean matchesRole = false;
-            switch (currentFilter) {
-                case "all":
-                    matchesRole = true;
-                    break;
-                case "agricole":
-                    matchesRole = (p.getRole() == 1);
-                    break;
-                case "employe":
-                    matchesRole = (p.getRole() == 2);
-                    break;
-                case "admin":
-                    matchesRole = (p.getRole() == 3);
-                    break;
-            }
-
-            if (matchesSearch && matchesRole) {
-                filteredList.add(p);
-            }
+            boolean matchSearch = search.isEmpty()
+                    || (p.getNom()    != null && p.getNom().toLowerCase().contains(search))
+                    || (p.getPrenom() != null && p.getPrenom().toLowerCase().contains(search))
+                    || (p.getEmail()  != null && p.getEmail().toLowerCase().contains(search));
+            boolean matchRole = switch (currentFilter) {
+                case "agricole" -> p.getRole() == 1;
+                case "employe"  -> p.getRole() == 2;
+                case "admin"    -> p.getRole() == 3;
+                default         -> true;
+            };
+            if (matchSearch && matchRole) filtered.add(p);
         }
-
-        employeeTable.setItems(filteredList);
-        System.out.println("✓ " + filteredList.size() + " personnes affichées après filtrage");
+        employeeTable.setItems(filtered);
     }
 
-    /**
-     * Mettre à jour le style des boutons de filtre
-     */
     private void updateFilterButtonStyles() {
-        String activeStyle = "-fx-background-color: #3498DB; -fx-text-fill: white; -fx-font-size: 13px; -fx-padding: 8 15; -fx-background-radius: 5; -fx-cursor: hand;";
-        String inactiveAll = "-fx-background-color: transparent; -fx-border-color: #3498DB; -fx-border-width: 2; -fx-text-fill: #3498DB; -fx-font-size: 13px; -fx-padding: 8 15; -fx-background-radius: 5; -fx-cursor: hand;";
-        String inactiveAgricole = "-fx-background-color: transparent; -fx-border-color: #27AE60; -fx-border-width: 2; -fx-text-fill: #27AE60; -fx-font-size: 13px; -fx-padding: 8 15; -fx-background-radius: 5; -fx-cursor: hand;";
-        String inactiveEmploye = "-fx-background-color: transparent; -fx-border-color: #F39C12; -fx-border-width: 2; -fx-text-fill: #F39C12; -fx-font-size: 13px; -fx-padding: 8 15; -fx-background-radius: 5; -fx-cursor: hand;";
-        String inactiveAdmin = "-fx-background-color: transparent; -fx-border-color: #9B59B6; -fx-border-width: 2; -fx-text-fill: #9B59B6; -fx-font-size: 13px; -fx-padding: 8 15; -fx-background-radius: 5; -fx-cursor: hand;";
+        String active       = "-fx-background-color:#3498DB;-fx-text-fill:white;-fx-font-size:13px;-fx-padding:8 15;-fx-background-radius:5;-fx-cursor:hand;";
+        String inAll        = "-fx-background-color:transparent;-fx-border-color:#3498DB;-fx-border-width:2;-fx-text-fill:#3498DB;-fx-font-size:13px;-fx-padding:8 15;-fx-background-radius:5;-fx-cursor:hand;";
+        String inAgricole   = "-fx-background-color:transparent;-fx-border-color:#27AE60;-fx-border-width:2;-fx-text-fill:#27AE60;-fx-font-size:13px;-fx-padding:8 15;-fx-background-radius:5;-fx-cursor:hand;";
+        String inEmploye    = "-fx-background-color:transparent;-fx-border-color:#F39C12;-fx-border-width:2;-fx-text-fill:#F39C12;-fx-font-size:13px;-fx-padding:8 15;-fx-background-radius:5;-fx-cursor:hand;";
+        String inAdmin      = "-fx-background-color:transparent;-fx-border-color:#9B59B6;-fx-border-width:2;-fx-text-fill:#9B59B6;-fx-font-size:13px;-fx-padding:8 15;-fx-background-radius:5;-fx-cursor:hand;";
 
-        filterAllBtn.setStyle(currentFilter.equals("all") ? activeStyle : inactiveAll);
-        filterAgricoleBtn.setStyle(currentFilter.equals("agricole") ? activeStyle : inactiveAgricole);
-        filterEmployeBtn.setStyle(currentFilter.equals("employe") ? activeStyle : inactiveEmploye);
-        filterAdminBtn.setStyle(currentFilter.equals("admin") ? activeStyle : inactiveAdmin);
+        filterAllBtn.setStyle(currentFilter.equals("all")     ? active : inAll);
+        filterAgricoleBtn.setStyle(currentFilter.equals("agricole") ? active : inAgricole);
+        filterEmployeBtn.setStyle(currentFilter.equals("employe")   ? active : inEmploye);
+        filterAdminBtn.setStyle(currentFilter.equals("admin")       ? active : inAdmin);
     }
 
-    /**
-     * Gérer le bouton Dashboard
-     */
-    @FXML
-    private void handleDashboard(MouseEvent event) {
-      navigateTo(event, "/UsersInterface/Acceuil.fxml","Acceuil - Agroflow ");
+    // ═══════════════════════════════════════════════════════════════════
+    // CRUD PERSONNES
+    // ═══════════════════════════════════════════════════════════════════
 
-    }
-
-    /**
-     * Gérer l'ajout d'un employé
-     */
     @FXML
     private void handleAddEmployee(MouseEvent event) {
-        System.out.println("➕ Ajouter un employé cliqué");
-
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/AjoutPersonne.fxml"));
             Parent root = loader.load();
-
             AjoutPersonne controller = loader.getController();
             controller.setDashboardController(this);
-
             Stage stage = new Stage();
             stage.setTitle("Ajouter un Employé");
             stage.setScene(new Scene(root, 550, 650));
             stage.setResizable(false);
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.centerOnScreen();
-
-            System.out.println("✓ Fenêtre d'ajout ouverte");
             stage.showAndWait();
-
         } catch (IOException e) {
-            System.err.println("✗ Erreur lors de l'ouverture de la fenêtre d'ajout");
-            e.printStackTrace();
             showError("Erreur", "Impossible d'ouvrir le formulaire d'ajout");
         }
     }
 
-    /**
-     * Gérer la modification
-     */
     private void handleEditEmployee(Personne personne) {
-        System.out.println("✏️ Modifier: " + personne.getNom());
 
-        if (personne.getRole() == 2 && personne instanceof Employe) {
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/ModifierPersonne.fxml"));
                 Parent root = loader.load();
-
                 ModifierPersonne controller = loader.getController();
                 controller.setDashboardController(this);
-                controller.setEmploye((Employe) personne);
-
+                controller.setEmploye(personne);
                 Stage stage = new Stage();
                 stage.setTitle("Modifier l'Employé");
                 stage.setScene(new Scene(root, 550, 650));
                 stage.setResizable(false);
                 stage.initModality(Modality.APPLICATION_MODAL);
                 stage.centerOnScreen();
-
                 stage.showAndWait();
-
             } catch (IOException e) {
-                e.printStackTrace();
                 showError("Erreur", "Impossible d'ouvrir le formulaire de modification");
             }
-        } else {
-            showInfo("Information", "La modification est disponible uniquement pour les employés");
-        }
+
     }
 
-    /**
-     * Gérer la suppression
-     */
     private void handleDeleteEmployee(Personne personne) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Confirmation");
         alert.setHeaderText("Supprimer la personne");
-        alert.setContentText("Voulez-vous vraiment supprimer " + personne.getPrenom() + " " + personne.getNom() + " ?");
-
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
+        alert.setContentText("Voulez-vous vraiment supprimer "
+                + personne.getPrenom() + " " + personne.getNom() + " ?");
+        alert.showAndWait().filter(r -> r == ButtonType.OK).ifPresent(r -> {
             try {
                 personneService.supprimer(personne.getCin());
                 loadEmployees();
                 applyFilters();
                 showSuccess("Succès", "Personne supprimée avec succès");
             } catch (SQLException e) {
-                e.printStackTrace();
                 showError("Erreur", "Impossible de supprimer la personne");
             }
+        });
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // NAVIGATION
+    // ═══════════════════════════════════════════════════════════════════
+
+    private void navigateTo(MouseEvent event, String fxmlPath, String title) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            Parent root = loader.load();
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            boolean maximise = stage.isMaximized();
+            stage.setScene(new Scene(root));
+            stage.setTitle(title);
+            stage.setMaximized(maximise);
+            stage.show();
+        } catch (IOException e) {
+            System.err.println("Erreur navigation : " + fxmlPath);
         }
     }
 
-    /**
-     * Gérer l'assignation de tâche
-     */
+    @FXML private void handleDashboard(MouseEvent event)    { navigateTo(event, "/UsersInterface/Acceuil.fxml",             "Accueil - AgroFlow"); }
+    @FXML private void handlePersonnes(MouseEvent event)    { navigateTo(event, "/UsersInterface/Acceuil.fxml",             "Personnes - AgroFlow"); }
+    @FXML private void handleTaches(MouseEvent event)       { navigateTo(event, "/UsersInterface/GestionTache.fxml",        "Tâches - AgroFlow"); }
+    @FXML private void handleAbonnements(MouseEvent event)  { navigateTo(event, "/UsersInterface/GestionAbonnements.fxml",  "Abonnements - AgroFlow"); }
+    @FXML private void handleOffres(MouseEvent event)       { navigateTo(event, "/UsersInterface/GestionOffre.fxml",        "Offres - AgroFlow"); }
+    @FXML private void handleAnimals(MouseEvent event)      { navigateTo(event, "/AnimalsInterface/AfficherAnimaux.fxml",   "Animaux - AgroFlow"); }
+    @FXML private void handleStocks(MouseEvent event)       { navigateTo(event, "/StocksInterface/afficherarticle.fxml",    "Stocks - AgroFlow"); }
+    @FXML private void handleTerrains(MouseEvent event)     { navigateTo(event, "/TerrainsInterface/acceuilterrain.fxml",   "Terrains - AgroFlow"); }
+    @FXML private void handleEvents(MouseEvent event)       { navigateTo(event, "/G-Evenements/Accueil.fxml",               "Événements - AgroFlow"); }
+    @FXML private void handleMateriels(MouseEvent event)    { navigateTo(event, "/MaterielsInterface/AccueilMateriel.fxml", "Matériels - AgroFlow"); }
+
+    @FXML
+    private void handleTaches() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/GestionTache.fxml"));
+            Parent root = loader.load();
+            GestionTache controller = loader.getController();
+            if (currentUser != null) controller.setCurrentUser(currentUser);
+            Stage stage = (Stage) dashboardBtn.getScene().getWindow();
+            stage.setScene(new Scene(root, 1200, 700));
+            stage.setTitle("AgroFlow - Gestion des Tâches");
+            stage.setMaximized(true);
+        } catch (IOException e) {
+            showError("Erreur", "Impossible de charger la gestion des tâches");
+        }
+    }
+
+    @FXML
+    private void handleLogout() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Déconnexion");
+        alert.setContentText("Voulez-vous vraiment vous déconnecter ?");
+        alert.showAndWait().filter(r -> r == ButtonType.OK).ifPresent(r -> {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/login.fxml"));
+                Parent root = loader.load();
+                Stage stage = (Stage) logoutBtn.getScene().getWindow();
+                stage.setScene(new Scene(root, 1200, 700));
+                stage.setTitle("AgroFlow - Connexion");
+                stage.setMaximized(true);
+            } catch (IOException e) {
+                showError("Erreur", "Impossible de retourner à la connexion");
+            }
+        });
+    }
+
+    @FXML
+    private void openDashboard() throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/StatsDashboard.fxml"));
+        Parent root = loader.load();
+        Stage stage = new Stage();
+        stage.setTitle("Statistiques AgroFlow");
+        stage.setScene(new Scene(root));
+        stage.show();
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // SOUS-MENUS
+    // ═══════════════════════════════════════════════════════════════════
+
+    @FXML private void handleGestionToggle() {
+        gestionSubmenu.setVisible(!gestionSubmenu.isVisible());
+        gestionToggle.setText(gestionSubmenu.isVisible() ? "⚙️  Gestion ▼" : "⚙️  Gestion ▶");
+    }
+    @FXML private void handleOperationsToggle() {
+        operationsSubmenu.setVisible(!operationsSubmenu.isVisible());
+        operationsToggle.setText(operationsSubmenu.isVisible() ? "🚜  Opérations ▼" : "🚜  Opérations ▶");
+    }
+    @FXML private void handleGestion(MouseEvent event) { /* Vue principale Gestion */ }
+    private void showGestionSubmenu() { gestionSubmenu.setVisible(true);  gestionSubmenu.setManaged(true);  }
+    private void hideGestionSubmenu() { gestionSubmenu.setVisible(false); gestionSubmenu.setManaged(false); }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // TÂCHE
+    // ═══════════════════════════════════════════════════════════════════
+
     @FXML
     private void handleAssignTask() {
-        String employee = employeeComboBox.getValue();
+        String employee   = employeeComboBox.getValue();
         String description = taskDescriptionField.getText();
         LocalDate dueDate = dueDatePicker.getValue();
-
         if (employee == null || description.isEmpty() || dueDate == null) {
             showError("Erreur", "Veuillez remplir tous les champs");
             return;
         }
-
-        System.out.println("Assigner tâche:");
-        System.out.println("  Employé: " + employee);
-        System.out.println("  Description: " + description);
-        System.out.println("  Date: " + dueDate);
-
         showSuccess("Succès", "Tâche assignée à " + employee);
-
         employeeComboBox.setValue(null);
         taskDescriptionField.clear();
         dueDatePicker.setValue(null);
     }
 
-    /**
-     * Navigation vers gestion des tâches
-     */
-    @FXML
-    private void handleTaches() {
-        System.out.println("🗂️ Navigation vers la gestion des tâches...");
+    public void handleAddTask(ActionEvent e) {}
+    public void handleRefresh(ActionEvent e) { loadEmployees(); }
 
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/GestionTache.fxml"));
-            Parent root = loader.load();
+    // ═══════════════════════════════════════════════════════════════════
+    // ALERTES
+    // ═══════════════════════════════════════════════════════════════════
 
-            GestionTache controller = loader.getController();
-            if (currentUser != null) {
-                controller.setCurrentUser(currentUser);
-            }
-
-            Stage stage = (Stage) dashboardBtn.getScene().getWindow();
-            Scene scene = new Scene(root, 1200, 700);
-            stage.setScene(scene);
-            stage.setTitle("AgroFlow - Gestion des Tâches");
-            stage.setMaximized(true);
-
-
-            System.out.println("✓ Navigation réussie vers Gestion des Tâches");
-
-        } catch (IOException e) {
-            System.err.println("✗ Erreur lors de la navigation vers Gestion des Tâches");
-            e.printStackTrace();
-            showError("Erreur", "Impossible de charger la gestion des tâches");
-        }
-    }
-
-    /**
-     * Gérer la déconnexion
-     */
-    @FXML
-    private void handleLogout() {
-        System.out.println("Déconnexion...");
-
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Confirmation");
-        alert.setHeaderText("Déconnexion");
-        alert.setContentText("Voulez-vous vraiment vous déconnecter ?");
-
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/login.fxml"));
-                Parent root = loader.load();
-
-                Stage stage = (Stage) logoutBtn.getScene().getWindow();
-                Scene scene = new Scene(root, 1200, 700);
-                stage.setScene(scene);
-                stage.setTitle("AgroFlow - Connexion");
-                stage.setMaximized(true);
-
-
-                System.out.println("✓ Déconnexion réussie");
-
-            } catch (IOException e) {
-                e.printStackTrace();
-                showError("Erreur", "Impossible de retourner à la page de connexion");
-            }
-        }
-    }
-
-    /**
-     * Afficher une erreur
-     */
-    private void showError(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-
-    /**
-     * Afficher un succès
-     */
-    private void showSuccess(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-
-    /**
-     * Afficher une information
-     */
-    private void showInfo(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-
-
-    @FXML private void handleGestionToggle() {
-        gestionSubmenu.setVisible(!gestionSubmenu.isVisible());
-        String arrow = gestionSubmenu.isVisible() ? "▼" : "▶";
-        gestionToggle.setText("⚙️  Gestion " + arrow);
-    }
-
-    @FXML private void handleOperationsToggle() {
-        operationsSubmenu.setVisible(!operationsSubmenu.isVisible());
-        String arrow = operationsSubmenu.isVisible() ? "▼" : "▶";
-        operationsToggle.setText("🚜  Opérations " + arrow);
-    }
-
-    @FXML
-    private void handlePersonnes(MouseEvent event )  {
-        this.navigateTo(event,"/UsersInterface/Acceuil.fxml","Personnes - agroflow ");    }
-
-
-    @FXML private void handleTaches(MouseEvent event ) { /* Charger vue Tâches */
-        this.navigateTo(event,"/UsersInterface/GestionTache.fxml","taches - agroflow ");
-    }
-
-    @FXML private void handleAbonnements(MouseEvent event) { /* Charger vue Abonnements */
-        this.navigateTo(event,"/UsersInterface/GestionAbonnements.fxml","Abonnementss - agroflow ");}
-    @FXML private void handleOffres(MouseEvent event) { /* Charger vue Offres */
-        this.navigateTo(event,"/UsersInterface/GestionOffre.fxml","Offres - agroflow ");}
-    @FXML private void handleGestion(MouseEvent event) { /* Vue principale Gestion */
-    }
-    private void showGestionSubmenu() {
-        gestionSubmenu.setVisible(true);
-        gestionSubmenu.setManaged(true);
-    }
-
-    private void hideGestionSubmenu() {
-        gestionSubmenu.setVisible(false);
-        gestionSubmenu.setManaged(false);
-    }
-
-    public void handleAddTask(ActionEvent actionEvent) {
-
-    }
-
-    public void handleRefresh(ActionEvent actionEvent) {
-
-    }
-    private void navigateTo(MouseEvent event,String fxmlPath, String title) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
-            Parent root = loader.load();
-
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-
-            boolean etaitMaximise = stage.isMaximized();  // ← SAUVEGARDER AVANT
-
-            stage.setScene(new Scene(root));
-            stage.setTitle(title);
-            stage.setMaximized(etaitMaximise);  // ← RESTAURER APRÈS
-
-            stage.show();
-        } catch (IOException e) {
-            System.err.println("Erreur de chargement FXML : " + fxmlPath);
-            e.printStackTrace();
-        }
-    }
-
-    public void handleAnimals(MouseEvent mouseEvent) {
-        this.navigateTo(mouseEvent,"/AnimalsInterface/AfficherAnimaux.fxml","Gestion Animaux - AgroFlow ");
-
-    }
-
-
-
-
-    public void handleStocks(MouseEvent mouseEvent) {
-        this.navigateTo(mouseEvent,"/StocksInterface/afficherarticle.fxml","Gestion Stocks - Agroflow ");
-    }
-
-
-
-    public void handleTerrains(MouseEvent mouseEvent) {
-        this.navigateTo(mouseEvent,"/TerrainsInterface/acceuilterrain.fxml","gestion Terrains - AgroFlow ");
-    }
-
-
-    //
-    public void handleEvents(MouseEvent mouseEvent) {
-        this.navigateTo(mouseEvent,"/G-Evenements/Accueil.fxml","gestion Evenements - AgroFlow ");
-    }
-
-
-    public void handleMateriels(MouseEvent mouseEvent) {
-        this.navigateTo(mouseEvent,"/MaterielsInterface/AccueilMateriel.fxml","gestion Materiels - AgroFlow ");
+    private void showError(String title, String msg)   { alert(Alert.AlertType.ERROR,       title, msg); }
+    private void showSuccess(String title, String msg) { alert(Alert.AlertType.INFORMATION, title, msg); }
+    private void showInfo(String title, String msg)    { alert(Alert.AlertType.INFORMATION, title, msg); }
+    private void alert(Alert.AlertType type, String title, String msg) {
+        Alert a = new Alert(type);
+        a.setTitle(title);
+        a.setHeaderText(null);
+        a.setContentText(msg);
+        a.showAndWait();
     }
 }

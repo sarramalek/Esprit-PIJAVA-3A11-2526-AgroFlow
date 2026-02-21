@@ -2,7 +2,6 @@ package controllers.User;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
@@ -14,107 +13,133 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import models.User.Abonnements;
 import models.User.Personne;
 import services.User.AbonnementService;
+import services.User.PdfReportService;
 
+import java.awt.Desktop;
+import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
 public class GestionAbonnements {
-    //sub menu
-    @FXML private VBox gestionSubmenu, operationsSubmenu,gestionContainer;
-    @FXML private Button gestionToggle, operationsToggle;
-    @FXML private Button gestionBtn;
 
-    @FXML
-    static Button dashboardBtn;
-    @FXML private Button personnesBtn;
-    @FXML private Button tachesBtn;
-    @FXML private Button offresBtn;
-    @FXML private Button abonnementsBtn;
-    @FXML private Button affectationsBtn;
-    @FXML private Button logoutBtn;
-    @FXML private Button addAbonnementBtn;
-    @FXML private Label userNameLabel;
-
-    // Statistiques
-    @FXML private Label totalAbonnementsLabel;
-    @FXML private Label actifsLabel;
-    @FXML private Label expiresLabel;
-    @FXML private Label enAttenteLabel;
-
-    // Recherche
+    @FXML private VBox gestionSubmenu, operationsSubmenu, gestionContainer;
+    @FXML private Button gestionToggle, operationsToggle, gestionBtn;
+    @FXML private Button dashboardBtn, personnesBtn, tachesBtn, offresBtn;
+    @FXML private Button abonnementsBtn, logoutBtn, addAbonnementBtn;
+    @FXML private Label  userNameLabel;
+    @FXML private Label  totalAbonnementsLabel, actifsLabel, expiresLabel, enAttenteLabel;
     @FXML private TextField searchField;
 
+    // PDF
+    @FXML private Button  pdfBtn;
+    @FXML private Label   selectedAbonnementLabel;
+
     // Table
-    @FXML private TableView<Abonnements> abonnementsTable;
-    @FXML private TableColumn<Abonnements, Integer> idColumn;
-    @FXML private TableColumn<Abonnements, Integer> cinColumn;
-    @FXML private TableColumn<Abonnements, Integer> offreColumn;
-    @FXML private TableColumn<Abonnements, String> dateInscriptionColumn;
-    @FXML private TableColumn<Abonnements, String> dateExpirationColumn;
-    @FXML private TableColumn<Abonnements, String> situationColumn;
-    @FXML private TableColumn<Abonnements, Void> actionsColumn;
+    @FXML private TableView<Abonnements>             abonnementsTable;
+    @FXML private TableColumn<Abonnements, Integer>  idColumn;
+    @FXML private TableColumn<Abonnements, Integer>  cinColumn;
+    @FXML private TableColumn<Abonnements, Integer>  offreColumn;
+    @FXML private TableColumn<Abonnements, String>   dateInscriptionColumn;
+    @FXML private TableColumn<Abonnements, String>   dateExpirationColumn;
+    @FXML private TableColumn<Abonnements, String>   situationColumn;
+    @FXML private TableColumn<Abonnements, Void>     actionsColumn;
 
     private AbonnementService abonnementService;
+    private PdfReportService  pdfReportService;
     private ObservableList<Abonnements> abonnementsList;
     private ObservableList<Abonnements> allAbonnementsList;
+    private Abonnements selectedAbonnement;
     private static Personne currentUser;
 
-    /**
-     * Initialisation du contrôleur
-     */
+    // ═══════════════════════════════════════════════════════════════
     @FXML
     public void initialize() {
+        gestionSubmenu.setVisible(false);
+        gestionSubmenu.setManaged(false);
+        gestionBtn.setOnMouseEntered(e -> showGestionSubmenu());
+        gestionContainer.setOnMouseEntered(e -> showGestionSubmenu());
 
-            // Cacher submenu par défaut
-            gestionSubmenu.setVisible(false);
-            gestionSubmenu.setManaged(false);
-
-            // 1. Hover sur le bouton Gestion → Ouvre submenu
-            gestionBtn.setOnMouseEntered(e -> {
-                showGestionSubmenu();
-            });
-
-            // 2. Hover sur TOUT le container Gestion → Garde submenu ouvert
-            gestionContainer.setOnMouseEntered(e -> {
-                showGestionSubmenu();
-            });
         try {
             abonnementService = new AbonnementService();
-            System.out.println("✓ GestionAbonnementsController initialisé");
-
+            pdfReportService  = new PdfReportService();
             setupTable();
             loadAbonnements();
             setupSearch();
             updateStatistics();
-
+            setupPdfButton();
         } catch (Exception e) {
-            System.err.println("✗ Erreur lors de l'initialisation");
-            e.printStackTrace();
             showError("Erreur d'initialisation", "Impossible de charger les abonnements");
+            e.printStackTrace();
         }
     }
 
-    /**
-     * Définir l'utilisateur connecté
-     */
     public void setCurrentUser(Personne user) {
-        this.currentUser = user;
-        if (user != null) {
-            userNameLabel.setText(user.getPrenom() + " " + user.getNom());
-            System.out.println("✓ Utilisateur défini: " + user.getNom());
+        currentUser = user;
+        if (user != null) userNameLabel.setText(user.getPrenom() + " " + user.getNom());
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // PDF
+    // ═══════════════════════════════════════════════════════════════
+
+    private void setupPdfButton() {
+        if (pdfBtn != null) pdfBtn.setDisable(true);
+        safeLabel(selectedAbonnementLabel, "Sélectionnez un abonnement pour générer son PDF");
+
+        abonnementsTable.getSelectionModel().selectedItemProperty().addListener(
+                (obs, oldVal, newVal) -> {
+                    selectedAbonnement = newVal;
+                    if (newVal != null) {
+                        if (pdfBtn != null) pdfBtn.setDisable(false);
+                        safeLabel(selectedAbonnementLabel,
+                                "Sélectionné : Abonnement #" + newVal.getId_abonn()
+                                        + "  |  CIN : " + newVal.getCin()
+                                        + "  |  " + nvl(newVal.getSituation()));
+                    } else {
+                        if (pdfBtn != null) pdfBtn.setDisable(true);
+                        safeLabel(selectedAbonnementLabel, "Sélectionnez un abonnement pour générer son PDF");
+                    }
+                }
+        );
+    }
+
+    @FXML
+    private void handleGeneratePdf() {
+        if (selectedAbonnement == null) {
+            showError("Aucune sélection", "Cliquez d'abord sur une ligne du tableau.");
+            return;
+        }
+        FileChooser fc = new FileChooser();
+        fc.setTitle("Enregistrer le PDF");
+        fc.setInitialFileName("abonnement_" + selectedAbonnement.getId_abonn() + ".pdf");
+        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF (*.pdf)", "*.pdf"));
+        File bureau = new File(System.getProperty("user.home") + "/Desktop");
+        if (bureau.exists()) fc.setInitialDirectory(bureau);
+
+        File fichier = fc.showSaveDialog((Stage) abonnementsTable.getScene().getWindow());
+        if (fichier == null) return;
+
+        try {
+            pdfReportService.generateAbonnementPdf(selectedAbonnement.getId_abonn(), fichier.getAbsolutePath());
+            showPdfSuccess(fichier);
+        } catch (Exception e) {
+            showError("Erreur PDF", "Génération échouée : " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
-    /**
-     * Configurer la table
-     */
+    // ═══════════════════════════════════════════════════════════════
+    // TABLE
+    // ═══════════════════════════════════════════════════════════════
+
     private void setupTable() {
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id_abonn"));
         cinColumn.setCellValueFactory(new PropertyValueFactory<>("cin"));
@@ -123,366 +148,234 @@ public class GestionAbonnements {
         dateExpirationColumn.setCellValueFactory(new PropertyValueFactory<>("date_expiration"));
         situationColumn.setCellValueFactory(new PropertyValueFactory<>("situation"));
 
-        // Cell factory pour la situation avec couleurs
-        situationColumn.setCellFactory(col -> new TableCell<Abonnements, String>() {
-            @Override
-            protected void updateItem(String situation, boolean empty) {
-                super.updateItem(situation, empty);
-                if (empty || situation == null) {
-                    setText(null);
-                    setStyle("");
-                } else {
-                    setText(situation);
-                    String color;
-                    switch (situation.toLowerCase()) {
-                        case "actif":
-                            color = "#27AE60";
-                            break;
-                        case "expiré":
-                        case "expire":
-                            color = "#E74C3C";
-                            break;
-                        case "en attente":
-                            color = "#F39C12";
-                            break;
-                        default:
-                            color = "#95A5A6";
-                    }
-                    setStyle("-fx-text-fill: " + color + "; -fx-font-weight: bold;");
-                }
+        situationColumn.setCellFactory(col -> new TableCell<>() {
+            @Override protected void updateItem(String s, boolean empty) {
+                super.updateItem(s, empty);
+                if (empty || s == null) { setText(null); setStyle(""); return; }
+                setText(s);
+                setStyle("-fx-text-fill:" + switch (s.toLowerCase()) {
+                    case ".actif" -> "#27AE60:green";
+                    case ".expiré", ".expire" -> "#E74C3C:red";
+                    case  "en.attente" -> "#F39C12:orange";
+                    default -> "#95A5A6:blue";
+                } + "; -fx-font-weight:bold;");
             }
         });
 
-        // Colonne Actions
         actionsColumn.setCellFactory(param -> new TableCell<>() {
-            private final Button editBtn = new Button("Modifier");
+            private final Button editBtn   = new Button("Modifier");
             private final Button deleteBtn = new Button("Supprimer");
-            private final HBox hbox = new HBox(10, editBtn, deleteBtn);
-
+            private final HBox   hbox      = new HBox(8, editBtn, deleteBtn);
             {
                 hbox.setAlignment(Pos.CENTER);
-
-                editBtn.setStyle("-fx-background-color: #3498DB; -fx-text-fill: white; " +
-                        "-fx-background-radius: 5; -fx-padding: 5 15; -fx-cursor: hand;");
-                deleteBtn.setStyle("-fx-background-color: #E74C3C; -fx-text-fill: white; " +
-                        "-fx-background-radius: 5; -fx-padding: 5 15; -fx-cursor: hand;");
-
-                editBtn.setOnAction(event -> {
-                    Abonnements abonnement = getTableView().getItems().get(getIndex());
-                    handleEditAbonnement(abonnement);
-                });
-
-                deleteBtn.setOnAction(event -> {
-                    Abonnements abonnement = getTableView().getItems().get(getIndex());
-                    handleDeleteAbonnement(abonnement);
-                });
+                editBtn.setStyle("-fx-background-color:#3498DB;-fx-text-fill:white;-fx-background-radius:5;-fx-padding:5 12;-fx-cursor:hand;");
+                deleteBtn.setStyle("-fx-background-color:#E74C3C;-fx-text-fill:white;-fx-background-radius:5;-fx-padding:5 12;-fx-cursor:hand;");
+                editBtn.setOnAction(e   -> handleEditAbonnement(getTableView().getItems().get(getIndex())));
+                deleteBtn.setOnAction(e -> handleDeleteAbonnement(getTableView().getItems().get(getIndex())));
             }
-
-            @Override
-            protected void updateItem(Void item, boolean empty) {
+            @Override protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
                 setGraphic(empty ? null : hbox);
             }
         });
 
-        abonnementsTable.setStyle("-fx-background-color: transparent;");
+        // Highlight sélection
+        abonnementsTable.setRowFactory(tv -> {
+            TableRow<Abonnements> row = new TableRow<>();
+            row.selectedProperty().addListener((obs, was, is) ->
+                    row.setStyle(is ? "-fx-background-color:#e8f5e9;" : ""));
+            return row;
+        });
+
+        abonnementsTable.setStyle("-fx-background-color:transparent;");
     }
 
-    /**
-     * Charger les abonnements
-     */
     public void loadAbonnements() {
         try {
-            List<Abonnements> abonnements = abonnementService.recuperer();
-            allAbonnementsList = FXCollections.observableArrayList(abonnements);
-            abonnementsList = FXCollections.observableArrayList(abonnements);
+            List<Abonnements> list = abonnementService.recuperer();
+            allAbonnementsList = FXCollections.observableArrayList(list);
+            abonnementsList    = FXCollections.observableArrayList(list);
             abonnementsTable.setItems(abonnementsList);
-
-            System.out.println("✓ " + abonnements.size() + " abonnements chargés");
-
         } catch (SQLException e) {
-            System.err.println("✗ Erreur lors du chargement des abonnements");
-            e.printStackTrace();
             showError("Erreur", "Impossible de charger les abonnements");
+            e.printStackTrace();
         }
     }
 
-    /**
-     * Configurer la recherche
-     */
     private void setupSearch() {
-        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
-            applyFilters();
-        });
+        searchField.textProperty().addListener((obs, o, n) -> applyFilters());
     }
 
-    /**
-     * Appliquer les filtres
-     */
     private void applyFilters() {
         if (allAbonnementsList == null) return;
-
-        String searchText = searchField.getText().toLowerCase();
-        ObservableList<Abonnements> filteredList = FXCollections.observableArrayList();
-
+        String s = searchField.getText().toLowerCase();
+        ObservableList<Abonnements> filtered = FXCollections.observableArrayList();
         for (Abonnements a : allAbonnementsList) {
-            boolean matchesSearch = searchText.isEmpty() ||
-                    String.valueOf(a.getCin()).contains(searchText) ||
-                    (a.getSituation() != null && a.getSituation().toLowerCase().contains(searchText));
-
-            if (matchesSearch) {
-                filteredList.add(a);
-            }
+            if (s.isEmpty()
+                    || String.valueOf(a.getCin()).contains(s)
+                    || (a.getSituation() != null && a.getSituation().toLowerCase().contains(s)))
+                filtered.add(a);
         }
-
-        abonnementsTable.setItems(filteredList);
-        System.out.println("✓ " + filteredList.size() + " abonnements affichés");
+        abonnementsTable.setItems(filtered);
     }
 
-    /**
-     * Mettre à jour les statistiques
-     */
     private void updateStatistics() {
         if (allAbonnementsList == null || allAbonnementsList.isEmpty()) {
-            totalAbonnementsLabel.setText("0");
-            actifsLabel.setText("0");
-            expiresLabel.setText("0");
-            enAttenteLabel.setText("0");
+            safeLabel(totalAbonnementsLabel, "0");
+            safeLabel(actifsLabel, "0");
+            safeLabel(expiresLabel, "0");
+            safeLabel(enAttenteLabel, "0");
             return;
         }
-
-        int total = allAbonnementsList.size();
-        int actifs = (int) allAbonnementsList.stream()
-                .filter(a -> "actif".equalsIgnoreCase(a.getSituation()))
-                .count();
-        int expires = (int) allAbonnementsList.stream()
-                .filter(a -> "expiré".equalsIgnoreCase(a.getSituation()) || "expire".equalsIgnoreCase(a.getSituation()))
-                .count();
-        int enAttente = (int) allAbonnementsList.stream()
-                .filter(a -> "en attente".equalsIgnoreCase(a.getSituation()))
-                .count();
-
-        totalAbonnementsLabel.setText(String.valueOf(total));
-        actifsLabel.setText(String.valueOf(actifs));
-        expiresLabel.setText(String.valueOf(expires));
-        enAttenteLabel.setText(String.valueOf(enAttente));
+        safeLabel(totalAbonnementsLabel, String.valueOf(allAbonnementsList.size()));
+        safeLabel(actifsLabel,    count("actif"));
+        safeLabel(expiresLabel,   count("expire"));
+        safeLabel(enAttenteLabel, count("en attente"));
     }
 
-    /**
-     * Gérer l'ajout
-     */
+    private String count(String situation) {
+        return String.valueOf(allAbonnementsList.stream()
+                .filter(a -> situation.equalsIgnoreCase(a.getSituation())
+                        || (situation.equals("expire") && "expiré".equalsIgnoreCase(a.getSituation())))
+                .count());
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // CRUD
+    // ═══════════════════════════════════════════════════════════════
+
     @FXML
     private void handleAddAbonnement() {
-        System.out.println("➕ Ajouter un abonnement");
-
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/AjoutAbonnement.fxml"));
             Parent root = loader.load();
-
             AjoutAbonnements controller = loader.getController();
             controller.setGestionAbonnementsController(this);
-
             Stage stage = new Stage();
             stage.setTitle("Nouvel Abonnement");
             stage.setScene(new Scene(root));
             stage.setResizable(true);
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.centerOnScreen();
-
             stage.showAndWait();
-
         } catch (IOException e) {
-            System.err.println("✗ Erreur lors de l'ouverture du formulaire");
-            e.printStackTrace();
             showError("Erreur", "Impossible d'ouvrir le formulaire");
         }
     }
 
-    /**
-     * Gérer la modification
-     */
-    private void handleEditAbonnement(Abonnements abonnement) {
-        System.out.println("✏️ Modifier l'abonnement ID: " + abonnement.getId_abonn());
-
+    private void handleEditAbonnement(Abonnements a) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/ModifierAbonnement.fxml"));
             Parent root = loader.load();
-
             ModifierAbonnement controller = loader.getController();
             controller.setGestionAbonnementsController(this);
-            controller.setAbonnement(abonnement);
-
+            controller.setAbonnement(a);
             Stage stage = new Stage();
             stage.setTitle("Modifier l'Abonnement");
-            stage.setScene(new Scene(root,600,700));
+            stage.setScene(new Scene(root, 600, 700));
             stage.setResizable(true);
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.centerOnScreen();
-
             stage.showAndWait();
-
         } catch (IOException e) {
-            System.err.println("✗ Erreur lors de l'ouverture du formulaire");
-            e.printStackTrace();
             showError("Erreur", "Impossible d'ouvrir le formulaire");
         }
     }
 
-    /**
-     * Gérer la suppression
-     */
-    private void handleDeleteAbonnement(Abonnements abonnement) {
+    private void handleDeleteAbonnement(Abonnements a) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Confirmation");
-        alert.setHeaderText("Supprimer l'abonnement");
-        alert.setContentText("Voulez-vous vraiment supprimer cet abonnement ?");
-
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
+        alert.setContentText("Supprimer l'abonnement #" + a.getId_abonn() + " ?");
+        alert.showAndWait().filter(r -> r == ButtonType.OK).ifPresent(r -> {
             try {
-                abonnementService.supprimer(abonnement.getId_abonn());
+                abonnementService.supprimer(a.getId_abonn());
                 loadAbonnements();
                 updateStatistics();
-                showSuccess("Succès", "Abonnement supprimé avec succès");
+                showSuccess("Succès", "Abonnement supprimé");
             } catch (SQLException e) {
-                e.printStackTrace();
-                showError("Erreur", "Impossible de supprimer l'abonnement");
+                showError("Erreur", "Impossible de supprimer");
             }
-        }
+        });
     }
 
-    /**
-     * Navigation
-     */
-    @FXML
-    private void handleDashboard(MouseEvent event) {
-        navigateTo(event,"/UsersInterface/Acceuil.fxml", "AgroFlow - Accueil");
-    }
+    // ═══════════════════════════════════════════════════════════════
+    // NAVIGATION
+    // ═══════════════════════════════════════════════════════════════
 
-    @FXML
-    private void handlePersonnes(MouseEvent event) {
-        navigateTo(event,"/UsersInterface/DahboardPersonne.fxml", "AgroFlow - Gestion du Personnel");
-    }
+    @FXML private void handleDashboard(MouseEvent e)   { navigateTo(e, "/UsersInterface/Acceuil.fxml",              "Accueil");       }
+    @FXML private void handlePersonnes(MouseEvent e)   { navigateTo(e, "/UsersInterface/DahboardPersonne.fxml",     "Personnes");     }
+    @FXML private void handleTaches(MouseEvent e)      { navigateTo(e, "/UsersInterface/GestionTache.fxml",         "Tâches");        }
+    @FXML private void handleOffres(MouseEvent e)      { navigateTo(e, "/UsersInterface/GestionOffre.fxml",         "Offres");        }
+    @FXML private void handleAnimals(MouseEvent e)     { navigateTo(e, "/AnimalsInterface/AfficherAnimaux.fxml",    "Animaux");       }
+    @FXML private void handleStocks(MouseEvent e)      { navigateTo(e, "/StocksInterface/afficherarticle.fxml",     "Stocks");        }
+    @FXML private void handleTerrains(MouseEvent e)    { navigateTo(e, "/TerrainsInterface/acceuilterrain.fxml",    "Terrains");      }
+    @FXML private void handleEvents(MouseEvent e)      { navigateTo(e, "/G-Evenements/Accueil.fxml",                "Événements");    }
+    @FXML private void handleMateriels(MouseEvent e)   { navigateTo(e, "/MaterielsInterface/AccueilMateriel.fxml",  "Matériels");     }
 
-    @FXML
-    private void handleTaches(MouseEvent event) {
-        navigateTo(event,"/UsersInterface/GestionTache.fxml", "AgroFlow - Gestion des Tâches");
-    }
-
-    @FXML
-    private void handleOffres(MouseEvent event) {
-        navigateTo(event,"/UsersInterface/GestionOffre.fxml", "AgroFlow - Gestion des Offres");
-    }
-
-
-
-    private void navigateTo(MouseEvent event, String fxmlPath, String title) {
+    private void navigateTo(MouseEvent event, String path, String title) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(path));
             Parent root = loader.load();
-
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-
-            boolean etaitMaximise = stage.isMaximized();  // ← SAUVEGARDER AVANT
-
+            boolean max = stage.isMaximized();
             stage.setScene(new Scene(root));
             stage.setTitle(title);
-            stage.setMaximized(etaitMaximise);  // ← RESTAURER APRÈS
-
+            stage.setMaximized(max);
             stage.show();
-        } catch (IOException e) {
-            System.err.println("Erreur de chargement FXML : " + fxmlPath);
-            e.printStackTrace();
-        }
+        } catch (IOException e) { e.printStackTrace(); }
     }
+
     @FXML
     private void handleLogout() {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Confirmation");
-        alert.setHeaderText("Déconnexion");
-        alert.setContentText("Voulez-vous vraiment vous déconnecter ?");
-
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/login.fxml"));
-                Parent root = loader.load();
-
-                Stage stage = (Stage) logoutBtn.getScene().getWindow();
-                Scene scene = new Scene(root,1500,700);
-                stage.setScene(scene);
-                stage.setTitle("AgroFlow - Connexion");
-                stage.setMaximized(true);
-
-
-            } catch (IOException e) {
-                e.printStackTrace();
-                showError("Erreur", "Impossible de retourner à la page de connexion");
-            }
-        }
+        new Alert(Alert.AlertType.CONFIRMATION, "Se déconnecter ?").showAndWait()
+                .filter(r -> r == ButtonType.OK).ifPresent(r -> {
+                    try {
+                        FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/login.fxml"));
+                        Parent root = loader.load();
+                        Stage stage = (Stage) logoutBtn.getScene().getWindow();
+                        stage.setScene(new Scene(root, 1500, 700));
+                        stage.setTitle("AgroFlow - Connexion");
+                        stage.setMaximized(true);
+                    } catch (IOException e) { showError("Erreur", "Impossible de se déconnecter"); }
+                });
     }
 
-    private void showError(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+    @FXML
+    private void openDashboard() throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/StatsDashboard.fxml"));
+        Parent root = loader.load();
+        Stage stage = new Stage();
+        stage.setTitle("Statistiques AgroFlow");
+        stage.setScene(new Scene(root));
+        stage.show();
     }
 
-    private void showSuccess(String title, String message) {
+    // ═══════════════════════════════════════════════════════════════
+    // HELPERS
+    // ═══════════════════════════════════════════════════════════════
+
+    private void showPdfSuccess(File f) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+        alert.setTitle("PDF généré");
+        alert.setHeaderText("✅ PDF créé avec succès");
+        alert.setContentText(f.getAbsolutePath());
+        ButtonType open  = new ButtonType("📂 Ouvrir", ButtonBar.ButtonData.OK_DONE);
+        ButtonType close = new ButtonType("Fermer",    ButtonBar.ButtonData.CANCEL_CLOSE);
+        alert.getButtonTypes().setAll(open, close);
+        alert.showAndWait().ifPresent(btn -> {
+            if (btn == open) try { Desktop.getDesktop().open(f); }
+            catch (Exception e) { showError("Erreur", "Impossible d'ouvrir le fichier"); }
+        });
     }
 
-    static void showInfo(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-
-
-    private void showGestionSubmenu() {
-        gestionSubmenu.setVisible(true);
-        gestionSubmenu.setManaged(true);
-    }
-
-    private void hideGestionSubmenu() {
-        gestionSubmenu.setVisible(false);
-        gestionSubmenu.setManaged(false);
-    }
-
-    public void handleAnimals(MouseEvent mouseEvent) {
-        this.navigateTo(mouseEvent,"/AnimalsInterface/AfficherAnimaux.fxml","Gestion Animaux - AgroFlow ");
-
-    }
-
-
-
-
-    public void handleStocks(MouseEvent mouseEvent) {
-        this.navigateTo(mouseEvent,"/StocksInterface/afficherarticle.fxml","Gestion Stocks - Agroflow ");
-    }
-
-
-
-    public void handleTerrains(MouseEvent mouseEvent) {
-        this.navigateTo(mouseEvent,"/TerrainsInterface/acceuilterrain.fxml","gestion Terrains - AgroFlow ");
-    }
-
-
-    //
-    public void handleEvents(MouseEvent mouseEvent) {
-        this.navigateTo(mouseEvent,"/G-Evenements/Accueil.fxml","gestion Evenements - AgroFlow ");
-    }
-
-
-    public void handleMateriels(MouseEvent mouseEvent) {
-        this.navigateTo(mouseEvent,"/MaterielsInterface/AccueilMateriel.fxml","gestion Materiels - AgroFlow ");
+    private void showGestionSubmenu() { gestionSubmenu.setVisible(true);  gestionSubmenu.setManaged(true);  }
+    private void hideGestionSubmenu() { gestionSubmenu.setVisible(false); gestionSubmenu.setManaged(false); }
+    private void safeLabel(Label l, String v) { if (l != null) l.setText(v); }
+    private String nvl(String s) { return s != null ? s : "—"; }
+    private void showError(String t, String m)   { alert(Alert.AlertType.ERROR,       t, m); }
+    private void showSuccess(String t, String m) { alert(Alert.AlertType.INFORMATION, t, m); }
+    static void showInfo(String t, String m)     { alert(Alert.AlertType.INFORMATION, t, m); }
+    private static void alert(Alert.AlertType type, String t, String m) {
+        Alert a = new Alert(type); a.setTitle(t); a.setHeaderText(null); a.setContentText(m); a.showAndWait();
     }
 }
