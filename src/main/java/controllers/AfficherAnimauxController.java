@@ -1,7 +1,7 @@
 package controllers;
 
 import entities.animaux;
-import entities.examens; // AJOUTÉ : Pour corriger "Cannot resolve symbol 'examens'"
+import entities.examens;
 import entities.Sexe;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -16,6 +16,8 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 import services.ServiceAnimal;
 import services.ServiceExamen;
@@ -25,7 +27,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.Date;
-import java.util.List; // Import propre
+import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
@@ -39,18 +41,55 @@ public class AfficherAnimauxController implements Initializable {
     @FXML private TableColumn<animaux, Date> colDate;
     @FXML private TableColumn<animaux, Sexe> colSexe;
     @FXML private TextField filterField;
+    @FXML private TableColumn<animaux, String> colAvatar;
 
     private ServiceAnimal service = new ServiceAnimal();
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // Liaison des colonnes
         colNom.setCellValueFactory(new PropertyValueFactory<>("nom"));
         colEspece.setCellValueFactory(new PropertyValueFactory<>("espece"));
         colPoids.setCellValueFactory(new PropertyValueFactory<>("poids"));
         colDate.setCellValueFactory(new PropertyValueFactory<>("date_naissance"));
         colSexe.setCellValueFactory(new PropertyValueFactory<>("sexe"));
 
+        // --- CONFIGURATION PIXABAY / IMAGE REELLE ---
+        colAvatar.setCellValueFactory(new PropertyValueFactory<>("espece"));
+        colAvatar.setCellFactory(column -> {
+            return new TableCell<animaux, String>() {
+                private final ImageView imageView = new ImageView();
+
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || getTableRow() == null || getTableRow().getItem() == null) {
+                        setGraphic(null);
+                    } else {
+                        animaux animal = getTableRow().getItem();
+                        String espece = animal.getEspece().toLowerCase().trim();
+
+                        // Traduction rapide pour l'API pour être sûr d'avoir les bonnes photos
+                        String search = espece;
+                        if(espece.contains("vache") || espece.contains("bovin")) search = "cow,farm";
+                        if(espece.contains("poule") || espece.contains("volaille")) search = "chicken,hen";
+                        if(espece.contains("chien")) search = "dog";
+                        if(espece.contains("chat")) search = "cat";
+
+                        // API Source Unsplash (recherche par mot-clé)
+                        String imageUrl = "https://loremflickr.com/100/100/" + search + "/all";
+
+                        Image img = new Image(imageUrl, 50, 50, true, true, true);
+                        imageView.setImage(img);
+
+                        // Style pour rendre l'image plus propre (optionnel)
+                        imageView.setFitWidth(50);
+                        imageView.setFitHeight(50);
+
+                        setGraphic(imageView);
+                    }
+                }
+            };
+        });
         refreshTable();
     }
 
@@ -66,22 +105,14 @@ public class AfficherAnimauxController implements Initializable {
 
     public void setupSearch(ObservableList<animaux> animalList) {
         FilteredList<animaux> filteredData = new FilteredList<>(animalList, p -> true);
-
         filterField.textProperty().addListener((observable, oldValue, newValue) -> {
             filteredData.setPredicate(animal -> {
-                if (newValue == null || newValue.isEmpty()) {
-                    return true;
-                }
+                if (newValue == null || newValue.isEmpty()) return true;
                 String lowerCaseFilter = newValue.toLowerCase();
-                if (animal.getNom().toLowerCase().contains(lowerCaseFilter)) {
-                    return true;
-                } else if (animal.getEspece().toLowerCase().contains(lowerCaseFilter)) {
-                    return true;
-                }
-                return false;
+                return animal.getNom().toLowerCase().contains(lowerCaseFilter) ||
+                        animal.getEspece().toLowerCase().contains(lowerCaseFilter);
             });
         });
-
         SortedList<animaux> sortedData = new SortedList<>(filteredData);
         sortedData.comparatorProperty().bind(tableAnimaux.comparatorProperty());
         tableAnimaux.setItems(sortedData);
@@ -93,61 +124,44 @@ public class AfficherAnimauxController implements Initializable {
         if (selectionne != null) {
             try {
                 ServiceExamen sEx = new ServiceExamen();
-                // Utilisation de .collect(Collectors.toList()) pour la compatibilité
                 List<examens> historique = sEx.afficher().stream()
                         .filter(e -> e.getId_animal() == selectionne.getId())
                         .collect(Collectors.toList());
-
-                PdfService pdfService = new PdfService();
-                pdfService.genererCarnetSante(selectionne, historique);
+                new PdfService().genererCarnetSante(selectionne, historique);
 
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle("Succès");
-                alert.setHeaderText(null);
                 alert.setContentText("Le carnet de santé de " + selectionne.getNom() + " a été généré !");
                 alert.show();
-
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        } else {
-            alerteSelection();
-        }
+            } catch (SQLException e) { e.printStackTrace(); }
+        } else { alerteSelection(); }
     }
 
     @FXML
     void handleGenererCouples(ActionEvent event) {
-        // CORRECTION : Utilisation de 'tableAnimaux' au lieu de 'tvAnimaux'
         animaux selection = tableAnimaux.getSelectionModel().getSelectedItem();
-
         if (selection != null) {
-            // CORRECTION : Utilisation de 'service' au lieu de 'serviceAn'
             List<animaux> partenaires = service.trouverPartenaires(selection);
-
             if (partenaires.isEmpty()) {
                 afficherAlerte("Aucun partenaire trouvé pour " + selection.getNom());
             } else {
                 String liste = partenaires.stream()
                         .map(a -> a.getNom() + " (ID: " + a.getId() + ")")
                         .collect(Collectors.joining("\n"));
-
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle("Partenaires Potentiels");
-                alert.setHeaderText("Candidats pour " + selection.getNom());
                 alert.setContentText(liste);
                 alert.show();
             }
-        } else {
-            afficherAlerte("Veuillez d'abord sélectionner un animal !");
-        }
+        } else { afficherAlerte("Veuillez d'abord sélectionner un animal !"); }
     }
 
-    // Ajoute cette petite méthode utilitaire pour corriger l'erreur 'afficherAlerte'
     private void afficherAlerte(String message) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
         alert.setContentText(message);
         alert.show();
     }
+
     @FXML
     void handleSupprimer(ActionEvent event) {
         animaux selectionne = tableAnimaux.getSelectionModel().getSelectedItem();
@@ -180,10 +194,7 @@ public class AfficherAnimauxController implements Initializable {
         } else { alerteSelection(); }
     }
 
-    @FXML
-    void versAjout(ActionEvent event) {
-        changerScene(event, "ajoutAnimaux.fxml");
-    }
+    @FXML void versAjout(ActionEvent event) { changerScene(event, "ajoutAnimaux.fxml"); }
 
     @FXML
     void ouvrirStats(ActionEvent event) {
@@ -195,6 +206,7 @@ public class AfficherAnimauxController implements Initializable {
             stage.show();
         } catch (IOException e) { e.printStackTrace(); }
     }
+
     @FXML
     void ouvrirSuggestions(ActionEvent event) {
         try {
@@ -203,12 +215,9 @@ public class AfficherAnimauxController implements Initializable {
             Stage stage = new Stage();
             stage.setTitle("Aide à l'alimentation");
             stage.setScene(new Scene(root));
-            // Bloque l'interaction avec la fenêtre principale tant que la pop-up est ouverte
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        } catch (IOException e) { e.printStackTrace(); }
     }
 
     private void changerScene(ActionEvent event, String fxmlFile) {
@@ -216,9 +225,7 @@ public class AfficherAnimauxController implements Initializable {
             Parent root = FXMLLoader.load(getClass().getResource("/" + fxmlFile));
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.getScene().setRoot(root);
-        } catch (IOException e) {
-            System.err.println("Erreur de navigation : " + e.getMessage());
-        }
+        } catch (IOException e) { System.err.println("Erreur de navigation : " + e.getMessage()); }
     }
 
     @FXML void naviguerVersExamens(ActionEvent event) { changerScene(event, "AfficherExamens.fxml"); }

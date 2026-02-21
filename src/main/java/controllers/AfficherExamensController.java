@@ -4,11 +4,11 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import entities.examens;
 import entities.animaux;
-import javafx.animation.FadeTransition;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.collections.transformation.FilteredList; // IMPORTANT
+import javafx.collections.transformation.FilteredList;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -17,15 +17,14 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
-import javafx.scene.Cursor;
 import services.ServiceExamen;
 import services.ServiceAnimal;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Optional;
+import java.util.Scanner;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.util.Duration;
@@ -39,236 +38,193 @@ public class AfficherExamensController {
     @FXML private TableColumn<examens, String> colDiagnostic;
     @FXML private TableColumn<examens, String> colTraitement;
 
-    // Éléments pour les alertes (Gardés pour éviter le NullPointerException)
+    // NOUVELLES COLONNES SÉPARÉES
+    @FXML private TableColumn<examens, String> colTraduction;
+    @FXML private TableColumn<examens, String> colConseils;
+
     @FXML private Circle badgeRouge;
     @FXML private Label lblNbAlertes;
-    @FXML private StackPane paneNotification;
-
-    @FXML private Button btnAjouter;
-
-    // --- NOUVEAUX CHAMPS POUR LE FILTRE ---
     @FXML private TextField filterType;
     @FXML private DatePicker filterDate;
 
     private ObservableList<examens> masterData = FXCollections.observableArrayList();
     private FilteredList<examens> filteredData;
-
     private ServiceExamen service = new ServiceExamen();
     private ServiceAnimal serviceAn = new ServiceAnimal();
 
     @FXML
     public void initialize() {
-        colAnimal.setCellValueFactory(cellData -> {
-            int idAnimal = cellData.getValue().getId_animal();
-            try {
-                animaux a = serviceAn.afficher().stream()
-                        .filter(an -> an.getId() == idAnimal)
-                        .findFirst()
-                        .orElse(null);
-                if (a != null) {
-                    return new SimpleStringProperty(a.getNom());
-                }
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
-            return new SimpleStringProperty("Inconnu (" + idAnimal + ")");
-        });
-
-        colType.setCellValueFactory(new PropertyValueFactory<>("type_examen"));
-        colDate.setCellValueFactory(new PropertyValueFactory<>("date_examen"));
-        colDiagnostic.setCellValueFactory(new PropertyValueFactory<>("diagnostic"));
-
-        if (colTraitement != null) {
-            colTraitement.setCellValueFactory(new PropertyValueFactory<>("traitement"));
-        }
-
-        if (btnAjouter != null) {
-            btnAjouter.setCursor(Cursor.HAND);
-        }
-
+        configurerColonnes();
         chargerDonnees();
 
-        // --- INITIALISATION DU FILTRE ---
         filteredData = new FilteredList<>(masterData, p -> true);
-
-        // Listener pour le champ texte (Type)
-        filterType.textProperty().addListener((observable, oldValue, newValue) -> {
-            appliquerFiltres();
-        });
-
-        // Listener pour le DatePicker (Date)
-        filterDate.valueProperty().addListener((observable, oldValue, newValue) -> {
-            appliquerFiltres();
-        });
-
+        filterType.textProperty().addListener((obs, old, nv) -> appliquerFiltres());
+        filterDate.valueProperty().addListener((obs, old, nv) -> appliquerFiltres());
         tvExamens.setItems(filteredData);
 
         demarrerSystemeAlerte();
     }
 
-    private void chargerDonnees() {
-        try {
-            masterData.setAll(service.afficher());
-        } catch (Exception e) {
-            System.err.println("Erreur lors du chargement des examens : " + e.getMessage());
-        }
-    }
+    private void configurerColonnes() {
+        colAnimal.setCellValueFactory(cellData -> {
+            int id = cellData.getValue().getId_animal();
+            try {
+                return new SimpleStringProperty(serviceAn.afficher().stream()
+                        .filter(a -> a.getId() == id).findFirst().map(animaux::getNom).orElse("Inconnu"));
+            } catch (SQLException e) { return new SimpleStringProperty("Erreur"); }
+        });
 
-    // --- LOGIQUE DE FILTRAGE ---
-    private void appliquerFiltres() {
-        filteredData.setPredicate(examen -> {
-            // Filtre par Type
-            String typeFilter = filterType.getText();
-            if (typeFilter != null && !typeFilter.isEmpty()) {
-                if (!examen.getType_examen().toLowerCase().contains(typeFilter.toLowerCase())) {
-                    return false;
+        colType.setCellValueFactory(new PropertyValueFactory<>("type_examen"));
+        colDate.setCellValueFactory(new PropertyValueFactory<>("date_examen"));
+        colDiagnostic.setCellValueFactory(new PropertyValueFactory<>("diagnostic"));
+        colTraitement.setCellValueFactory(new PropertyValueFactory<>("traitement"));
+
+        // --- COLONNE 1 : TRADUCTION (API) ---
+        colTraduction.setCellFactory(column -> new TableCell<examens, String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || getTableRow() == null || getTableRow().getItem() == null) {
+                    setText(null);
+                } else {
+                    String diag = getTableRow().getItem().getDiagnostic();
+                    if (diag == null || diag.isEmpty()) {
+                        setText("-");
+                    } else {
+                        Task<String> task = new Task<String>() {
+                            @Override protected String call() throws Exception {
+                                String query = diag.replace(" ", "%20");
+                                URL url = new URL("https://api.mymemory.translated.net/get?q=" + query + "&langpair=fr|en");
+                                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                                try (Scanner s = new Scanner(conn.getInputStream())) {
+                                    String response = s.useDelimiter("\\A").next();
+                                    return response.split("\"translatedText\":\"")[1].split("\"")[0];
+                                }
+                            }
+                        };
+                        task.setOnSucceeded(e -> setText("🇬🇧 " + task.getValue()));
+                        new Thread(task).start();
+                    }
                 }
             }
+        });
 
-            // Filtre par Date
-            if (filterDate.getValue() != null) {
-                String dateExamenStr = examen.getDate_examen().toString(); // format yyyy-MM-dd
-                String selectedDateStr = filterDate.getValue().toString(); // format yyyy-MM-dd
-                if (!dateExamenStr.equals(selectedDateStr)) {
-                    return false;
+        // --- COLONNE 2 : CONSEILS MÉDICAUX (LOGIQUE LOCALE) ---
+        colConseils.setCellFactory(column -> new TableCell<examens, String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || getTableRow() == null || getTableRow().getItem() == null) {
+                    setText(null);
+                    setStyle("");
+                } else {
+                    String diag = getTableRow().getItem().getDiagnostic().toLowerCase();
+                    if (diag.contains("infection")) {
+                        setText("⚠️ Isoler l'animal");
+                        setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold;");
+                    } else if (diag.contains("urgence") || diag.contains("fracture")) {
+                        setText("🚨 Rappel Vétérinaire");
+                        setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold;");
+                    } else {
+                        setText("✅ Suivi normal");
+                        setStyle("-fx-text-fill: #27ae60; -fx-font-weight: normal;");
+                    }
                 }
             }
-            return true;
         });
     }
 
-    @FXML
-    void reinitialiserFiltres() {
-        filterType.clear();
-        filterDate.setValue(null);
+    private void chargerDonnees() {
+        try { masterData.setAll(service.afficher()); } catch (Exception e) { e.printStackTrace(); }
     }
 
-    // --- SYSTÈME D'ALERTES ---
+    private void appliquerFiltres() {
+        filteredData.setPredicate(ex -> {
+            boolean typeMatch = filterType.getText() == null || filterType.getText().isEmpty() ||
+                    ex.getType_examen().toLowerCase().contains(filterType.getText().toLowerCase());
+            boolean dateMatch = filterDate.getValue() == null ||
+                    ((java.sql.Date) ex.getDate_examen()).toLocalDate().equals(filterDate.getValue());
+            return typeMatch && dateMatch;
+        });
+    }
+
     private void demarrerSystemeAlerte() {
         verifierRappelsAujourdhui();
-        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(60), event -> {
-            verifierRappelsAujourdhui();
-        }));
+        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(30), e -> verifierRappelsAujourdhui()));
         timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();
     }
 
     private void verifierRappelsAujourdhui() {
-        try {
-            String today = java.sql.Date.valueOf(java.time.LocalDate.now()).toString();
-            long nbAlertes = service.afficher().stream()
-                    .filter(e -> e.getDate_examen() != null && e.getDate_examen().toString().equals(today))
-                    .count();
+        LocalDate today = LocalDate.now();
+        long nb = masterData.stream()
+                .filter(e -> e.getDate_examen() != null && ((java.sql.Date) e.getDate_examen()).toLocalDate().equals(today))
+                .count();
 
-            if (nbAlertes > 0) {
-                declencherAnimationCloche(nbAlertes);
-            } else if (badgeRouge != null) {
-                badgeRouge.setVisible(false);
-                lblNbAlertes.setVisible(false);
+        if (nb > 0) {
+            if(badgeRouge != null) badgeRouge.setVisible(true);
+            if(lblNbAlertes != null) {
+                lblNbAlertes.setVisible(true);
+                lblNbAlertes.setText(String.valueOf(nb));
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } else {
+            if(badgeRouge != null) badgeRouge.setVisible(false);
+            if(lblNbAlertes != null) lblNbAlertes.setVisible(false);
         }
     }
 
-    private void declencherAnimationCloche(long nb) {
-        if (badgeRouge != null && lblNbAlertes != null) {
-            badgeRouge.setVisible(true);
-            lblNbAlertes.setVisible(true);
-            lblNbAlertes.setText(String.valueOf(nb));
-
-            FadeTransition fade = new FadeTransition(Duration.seconds(0.5), badgeRouge);
-            fade.setFromValue(1.0);
-            fade.setToValue(0.3);
-            fade.setCycleCount(6);
-            fade.setAutoReverse(true);
-            fade.play();
-        }
-    }
-
-    @FXML
-    void ouvrirDetailsAlertes() {
+    @FXML void ouvrirDetailsAlertes() {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Rappels du jour");
-        alert.setHeaderText("Examens à effectuer aujourd'hui");
-        String nb = (lblNbAlertes != null) ? lblNbAlertes.getText() : "0";
+        alert.setHeaderText("Examens à effectuer aujourd'hui (" + LocalDate.now() + ")");
+        long nb = masterData.stream()
+                .filter(e -> e.getDate_examen() != null && ((java.sql.Date) e.getDate_examen()).toLocalDate().equals(LocalDate.now()))
+                .count();
         alert.setContentText("Vous avez " + nb + " examen(s) prévu(s).");
         alert.show();
     }
 
-    // --- NAVIGATION ET ACTIONS ---
-    @FXML
-    void handleSupprimer(ActionEvent event) {
+    @FXML void handleSupprimer(ActionEvent event) {
         examens selection = tvExamens.getSelectionModel().getSelectedItem();
-        if (selection != null) {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Confirmation");
-            alert.setHeaderText("Suppression");
-            alert.setContentText("Voulez-vous vraiment supprimer cet examen ?");
-
-            Optional<ButtonType> result = alert.showAndWait();
-            if (result.isPresent() && result.get() == ButtonType.OK) {
-                try {
-                    service.supprimer(selection.getId());
-                    chargerDonnees();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-        } else {
-            afficherAlerteSelection();
+        if (selection != null && new Alert(Alert.AlertType.CONFIRMATION, "Supprimer ?").showAndWait().get() == ButtonType.OK) {
+            try { service.supprimer(selection.getId()); chargerDonnees(); } catch (SQLException e) { e.printStackTrace(); }
         }
     }
 
-    @FXML
-    void handleModifier(ActionEvent event) {
+    @FXML void handleModifier(ActionEvent event) {
         examens selection = tvExamens.getSelectionModel().getSelectedItem();
-        if (selection != null) {
-            changerScene(event, "/ModifierExamen.fxml", selection);
-        } else {
-            afficherAlerteSelection();
-        }
+        if (selection != null) changerScene(event, "/ModifierExamen.fxml", selection);
     }
 
     @FXML void naviguerAjout(ActionEvent event) { changerScene(event, "/AjoutExamen.fxml", null); }
     @FXML void naviguerVersAnimaux(ActionEvent event) { changerScene(event, "/AfficherAnimaux.fxml", null); }
+    @FXML void reinitialiserFiltres() { filterType.clear(); filterDate.setValue(null); }
+    @FXML void ouvrirStats() { /* Logique stats */ }
+    @FXML void handleDeconnexion(ActionEvent event) { changerScene(event, "/Login.fxml", null); }
+
+    private void changerScene(ActionEvent event, String fxml, examens ex) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxml));
+            Parent root = loader.load();
+            ((Stage) ((Node) event.getSource()).getScene().getWindow()).setScene(new Scene(root));
+        } catch (IOException e) { e.printStackTrace(); }
+    }
 
     @FXML
-    void ouvrirStats(ActionEvent event) {
-        try {
-            Parent root = FXMLLoader.load(getClass().getResource("/StatsExamens.fxml"));
-            Stage stage = new Stage();
-            stage.setTitle("Statistiques Examens - AgroFlow");
-            stage.setScene(new Scene(root));
-            stage.show();
-        } catch (IOException e) {
-            System.err.println("Erreur ouverture stats : " + e.getMessage());
-        }
-    }
-
-    private void changerScene(ActionEvent event, String fxmlPath, examens examenAModifier) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
-            Parent root = loader.load();
-
-            if (examenAModifier != null) {
-                ModifierExamenController controller = loader.getController();
-                controller.chargerDonnees(examenAModifier);
-            }
-
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void afficherAlerteSelection() {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setContentText("Veuillez sélectionner un examen dans le tableau.");
+    void traduireDiagnostics(ActionEvent event) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Mode International");
+        alert.setHeaderText("Traduction activée");
+        alert.setContentText("La colonne de traduction est mise à jour automatiquement via l'API MyMemory.");
         alert.show();
     }
 
-    @FXML void handleDeconnexion(ActionEvent event) { changerScene(event, "/Login.fxml", null); }
+    @FXML
+    void afficherConseilsSante(ActionEvent event) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Aide au Diagnostic");
+        alert.setHeaderText("Analyse intelligente");
+        alert.setContentText("Les conseils de biosécurité s'affichent dynamiquement selon les mots-clés de votre diagnostic.");
+        alert.show();
+    }
 }
