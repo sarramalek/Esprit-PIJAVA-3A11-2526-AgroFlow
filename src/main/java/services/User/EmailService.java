@@ -2,6 +2,8 @@ package services.User;
 
 import javax.mail.*;
 import javax.mail.internet.*;
+import javax.activation.*;
+import java.io.File;
 import java.util.Properties;
 
 /**
@@ -15,19 +17,13 @@ public class EmailService {
     // ═══════════════════════════════════════════════════════════════════
 
     // TODO: Remplacez par vos identifiants Gmail
-    private final String USERNAME = "maleksarra362@gmail.com";
-    private final String PASSWORD = "plkcjwhpqlgsetrh";
-
-    // Pour créer un mot de passe d'application:
-    // 1. Allez sur https://myaccount.google.com/security
-    // 2. Activez la validation en deux étapes
-    // 3. Allez dans "Mots de passe des applications"
-    // 4. Créez un mot de passe pour "Mail" ou "Autre"
+    private static final String USERNAME = "maleksarra362@gmail.com";
+    private static final String PASSWORD = "plkcjwhpqlgsetrh";
 
     /**
      * Configuration SMTP pour Gmail
      */
-    private Session getSession() {
+    private static Session getSession() {
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
@@ -49,10 +45,6 @@ public class EmailService {
 
     /**
      * Envoie un email HTML formaté
-     * @param toEmail Destinataire
-     * @param subject Sujet
-     * @param htmlBody Corps HTML
-     * @return true si l'envoi a réussi
      */
     public boolean sendHtmlEmail(String toEmail, String subject, String htmlBody) {
         try {
@@ -74,11 +66,54 @@ public class EmailService {
     }
 
     /**
-     * Envoie un code de réinitialisation de mot de passe
-     * @param toEmail Email du destinataire
-     * @param userName Nom de l'utilisateur
-     * @param resetCode Code de vérification
+     * Envoie un email avec pièce jointe PDF
+     * @param toEmail Destinataire
+     * @param subject Sujet
+     * @param bodyText Corps du message
+     * @param pdfFile Fichier PDF à attacher
      * @return true si l'envoi a réussi
+     */
+    public static boolean sendPDFAttachment(String toEmail, String subject, String bodyText, File pdfFile) {
+        try {
+            Message message = new MimeMessage(getSession());
+            message.setFrom(new InternetAddress(USERNAME, "AgroFlow"));
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
+            message.setSubject(subject);
+
+            // Créer le corps du message
+            BodyPart messageBodyPart = new MimeBodyPart();
+            messageBodyPart.setText(bodyText);
+
+            // Créer le multipart
+            Multipart multipart = new MimeMultipart();
+            multipart.addBodyPart(messageBodyPart);
+
+            // Ajouter la pièce jointe PDF
+            if (pdfFile != null && pdfFile.exists()) {
+                MimeBodyPart attachmentPart = new MimeBodyPart();
+                DataSource source = new FileDataSource(pdfFile);
+                attachmentPart.setDataHandler(new DataHandler(source));
+                attachmentPart.setFileName(pdfFile.getName());
+                multipart.addBodyPart(attachmentPart);
+            }
+
+            // Définir le contenu du message
+            message.setContent(multipart);
+
+            // Envoyer
+            Transport.send(message);
+            System.out.println("✅ Email avec PDF envoyé à: " + toEmail);
+            return true;
+
+        } catch (Exception e) {
+            System.err.println("❌ Erreur d'envoi d'email avec pièce jointe: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * Envoie un code de réinitialisation de mot de passe
      */
     public boolean sendPasswordResetCode(String toEmail, String userName, String resetCode) {
         String subject = "🔑 AgroFlow - Réinitialisation de mot de passe";
@@ -147,15 +182,6 @@ public class EmailService {
                         font-size: 12px;
                         text-align: center;
                     }
-                    .button {
-                        display: inline-block;
-                        padding: 12px 30px;
-                        background: #4CAF50;
-                        color: white;
-                        text-decoration: none;
-                        border-radius: 5px;
-                        margin: 20px 0;
-                    }
                 </style>
             </head>
             <body>
@@ -192,11 +218,6 @@ public class EmailService {
 
     /**
      * Envoie une notification de connexion suspecte
-     * @param toEmail Email du destinataire
-     * @param userName Nom de l'utilisateur
-     * @param ipAddress Adresse IP de connexion
-     * @param dateTime Date et heure de connexion
-     * @return true si l'envoi a réussi
      */
     public boolean sendLoginAlert(String toEmail, String userName, String ipAddress, String dateTime) {
         String subject = "⚠️ AgroFlow - Nouvelle connexion détectée";
@@ -254,10 +275,6 @@ public class EmailService {
 
     /**
      * Envoie un email de bienvenue pour nouveau compte
-     * @param toEmail Email du nouveau utilisateur
-     * @param userName Nom de l'utilisateur
-     * @param role Rôle de l'utilisateur (1, 2 ou 3)
-     * @return true si l'envoi a réussi
      */
     public boolean sendWelcomeEmail(String toEmail, String userName, int role) {
         String subject = "🎉 Bienvenue sur AgroFlow !";
@@ -330,9 +347,6 @@ public class EmailService {
 
     /**
      * Envoie une notification de changement de mot de passe
-     * @param toEmail Email du destinataire
-     * @param userName Nom de l'utilisateur
-     * @return true si l'envoi a réussi
      */
     public boolean sendPasswordChangedNotification(String toEmail, String userName) {
         String subject = "✅ AgroFlow - Mot de passe modifié";
@@ -385,3 +399,22 @@ public class EmailService {
         return sendHtmlEmail(toEmail, subject, htmlBody);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

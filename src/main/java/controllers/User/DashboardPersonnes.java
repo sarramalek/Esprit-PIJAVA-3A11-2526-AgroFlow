@@ -1,4 +1,5 @@
 package controllers.User;
+import javax.activation.*;  // Pour DataHandler et FileDataSource
 
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
@@ -8,9 +9,7 @@ import javafx.stage.Modality;
 import models.User.Personne;
 import models.User.Employe;
 import models.User.Utilisateur;
-import services.User.PersonneService;
-import services.User.PdfReportService;
-import services.User.AbonnementService;
+import services.User.*;
 import models.User.Abonnements;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -24,11 +23,18 @@ import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.geometry.Pos;
+import utils.SessionManager;
+import services.User.SmsService;
 
+
+
+import javafx.scene.control.*;
+import javafx.scene.layout.VBox;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
@@ -57,6 +63,7 @@ public class DashboardPersonnes {
     // Bouton PDF (à ajouter dans le FXML)
     @FXML private Button pdfBtn;
     @FXML private Label  selectedPersonLabel;
+    private LogReportService logReportService;
 
     // Table
     @FXML private TableView<Personne> employeeTable;
@@ -88,6 +95,8 @@ public class DashboardPersonnes {
 
     @FXML
     public void initialize() {
+        logReportService = new LogReportService();
+
         gestionSubmenu.setVisible(false);
         gestionSubmenu.setManaged(false);
 
@@ -110,7 +119,157 @@ public class DashboardPersonnes {
             e.printStackTrace();
         }
     }
+    @FXML
+    private void handleExportPDF() {
+        // Récupérer la personne sélectionnée
+        Personne selectedPerson = employeeTable.getSelectionModel().getSelectedItem();
 
+        if (selectedPerson == null) {
+            showWarning("Aucune personne sélectionnée",
+                    "Veuillez sélectionner une personne dans le tableau.");
+            return;
+        }
+
+        // Confirmation
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Confirmation");
+        confirm.setHeaderText("Générer l'historique des connexions");
+        confirm.setContentText("Voulez-vous générer le rapport PDF pour " +
+                selectedPerson.getPrenom() + " " + selectedPerson.getNom() + " ?");
+
+        Optional<ButtonType> result = confirm.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            generatePDF(selectedPerson);
+        }
+    }
+
+    /**
+     * Génère le PDF
+     */
+    private void generatePDF(Personne personne) {
+        try {
+            // Ouvrir le dialogue de sauvegarde
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Enregistrer le rapport PDF");
+
+            // Nom de fichier par défaut
+            String defaultFileName = String.format("Historique_Connexions_%s_%s_%s.pdf",
+                    personne.getNom().replace(" ", "_"),
+                    personne.getPrenom().replace(" ", "_"),
+                    LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"))
+            );
+            fileChooser.setInitialFileName(defaultFileName);
+
+            // Filtre d'extension
+            FileChooser.ExtensionFilter extFilter =
+                    new FileChooser.ExtensionFilter("Fichiers PDF (*.pdf)", "*.pdf");
+            fileChooser.getExtensionFilters().add(extFilter);
+
+            // Dossier par défaut (Documents ou Bureau)
+            String userHome = System.getProperty("user.home");
+            File initialDir = new File(userHome, "Documents");
+            if (!initialDir.exists()) {
+                initialDir = new File(userHome, "Desktop");
+            }
+            if (initialDir.exists()) {
+                fileChooser.setInitialDirectory(initialDir);
+            }
+
+            // Afficher le dialogue
+            File file = fileChooser.showSaveDialog(pdfBtn.getScene().getWindow());
+
+            if (file != null) {
+                // Afficher un indicateur de chargement
+                showProgress("Génération du PDF en cours...");
+
+                // Générer le PDF
+                boolean success = logReportService.generateLogHistoryPDF(personne, file.getAbsolutePath());
+
+                if (success) {
+                    showSuccess("PDF généré avec succès",
+                            "Le rapport a été enregistré à :\n" + file.getAbsolutePath());
+
+                    // Proposer d'ouvrir le fichier
+                    Alert openAlert = new Alert(Alert.AlertType.CONFIRMATION);
+                    openAlert.setTitle("Ouvrir le fichier");
+                    openAlert.setHeaderText("PDF généré avec succès");
+                    openAlert.setContentText("Voulez-vous ouvrir le fichier maintenant ?");
+
+                    Optional<ButtonType> openResult = openAlert.showAndWait();
+                    if (openResult.isPresent() && openResult.get() == ButtonType.OK) {
+                        openPDF(file);
+                    }
+                } else {
+                    showError("Erreur lors de la génération du PDF","erreur de generation du pdf historique ");
+                }
+            }
+
+        } catch (Exception e) {
+            showError("Erreur lors de la génération du PDF : " , e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Ouvre le PDF avec l'application par défaut
+     */
+    private void openPDF(File file) {
+        try {
+            if (java.awt.Desktop.isDesktopSupported()) {
+                java.awt.Desktop.getDesktop().open(file);
+            } else {
+                showWarning("Ouverture impossible",
+                        "Impossible d'ouvrir le fichier automatiquement.\n" +
+                                "Veuillez l'ouvrir manuellement à l'emplacement :\n" +
+                                file.getAbsolutePath());
+            }
+        } catch (Exception e) {
+            showError("Erreur lors de l'ouverture du fichier","erreur de l'ouverture du fichier PDF ");
+            e.printStackTrace();
+        }
+    }
+    private void showWarning(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+    private void showProgress(String message) {
+        // Simple toast-like notification
+        Alert progress = new Alert(Alert.AlertType.INFORMATION);
+        progress.setTitle("En cours...");
+        progress.setHeaderText(null);
+        progress.setContentText(message);
+        progress.show();
+
+        // Auto-fermer après 2 secondes
+        new Thread(() -> {
+            try {
+                Thread.sleep(2000);
+                javafx.application.Platform.runLater(progress::close);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
+    @FXML
+    private void handleEmailPDF() throws IOException {
+        Personne selected = employeeTable.getSelectionModel().getSelectedItem();
+
+        // Générer le PDF dans un fichier temporaire
+        File tempFile = File.createTempFile("rapport_", ".pdf");
+        logReportService.generateLogHistoryPDF(selected, tempFile.getAbsolutePath());
+
+        // Envoyer par email avec JavaMail
+        EmailService.sendPDFAttachment(
+                selected.getEmail(),
+                "Votre historique de connexions",
+                "Veuillez trouver en pièce jointe votre historique.",
+                tempFile
+        );
+    }
+    // -------------------------------------------------------------------------------
     public void setCurrentUser(Personne user) {
         this.currentUser = user;
         if (user != null) userNameLabel.setText(user.getPrenom() + " " + user.getNom());
@@ -466,5 +625,115 @@ public class DashboardPersonnes {
         a.setHeaderText(null);
         a.setContentText(msg);
         a.showAndWait();
+    }
+
+    @FXML
+    private void handleNavigateToSettings2FA(MouseEvent event) {
+        try {
+            Personne currentUser = SessionManager.getCurrentUser();
+            String telephone = currentUser.getTel();
+
+            if (telephone == null || telephone.isEmpty()) {
+                // Pas de numéro → aller directement sans vérification SMS
+                navigateToSettings2FA(event);
+                return;
+            }
+
+            // Générer et envoyer OTP
+            String otp = String.format("%06d", (int)(Math.random() * 999999));
+            SessionManager.setTempOtp(otp);
+
+            SmsService smsService = new SmsService();
+            boolean sent = smsService.sendOtpCode(telephone, otp);
+
+            if (!sent) {
+                showAlert(Alert.AlertType.ERROR, "Erreur", "Impossible d'envoyer le SMS.");
+                return;
+            }
+
+            // Masquer le numéro
+            String masked = telephone.length() > 4
+                    ? telephone.substring(0, telephone.length() - 4).replaceAll("\\d", "*")
+                    + telephone.substring(telephone.length() - 4)
+                    : telephone;
+
+            // Dialogue de saisie du code
+            Dialog<String> dialog = new Dialog<>();
+            dialog.setTitle("🔐 Vérification SMS");
+            dialog.setHeaderText("Code envoyé au : " + masked);
+
+            ButtonType verifyBtn = new ButtonType("Vérifier", ButtonBar.ButtonData.OK_DONE);
+            ButtonType resendBtn = new ButtonType("Renvoyer", ButtonBar.ButtonData.LEFT);
+            dialog.getDialogPane().getButtonTypes().addAll(verifyBtn, resendBtn, ButtonType.CANCEL);
+
+            TextField codeField = new TextField();
+            codeField.setPromptText("000000");
+            codeField.setMaxWidth(200);
+            codeField.setStyle(
+                    "-fx-font-family: 'Courier New'; -fx-font-size: 24px;" +
+                            "-fx-alignment: center; -fx-pref-height: 52px;" +
+                            "-fx-border-color: #52B788; -fx-border-radius: 8;" +
+                            "-fx-background-radius: 8; -fx-border-width: 2;"
+            );
+            codeField.textProperty().addListener((obs, o, n) -> {
+                if (!n.matches("\\d*")) codeField.setText(n.replaceAll("[^\\d]", ""));
+                if (n.length() > 6)     codeField.setText(n.substring(0, 6));
+            });
+
+            VBox content = new VBox(14);
+            content.setAlignment(javafx.geometry.Pos.CENTER);
+            content.getChildren().addAll(
+                    new Label("📱 Entrez le code reçu par SMS :"),
+                    codeField,
+                    new Label("⏱  Valable 5 minutes")
+            );
+            dialog.getDialogPane().setContent(content);
+
+            final String[] currentOtp = { otp };
+
+            dialog.setResultConverter(btn -> {
+                if (btn == resendBtn) {
+                    String newOtp = String.format("%06d", (int)(Math.random() * 999999));
+                    currentOtp[0] = newOtp;
+                    SessionManager.setTempOtp(newOtp);
+                    boolean reSent = smsService.sendOtpCode(telephone, newOtp);
+                    Alert info = new Alert(reSent ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR);
+                    info.setTitle(reSent ? "SMS renvoyé" : "Erreur");
+                    info.setHeaderText(null);
+                    info.setContentText(reSent ? "Nouveau code envoyé au " + masked : "Échec envoi SMS.");
+                    info.showAndWait();
+                    return null;
+                }
+                if (btn == verifyBtn) return codeField.getText();
+                return null;
+            });
+
+            dialog.showAndWait().ifPresent(code -> {
+                if (code.equals(currentOtp[0])) {
+                    SessionManager.clearTempOtp();
+                    navigateToSettings2FA(event); // ✅ Accès autorisé
+                } else {
+                    showAlert(Alert.AlertType.ERROR, "Code incorrect",
+                            "Le code SMS est invalide. Accès refusé.");
+                }
+            });
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Navigation réelle vers Settings2FA
+    private void navigateToSettings2FA(MouseEvent event) {
+        Settings2FA settings = new Settings2FA();
+        settings.launch();
+    }
+
+    private void showAlert(Alert.AlertType type, String title, String content) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
     }
 }
