@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="15.0" prefWidth="400.0" prefHeight="450.0" style="-fx-background-color: #FDFBF0;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.FicheSanteController">
+    <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+    <children>
+        <Text fill="#2C3E50" text="Fiches de Santé par Race">
+            <font><Font name="System Bold" size="22.0" /></font>
+        </Text>
+
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Label text="Rechercher une race :" style="-fx-font-weight: bold;"/>
+            <TextField fx:id="txtRecherche" promptText="Ex: Beagle, Husky, Persian..." HBox.hgrow="ALWAYS" />
+            <Button text="🔍" onAction="#rechercherRace" style="-fx-background-color: #A3C1AD;"/>
+        </HBox>
+
+        <Separator />
+
+        <VBox fx:id="resultContainer" spacing="10" VBox.vgrow="ALWAYS">
+            <children>
+                <Label fx:id="lblNom" text="Race : ---" style="-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #2D5A27;"/>
+                <Label fx:id="lblLongevite" text="Espérance de vie : ---" wrapText="true"/>
+                <Label fx:id="lblTemperament" text="Tempérament : ---" wrapText="true" />
+                <TextArea fx:id="txtInfos" editable="false" prefHeight="150.0" style="-fx-background-radius: 10;" wrapText="true" text="Entrez une race pour voir les détails de santé..."/>
+            </children>
+        </VBox>
+
+        <Button text="Fermer" onAction="#fermerFenetre" maxWidth="Infinity" style="-fx-background-color: #BDC3C7; -fx-text-fill: white; -fx-font-weight: bold;" />
+    </children>
+</VBox>

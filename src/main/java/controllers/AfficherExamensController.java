@@ -28,6 +28,7 @@ import java.util.Scanner;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.util.Duration;
+import javafx.stage.Modality;
 
 public class AfficherExamensController {
 
@@ -37,8 +38,6 @@ public class AfficherExamensController {
     @FXML private TableColumn<examens, java.sql.Date> colDate;
     @FXML private TableColumn<examens, String> colDiagnostic;
     @FXML private TableColumn<examens, String> colTraitement;
-
-    // NOUVELLES COLONNES SÉPARÉES
     @FXML private TableColumn<examens, String> colTraduction;
     @FXML private TableColumn<examens, String> colConseils;
 
@@ -79,8 +78,8 @@ public class AfficherExamensController {
         colDiagnostic.setCellValueFactory(new PropertyValueFactory<>("diagnostic"));
         colTraitement.setCellValueFactory(new PropertyValueFactory<>("traitement"));
 
-        // --- COLONNE 1 : TRADUCTION (API) ---
-        colTraduction.setCellFactory(column -> new TableCell<examens, String>() {
+        // TRADUCTION via API MyMemory
+        colTraduction.setCellFactory(column -> new TableCell<>() {
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
@@ -91,14 +90,14 @@ public class AfficherExamensController {
                     if (diag == null || diag.isEmpty()) {
                         setText("-");
                     } else {
-                        Task<String> task = new Task<String>() {
+                        Task<String> task = new Task<>() {
                             @Override protected String call() throws Exception {
                                 String query = diag.replace(" ", "%20");
                                 URL url = new URL("https://api.mymemory.translated.net/get?q=" + query + "&langpair=fr|en");
                                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                                 try (Scanner s = new Scanner(conn.getInputStream())) {
-                                    String response = s.useDelimiter("\\A").next();
-                                    return response.split("\"translatedText\":\"")[1].split("\"")[0];
+                                    String resp = s.useDelimiter("\\A").next();
+                                    return resp.split("\"translatedText\":\"")[1].split("\"")[0];
                                 }
                             }
                         };
@@ -109,8 +108,8 @@ public class AfficherExamensController {
             }
         });
 
-        // --- COLONNE 2 : CONSEILS MÉDICAUX (LOGIQUE LOCALE) ---
-        colConseils.setCellFactory(column -> new TableCell<examens, String>() {
+        // CONSEILS (Logique locale)
+        colConseils.setCellFactory(column -> new TableCell<>() {
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
@@ -127,7 +126,7 @@ public class AfficherExamensController {
                         setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold;");
                     } else {
                         setText("✅ Suivi normal");
-                        setStyle("-fx-text-fill: #27ae60; -fx-font-weight: normal;");
+                        setStyle("-fx-text-fill: #27ae60;");
                     }
                 }
             }
@@ -173,33 +172,65 @@ public class AfficherExamensController {
         }
     }
 
+    // --- ACTIONS DU MENU ET BOUTONS ---
+
+    @FXML
+    void ouvrirStats(ActionEvent event) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Statistiques");
+        alert.setHeaderText("Analyse des examens");
+        alert.setContentText("La fonctionnalité des statistiques sera bientôt disponible !");
+        alert.show();
+    }
+
+    @FXML
+    void afficherConseilsSante(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/FicheSanteView.fxml"));
+            Parent root = loader.load();
+            Stage stage = new Stage();
+            stage.setTitle("Fiches de Santé - API Externe");
+            stage.setScene(new Scene(root));
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.show();
+        } catch (IOException e) {
+            System.err.println("Erreur de chargement de FicheSanteView.fxml : " + e.getMessage());
+        }
+    }
+
     @FXML void ouvrirDetailsAlertes() {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Rappels du jour");
-        alert.setHeaderText("Examens à effectuer aujourd'hui (" + LocalDate.now() + ")");
+        alert.setHeaderText("Examens prévus aujourd'hui");
         long nb = masterData.stream()
                 .filter(e -> e.getDate_examen() != null && ((java.sql.Date) e.getDate_examen()).toLocalDate().equals(LocalDate.now()))
                 .count();
-        alert.setContentText("Vous avez " + nb + " examen(s) prévu(s).");
+        alert.setContentText("Vous avez " + nb + " examen(s) à traiter.");
+        alert.show();
+    }
+
+    @FXML void traduireDiagnostics(ActionEvent event) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Info");
+        alert.setContentText("La colonne Traduction utilise l'API MyMemory.");
         alert.show();
     }
 
     @FXML void handleSupprimer(ActionEvent event) {
-        examens selection = tvExamens.getSelectionModel().getSelectedItem();
-        if (selection != null && new Alert(Alert.AlertType.CONFIRMATION, "Supprimer ?").showAndWait().get() == ButtonType.OK) {
-            try { service.supprimer(selection.getId()); chargerDonnees(); } catch (SQLException e) { e.printStackTrace(); }
+        examens sel = tvExamens.getSelectionModel().getSelectedItem();
+        if (sel != null && new Alert(Alert.AlertType.CONFIRMATION, "Supprimer ?").showAndWait().get() == ButtonType.OK) {
+            try { service.supprimer(sel.getId()); chargerDonnees(); } catch (SQLException e) { e.printStackTrace(); }
         }
     }
 
     @FXML void handleModifier(ActionEvent event) {
-        examens selection = tvExamens.getSelectionModel().getSelectedItem();
-        if (selection != null) changerScene(event, "/ModifierExamen.fxml", selection);
+        examens sel = tvExamens.getSelectionModel().getSelectedItem();
+        if (sel != null) changerScene(event, "/ModifierExamen.fxml", sel);
     }
 
     @FXML void naviguerAjout(ActionEvent event) { changerScene(event, "/AjoutExamen.fxml", null); }
     @FXML void naviguerVersAnimaux(ActionEvent event) { changerScene(event, "/AfficherAnimaux.fxml", null); }
     @FXML void reinitialiserFiltres() { filterType.clear(); filterDate.setValue(null); }
-    @FXML void ouvrirStats() { /* Logique stats */ }
     @FXML void handleDeconnexion(ActionEvent event) { changerScene(event, "/Login.fxml", null); }
 
     private void changerScene(ActionEvent event, String fxml, examens ex) {
@@ -208,23 +239,5 @@ public class AfficherExamensController {
             Parent root = loader.load();
             ((Stage) ((Node) event.getSource()).getScene().getWindow()).setScene(new Scene(root));
         } catch (IOException e) { e.printStackTrace(); }
-    }
-
-    @FXML
-    void traduireDiagnostics(ActionEvent event) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Mode International");
-        alert.setHeaderText("Traduction activée");
-        alert.setContentText("La colonne de traduction est mise à jour automatiquement via l'API MyMemory.");
-        alert.show();
-    }
-
-    @FXML
-    void afficherConseilsSante(ActionEvent event) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Aide au Diagnostic");
-        alert.setHeaderText("Analyse intelligente");
-        alert.setContentText("Les conseils de biosécurité s'affichent dynamiquement selon les mots-clés de votre diagnostic.");
-        alert.show();
     }
 }
