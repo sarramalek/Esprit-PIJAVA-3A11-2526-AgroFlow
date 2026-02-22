@@ -10,181 +10,149 @@
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="controllers.AccueilMaterielController">
 
-    <!-- ================= SIDEBAR ================= -->
+    <!-- ═══════════════════  SIDEBAR  ═══════════════════ -->
     <left>
         <VBox prefWidth="230.0" spacing="5.0"
               style="-fx-background-color: #1e2a35; -fx-padding: 20 15 20 15;">
-            <children>
-                <!-- Logo AGROFLOW avec icône -->
-                <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 0 0 5 5;">
-                    <children>
-                        <Text fill="WHITE" text="❋" style="-fx-font-size: 22px;"/>
-                        <Text fill="WHITE" text="AGROFLOW">
-                            <font>
-                                <Font name="System Bold" size="20.0"/>
-                            </font>
-                        </Text>
-                    </children>
-                </HBox>
-                <Text fill="#95a5a6" text="Gestion Agricole" style="-fx-font-size: 13px; -fx-padding: 0 0 0 5;">
-                    <font>
-                        <Font name="System Regular" size="13.0"/>
-                    </font>
+
+            <!-- Logo AGROFLOW -->
+            <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 0 0 5 5;">
+                <Text fill="WHITE" text="❋" style="-fx-font-size: 22px;"/>
+                <Text fill="WHITE" text="AGROFLOW">
+                    <font><Font name="System Bold" size="20.0"/></font>
                 </Text>
+            </HBox>
+            <Text fill="#95a5a6" text="Gestion Agricole" style="-fx-font-size: 13px; -fx-padding: 0 0 0 5;">
+                <font><Font name="System Regular" size="13.0"/></font>
+            </Text>
 
-                <Separator opacity="0.15" style="-fx-padding: 10 0 10 0;"/>
+            <Separator opacity="0.15" style="-fx-padding: 10 0 10 0;"/>
 
-                <!-- Gestion Animaux -->
-                <Button text="  🐄  Gestion Animaux"
-                        onAction="#naviguerAnimaux"
-                        maxWidth="Infinity"
-                        alignment="BASELINE_LEFT"
-                        prefHeight="45.0"
-                        style="-fx-background-color: transparent; -fx-text-fill: #b0bec5; -fx-cursor: hand; -fx-font-size: 14px; -fx-padding: 0 0 0 10; -fx-background-radius: 8;"/>
+            <!-- Gestion Animaux -->
+            <Button text="  🐄  Gestion Animaux"
+                    onAction="#naviguerAnimaux"
+                    maxWidth="Infinity" alignment="BASELINE_LEFT" prefHeight="45.0"
+                    style="-fx-background-color: transparent; -fx-text-fill: #b0bec5;
+                           -fx-cursor: hand; -fx-font-size: 14px;
+                           -fx-padding: 0 0 0 10; -fx-background-radius: 8;"/>
 
-                <!-- Gestion Matériels — ACTIF -->
-                <Button text="  🚜  Gestion Matériels"
-                        onAction="#naviguerMateriels"
-                        maxWidth="Infinity"
-                        alignment="BASELINE_LEFT"
-                        prefHeight="45.0"
-                        style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-cursor: hand; -fx-font-size: 14px; -fx-font-weight: bold; -fx-padding: 0 0 0 10; -fx-background-radius: 8;"/>
+            <!-- Gestion Matériels — ACTIF -->
+            <Button text="  🚜  Gestion Matériels"
+                    onAction="#naviguerMateriels"
+                    maxWidth="Infinity" alignment="BASELINE_LEFT" prefHeight="45.0"
+                    style="-fx-background-color: #27ae60; -fx-text-fill: white;
+                           -fx-cursor: hand; -fx-font-size: 14px; -fx-font-weight: bold;
+                           -fx-padding: 0 0 0 10; -fx-background-radius: 8;"/>
 
-                <!-- Gestion Stocks -->
-                <Button text="  📦  Gestion Stocks"
-                        onAction="#naviguerStocks"
-                        maxWidth="Infinity"
-                        alignment="BASELINE_LEFT"
-                        prefHeight="45.0"
-                        style="-fx-background-color: transparent; -fx-text-fill: #b0bec5; -fx-cursor: hand; -fx-font-size: 14px; -fx-padding: 0 0 0 10; -fx-background-radius: 8;"/>
+            <!-- Gestion Stocks -->
+            <Button text="  📦  Gestion Stocks"
+                    onAction="#naviguerStocks"
+                    maxWidth="Infinity" alignment="BASELINE_LEFT" prefHeight="45.0"
+                    style="-fx-background-color: transparent; -fx-text-fill: #b0bec5;
+                           -fx-cursor: hand; -fx-font-size: 14px;
+                           -fx-padding: 0 0 0 10; -fx-background-radius: 8;"/>
 
-                <!-- Gestion Terrains -->
-                <Button text="  🗺️  Gestion Terrains"
-                        onAction="#naviguerTerrains"
-                        maxWidth="Infinity"
-                        alignment="BASELINE_LEFT"
-                        prefHeight="45.0"
-                        style="-fx-background-color: transparent; -fx-text-fill: #b0bec5; -fx-cursor: hand; -fx-font-size: 14px; -fx-padding: 0 0 0 10; -fx-background-radius: 8;"/>
+            <!-- Gestion Terrains -->
+            <Button text="  🗺️  Gestion Terrains"
+                    onAction="#naviguerTerrains"
+                    maxWidth="Infinity" alignment="BASELINE_LEFT" prefHeight="45.0"
+                    style="-fx-background-color: transparent; -fx-text-fill: #b0bec5;
+                           -fx-cursor: hand; -fx-font-size: 14px;
+                           -fx-padding: 0 0 0 10; -fx-background-radius: 8;"/>
 
-                <!-- Événements -->
-                <Button text="  📅  Événements"
-                        onAction="#naviguerEvenements"
-                        maxWidth="Infinity"
-                        alignment="BASELINE_LEFT"
-                        prefHeight="45.0"
-                        style="-fx-background-color: transparent; -fx-text-fill: #b0bec5; -fx-cursor: hand; -fx-font-size: 14px; -fx-padding: 0 0 0 10; -fx-background-radius: 8;"/>
+            <!-- Événements -->
+            <Button text="  📅  Événements"
+                    onAction="#naviguerEvenements"
+                    maxWidth="Infinity" alignment="BASELINE_LEFT" prefHeight="45.0"
+                    style="-fx-background-color: transparent; -fx-text-fill: #b0bec5;
+                           -fx-cursor: hand; -fx-font-size: 14px;
+                           -fx-padding: 0 0 0 10; -fx-background-radius: 8;"/>
 
-                <!-- Utilisateurs -->
-                <Button text="  👥  Utilisateurs"
-                        onAction="#naviguerUsers"
-                        maxWidth="Infinity"
-                        alignment="BASELINE_LEFT"
-                        prefHeight="45.0"
-                        style="-fx-background-color: transparent; -fx-text-fill: #b0bec5; -fx-cursor: hand; -fx-font-size: 14px; -fx-padding: 0 0 0 10; -fx-background-radius: 8;"/>
+            <!-- Utilisateurs -->
+            <Button text="  👥  Utilisateurs"
+                    onAction="#naviguerUsers"
+                    maxWidth="Infinity" alignment="BASELINE_LEFT" prefHeight="45.0"
+                    style="-fx-background-color: transparent; -fx-text-fill: #b0bec5;
+                           -fx-cursor: hand; -fx-font-size: 14px;
+                           -fx-padding: 0 0 0 10; -fx-background-radius: 8;"/>
 
-                <Region VBox.vgrow="ALWAYS"/>
+            <Region VBox.vgrow="ALWAYS"/>
 
-                <Separator opacity="0.15"/>
+            <Separator opacity="0.15"/>
 
-                <!-- Déconnexion -->
-                <Button text="⚪  Déconnexion"
-                        onAction="#deconnexion"
-                        maxWidth="Infinity"
-                        alignment="CENTER"
-                        prefHeight="45.0"
-                        style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-cursor: hand; -fx-font-size: 14px; -fx-font-weight: bold; -fx-background-radius: 8;"/>
-            </children>
+            <!-- Déconnexion -->
+            <Button text="⚪  Déconnexion"
+                    onAction="#deconnexion"
+                    maxWidth="Infinity" alignment="CENTER" prefHeight="45.0"
+                    style="-fx-background-color: #e74c3c; -fx-text-fill: white;
+                           -fx-cursor: hand; -fx-font-size: 14px; -fx-font-weight: bold;
+                           -fx-background-radius: 8;"/>
         </VBox>
     </left>
 
-    <!-- ================= CENTER ================= -->
+    <!-- ═══════════════════  CENTER  ═══════════════════ -->
     <center>
         <VBox spacing="40" alignment="CENTER" style="-fx-padding: 40;">
-            <children>
 
-                <Text text="Module Gestion Matériels"
-                      fill="#2C3E50">
-                    <font>
-                        <Font name="System Bold" size="28"/>
-                    </font>
-                </Text>
+            <Text text="Module Gestion Matériels" fill="#2C3E50">
+                <font><Font name="System Bold" size="28"/></font>
+            </Text>
 
-                <HBox spacing="40" alignment="CENTER">
+            <HBox spacing="40" alignment="CENTER">
 
-                    <!-- MACHINES -->
-                    <VBox spacing="15" alignment="CENTER"
-                          onMouseClicked="#ouvrirMachines"
-                          prefWidth="200.0"
-                          prefHeight="200.0"
-                          style="-fx-background-color: white;
-                                 -fx-padding: 25;
-                                 -fx-border-radius: 10;
-                                 -fx-background-radius: 10;
-                                 -fx-cursor: hand;
-                                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 10, 0, 0, 3);
-                                 -fx-border-color: #e0e0e0;
-                                 -fx-border-width: 1;">
-                        <children>
-                            <Text text="🚜" style="-fx-font-size: 64px;"/>
-                            <Text text="Machines"
-                                  style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-fill: #2C3E50;"/>
-                            <Text text="Gérer les machines agricoles"
-                                  style="-fx-font-size: 12px; -fx-fill: #7f8c8d;"/>
-                        </children>
-                    </VBox>
+                <!-- MACHINES -->
+                <VBox spacing="15" alignment="CENTER"
+                      onMouseClicked="#ouvrirMachines"
+                      prefWidth="200.0" prefHeight="200.0"
+                      style="-fx-background-color: white; -fx-padding: 25;
+                             -fx-border-radius: 10; -fx-background-radius: 10;
+                             -fx-cursor: hand;
+                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 10, 0, 0, 3);
+                             -fx-border-color: #e0e0e0; -fx-border-width: 1;">
+                    <Text text="🚜" style="-fx-font-size: 64px;"/>
+                    <Text text="Machines"
+                          style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-fill: #2C3E50;"/>
+                    <Text text="Gérer les machines agricoles"
+                          style="-fx-font-size: 12px; -fx-fill: #7f8c8d;"/>
+                </VBox>
 
-                    <!-- MAINTENANCES -->
-                    <VBox spacing="15" alignment="CENTER"
-                          onMouseClicked="#ouvrirMaintenances"
-                          prefWidth="200.0"
-                          prefHeight="200.0"
-                          style="-fx-background-color: white;
-                                 -fx-padding: 25;
-                                 -fx-border-radius: 10;
-                                 -fx-background-radius: 10;
-                                 -fx-cursor: hand;
-                                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 10, 0, 0, 3);
-                                 -fx-border-color: #e0e0e0;
-                                 -fx-border-width: 1;">
-                        <children>
-                            <Text text="🔧" style="-fx-font-size: 64px;"/>
-                            <Text text="Maintenances"
-                                  style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-fill: #2C3E50;"/>
-                            <Text text="Planifier les maintenances"
-                                  style="-fx-font-size: 12px; -fx-fill: #7f8c8d;"/>
-                        </children>
-                    </VBox>
+                <!-- MAINTENANCES -->
+                <VBox spacing="15" alignment="CENTER"
+                      onMouseClicked="#ouvrirMaintenances"
+                      prefWidth="200.0" prefHeight="200.0"
+                      style="-fx-background-color: white; -fx-padding: 25;
+                             -fx-border-radius: 10; -fx-background-radius: 10;
+                             -fx-cursor: hand;
+                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 10, 0, 0, 3);
+                             -fx-border-color: #e0e0e0; -fx-border-width: 1;">
+                    <Text text="🔧" style="-fx-font-size: 64px;"/>
+                    <Text text="Maintenances"
+                          style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-fill: #2C3E50;"/>
+                    <Text text="Planifier les maintenances"
+                          style="-fx-font-size: 12px; -fx-fill: #7f8c8d;"/>
+                </VBox>
 
-                    <!-- ACHATS -->
-                    <VBox spacing="15" alignment="CENTER"
-                          onMouseClicked="#ouvrirAchats"
-                          prefWidth="200.0"
-                          prefHeight="200.0"
-                          style="-fx-background-color: white;
-                                 -fx-padding: 25;
-                                 -fx-border-radius: 10;
-                                 -fx-background-radius: 10;
-                                 -fx-cursor: hand;
-                                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 10, 0, 0, 3);
-                                 -fx-border-color: #e0e0e0;
-                                 -fx-border-width: 1;">
-                        <children>
-                            <Text text="🛒" style="-fx-font-size: 64px;"/>
-                            <Text text="Achats"
-                                  style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-fill: #2C3E50;"/>
-                            <Text text="Suivre les achats"
-                                  style="-fx-font-size: 12px; -fx-fill: #7f8c8d;"/>
-                        </children>
-                    </VBox>
+                <!-- ACHATS -->
+                <VBox spacing="15" alignment="CENTER"
+                      onMouseClicked="#ouvrirAchats"
+                      prefWidth="200.0" prefHeight="200.0"
+                      style="-fx-background-color: white; -fx-padding: 25;
+                             -fx-border-radius: 10; -fx-background-radius: 10;
+                             -fx-cursor: hand;
+                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 10, 0, 0, 3);
+                             -fx-border-color: #e0e0e0; -fx-border-width: 1;">
+                    <Text text="🛒" style="-fx-font-size: 64px;"/>
+                    <Text text="Achats"
+                          style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-fill: #2C3E50;"/>
+                    <Text text="Suivre les achats"
+                          style="-fx-font-size: 12px; -fx-fill: #7f8c8d;"/>
+                </VBox>
 
-                </HBox>
+            </HBox>
 
-                <!-- Message d'information -->
-                <Text text="Cliquez sur une carte pour accéder au module correspondant"
-                      fill="#95a5a6"
-                      style="-fx-font-size: 14px; -fx-font-style: italic;"/>
+            <Text text="Cliquez sur une carte pour accéder au module correspondant"
+                  fill="#95a5a6" style="-fx-font-size: 14px; -fx-font-style: italic;"/>
 
-            </children>
         </VBox>
     </center>
 

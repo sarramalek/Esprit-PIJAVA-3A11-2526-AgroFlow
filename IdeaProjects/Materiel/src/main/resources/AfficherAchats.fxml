@@ -203,6 +203,11 @@
                         style="-fx-background-color: #e74c3c; -fx-text-fill: white;
                                -fx-font-size: 14px; -fx-font-weight: bold;
                                -fx-background-radius: 8; -fx-cursor: hand;"/>
+
+                <Button text="🛡️ Anti-Fraude" onAction="#ouvrirAntiFraude" prefHeight="32"
+                        style="-fx-background-color: #c0392b; -fx-text-fill: white;
+               -fx-font-size: 12px; -fx-font-weight: bold;
+               -fx-background-radius: 6; -fx-cursor: hand; -fx-padding: 0 12;"/>
             </HBox>
 
             <!-- ====== STATS BAS ====== -->
