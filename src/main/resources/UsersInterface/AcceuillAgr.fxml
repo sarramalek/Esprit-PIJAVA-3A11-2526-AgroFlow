@@ -46,7 +46,7 @@
                 </Label>
                 <!-- Hyperlink À Propos -->
                 <Hyperlink fx:id="aproposLink" text="👤 À propos de moi"
-                           onAction="#handleAPropos"
+                           onMouseClicked="#handleAPropos"
                            style="-fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 13px;
                                   -fx-border-color: rgba(255,255,255,0.4); -fx-padding: 5 15;
                                   -fx-background-radius: 20; -fx-border-radius: 20;
@@ -92,7 +92,7 @@
                         text="🚜  Mon Matériel">
                     <font><Font name="System Bold" size="14" /></font>
                 </Button>
-                <Button onAction="#handleMonAbonnement" prefHeight="48" prefWidth="230"
+                <Button onMouseClicked="#handleMonAbonnement" prefHeight="48" prefWidth="230"
                         style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
                                -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
                                -fx-background-radius: 12; -fx-cursor: hand;"
@@ -229,7 +229,7 @@
                             <font><Font name="System Bold" size="22" /></font>
                         </Label>
                         <Region HBox.hgrow="ALWAYS" />
-                        <Button onAction="#handleMonAbonnement"
+                        <Button onMouseClicked="#handleMonAbonnement"
                                 style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 13px;
                                        -fx-padding: 8 18; -fx-background-radius: 8; -fx-cursor: hand;"
                                 text="🔄 Actualiser">
