@@ -21,6 +21,7 @@ import models.User.offres;
 import services.User.AbonnementService;
 import services.User.OffresServicees;
 import services.User.PdfReportService;
+import utils.SessionManager;
 
 import java.awt.Desktop;
 import java.io.File;
@@ -38,6 +39,7 @@ public class GestionOffres {
     @FXML private Label  userNameLabel;
     @FXML private Label  totalOffresLabel, maxPrixLabel, avgPrixLabel;
     @FXML private TextField searchField;
+    @FXML private Label userRoleLabel;
 
     // PDF
     @FXML private Button pdfBtn;
@@ -63,6 +65,13 @@ public class GestionOffres {
     // ═══════════════════════════════════════════════════════════════
     @FXML
     public void initialize() {
+        // ✅ CORRECTION PRINCIPALE : récupérer le user depuis SessionManager dès initialize()
+        this.currentUser = SessionManager.getCurrentUser();
+        if (this.currentUser != null) {
+            System.out.println("✓ currentUser chargé depuis SessionManager: " + currentUser.getNom());
+        } else {
+            System.err.println("✗ SessionManager.getCurrentUser() est NULL !");
+        }
         gestionSubmenu.setVisible(false);
         gestionSubmenu.setManaged(false);
         gestionBtn.setOnMouseEntered(e -> showGestionSubmenu());
@@ -87,6 +96,30 @@ public class GestionOffres {
         currentUser = user;
         if (user != null) userNameLabel.setText(user.getPrenom() + " " + user.getNom());
     }
+    /**
+     * Met à jour les labels nom/rôle dans la sidebar.
+     */
+    private void updateUserLabels() {
+        if (currentUser == null) return;
+
+        if (userNameLabel != null)
+            userNameLabel.setText(currentUser.getPrenom() + " " + currentUser.getNom());
+        else
+            System.err.println("✗ userNameLabel est NULL (non lié en FXML ?)");
+
+        if (userRoleLabel != null) {
+            String roleText = switch (currentUser.getRole()) {
+                case 1 -> "🌾 AGRICOLE";
+                case 2 -> "👷 EMPLOYÉ";
+                case 3 -> "👑 ADMIN";
+                default -> "Rôle inconnu";
+            };
+            userRoleLabel.setText(roleText);
+        } else {
+            System.err.println("✗ userRoleLabel est NULL (non lié en FXML ?)");
+        }
+    }
+
 
     // ═══════════════════════════════════════════════════════════════
     // PDF — génère une fiche offre avec le nombre d'abonnés
@@ -389,14 +422,27 @@ public class GestionOffres {
     @FXML private void handleEvents(MouseEvent e)     { navigateTo(e, "/G-Evenements/Accueil.fxml",                "Événements"); }
     @FXML private void handleMateriels(MouseEvent e)  { navigateTo(e, "/MaterielsInterface/AccueilMateriel.fxml",  "Matériels");  }
 
-    private void navigateTo(MouseEvent event, String path, String title) {
+    private void navigateTo(MouseEvent event, String fxmlPath, String title) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(path));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
+
+            // Transmettre currentUser si le contrôleur le supporte
+            Object controller = loader.getController();
+            if (controller instanceof GestionOffres dp) {
+                dp.setCurrentUser(this.currentUser);
+            }
+            // Ajoutez d'autres types si nécessaire
+
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            boolean max = stage.isMaximized();
-            stage.setScene(new Scene(root)); stage.setTitle(title); stage.setMaximized(max); stage.show();
-        } catch (IOException e) { e.printStackTrace(); }
+            boolean maximise = stage.isMaximized();
+            stage.setScene(new Scene(root));
+            stage.setTitle(title);
+            stage.setMaximized(maximise);
+            stage.show();
+        } catch (IOException e) {
+            System.err.println("Erreur navigation : " + fxmlPath);
+        }
     }
 
     @FXML
@@ -427,7 +473,40 @@ public class GestionOffres {
         alert.getButtonTypes().setAll(open, close);
         alert.showAndWait().ifPresent(btn -> { if (btn == open) try { Desktop.getDesktop().open(f); } catch (Exception e) {} });
     }
+    @FXML
+    private void handleMonProfil() {
+        System.out.println("👤 Ouverture Mon Profil...");
 
+        if (currentUser == null) {
+            showError("Erreur", "Session expirée. Veuillez vous reconnecter.");
+            return;
+        }
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/ProfilEmplye.fxml"));
+            Parent root = loader.load();
+
+            ProfilEmploye controller = loader.getController();
+            if (controller != null) {
+                controller.setCurrentUser(currentUser);
+                System.out.println("✓ Utilisateur passé au profil");
+            }
+
+            Stage stage = new Stage();
+            stage.setTitle("Mon Profil - Employé");
+            stage.setScene(new Scene(root, 1500, 700));
+            stage.setResizable(false);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.centerOnScreen();
+            stage.showAndWait();
+
+            System.out.println("✓ Modal profil fermée");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            showError("Erreur", "Impossible d'ouvrir le profil: " + e.getMessage());
+        }
+    }
     private void showGestionSubmenu() { gestionSubmenu.setVisible(true);  gestionSubmenu.setManaged(true);  }
     private void hideGestionSubmenu() { gestionSubmenu.setVisible(false); gestionSubmenu.setManaged(false); }
     private void safeLabel(Label l, String v) { if (l != null) l.setText(v); }

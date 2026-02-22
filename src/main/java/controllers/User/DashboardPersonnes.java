@@ -1,5 +1,5 @@
 package controllers.User;
-import javax.activation.*;  // Pour DataHandler et FileDataSource
+import javax.activation.*;
 
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
@@ -26,10 +26,6 @@ import javafx.geometry.Pos;
 import utils.SessionManager;
 import services.User.SmsService;
 
-
-
-import javafx.scene.control.*;
-import javafx.scene.layout.VBox;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -57,16 +53,16 @@ public class DashboardPersonnes {
     @FXML private Button tachesBtn;
     @FXML private Button logoutBtn;
     @FXML private Button addEmployeeBtn;
+    @FXML private Label  userRoleLabel;
     @FXML private Label  userNameLabel;
     @FXML private TextField searchField;
 
-    // Bouton PDF (à ajouter dans le FXML)
     @FXML private Button pdfBtn;
     @FXML private Label  selectedPersonLabel;
     private LogReportService logReportService;
 
     // Table
-    @FXML private TableView<Personne> employeeTable;
+    @FXML private TableView<Personne>            employeeTable;
     @FXML private TableColumn<Personne, String>  nomColumn;
     @FXML private TableColumn<Personne, String>  emailColumn;
     @FXML private TableColumn<Personne, Integer> roleColumn;
@@ -79,14 +75,14 @@ public class DashboardPersonnes {
     @FXML private DatePicker       dueDatePicker;
     @FXML private Button           assignTaskBtn;
 
-    private PersonneService    personneService;
-    private AbonnementService  abonnementService;
-    private PdfReportService   pdfReportService;
+    private PersonneService   personneService;
+    private AbonnementService abonnementService;
+    private PdfReportService  pdfReportService;
 
     private ObservableList<Personne> employeeList;
     private ObservableList<Personne> allPersonsList;
-    private Personne currentUser;
-    private Personne selectedPersonne;   // ← personne cliquée dans la table
+    private Personne currentUser;           // ← champ de classe, JAMAIS redéclaré en local
+    private Personne selectedPersonne;
     private String   currentFilter = "all";
 
     // ═══════════════════════════════════════════════════════════════════
@@ -97,9 +93,20 @@ public class DashboardPersonnes {
     public void initialize() {
         logReportService = new LogReportService();
 
+        // ✅ CORRECTION PRINCIPALE : récupérer le user depuis SessionManager dès initialize()
+        this.currentUser = SessionManager.getCurrentUser();
+        if (this.currentUser != null) {
+            System.out.println("✓ currentUser chargé depuis SessionManager: " + currentUser.getNom());
+        } else {
+            System.err.println("✗ SessionManager.getCurrentUser() est NULL !");
+        }
+
+        // Mise à jour des labels
+        updateUserLabels();
+
+        // Sous-menu
         gestionSubmenu.setVisible(false);
         gestionSubmenu.setManaged(false);
-
         gestionBtn.setOnMouseEntered(e -> showGestionSubmenu());
         gestionContainer.setOnMouseEntered(e -> showGestionSubmenu());
         gestionContainer.setOnMouseExited(e -> hideGestionSubmenu());
@@ -112,204 +119,162 @@ public class DashboardPersonnes {
             setupTable();
             loadEmployees();
             setupSearch();
-           // setupPdfButton();
 
         } catch (Exception e) {
             showError("Erreur d'initialisation", "Impossible de charger le dashboard");
             e.printStackTrace();
         }
     }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // GESTION DU USER COURANT
+    // ═══════════════════════════════════════════════════════════════════
+
+    /**
+     * Appelé depuis l'écran précédent pour passer le user.
+     * Met aussi à jour SessionManager pour cohérence globale.
+     */
+    public void setCurrentUser(Personne user) {
+        // ✅ CORRECTION : assigner le CHAMP de classe, pas une variable locale
+        this.currentUser = user;
+
+        if (user != null) {
+            SessionManager.setCurrentUser(user); // synchroniser le SessionManager
+            System.out.println("✓ setCurrentUser: " + user.getPrenom() + " " + user.getNom());
+            updateUserLabels();
+        } else {
+            System.err.println("✗ setCurrentUser appelé avec user NULL");
+        }
+    }
+
+    /**
+     * Met à jour les labels nom/rôle dans la sidebar.
+     */
+    private void updateUserLabels() {
+        if (currentUser == null) return;
+
+        if (userNameLabel != null)
+            userNameLabel.setText(currentUser.getPrenom() + " " + currentUser.getNom());
+        else
+            System.err.println("✗ userNameLabel est NULL (non lié en FXML ?)");
+
+        if (userRoleLabel != null) {
+            String roleText = switch (currentUser.getRole()) {
+                case 1 -> "🌾 AGRICOLE";
+                case 2 -> "👷 EMPLOYÉ";
+                case 3 -> "👑 ADMIN";
+                default -> "Rôle inconnu";
+            };
+            userRoleLabel.setText(roleText);
+        } else {
+            System.err.println("✗ userRoleLabel est NULL (non lié en FXML ?)");
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // PDF
+    // ═══════════════════════════════════════════════════════════════════
+
     @FXML
     private void handleExportPDF() {
-        // Récupérer la personne sélectionnée
         Personne selectedPerson = employeeTable.getSelectionModel().getSelectedItem();
-
         if (selectedPerson == null) {
-            showWarning("Aucune personne sélectionnée",
-                    "Veuillez sélectionner une personne dans le tableau.");
+            showWarning("Aucune personne sélectionnée", "Veuillez sélectionner une personne dans le tableau.");
             return;
         }
-
-        // Confirmation
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
         confirm.setTitle("Confirmation");
         confirm.setHeaderText("Générer l'historique des connexions");
         confirm.setContentText("Voulez-vous générer le rapport PDF pour " +
                 selectedPerson.getPrenom() + " " + selectedPerson.getNom() + " ?");
-
         Optional<ButtonType> result = confirm.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
             generatePDF(selectedPerson);
         }
     }
 
-    /**
-     * Génère le PDF
-     */
     private void generatePDF(Personne personne) {
         try {
-            // Ouvrir le dialogue de sauvegarde
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Enregistrer le rapport PDF");
-
-            // Nom de fichier par défaut
             String defaultFileName = String.format("Historique_Connexions_%s_%s_%s.pdf",
                     personne.getNom().replace(" ", "_"),
                     personne.getPrenom().replace(" ", "_"),
-                    LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"))
-            );
+                    LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")));
             fileChooser.setInitialFileName(defaultFileName);
+            fileChooser.getExtensionFilters().add(
+                    new FileChooser.ExtensionFilter("Fichiers PDF (*.pdf)", "*.pdf"));
 
-            // Filtre d'extension
-            FileChooser.ExtensionFilter extFilter =
-                    new FileChooser.ExtensionFilter("Fichiers PDF (*.pdf)", "*.pdf");
-            fileChooser.getExtensionFilters().add(extFilter);
-
-            // Dossier par défaut (Documents ou Bureau)
             String userHome = System.getProperty("user.home");
             File initialDir = new File(userHome, "Documents");
-            if (!initialDir.exists()) {
-                initialDir = new File(userHome, "Desktop");
-            }
-            if (initialDir.exists()) {
-                fileChooser.setInitialDirectory(initialDir);
-            }
+            if (!initialDir.exists()) initialDir = new File(userHome, "Desktop");
+            if (initialDir.exists()) fileChooser.setInitialDirectory(initialDir);
 
-            // Afficher le dialogue
             File file = fileChooser.showSaveDialog(pdfBtn.getScene().getWindow());
-
             if (file != null) {
-                // Afficher un indicateur de chargement
                 showProgress("Génération du PDF en cours...");
-
-                // Générer le PDF
                 boolean success = logReportService.generateLogHistoryPDF(personne, file.getAbsolutePath());
-
                 if (success) {
-                    showSuccess("PDF généré avec succès",
-                            "Le rapport a été enregistré à :\n" + file.getAbsolutePath());
-
-                    // Proposer d'ouvrir le fichier
+                    showSuccess("PDF généré avec succès", "Rapport enregistré à :\n" + file.getAbsolutePath());
                     Alert openAlert = new Alert(Alert.AlertType.CONFIRMATION);
                     openAlert.setTitle("Ouvrir le fichier");
                     openAlert.setHeaderText("PDF généré avec succès");
                     openAlert.setContentText("Voulez-vous ouvrir le fichier maintenant ?");
-
                     Optional<ButtonType> openResult = openAlert.showAndWait();
-                    if (openResult.isPresent() && openResult.get() == ButtonType.OK) {
-                        openPDF(file);
-                    }
+                    if (openResult.isPresent() && openResult.get() == ButtonType.OK) openPDF(file);
                 } else {
-                    showError("Erreur lors de la génération du PDF","erreur de generation du pdf historique ");
+                    showError("Erreur", "Impossible de générer le PDF.");
                 }
             }
-
         } catch (Exception e) {
-            showError("Erreur lors de la génération du PDF : " , e.getMessage());
+            showError("Erreur PDF", e.getMessage());
             e.printStackTrace();
         }
     }
 
-    /**
-     * Ouvre le PDF avec l'application par défaut
-     */
     private void openPDF(File file) {
         try {
-            if (java.awt.Desktop.isDesktopSupported()) {
+            if (java.awt.Desktop.isDesktopSupported())
                 java.awt.Desktop.getDesktop().open(file);
-            } else {
-                showWarning("Ouverture impossible",
-                        "Impossible d'ouvrir le fichier automatiquement.\n" +
-                                "Veuillez l'ouvrir manuellement à l'emplacement :\n" +
-                                file.getAbsolutePath());
-            }
+            else
+                showWarning("Ouverture impossible", "Ouvrez manuellement :\n" + file.getAbsolutePath());
         } catch (Exception e) {
-            showError("Erreur lors de l'ouverture du fichier","erreur de l'ouverture du fichier PDF ");
-            e.printStackTrace();
+            showError("Erreur ouverture", e.getMessage());
         }
     }
-    private void showWarning(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-    private void showProgress(String message) {
-        // Simple toast-like notification
-        Alert progress = new Alert(Alert.AlertType.INFORMATION);
-        progress.setTitle("En cours...");
-        progress.setHeaderText(null);
-        progress.setContentText(message);
-        progress.show();
 
-        // Auto-fermer après 2 secondes
-        new Thread(() -> {
-            try {
-                Thread.sleep(2000);
-                javafx.application.Platform.runLater(progress::close);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }).start();
-    }
     @FXML
     private void handleEmailPDF() throws IOException {
         Personne selected = employeeTable.getSelectionModel().getSelectedItem();
-
-        // Générer le PDF dans un fichier temporaire
+        if (selected == null) { showWarning("Sélection vide", "Veuillez sélectionner une personne."); return; }
         File tempFile = File.createTempFile("rapport_", ".pdf");
         logReportService.generateLogHistoryPDF(selected, tempFile.getAbsolutePath());
-
-        // Envoyer par email avec JavaMail
         EmailService.sendPDFAttachment(
                 selected.getEmail(),
                 "Votre historique de connexions",
                 "Veuillez trouver en pièce jointe votre historique.",
-                tempFile
-        );
-    }
-    // -------------------------------------------------------------------------------
-    public void setCurrentUser(Personne user) {
-        this.currentUser = user;
-        if (user != null) userNameLabel.setText(user.getPrenom() + " " + user.getNom());
+                tempFile);
     }
 
     @FXML
     private void handleExportStats() {
         PdfReportService pdfService = new PdfReportService();
-
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Enregistrer le rapport");
         fileChooser.setInitialFileName("rapport_stats_" +
                 LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")) + ".pdf");
-        fileChooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter("PDF Files", "*.pdf")
-        );
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
         File file = fileChooser.showSaveDialog(pdfBtn.getScene().getWindow());
-
         if (file != null) {
             try {
                 pdfService.generateStatistiquesPdf(file.getAbsolutePath());
                 showSuccess("Rapport exporté !");
             } catch (Exception e) {
-                showAlert("Erreur : " + e.getMessage());
+                showAlertSimple("Erreur : " + e.getMessage());
             }
         }
     }
-    private void showAlert(String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Erreur");
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
 
-    private void showSuccess(String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Succès");
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
     // ═══════════════════════════════════════════════════════════════════
     // TABLE
     // ═══════════════════════════════════════════════════════════════════
@@ -319,9 +284,7 @@ public class DashboardPersonnes {
             Personne p = cellData.getValue();
             return new javafx.beans.property.SimpleStringProperty(p.getPrenom() + " " + p.getNom());
         });
-
         emailColumn.setCellValueFactory(new PropertyValueFactory<>("email"));
-
         roleColumn.setCellValueFactory(new PropertyValueFactory<>("role"));
         roleColumn.setCellFactory(col -> new TableCell<Personne, Integer>() {
             @Override
@@ -339,9 +302,7 @@ public class DashboardPersonnes {
                 setStyle("-fx-text-fill:" + color + "; -fx-font-weight:bold;");
             }
         });
-
         dateColumn.setCellValueFactory(new PropertyValueFactory<>("date_creationcpt"));
-
         actionsColumn.setCellFactory(param -> new TableCell<>() {
             private final Button editBtn   = new Button("Modifier");
             private final Button deleteBtn = new Button("Supprimer");
@@ -359,17 +320,13 @@ public class DashboardPersonnes {
                 setGraphic(empty ? null : hbox);
             }
         });
-
-        // Highlight de la ligne sélectionnée
         employeeTable.setRowFactory(tv -> {
             TableRow<Personne> row = new TableRow<>();
             row.selectedProperty().addListener((obs, wasSelected, isSelected) -> {
-                if (isSelected) row.setStyle("-fx-background-color: #e8f5e9;");
-                else            row.setStyle("");
+                row.setStyle(isSelected ? "-fx-background-color: #e8f5e9;" : "");
             });
             return row;
         });
-
         employeeTable.setStyle("-fx-background-color:transparent;");
     }
 
@@ -379,11 +336,9 @@ public class DashboardPersonnes {
             allPersonsList = FXCollections.observableArrayList(personnes);
             employeeList   = FXCollections.observableArrayList(personnes);
             employeeTable.setItems(employeeList);
-
             ObservableList<String> names = FXCollections.observableArrayList();
             personnes.forEach(p -> names.add(p.getPrenom() + " " + p.getNom()));
             if (employeeComboBox != null) employeeComboBox.setItems(names);
-
         } catch (SQLException e) {
             showError("Erreur", "Impossible de charger les personnes");
             e.printStackTrace();
@@ -398,16 +353,15 @@ public class DashboardPersonnes {
         searchField.textProperty().addListener((obs, o, n) -> applyFilters());
     }
 
-    @FXML private void handleFilterAll()     { currentFilter = "all";     applyFilters(); updateFilterButtonStyles(); }
-    @FXML private void handleFilterAgricole(){ currentFilter = "agricole"; applyFilters(); updateFilterButtonStyles(); }
-    @FXML private void handleFilterEmploye() { currentFilter = "employe";  applyFilters(); updateFilterButtonStyles(); }
-    @FXML private void handleFilterAdmin()   { currentFilter = "admin";    applyFilters(); updateFilterButtonStyles(); }
+    @FXML private void handleFilterAll()      { currentFilter = "all";     applyFilters(); updateFilterButtonStyles(); }
+    @FXML private void handleFilterAgricole() { currentFilter = "agricole"; applyFilters(); updateFilterButtonStyles(); }
+    @FXML private void handleFilterEmploye()  { currentFilter = "employe";  applyFilters(); updateFilterButtonStyles(); }
+    @FXML private void handleFilterAdmin()    { currentFilter = "admin";    applyFilters(); updateFilterButtonStyles(); }
 
     private void applyFilters() {
         if (allPersonsList == null) return;
         String search = searchField.getText().toLowerCase();
         ObservableList<Personne> filtered = FXCollections.observableArrayList();
-
         for (Personne p : allPersonsList) {
             boolean matchSearch = search.isEmpty()
                     || (p.getNom()    != null && p.getNom().toLowerCase().contains(search))
@@ -425,13 +379,12 @@ public class DashboardPersonnes {
     }
 
     private void updateFilterButtonStyles() {
-        String active       = "-fx-background-color:#3498DB;-fx-text-fill:white;-fx-font-size:13px;-fx-padding:8 15;-fx-background-radius:5;-fx-cursor:hand;";
-        String inAll        = "-fx-background-color:transparent;-fx-border-color:#3498DB;-fx-border-width:2;-fx-text-fill:#3498DB;-fx-font-size:13px;-fx-padding:8 15;-fx-background-radius:5;-fx-cursor:hand;";
-        String inAgricole   = "-fx-background-color:transparent;-fx-border-color:#27AE60;-fx-border-width:2;-fx-text-fill:#27AE60;-fx-font-size:13px;-fx-padding:8 15;-fx-background-radius:5;-fx-cursor:hand;";
-        String inEmploye    = "-fx-background-color:transparent;-fx-border-color:#F39C12;-fx-border-width:2;-fx-text-fill:#F39C12;-fx-font-size:13px;-fx-padding:8 15;-fx-background-radius:5;-fx-cursor:hand;";
-        String inAdmin      = "-fx-background-color:transparent;-fx-border-color:#9B59B6;-fx-border-width:2;-fx-text-fill:#9B59B6;-fx-font-size:13px;-fx-padding:8 15;-fx-background-radius:5;-fx-cursor:hand;";
-
-        filterAllBtn.setStyle(currentFilter.equals("all")     ? active : inAll);
+        String active     = "-fx-background-color:#3498DB;-fx-text-fill:white;-fx-font-size:13px;-fx-padding:8 15;-fx-background-radius:5;-fx-cursor:hand;";
+        String inAll      = "-fx-background-color:transparent;-fx-border-color:#3498DB;-fx-border-width:2;-fx-text-fill:#3498DB;-fx-font-size:13px;-fx-padding:8 15;-fx-background-radius:5;-fx-cursor:hand;";
+        String inAgricole = "-fx-background-color:transparent;-fx-border-color:#27AE60;-fx-border-width:2;-fx-text-fill:#27AE60;-fx-font-size:13px;-fx-padding:8 15;-fx-background-radius:5;-fx-cursor:hand;";
+        String inEmploye  = "-fx-background-color:transparent;-fx-border-color:#F39C12;-fx-border-width:2;-fx-text-fill:#F39C12;-fx-font-size:13px;-fx-padding:8 15;-fx-background-radius:5;-fx-cursor:hand;";
+        String inAdmin    = "-fx-background-color:transparent;-fx-border-color:#9B59B6;-fx-border-width:2;-fx-text-fill:#9B59B6;-fx-font-size:13px;-fx-padding:8 15;-fx-background-radius:5;-fx-cursor:hand;";
+        filterAllBtn.setStyle(currentFilter.equals("all")      ? active : inAll);
         filterAgricoleBtn.setStyle(currentFilter.equals("agricole") ? active : inAgricole);
         filterEmployeBtn.setStyle(currentFilter.equals("employe")   ? active : inEmploye);
         filterAdminBtn.setStyle(currentFilter.equals("admin")       ? active : inAdmin);
@@ -442,7 +395,7 @@ public class DashboardPersonnes {
     // ═══════════════════════════════════════════════════════════════════
 
     @FXML
-    private void handleAddEmployee(MouseEvent event) {
+    private void handleAddEmployee() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/AjoutPersonne.fxml"));
             Parent root = loader.load();
@@ -461,24 +414,22 @@ public class DashboardPersonnes {
     }
 
     private void handleEditEmployee(Personne personne) {
-
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/ModifierPersonne.fxml"));
-                Parent root = loader.load();
-                ModifierPersonne controller = loader.getController();
-                controller.setDashboardController(this);
-                controller.setEmploye(personne);
-                Stage stage = new Stage();
-                stage.setTitle("Modifier l'Employé");
-                stage.setScene(new Scene(root, 550, 650));
-                stage.setResizable(false);
-                stage.initModality(Modality.APPLICATION_MODAL);
-                stage.centerOnScreen();
-                stage.showAndWait();
-            } catch (IOException e) {
-                showError("Erreur", "Impossible d'ouvrir le formulaire de modification");
-            }
-
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/ModifierPersonne.fxml"));
+            Parent root = loader.load();
+            ModifierPersonne controller = loader.getController();
+            controller.setDashboardController(this);
+            controller.setEmploye(personne);
+            Stage stage = new Stage();
+            stage.setTitle("Modifier l'Employé");
+            stage.setScene(new Scene(root, 550, 650));
+            stage.setResizable(false);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.centerOnScreen();
+            stage.showAndWait();
+        } catch (IOException e) {
+            showError("Erreur", "Impossible d'ouvrir le formulaire de modification");
+        }
     }
 
     private void handleDeleteEmployee(Personne personne) {
@@ -500,13 +451,25 @@ public class DashboardPersonnes {
     }
 
     // ═══════════════════════════════════════════════════════════════════
-    // NAVIGATION
+    // NAVIGATION  — utilise ActionEvent pour compatibilité FXML boutons
     // ═══════════════════════════════════════════════════════════════════
 
-    private void navigateTo(MouseEvent event, String fxmlPath, String title) {
+    private void navigateTo(ActionEvent event, String fxmlPath, String title) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
+
+            // Transmettre currentUser au nouveau contrôleur s'il le supporte
+            Object ctrl = loader.getController();
+            try {
+                ctrl.getClass().getMethod("setCurrentUser", Personne.class)
+                        .invoke(ctrl, this.currentUser);
+            } catch (NoSuchMethodException ignored) {
+                // Le contrôleur destination n'a pas de setCurrentUser, rien à faire
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             boolean maximise = stage.isMaximized();
             stage.setScene(new Scene(root));
@@ -514,36 +477,21 @@ public class DashboardPersonnes {
             stage.setMaximized(maximise);
             stage.show();
         } catch (IOException e) {
-            System.err.println("Erreur navigation : " + fxmlPath);
+            showError("Erreur navigation", "Impossible de charger : " + fxmlPath);
+            e.printStackTrace();
         }
     }
 
-    @FXML private void handleDashboard(MouseEvent event)    { navigateTo(event, "/UsersInterface/Acceuil.fxml",             "Accueil - AgroFlow"); }
-    @FXML private void handlePersonnes(MouseEvent event)    { navigateTo(event, "/UsersInterface/Acceuil.fxml",             "Personnes - AgroFlow"); }
-    @FXML private void handleTaches(MouseEvent event)       { navigateTo(event, "/UsersInterface/GestionTache.fxml",        "Tâches - AgroFlow"); }
-    @FXML private void handleAbonnements(MouseEvent event)  { navigateTo(event, "/UsersInterface/GestionAbonnements.fxml",  "Abonnements - AgroFlow"); }
-    @FXML private void handleOffres(MouseEvent event)       { navigateTo(event, "/UsersInterface/GestionOffre.fxml",        "Offres - AgroFlow"); }
-    @FXML private void handleAnimals(MouseEvent event)      { navigateTo(event, "/AnimalsInterface/AfficherAnimaux.fxml",   "Animaux - AgroFlow"); }
-    @FXML private void handleStocks(MouseEvent event)       { navigateTo(event, "/StocksInterface/afficherarticle.fxml",    "Stocks - AgroFlow"); }
-    @FXML private void handleTerrains(MouseEvent event)     { navigateTo(event, "/TerrainsInterface/acceuilterrain.fxml",   "Terrains - AgroFlow"); }
-    @FXML private void handleEvents(MouseEvent event)       { navigateTo(event, "/G-Evenements/Accueil.fxml",               "Événements - AgroFlow"); }
-    @FXML private void handleMateriels(MouseEvent event)    { navigateTo(event, "/MaterielsInterface/AccueilMateriel.fxml", "Matériels - AgroFlow"); }
-
-    @FXML
-    private void handleTaches() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/GestionTache.fxml"));
-            Parent root = loader.load();
-            GestionTache controller = loader.getController();
-            if (currentUser != null) controller.setCurrentUser(currentUser);
-            Stage stage = (Stage) dashboardBtn.getScene().getWindow();
-            stage.setScene(new Scene(root, 1200, 700));
-            stage.setTitle("AgroFlow - Gestion des Tâches");
-            stage.setMaximized(true);
-        } catch (IOException e) {
-            showError("Erreur", "Impossible de charger la gestion des tâches");
-        }
-    }
+    @FXML private void handleDashboard(ActionEvent e)    { navigateTo(e, "/UsersInterface/Acceuil.fxml",             "Accueil - AgroFlow"); }
+    @FXML private void handlePersonnes(ActionEvent e)    { navigateTo(e, "/UsersInterface/Acceuil.fxml",             "Personnes - AgroFlow"); }
+    @FXML private void handleTaches(ActionEvent e)       { navigateTo(e, "/UsersInterface/GestionTache.fxml",        "Tâches - AgroFlow"); }
+    @FXML private void handleAbonnements(ActionEvent e)  { navigateTo(e, "/UsersInterface/GestionAbonnements.fxml",  "Abonnements - AgroFlow"); }
+    @FXML private void handleOffres(ActionEvent e)       { navigateTo(e, "/UsersInterface/GestionOffre.fxml",        "Offres - AgroFlow"); }
+    @FXML private void handleAnimals(ActionEvent e)      { navigateTo(e, "/AnimalsInterface/AfficherAnimaux.fxml",   "Animaux - AgroFlow"); }
+    @FXML private void handleStocks(ActionEvent e)       { navigateTo(e, "/StocksInterface/afficherarticle.fxml",    "Stocks - AgroFlow"); }
+    @FXML private void handleTerrains(ActionEvent e)     { navigateTo(e, "/TerrainsInterface/acceuilterrain.fxml",   "Terrains - AgroFlow"); }
+    @FXML private void handleEvents(ActionEvent e)       { navigateTo(e, "/G-Evenements/Accueil.fxml",               "Événements - AgroFlow"); }
+    @FXML private void handleMateriels(ActionEvent e)    { navigateTo(e, "/MaterielsInterface/AccueilMateriel.fxml", "Matériels - AgroFlow"); }
 
     @FXML
     private void handleLogout() {
@@ -551,6 +499,7 @@ public class DashboardPersonnes {
         alert.setTitle("Déconnexion");
         alert.setContentText("Voulez-vous vraiment vous déconnecter ?");
         alert.showAndWait().filter(r -> r == ButtonType.OK).ifPresent(r -> {
+            SessionManager.setCurrentUser(null); // ✅ vider la session
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/login.fxml"));
                 Parent root = loader.load();
@@ -586,7 +535,7 @@ public class DashboardPersonnes {
         operationsSubmenu.setVisible(!operationsSubmenu.isVisible());
         operationsToggle.setText(operationsSubmenu.isVisible() ? "🚜  Opérations ▼" : "🚜  Opérations ▶");
     }
-    @FXML private void handleGestion(MouseEvent event) { /* Vue principale Gestion */ }
+    @FXML private void handleGestion() { /* Vue principale Gestion */ }
     private void showGestionSubmenu() { gestionSubmenu.setVisible(true);  gestionSubmenu.setManaged(true);  }
     private void hideGestionSubmenu() { gestionSubmenu.setVisible(false); gestionSubmenu.setManaged(false); }
 
@@ -596,9 +545,9 @@ public class DashboardPersonnes {
 
     @FXML
     private void handleAssignTask() {
-        String employee   = employeeComboBox.getValue();
+        String employee    = employeeComboBox.getValue();
         String description = taskDescriptionField.getText();
-        LocalDate dueDate = dueDatePicker.getValue();
+        LocalDate dueDate  = dueDatePicker.getValue();
         if (employee == null || description.isEmpty() || dueDate == null) {
             showError("Erreur", "Veuillez remplir tous les champs");
             return;
@@ -613,36 +562,26 @@ public class DashboardPersonnes {
     public void handleRefresh(ActionEvent e) { loadEmployees(); }
 
     // ═══════════════════════════════════════════════════════════════════
-    // ALERTES
+    // 2FA
     // ═══════════════════════════════════════════════════════════════════
-
-    private void showError(String title, String msg)   { alert(Alert.AlertType.ERROR,       title, msg); }
-    private void showSuccess(String title, String msg) { alert(Alert.AlertType.INFORMATION, title, msg); }
-    private void showInfo(String title, String msg)    { alert(Alert.AlertType.INFORMATION, title, msg); }
-    private void alert(Alert.AlertType type, String title, String msg) {
-        Alert a = new Alert(type);
-        a.setTitle(title);
-        a.setHeaderText(null);
-        a.setContentText(msg);
-        a.showAndWait();
-    }
 
     @FXML
     private void handleNavigateToSettings2FA(MouseEvent event) {
         try {
-            Personne currentUser = SessionManager.getCurrentUser();
+            // ✅ Utiliser this.currentUser (déjà chargé) plutôt que SessionManager ici
+            if (currentUser == null) {
+                showAlert(Alert.AlertType.ERROR, "Erreur", "Session expirée.");
+                return;
+            }
             String telephone = currentUser.getTel();
 
             if (telephone == null || telephone.isEmpty()) {
-                // Pas de numéro → aller directement sans vérification SMS
                 navigateToSettings2FA(event);
                 return;
             }
 
-            // Générer et envoyer OTP
             String otp = String.format("%06d", (int)(Math.random() * 999999));
             SessionManager.setTempOtp(otp);
-
             SmsService smsService = new SmsService();
             boolean sent = smsService.sendOtpCode(telephone, otp);
 
@@ -651,13 +590,11 @@ public class DashboardPersonnes {
                 return;
             }
 
-            // Masquer le numéro
             String masked = telephone.length() > 4
                     ? telephone.substring(0, telephone.length() - 4).replaceAll("\\d", "*")
                     + telephone.substring(telephone.length() - 4)
                     : telephone;
 
-            // Dialogue de saisie du code
             Dialog<String> dialog = new Dialog<>();
             dialog.setTitle("🔐 Vérification SMS");
             dialog.setHeaderText("Code envoyé au : " + masked);
@@ -669,12 +606,10 @@ public class DashboardPersonnes {
             TextField codeField = new TextField();
             codeField.setPromptText("000000");
             codeField.setMaxWidth(200);
-            codeField.setStyle(
-                    "-fx-font-family: 'Courier New'; -fx-font-size: 24px;" +
-                            "-fx-alignment: center; -fx-pref-height: 52px;" +
-                            "-fx-border-color: #52B788; -fx-border-radius: 8;" +
-                            "-fx-background-radius: 8; -fx-border-width: 2;"
-            );
+            codeField.setStyle("-fx-font-family: 'Courier New'; -fx-font-size: 24px;" +
+                    "-fx-alignment: center; -fx-pref-height: 52px;" +
+                    "-fx-border-color: #52B788; -fx-border-radius: 8;" +
+                    "-fx-background-radius: 8; -fx-border-width: 2;");
             codeField.textProperty().addListener((obs, o, n) -> {
                 if (!n.matches("\\d*")) codeField.setText(n.replaceAll("[^\\d]", ""));
                 if (n.length() > 6)     codeField.setText(n.substring(0, 6));
@@ -685,12 +620,10 @@ public class DashboardPersonnes {
             content.getChildren().addAll(
                     new Label("📱 Entrez le code reçu par SMS :"),
                     codeField,
-                    new Label("⏱  Valable 5 minutes")
-            );
+                    new Label("⏱  Valable 5 minutes"));
             dialog.getDialogPane().setContent(content);
 
             final String[] currentOtp = { otp };
-
             dialog.setResultConverter(btn -> {
                 if (btn == resendBtn) {
                     String newOtp = String.format("%06d", (int)(Math.random() * 999999));
@@ -711,10 +644,9 @@ public class DashboardPersonnes {
             dialog.showAndWait().ifPresent(code -> {
                 if (code.equals(currentOtp[0])) {
                     SessionManager.clearTempOtp();
-                    navigateToSettings2FA(event); // ✅ Accès autorisé
+                    navigateToSettings2FA(event);
                 } else {
-                    showAlert(Alert.AlertType.ERROR, "Code incorrect",
-                            "Le code SMS est invalide. Accès refusé.");
+                    showAlert(Alert.AlertType.ERROR, "Code incorrect", "Code SMS invalide. Accès refusé.");
                 }
             });
 
@@ -723,17 +655,86 @@ public class DashboardPersonnes {
         }
     }
 
-    // Navigation réelle vers Settings2FA
     private void navigateToSettings2FA(MouseEvent event) {
         Settings2FA settings = new Settings2FA();
         settings.launch();
     }
 
+    // ═══════════════════════════════════════════════════════════════════
+    // MON PROFIL
+    // ═══════════════════════════════════════════════════════════════════
+
+    @FXML
+    private void handleMonProfil() {
+        System.out.println("👤 Ouverture Mon Profil...");
+
+        // ✅ Toujours relire depuis SessionManager en cas de doute
+        if (currentUser == null) {
+            currentUser = SessionManager.getCurrentUser();
+        }
+
+        if (currentUser == null) {
+            showError("Erreur", "Session expirée. Veuillez vous reconnecter.");
+            return;
+        }
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/ProfilEmplye.fxml"));
+            Parent root = loader.load();
+            ProfilEmploye controller = loader.getController();
+            if (controller != null) {
+                controller.setCurrentUser(currentUser);
+                System.out.println("✓ Utilisateur passé au profil: " + currentUser.getNom());
+            }
+            Stage stage = new Stage();
+            stage.setTitle("Mon Profil");
+            stage.setScene(new Scene(root, 1500, 700));
+            stage.setResizable(false);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.centerOnScreen();
+            stage.showAndWait();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showError("Erreur", "Impossible d'ouvrir le profil: " + e.getMessage());
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // ALERTES
+    // ═══════════════════════════════════════════════════════════════════
+
+    private void showError(String title, String msg)   { alert(Alert.AlertType.ERROR,       title, msg); }
+    private void showSuccess(String title, String msg) { alert(Alert.AlertType.INFORMATION, title, msg); }
+    private void showInfo(String title, String msg)    { alert(Alert.AlertType.INFORMATION, title, msg); }
+    private void showWarning(String title, String msg) { alert(Alert.AlertType.WARNING,     title, msg); }
+    private void showSuccess(String msg)               { alert(Alert.AlertType.INFORMATION, "Succès", msg); }
+    private void showAlertSimple(String msg)           { alert(Alert.AlertType.ERROR,       "Erreur", msg); }
+
+    private void alert(Alert.AlertType type, String title, String msg) {
+        Alert a = new Alert(type);
+        a.setTitle(title);
+        a.setHeaderText(null);
+        a.setContentText(msg);
+        a.showAndWait();
+    }
+
     private void showAlert(Alert.AlertType type, String title, String content) {
-        Alert alert = new Alert(type);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-        alert.showAndWait();
+        alert(type, title, content);
+    }
+
+    private void showProgress(String message) {
+        Alert progress = new Alert(Alert.AlertType.INFORMATION);
+        progress.setTitle("En cours...");
+        progress.setHeaderText(null);
+        progress.setContentText(message);
+        progress.show();
+        new Thread(() -> {
+            try {
+                Thread.sleep(2000);
+                javafx.application.Platform.runLater(progress::close);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 }

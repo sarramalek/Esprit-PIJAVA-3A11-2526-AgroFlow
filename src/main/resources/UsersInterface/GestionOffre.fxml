@@ -5,7 +5,8 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<BorderPane  style="-fx-background-color: #fcf8e6;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.User.GestionOffres">
+<?import org.controlsfx.control.HyperlinkLabel?>
+<BorderPane style="-fx-background-color: #fcf8e6;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.User.GestionOffres">
 
     <!-- SIDEBAR MODERNISÉE -->
     <!-- SIDEBAR MODERNISÉE -->
@@ -142,6 +143,8 @@
                                 text="➕ Nouvelle offre">
                             <font><Font name="System" size="14" /></font>
                         </Button>
+                        <HyperlinkLabel onMouseClicked="#handleMonProfil" text="Mon Profil"/>
+
                         <Label fx:id="userNameLabel" style="-fx-font-size: 14px; -fx-text-fill: #2C3E50;" text="Admin">
                             <font><Font name="System" size="14" /></font>
                         </Label>
