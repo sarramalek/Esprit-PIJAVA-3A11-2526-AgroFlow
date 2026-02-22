@@ -4,14 +4,15 @@ import entities.plante;
 import utils.Mydatabase;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class PlanteService {
 
     private Connection connection;
 
     public PlanteService() {
-        // On récupère la connexion via ton Singleton
         connection = Mydatabase.getInstance().connection;
     }
 
@@ -23,7 +24,6 @@ public class PlanteService {
             pst.setString(2, p.getVariete());
             pst.setFloat(3, p.getBesoin_eau());
             pst.setInt(4, p.getCycle_jours());
-
             pst.executeUpdate();
             System.out.println("Plante '" + p.getNom_p() + "' ajoutée avec succès !");
         } catch (SQLException e) {
@@ -40,7 +40,6 @@ public class PlanteService {
             pst.setFloat(3, p.getBesoin_eau());
             pst.setInt(4, p.getCycle_jours());
             pst.setInt(5, p.getId_plante());
-
             pst.executeUpdate();
             System.out.println("Plante ID " + p.getId_plante() + " mise à jour !");
         } catch (SQLException e) {
@@ -60,13 +59,33 @@ public class PlanteService {
         }
     }
 
-    // --- AFFICHER TOUT ---
+    // --- SUPPRIMER AVEC ROTATIONS ---
+    public void supprimerAvecRotations(int id) {
+        try {
+            String deleteRotations = "DELETE FROM rotation WHERE id_plante = ?";
+            PreparedStatement pst1 = connection.prepareStatement(deleteRotations);
+            pst1.setInt(1, id);
+            int rotationsSupprimees = pst1.executeUpdate();
+            System.out.println(rotationsSupprimees + " rotation(s) supprimée(s)");
+
+            String deletePlante = "DELETE FROM plante WHERE id_plante = ?";
+            PreparedStatement pst2 = connection.prepareStatement(deletePlante);
+            pst2.setInt(1, id);
+            pst2.executeUpdate();
+
+            System.out.println("Plante et ses rotations supprimées !");
+        } catch (SQLException e) {
+            System.out.println("Erreur supprimerAvecRotations : " + e.getMessage());
+            throw new RuntimeException("Impossible de supprimer la plante.");
+        }
+    }
+
+    // --- AFFICHER TOUTES ---
     public List<plante> afficherToutes() {
         List<plante> plantes = new ArrayList<>();
         String query = "SELECT * FROM plante";
         try (Statement st = connection.createStatement();
              ResultSet rs = st.executeQuery(query)) {
-
             while (rs.next()) {
                 plantes.add(new plante(
                         rs.getInt("id_plante"),
@@ -81,16 +100,15 @@ public class PlanteService {
         }
         return plantes;
     }
+
     // --- RECHERCHER PAR NOM OU VARIÉTÉ ---
     public List<plante> rechercher(String motCle) {
         List<plante> plantes = new ArrayList<>();
         String query = "SELECT * FROM plante WHERE nom_p LIKE ? OR variete LIKE ?";
-
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             String pattern = "%" + motCle + "%";
             pst.setString(1, pattern);
             pst.setString(2, pattern);
-
             ResultSet rs = pst.executeQuery();
             while (rs.next()) {
                 plantes.add(new plante(
@@ -110,36 +128,19 @@ public class PlanteService {
     // --- TRIER ---
     public List<plante> trierPar(String critere) {
         List<plante> plantes = new ArrayList<>();
-        String orderBy = "";
-
+        String orderBy;
         switch (critere) {
-            case "Nom (A-Z)":
-                orderBy = "nom_p ASC";
-                break;
-            case "Nom (Z-A)":
-                orderBy = "nom_p DESC";
-                break;
-            case "Besoin en eau (croissant)":
-                orderBy = "besoin_eau ASC";
-                break;
-            case "Besoin en eau (décroissant)":
-                orderBy = "besoin_eau DESC";
-                break;
-            case "Cycle (court au long)":
-                orderBy = "cycle_jours ASC";
-                break;
-            case "Cycle (long au court)":
-                orderBy = "cycle_jours DESC";
-                break;
-            default:
-                orderBy = "id_plante ASC";
+            case "Nom (A-Z)":                  orderBy = "nom_p ASC";        break;
+            case "Nom (Z-A)":                  orderBy = "nom_p DESC";       break;
+            case "Besoin en eau (croissant)":  orderBy = "besoin_eau ASC";   break;
+            case "Besoin en eau (décroissant)":orderBy = "besoin_eau DESC";  break;
+            case "Cycle (court au long)":      orderBy = "cycle_jours ASC";  break;
+            case "Cycle (long au court)":      orderBy = "cycle_jours DESC"; break;
+            default:                           orderBy = "id_plante ASC";
         }
-
         String query = "SELECT * FROM plante ORDER BY " + orderBy;
-
         try (Statement st = connection.createStatement();
              ResultSet rs = st.executeQuery(query)) {
-
             while (rs.next()) {
                 plantes.add(new plante(
                         rs.getInt("id_plante"),
@@ -154,27 +155,77 @@ public class PlanteService {
         }
         return plantes;
     }
-    // --- SUPPRIMER AVEC ROTATIONS ---
-    public void supprimerAvecRotations(int id) {
-        try {
-            // 1. Supprimer d'abord toutes les rotations liées
-            String deleteRotations = "DELETE FROM rotation WHERE id_plante = ?";
-            PreparedStatement pst1 = connection.prepareStatement(deleteRotations);
-            pst1.setInt(1, id);
-            int rotationsSupprimees = pst1.executeUpdate();
-            System.out.println(rotationsSupprimees + " rotation(s) supprimée(s)");
 
-            // 2. Ensuite supprimer la plante
-            String deletePlante = "DELETE FROM plante WHERE id_plante = ?";
-            PreparedStatement pst2 = connection.prepareStatement(deletePlante);
-            pst2.setInt(1, id);
-            pst2.executeUpdate();
+    // ============================================================
+    // --- STATISTIQUES ---
+    // ============================================================
 
-            System.out.println("Plante et ses rotations supprimées !");
+    // Statistiques générales
+    public Map<String, Object> getStatistiques() {
+        Map<String, Object> stats = new LinkedHashMap<>();
+        String query = "SELECT " +
+                "COUNT(*) AS total, " +
+                "AVG(besoin_eau) AS moy_eau, " +
+                "MAX(besoin_eau) AS max_eau, " +
+                "MIN(besoin_eau) AS min_eau, " +
+                "AVG(cycle_jours) AS moy_cycle, " +
+                "MAX(cycle_jours) AS max_cycle, " +
+                "MIN(cycle_jours) AS min_cycle " +
+                "FROM plante";
+        try (Statement st = connection.createStatement();
+             ResultSet rs = st.executeQuery(query)) {
+            if (rs.next()) {
+                stats.put("Total de plantes",        rs.getInt("total"));
+                stats.put("Besoin eau moyen (L)",    String.format("%.2f", rs.getFloat("moy_eau")));
+                stats.put("Besoin eau maximum (L)",  rs.getFloat("max_eau"));
+                stats.put("Besoin eau minimum (L)",  rs.getFloat("min_eau"));
+                stats.put("Cycle moyen (jours)",     String.format("%.1f", rs.getFloat("moy_cycle")));
+                stats.put("Cycle maximum (jours)",   rs.getInt("max_cycle"));
+                stats.put("Cycle minimum (jours)",   rs.getInt("min_cycle"));
+            }
         } catch (SQLException e) {
-            System.out.println("Erreur supprimerAvecRotations : " + e.getMessage());
-            throw new RuntimeException("Impossible de supprimer la plante.");
+            System.out.println("Erreur Statistiques: " + e.getMessage());
         }
+        return stats;
     }
 
+    // Plante qui consomme le plus d'eau
+    public plante getPlanteMaxEau() {
+        String query = "SELECT * FROM plante ORDER BY besoin_eau DESC LIMIT 1";
+        try (Statement st = connection.createStatement();
+             ResultSet rs = st.executeQuery(query)) {
+            if (rs.next()) {
+                return new plante(
+                        rs.getInt("id_plante"),
+                        rs.getString("nom_p"),
+                        rs.getString("variete"),
+                        rs.getFloat("besoin_eau"),
+                        rs.getInt("cycle_jours")
+                );
+            }
+        } catch (SQLException e) {
+            System.out.println("Erreur getPlanteMaxEau: " + e.getMessage());
+        }
+        return null;
+    }
+
+    // Plante avec le cycle le plus long
+    public plante getPlanteMaxCycle() {
+        String query = "SELECT * FROM plante ORDER BY cycle_jours DESC LIMIT 1";
+        try (Statement st = connection.createStatement();
+             ResultSet rs = st.executeQuery(query)) {
+            if (rs.next()) {
+                return new plante(
+                        rs.getInt("id_plante"),
+                        rs.getString("nom_p"),
+                        rs.getString("variete"),
+                        rs.getFloat("besoin_eau"),
+                        rs.getInt("cycle_jours")
+                );
+            }
+        } catch (SQLException e) {
+            System.out.println("Erreur getPlanteMaxCycle: " + e.getMessage());
+        }
+        return null;
+    }
 }

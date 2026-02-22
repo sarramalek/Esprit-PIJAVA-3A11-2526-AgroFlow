@@ -3,7 +3,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<BorderPane  style="-fx-background-color: #fcf8e6;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.AjoutPlanteController">
+<BorderPane  prefHeight="805.0" prefWidth="1520.0" style="-fx-background-color: #fcf8e6;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.AjoutPlanteController">
 
     <left>
         <VBox prefWidth="230.0" spacing="5.0" style="-fx-background-color: #2C3E50; -fx-padding: 15;">

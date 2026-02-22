@@ -3,7 +3,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<BorderPane prefHeight="600.0" prefWidth="900.0" style="-fx-background-color: #fcf8e6;"
+<BorderPane prefHeight="805.0" prefWidth="1520.0" style="-fx-background-color: #fcf8e6;"
             xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="controllers.AjoutTerrainController">
