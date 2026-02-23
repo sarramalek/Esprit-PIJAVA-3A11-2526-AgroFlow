@@ -80,11 +80,7 @@ public class afficherarticleController {
         colQuantite.setCellValueFactory(new PropertyValueFactory<>("quantiteEnStock"));
         colUnite.setCellValueFactory(new PropertyValueFactory<>("uniteMesure"));
         colSeuil.setCellValueFactory(new PropertyValueFactory<>("seuilAlerte"));
-        colCategorie.setCellValueFactory(cellData -> {
-            try {
-                return new SimpleStringProperty(catService.getNomById(cellData.getValue().getIdCategorie()));
-            } catch (Exception e) { return new SimpleStringProperty("Inconnue"); }
-        });
+        colCategorie.setCellValueFactory(new PropertyValueFactory<>("nomCategorie"));
         configurerColonneActions();
     }
 
@@ -116,30 +112,35 @@ public class afficherarticleController {
 
             String catSel = cbFiltreCategorie.getValue();
             boolean matchesCat = true;
+
+            // MODIFICATION ICI : On compare directement avec le texte du ComboBox
             if (catSel != null && !catSel.equals("Toutes")) {
-                try {
-                    matchesCat = catService.getNomById(article.getIdCategorie()).equals(catSel);
-                } catch (SQLException e) { matchesCat = false; }
+                matchesCat = article.getNomCategorie().equals(catSel);
             }
+
             return matchesNom && matchesCat;
         });
         mettreAJourKPI();
     }
-
     private void mettreAJourKPI() {
+        // 1. On calcule le total et on filtre les articles en alerte
         int total = masterData.size();
         List<Article> alertes = masterData.stream()
                 .filter(a -> a.getQuantiteEnStock() <= a.getSeuilAlerte())
                 .collect(Collectors.toList());
 
+        // 2. Mise à jour des Labels de l'interface
         lblTotalArticles.setText(String.valueOf(total));
         lblNbAlertes.setText(String.valueOf(alertes.size()));
 
-        // AFFICHAGE UNIQUEMENT
+        // 3. Gestion de l'affichage du Warning (Le label clignotant)
         if (!alertes.isEmpty()) {
             lblWarning.setVisible(true);
             appliquerAnimationAlerte();
-            // NB: La boucle for avec EmailService a été SUPPRIMÉE d'ici.
+
+            // --- NOTE : LA BOUCLE D'ENVOI D'EMAIL A ÉTÉ SUPPRIMÉE D'ICI ---
+            // L'email est désormais géré par ArticleService.modifier()
+            // pour garantir qu'il ne s'envoie qu'une seule fois.
         } else {
             lblWarning.setVisible(false);
         }

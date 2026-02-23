@@ -1,6 +1,7 @@
 package controllers;
 
 import entities.Categorie;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -8,137 +9,153 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image; // Import nécessaire
+import javafx.scene.image.ImageView; // Import nécessaire
 import javafx.stage.Stage;
 import services.CategorieService;
+import services.ImageService; // Nouveau service
+import services.TranslatorService;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class ajoutercategorieController {
 
-    // --- ÉLÉMENTS INTERFACE (liés au fichier FXML via fx:id) ---
-    @FXML private TextField tfNom; // Champ de saisie pour le nom
-    @FXML private TextArea taDescription; // Champ de saisie pour la description
-    @FXML private Label lblTitre, msgNom, msgDescription; // Titre dynamique et messages d'erreur/succès
+    @FXML private TextField tfNom;
+    @FXML private TextArea taDescription;
+    @FXML private Label lblTitre, msgNom, msgDescription;
+    @FXML private Label lblTradEn, lblTradAr;
+    @FXML private ImageView imgPreview; // FXML ID pour l'image
 
-    // --- SERVICES ET VARIABLES D'ÉTAT ---
-    private final CategorieService catService = new CategorieService(); // Service pour interagir avec la DB
-    private boolean isModification = false; // Drapeau pour savoir si on AJOUTE ou si on MODIFIE
-    private int idCategorieActuel; // Stocke l'ID en cas de modification
+    private final CategorieService catService = new CategorieService();
+    private final TranslatorService translator = new TranslatorService();
+    private final ImageService imageService = new ImageService(); // Initialisation ImageService
 
-    /**
-     * initialize() : S'exécute automatiquement après le chargement du FXML.
-     * C'est ici qu'on prépare le comportement de la fenêtre.
-     */
+    private boolean isModification = false;
+    private int idCategorieActuel;
+    private String nomAnglais = "";
+    private String nomArabe = "";
+    private String imageUrl = ""; // Stocke l'URL récupérée
+
+    private Timer timerTraduction = new Timer();
+
     @FXML
     public void initialize() {
-        // Si c'est un nouvel ajout (pas une modif), on affiche les alertes rouges dès le début
         if (!isModification) {
-            afficherFeedback(msgNom, "⚠️ Veuillez remplir le nom (min 3 car.)", true);
-            afficherFeedback(msgDescription, "⚠️ Veuillez remplir la description (min 5 car.)", true);
+            afficherFeedback(msgNom, "⚠️ Remplir le nom (min 3 car.)", true);
+            afficherFeedback(msgDescription, "⚠️ Remplir la description (min 5 car.)", true);
         }
-
-        // On active les "Listeners" (écouteurs) pour surveiller ce que l'utilisateur tape
         ajouterEcouteurs();
     }
 
-    /**
-     * afficherFeedback : Gère le texte et la couleur des labels de validation.
-     * @param estErreur : Si vrai -> rouge, si faux -> vert.
-     */
     private void afficherFeedback(Label label, String texte, boolean estErreur) {
         label.setText(texte);
-        // Utilisation du CSS en ligne pour changer la couleur dynamiquement
         label.setStyle(estErreur ? "-fx-text-fill: #e74c3c; -fx-font-weight: bold;" : "-fx-text-fill: #27ae60; -fx-font-weight: bold;");
     }
 
-    /**
-     * ajouterEcouteurs : Surveille chaque frappe au clavier dans les champs.
-     */
     private void ajouterEcouteurs() {
-        // Validation du Nom pendant que l'utilisateur tape
         tfNom.textProperty().addListener((obs, old, newValue) -> {
             String val = newValue.trim();
-            if (val.isEmpty()) {
-                afficherFeedback(msgNom, "⚠️ Le nom est obligatoire", true);
-            } else if (val.length() < 3) {
-                afficherFeedback(msgNom, "⚠️ Trop court (min 3 car.)", true);
+
+            if (timerTraduction != null) {
+                timerTraduction.cancel();
+            }
+
+            if (val.length() < 3) {
+                afficherFeedback(msgNom, "⚠️ Trop court", true);
+                lblTradEn.setText("...");
+                lblTradAr.setText("...");
+                imgPreview.setImage(null);
             } else {
-                afficherFeedback(msgNom, "✅ Nom valide", false); // Devient vert
+                timerTraduction = new Timer();
+                timerTraduction.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        // 1. Appel API Traduction
+                        String anglais = translator.traduire(val, "en");
+                        String arabe = translator.traduire(val, "ar");
+
+                        // 2. Appel API Image (Pixabay) basé sur le nom anglais
+                        String fetchedImageUrl = imageService.chercherImage(anglais);
+
+                        Platform.runLater(() -> {
+                            nomAnglais = anglais;
+                            nomArabe = arabe;
+                            imageUrl = fetchedImageUrl; // Mise à jour de l'URL pour la DB
+
+                            if (lblTradEn != null) lblTradEn.setText(anglais);
+                            if (lblTradAr != null) lblTradAr.setText(arabe);
+
+                            // 3. Mise à jour de l'aperçu visuel
+                            if (imageUrl != null && !imageUrl.isEmpty()) {
+                                imgPreview.setImage(new Image(imageUrl));
+                            }
+
+                            afficherFeedback(msgNom, "✅ Validé", false);
+                        });
+                    }
+                }, 600);
             }
         });
 
-        // Validation de la Description pendant que l'utilisateur tape
         taDescription.textProperty().addListener((obs, old, newValue) -> {
             String val = newValue.trim();
-            if (val.isEmpty()) {
-                afficherFeedback(msgDescription, "⚠️ La description est obligatoire", true);
-            } else if (val.length() < 5) {
-                afficherFeedback(msgDescription, "⚠️ Trop courte (min 5 car.)", true);
+            if (val.length() < 5) {
+                afficherFeedback(msgDescription, "⚠️ Trop courte", true);
             } else {
-                afficherFeedback(msgDescription, "✅ Description valide", false); // Devient vert
+                afficherFeedback(msgDescription, "✅ Description valide", false);
             }
         });
     }
 
-    /**
-     * preparerModification : Appelée depuis la liste des catégories pour
-     * passer ce contrôleur en mode "Mise à jour".
-     */
     public void preparerModification(Categorie c) {
-        isModification = true; // On change l'état
-        lblTitre.setText("Modifier la Catégorie"); // On change le titre de la fenêtre
-        idCategorieActuel = c.getId(); // On garde l'ID pour savoir quelle ligne modifier en DB
-        tfNom.setText(c.getNom()); // On remplit le champ avec le nom actuel
-        taDescription.setText(c.getDescription()); // On remplit avec la description actuelle
+        isModification = true;
+        lblTitre.setText("Modifier la Catégorie");
+        idCategorieActuel = c.getId();
+        tfNom.setText(c.getNom());
+        taDescription.setText(c.getDescription());
+        this.nomAnglais = (c.getNomEn() != null) ? c.getNomEn() : "";
+        this.nomArabe = (c.getNomAr() != null) ? c.getNomAr() : "";
+        this.imageUrl = (c.getImageUrl() != null) ? c.getImageUrl() : "";
 
-        // On valide immédiatement les données chargées pour afficher les labels en vert
-        if (c.getNom().length() >= 3) afficherFeedback(msgNom, "✅ Nom valide", false);
-        if (c.getDescription().length() >= 5) afficherFeedback(msgDescription, "✅ Description valide", false);
+        if (c.getNom().length() >= 3) {
+            afficherFeedback(msgNom, "✅ Prêt à modifier", false);
+            if (lblTradEn != null) lblTradEn.setText(nomAnglais);
+            if (lblTradAr != null) lblTradAr.setText(nomArabe);
+            if (imageUrl != null && !imageUrl.isEmpty()) {
+                imgPreview.setImage(new Image(imageUrl));
+            }
+        }
     }
 
-    /**
-     * validerAjout : Action déclenchée par le bouton de validation.
-     */
     @FXML
     void validerAjout(ActionEvent event) {
         String nom = tfNom.getText().trim();
         String desc = taDescription.getText().trim();
-
-        // 1. Double sécurité : On vérifie les longueurs avant de toucher à la DB
         if (nom.length() < 3 || desc.length() < 5) {
             afficherAlerte(Alert.AlertType.WARNING, "Format invalide", "Veuillez respecter les contraintes.");
             return;
         }
-
         try {
-            // 2. Vérification de l'unicité du nom (Pour éviter les doublons)
             if (catService.existeDeja(nom) && !isModification) {
-                afficherFeedback(msgNom, "❌ Ce nom de catégorie existe déjà !", true);
+                afficherFeedback(msgNom, "❌ Ce nom existe déjà !", true);
                 return;
             }
 
-            // 3. Création de l'objet Categorie (ID=0 si ajout, ID réel si modif)
-            Categorie c = new Categorie(isModification ? idCategorieActuel : 0, nom, desc);
+            // CORRECTION : Passage de 6 paramètres au constructeur de Categorie
+            Categorie c = new Categorie(isModification ? idCategorieActuel : 0, nom, nomAnglais, nomArabe, desc, imageUrl);
 
-            // 4. Appel de la méthode correspondante du Service
-            if (isModification) {
-                catService.modifier(c);
-            } else {
-                catService.ajouter(c);
-            }
+            if (isModification) catService.modifier(c);
+            else catService.ajouter(c);
 
-            // 5. Retour automatique à la liste
             retourListe(event);
-
         } catch (SQLException | IOException e) {
             e.printStackTrace();
             afficherAlerte(Alert.AlertType.ERROR, "Erreur Système", "Problème d'accès à la base de données.");
         }
     }
 
-    /**
-     * retourListe : Change de scène pour revenir à l'affichage de la table.
-     */
     @FXML
     void retourListe(ActionEvent event) throws IOException {
         Parent root = FXMLLoader.load(getClass().getResource("/affichercategorie.fxml"));
@@ -146,7 +163,6 @@ public class ajoutercategorieController {
         stage.setScene(new Scene(root));
     }
 
-    // Fonction utilitaire pour afficher des Pop-up JavaFX
     private void afficherAlerte(Alert.AlertType type, String titre, String message) {
         Alert alert = new Alert(type);
         alert.setTitle(titre);

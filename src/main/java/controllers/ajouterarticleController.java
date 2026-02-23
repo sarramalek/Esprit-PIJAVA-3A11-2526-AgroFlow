@@ -127,6 +127,7 @@ public class ajouterarticleController {
         nomField.setPromptText("Nom (ex: Engrais)");
         TextArea descArea = new TextArea();
         descArea.setPromptText("Description...");
+        descArea.setPrefRowCount(3);
 
         // Labels de feedback
         Label msgNomPop = new Label("(!) Nom requis (min 3)");
@@ -138,7 +139,7 @@ public class ajouterarticleController {
         msgNomPop.setStyle(styleErreur);
         msgDescPop.setStyle(styleErreur);
 
-        // --- AJOUT DES ÉCOUTEURS EN TEMPS RÉEL ---
+        // --- ÉCOUTEURS EN TEMPS RÉEL ---
         nomField.textProperty().addListener((obs, old, nv) -> {
             if (nv.trim().length() >= 3) {
                 msgNomPop.setText("(OK) Nom valide");
@@ -159,32 +160,47 @@ public class ajouterarticleController {
             }
         });
 
-        VBox layout = new VBox(8, new Label("Nom :"), msgNomPop, nomField, new Label("Description :"), msgDescPop, descArea);
+        VBox layout = new VBox(10,
+                new Label("Nom de la catégorie :"), msgNomPop, nomField,
+                new Label("Description :"), msgDescPop, descArea
+        );
         layout.setPadding(new Insets(20));
         dialogPane.setContent(layout);
 
         ButtonType btnAjouter = new ButtonType("AJOUTER", ButtonBar.ButtonData.OK_DONE);
         dialogPane.getButtonTypes().addAll(btnAjouter, ButtonType.CANCEL);
 
+        // Désactivation du bouton tant que les critères ne sont pas remplis
         final Button btOk = (Button) dialogPane.lookupButton(btnAjouter);
 
-        // Vérification finale au clic
+        // Filtre pour bloquer l'ajout si invalide au clic
         btOk.addEventFilter(ActionEvent.ACTION, ae -> {
             if (nomField.getText().trim().length() < 3 || descArea.getText().trim().length() < 5) {
-                ae.consume(); // Bloque si c'est encore incorrect
+                ae.consume(); // Empêche la fermeture du dialogue
+                Alert alert = new Alert(Alert.AlertType.ERROR, "Veuillez respecter les longueurs minimales.");
+                alert.show();
             }
         });
 
         dialog.showAndWait().ifPresent(response -> {
             if (response == btnAjouter) {
                 try {
-                    catService.ajouter(new Categorie(0, nomField.getText().trim(), descArea.getText().trim()));
+                    // Création de l'objet Categorie
+                    Categorie nouvelleCat = new Categorie(0, nomField.getText().trim(), descArea.getText().trim());
+
+                    // Appel du service pour l'insertion SQL
+                    catService.ajouter(nouvelleCat);
+
+                    // RECHARGEMENT CRUCIAL : Met à jour le ComboBox cbCategories immédiatement
                     chargerCategories();
-                } catch (SQLException e) { e.printStackTrace(); }
+
+                    System.out.println("Nouvelle catégorie ajoutée et liste rafraîchie !");
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
         });
     }
-
     @FXML
     void deconnexion(ActionEvent event) {
         try {

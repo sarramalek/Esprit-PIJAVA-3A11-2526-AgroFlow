@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
@@ -13,7 +14,7 @@
                     <font><Font name="System Bold" size="24.0" /></font>
                     <VBox.margin><Insets bottom="20.0" left="20.0" top="30.0" /></VBox.margin>
                 </Label>
-                <Button alignment="BASELINE_LEFT" onAction="#retourListe" prefHeight="40.0" prefWidth="250.0" style="-fx-background-color: transparent; -fx-text-fill: white;" text="⬅ Retour à la liste">
+                <Button alignment="BASELINE_LEFT" onAction="#retourListe" prefHeight="40.0" prefWidth="250.0" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;" text="⬅ Retour à la liste">
                     <padding><Insets left="20.0" /></padding>
                 </Button>
             </children>
@@ -25,30 +26,72 @@
                     <font><Font name="System Bold" size="30.0" /></font>
                 </Label>
 
-                <GridPane vgap="20.0">
-                    <columnConstraints>
-                        <ColumnConstraints prefWidth="200.0" />
-                        <ColumnConstraints prefWidth="450.0" />
-                    </columnConstraints>
+                <HBox spacing="30.0" VBox.vgrow="ALWAYS">
                     <children>
-                        <Label text="Nom de catégorie :" GridPane.rowIndex="0"/>
-                        <VBox spacing="2.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                            <Label fx:id="msgNom" text="" style="-fx-font-size: 11px;"/>
-                            <TextField fx:id="tfNom" prefHeight="35.0" promptText="Ex: Engrais, Semences..." />
+                        <VBox spacing="20.0" HBox.hgrow="ALWAYS">
+                            <children>
+                                <VBox spacing="8.0">
+                                    <Label text="Nom de catégorie :" style="-fx-font-weight: bold; -fx-text-fill: #34495e;"/>
+                                    <TextField fx:id="tfNom" prefHeight="45.0" promptText="Ex: Engrais, Semences..." style="-fx-background-radius: 8; -fx-border-color: #bdc3c7; -fx-border-radius: 8; -fx-background-color: white;" />
+                                    <Label fx:id="msgNom" text="" style="-fx-font-size: 11px;"/>
+                                </VBox>
+
+                                <VBox spacing="8.0">
+                                    <Label text="Description :" style="-fx-font-weight: bold; -fx-text-fill: #34495e;"/>
+                                    <TextArea fx:id="taDescription" prefHeight="150.0" promptText="Détails sur la catégorie..." style="-fx-background-radius: 8; -fx-border-color: #bdc3c7; -fx-border-radius: 8; -fx-background-color: white;" wrapText="true" />
+                                    <Label fx:id="msgDescription" text="" style="-fx-font-size: 11px;"/>
+                                </VBox>
+
+                                <HBox spacing="15.0" style="-fx-padding: 10 0 0 0;">
+                                    <children>
+                                        <Button onAction="#validerAjout" prefHeight="45.0" prefWidth="180.0" style="-fx-background-color: #2d5a27; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;" text="CONFIRMER" />
+                                        <Button onAction="#retourListe" prefHeight="45.0" prefWidth="120.0" style="-fx-background-color: white; -fx-border-color: #34495e; -fx-border-radius: 8; -fx-background-radius: 8; -fx-cursor: hand; -fx-text-fill: #34495e;" text="ANNULER" />
+                                    </children>
+                                </HBox>
+                            </children>
                         </VBox>
 
-                        <Label text="Description :" GridPane.rowIndex="1" />
-                        <VBox spacing="2.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                            <Label fx:id="msgDescription" text="" style="-fx-font-size: 11px;"/>
-                            <TextArea fx:id="taDescription" prefHeight="100.0" promptText="Détails sur la catégorie..." wrapText="true" />
-                        </VBox>
-                    </children>
-                </GridPane>
+                        <VBox prefWidth="320.0" spacing="20.0">
+                            <children>
+                                <VBox spacing="15.0" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);">
+                                    <children>
+                                        <Label text="Traductions IA" textFill="#2d5a27">
+                                            <font><Font name="System Bold" size="16.0" /></font>
+                                        </Label>
+                                        <Separator />
+                                        <VBox spacing="12.0">
+                                            <children>
+                                                <HBox alignment="CENTER_LEFT" spacing="12.0" style="-fx-background-color: #f8f9fa; -fx-padding: 10; -fx-background-radius: 10; -fx-border-color: #e9ecef; -fx-border-radius: 10;">
+                                                    <Label text="🇬🇧" style="-fx-font-size: 20px;"/>
+                                                    <VBox>
+                                                        <Label text="Anglais" style="-fx-font-size: 10px; -fx-text-fill: #95a5a6; -fx-font-weight: bold;"/>
+                                                        <Label fx:id="lblTradEn" text="..." style="-fx-font-weight: bold; -fx-text-fill: #2c3e50; -fx-font-size: 14px;" wrapText="true" />
+                                                    </VBox>
+                                                </HBox>
+                                                <HBox alignment="CENTER_LEFT" spacing="12.0" style="-fx-background-color: #f8f9fa; -fx-padding: 10; -fx-background-radius: 10; -fx-border-color: #e9ecef; -fx-border-radius: 10;">
+                                                    <Label text="🇹🇳" style="-fx-font-size: 20px;"/>
+                                                    <VBox>
+                                                        <Label text="Arabe" style="-fx-font-size: 10px; -fx-text-fill: #95a5a6; -fx-font-weight: bold;"/>
+                                                        <Label fx:id="lblTradAr" text="..." style="-fx-font-weight: bold; -fx-text-fill: #2c3e50; -fx-font-size: 14px;" wrapText="true" />
+                                                    </VBox>
+                                                </HBox>
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </VBox>
 
-                <HBox spacing="20.0">
-                    <children>
-                        <Button onAction="#validerAjout" prefHeight="40.0" prefWidth="200.0" style="-fx-background-color: #2d5a27; -fx-text-fill: white; -fx-font-weight: bold;" text="CONFIRMER" />
-                        <Button onAction="#retourListe" prefHeight="40.0" prefWidth="120.0" style="-fx-background-color: white; -fx-border-color: #34495e;" text="ANNULER" />
+                                <VBox alignment="CENTER" spacing="12.0" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);">
+                                    <children>
+                                        <Label text="Aperçu Visuel" style="-fx-font-weight: bold; -fx-text-fill: #7f8c8d;"/>
+                                        <StackPane prefHeight="160.0" style="-fx-background-color: #ecf0f1; -fx-background-radius: 12; -fx-border-color: #bdc3c7; -fx-border-radius: 12; -fx-border-style: dashed;">
+                                            <children>
+                                                <ImageView fx:id="imgPreview" fitHeight="140.0" fitWidth="260.0" pickOnBounds="true" preserveRatio="true" />
+                                            </children>
+                                        </StackPane>
+                                    </children>
+                                </VBox>
+                            </children>
+                        </VBox>
                     </children>
                 </HBox>
             </children>

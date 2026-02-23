@@ -6,8 +6,8 @@ public class Article {
     private double quantiteEnStock;
     private double seuilAlerte;
     private String uniteMesure;
-    private int idCategorie; // L'attribut qui manquait
-
+    private int idCategorie;// L'attribut qui manquait
+    private String nomCategorie;
     // Constructeur vide (Indispensable pour charger les données de la DB)
     public Article() {}
 
@@ -47,8 +47,11 @@ public class Article {
     public int getIdCategorie() { return idCategorie; }
     public void setIdCategorie(int idCategorie) { this.idCategorie = idCategorie; }
 
+    public String getNomCategorie() { return nomCategorie; }
+    public void setNomCategorie(String nomCategorie) { this.nomCategorie = nomCategorie; }
+
     @Override
     public String toString() {
-        return "Article{" + "nom='" + nom + '\'' + ", stock=" + quantiteEnStock + '}';
+        return "Article{" + "nom='" + nom + '\'' + ", stock=" + quantiteEnStock + ", categorie=" + nomCategorie + '}';
     }
 }

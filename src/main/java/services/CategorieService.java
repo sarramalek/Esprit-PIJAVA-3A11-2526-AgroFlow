@@ -16,24 +16,29 @@ public class CategorieService implements IService<Categorie> {
     }
 
     @Override
-    public void ajouter(Categorie categorie) throws SQLException {
-        // Utilisation de Statement avec concaténation (comme ton exemple PersonneService)
-        String sql = "insert into categorie (nom, description) " +
-                "values('" + categorie.getNom() + "','" + categorie.getDescription() + "')";
-
-        Statement statement = connection.createStatement();
-        statement.executeUpdate(sql);
-        System.out.println("Catégorie ajoutée avec succès !");
+    public void ajouter(Categorie c) throws SQLException {
+        // Ajout de la colonne image_url dans la requête
+        String req = "INSERT INTO categorie (nom, nom_en, nom_ar, description, image_url) VALUES (?, ?, ?, ?, ?)";
+        PreparedStatement ps = connection.prepareStatement(req);
+        ps.setString(1, c.getNom());
+        ps.setString(2, c.getNomEn());
+        ps.setString(3, c.getNomAr());
+        ps.setString(4, c.getDescription());
+        ps.setString(5, c.getImageUrl()); // Ajout de l'URL de l'image
+        ps.executeUpdate();
     }
 
     @Override
     public void modifier(Categorie categorie) throws SQLException {
-        // Utilisation de PreparedStatement pour la mise à jour (plus sécurisé)
-        String sql = "update categorie set nom = ?, description = ? where id_categorie = ?";
+        // Mise à jour incluant les traductions et l'image_url
+        String sql = "UPDATE categorie SET nom = ?, nom_en = ?, nom_ar = ?, description = ?, image_url = ? WHERE id_categorie = ?";
         PreparedStatement ps = connection.prepareStatement(sql);
         ps.setString(1, categorie.getNom());
-        ps.setString(2, categorie.getDescription());
-        ps.setInt(3, categorie.getId());
+        ps.setString(2, categorie.getNomEn());
+        ps.setString(3, categorie.getNomAr());
+        ps.setString(4, categorie.getDescription());
+        ps.setString(5, categorie.getImageUrl());
+        ps.setInt(6, categorie.getId());
 
         ps.executeUpdate();
         System.out.println("Catégorie modifiée !");
@@ -41,7 +46,7 @@ public class CategorieService implements IService<Categorie> {
 
     @Override
     public void supprimer(int id) throws SQLException {
-        String sql = "delete from categorie where id_categorie = ?";
+        String sql = "DELETE FROM categorie WHERE id_categorie = ?";
         PreparedStatement ps = connection.prepareStatement(sql);
         ps.setInt(1, id);
         ps.executeUpdate();
@@ -50,7 +55,7 @@ public class CategorieService implements IService<Categorie> {
 
     @Override
     public List<Categorie> recuperer() throws SQLException {
-        String sql = "select * from categorie";
+        String sql = "SELECT * FROM categorie";
         Statement statement = connection.createStatement();
         ResultSet rs = statement.executeQuery(sql);
         List<Categorie> categories = new ArrayList<>();
@@ -59,37 +64,35 @@ public class CategorieService implements IService<Categorie> {
             Categorie c = new Categorie();
             c.setId(rs.getInt("id_categorie"));
             c.setNom(rs.getString("nom"));
+            c.setNomEn(rs.getString("nom_en"));
+            c.setNomAr(rs.getString("nom_ar"));
             c.setDescription(rs.getString("description"));
+            c.setImageUrl(rs.getString("image_url")); // Récupération de l'image
 
             categories.add(c);
         }
         return categories;
     }
-    public boolean existeDeja(String nom) throws SQLException {
-        // La requête compte combien de catégories ont déjà ce nom
-        String query = "SELECT COUNT(*) FROM categorie WHERE nom = ?";
 
+    public boolean existeDeja(String nom) throws SQLException {
+        String query = "SELECT COUNT(*) FROM categorie WHERE nom = ?";
         try (PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setString(1, nom);
-
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    // Si le compte est supérieur à 0, le nom existe déjà
                     return rs.getInt(1) > 0;
                 }
             }
         }
         return false;
     }
+
     public String getNomById(int id) throws SQLException {
         if (id <= 0) return "Non défini";
-
-        // REMPLACEZ 'id' PAR LE NOM RÉEL DE VOTRE COLONNE (ex: id_categorie)
         String query = "SELECT nom FROM categorie WHERE id_categorie = ?";
-
-        try (java.sql.PreparedStatement ps = connection.prepareStatement(query)) {
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setInt(1, id);
-            try (java.sql.ResultSet rs = ps.executeQuery()) {
+            try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return rs.getString("nom");
                 }
