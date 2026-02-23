@@ -68,7 +68,7 @@
                             <font><Font size="13.0" /></font>
                         </Label>
                         <ComboBox fx:id="comboTri" prefHeight="35.0" prefWidth="200.0"
-                                  promptText="Choisir un tri"
+                                  promptText="_____________________"
                                   style="-fx-border-color: #A8C69F; -fx-border-radius: 5; -fx-background-radius: 5; -fx-prompt-text-fill: #7f8c8d;" />
 
                         <Button onAction="#reinitialiserRecherche" prefHeight="35.0" prefWidth="100.0"

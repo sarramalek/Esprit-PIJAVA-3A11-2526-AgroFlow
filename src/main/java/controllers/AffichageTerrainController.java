@@ -1,6 +1,7 @@
 package controllers;
 
 import entities.terrain;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -13,17 +14,19 @@ import javafx.scene.chart.PieChart;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import services.ApiMeteoService;
 import services.TerrainService;
-import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
@@ -77,11 +80,8 @@ public class AffichageTerrainController implements Initializable {
 
     private void configurerRecherche() {
         txtRecherche.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue == null || newValue.trim().isEmpty()) {
-                chargerDonnees();
-            } else {
-                rechercherTerrains(newValue);
-            }
+            if (newValue == null || newValue.trim().isEmpty()) chargerDonnees();
+            else rechercherTerrains(newValue);
         });
     }
 
@@ -121,14 +121,94 @@ public class AffichageTerrainController implements Initializable {
     }
 
     // ============================================================
-    // STATISTIQUES EN GRAPHIQUE CERCLE (PIE CHART)
+    // MÉTÉO - Open-Meteo + Nominatim
+    // ============================================================
+    @FXML
+    public void afficherMeteo(ActionEvent event) {
+        terrain terrainSelectionne = tableTerrains.getSelectionModel().getSelectedItem();
+
+        String localisation = (terrainSelectionne != null
+                && terrainSelectionne.getLocalisation() != null
+                && !terrainSelectionne.getLocalisation().isEmpty())
+                ? terrainSelectionne.getLocalisation()
+                : "Tunis, Tunisie";
+
+        // Chargement dans un thread séparé pour ne pas bloquer l'UI
+        new Thread(() -> {
+            try {
+                ApiMeteoService apiService = new ApiMeteoService();
+                ApiMeteoService.MeteoResult meteo = apiService.getMeteoParAdresse(localisation);
+
+                Platform.runLater(() -> {
+                    Stage stageMeteo = new Stage();
+                    stageMeteo.setTitle("🌤️ Météo - " + localisation);
+
+                    VBox vbox = new VBox(15);
+                    vbox.setStyle("-fx-padding: 25; -fx-background-color: #fcf8e6; -fx-alignment: center;");
+
+                    // Titre
+                    Label lblTitre = new Label("🌤️ Météo - " + localisation);
+                    lblTitre.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;");
+
+                    // Emoji + condition
+                    Label lblCondition = new Label(meteo.emoji + "  " + meteo.condition);
+                    lblCondition.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #2D5A27;");
+
+                    // Grille des données météo
+                    GridPane grid = new GridPane();
+                    grid.setHgap(25);
+                    grid.setVgap(10);
+                    grid.setStyle("-fx-padding: 15; -fx-background-color: white; -fx-background-radius: 10;");
+
+                    ajouterLigne(grid, 0, "🌡️ Température",    meteo.temperature + " °C");
+                    ajouterLigne(grid, 1, "💧 Humidité",        meteo.humidite + " %");
+                    ajouterLigne(grid, 2, "💨 Vent",            meteo.vent + " km/h");
+                    ajouterLigne(grid, 3, "🌧️ Précipitations",  meteo.precipitation + " mm");
+                    ajouterLigne(grid, 4, "📍 Coordonnées",
+                            String.format("%.4f, %.4f", meteo.latitude, meteo.longitude));
+
+                    // Conseil arrosage agricole
+                    Label lblConseil = new Label("💡 " + meteo.conseilArrosage);
+                    lblConseil.setStyle(
+                            "-fx-font-size: 13px; -fx-text-fill: #2D5A27; " +
+                                    "-fx-background-color: #A8C69F; -fx-padding: 12; " +
+                                    "-fx-background-radius: 8;");
+                    lblConseil.setWrapText(true);
+                    lblConseil.setMaxWidth(420);
+
+                    vbox.getChildren().addAll(lblTitre, lblCondition, grid, lblConseil);
+
+                    stageMeteo.setScene(new Scene(vbox, 470, 400));
+                    stageMeteo.show();
+                });
+
+            } catch (Exception e) {
+                Platform.runLater(() ->
+                        showAlert("❌ Erreur Météo",
+                                "Impossible de récupérer la météo :\n" + e.getMessage(),
+                                Alert.AlertType.ERROR));
+            }
+        }).start();
+    }
+
+    // Utilitaire grille
+    private void ajouterLigne(GridPane grid, int row, String label, String valeur) {
+        Label lbl = new Label(label);
+        lbl.setStyle("-fx-font-weight: bold; -fx-text-fill: #2C3E50; -fx-font-size: 13px;");
+        Label val = new Label(valeur);
+        val.setStyle("-fx-text-fill: #34495E; -fx-font-size: 13px;");
+        grid.add(lbl, 0, row);
+        grid.add(val, 1, row);
+    }
+
+    // ============================================================
+    // STATISTIQUES EN PIE CHART
     // ============================================================
     @FXML
     public void afficherStatistiques(ActionEvent event) {
         Map<String, Integer> repartition = ts.getRepartitionTypeSol();
-        Map<String, Object> stats       = ts.getStatistiques();
+        Map<String, Object>  stats       = ts.getStatistiques();
 
-        // ── PIE CHART répartition par type de sol ──
         ObservableList<PieChart.Data> pieData = FXCollections.observableArrayList();
         for (Map.Entry<String, Integer> entry : repartition.entrySet()) {
             pieData.add(new PieChart.Data(entry.getKey() + " (" + entry.getValue() + ")", entry.getValue()));
@@ -137,10 +217,8 @@ public class AffichageTerrainController implements Initializable {
         PieChart pieChart = new PieChart(pieData);
         pieChart.setTitle("Répartition par Type de Sol");
         pieChart.setLabelsVisible(true);
-        pieChart.setLegendVisible(true);
-        pieChart.setPrefSize(500, 400);
+        pieChart.setPrefSize(500, 380);
 
-        // ── Texte des stats générales ──
         StringBuilder sb = new StringBuilder();
         for (Map.Entry<String, Object> entry : stats.entrySet()) {
             sb.append(entry.getKey()).append(" : ").append(entry.getValue()).append("\n");
@@ -148,37 +226,49 @@ public class AffichageTerrainController implements Initializable {
         Text txtStats = new Text(sb.toString());
         txtStats.setFont(Font.font("System", 13));
 
-        // ── Fenêtre ──
         VBox vbox = new VBox(15, pieChart, txtStats);
         vbox.setStyle("-fx-padding: 20; -fx-background-color: #fcf8e6;");
 
         Stage stageChart = new Stage();
         stageChart.setTitle("📊 Statistiques des Terrains");
-        stageChart.setScene(new Scene(vbox, 550, 600));
+        stageChart.setScene(new Scene(vbox, 560, 600));
         stageChart.show();
     }
 
     // ============================================================
-    // CERTIFICAT PDF TERRAIN (INNOVANT)
+    // CERTIFICAT PDF
     // ============================================================
     @FXML
     public void exporterCertificat(ActionEvent event) {
         terrain terrainSelectionne = tableTerrains.getSelectionModel().getSelectedItem();
-
         if (terrainSelectionne == null) {
             showAlert("Attention", "Veuillez sélectionner un terrain pour générer son certificat.", Alert.AlertType.WARNING);
             return;
         }
 
-        // FileChooser pour choisir l'emplacement
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Enregistrer le Certificat PDF");
-        fileChooser.setInitialFileName("certificat_terrain_" + terrainSelectionne.getNom_terrain().replace(" ", "_") + ".pdf");
+        fileChooser.setInitialFileName("certificat_terrain_" +
+                terrainSelectionne.getNom_terrain().replace(" ", "_") + ".pdf");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Fichiers PDF", "*.pdf"));
 
         Stage stage = (Stage) tableTerrains.getScene().getWindow();
         java.io.File fichier = fileChooser.showSaveDialog(stage);
         if (fichier == null) return;
+
+        // ── RÉCUPÉRER LA MÉTÉO EN TEMPS RÉEL ──
+        ApiMeteoService.MeteoResult meteo = null;
+        try {
+            ApiMeteoService apiService = new ApiMeteoService();
+            String localisation = (terrainSelectionne.getLocalisation() != null
+                    && !terrainSelectionne.getLocalisation().isEmpty())
+                    ? terrainSelectionne.getLocalisation()
+                    : "Tunis, Tunisie";
+            meteo = apiService.getMeteoParAdresse(localisation);
+        } catch (Exception e) {
+            System.out.println("Météo non disponible : " + e.getMessage());
+            // On continue sans météo si l'API est indisponible
+        }
 
         try {
             PdfWriter writer   = new PdfWriter(new FileOutputStream(fichier));
@@ -186,66 +276,52 @@ public class AffichageTerrainController implements Initializable {
             Document document  = new Document(pdfDoc);
 
             // ── COULEURS ──
-            DeviceRgb vertFonce  = new DeviceRgb(45, 90, 39);   // #2D5A27
-            DeviceRgb vertClair  = new DeviceRgb(168, 198, 159); // #A8C69F
-            DeviceRgb beige      = new DeviceRgb(252, 248, 230); // #fcf8e6
-            DeviceRgb gris       = new DeviceRgb(44, 62, 80);    // #2C3E50
+            DeviceRgb vertFonce = new DeviceRgb(45, 90, 39);
+            DeviceRgb vertClair = new DeviceRgb(168, 198, 159);
+            DeviceRgb beige     = new DeviceRgb(252, 248, 230);
+            DeviceRgb gris      = new DeviceRgb(44, 62, 80);
+            DeviceRgb bleuCiel  = new DeviceRgb(52, 152, 219);
+            DeviceRgb orange    = new DeviceRgb(230, 126, 34);
 
-            // ── BORDURE DÉCORATIVE (tableau 1 cellule) ──
-            Table borderTable = new Table(UnitValue.createPercentArray(new float[]{100}))
-                    .useAllAvailableWidth();
+            // ── BORDURE DÉCORATIVE ──
+            Table borderTable = new Table(UnitValue.createPercentArray(new float[]{100})).useAllAvailableWidth();
             Cell borderCell = new Cell()
                     .setBorder(new SolidBorder(vertFonce, 4))
-                    .setBackgroundColor(beige)
-                    .setPadding(30);
+                    .setBackgroundColor(beige).setPadding(28);
 
-            // ── EN-TÊTE CERTIFICAT ──
+            // ── EN-TÊTE ──
             borderCell.add(new Paragraph("🌿 AGROFLOW")
-                    .setFontSize(13)
-                    .setFontColor(vertClair)
-                    .setTextAlignment(TextAlignment.CENTER)
-                    .setBold());
+                    .setFontSize(13).setFontColor(vertClair)
+                    .setTextAlignment(TextAlignment.CENTER).setBold());
 
             borderCell.add(new Paragraph("CERTIFICAT DE TERRAIN AGRICOLE")
-                    .setFontSize(26)
-                    .setFontColor(vertFonce)
-                    .setBold()
-                    .setTextAlignment(TextAlignment.CENTER)
-                    .setMarginTop(10)
-                    .setMarginBottom(5));
+                    .setFontSize(24).setFontColor(vertFonce).setBold()
+                    .setTextAlignment(TextAlignment.CENTER).setMarginTop(8).setMarginBottom(5));
 
-            // ── LIGNE DÉCORATIVE ──
+            // Ligne déco
             Table ligneDeco = new Table(UnitValue.createPercentArray(new float[]{100}))
-                    .useAllAvailableWidth()
-                    .setMarginBottom(20);
-            ligneDeco.addCell(new Cell()
-                    .setHeight(3)
-                    .setBackgroundColor(vertFonce)
-                    .setBorder(Border.NO_BORDER));
+                    .useAllAvailableWidth().setMarginBottom(15);
+            ligneDeco.addCell(new Cell().setHeight(3).setBackgroundColor(vertFonce).setBorder(Border.NO_BORDER));
             borderCell.add(ligneDeco);
 
-            // ── TEXTE INTRODUCTION ──
+            // Intro
             borderCell.add(new Paragraph(
                     "Il est certifié que le terrain agricole suivant est enregistré " +
                             "et validé dans le système de gestion AGROFLOW.")
-                    .setFontSize(12)
-                    .setFontColor(gris)
-                    .setTextAlignment(TextAlignment.CENTER)
-                    .setItalic()
-                    .setMarginBottom(25));
+                    .setFontSize(11).setFontColor(gris)
+                    .setTextAlignment(TextAlignment.CENTER).setItalic().setMarginBottom(18));
 
-            // ── NOM DU TERRAIN (mis en valeur) ──
+            // Nom du terrain
             borderCell.add(new Paragraph(terrainSelectionne.getNom_terrain().toUpperCase())
-                    .setFontSize(28)
-                    .setFontColor(vertFonce)
-                    .setBold()
-                    .setTextAlignment(TextAlignment.CENTER)
-                    .setMarginBottom(25));
+                    .setFontSize(26).setFontColor(vertFonce).setBold()
+                    .setTextAlignment(TextAlignment.CENTER).setMarginBottom(18));
 
-            // ── TABLEAU DES INFORMATIONS ──
+            // ── TABLEAU INFOS TERRAIN ──
+            borderCell.add(new Paragraph("Informations du Terrain")
+                    .setFontSize(13).setBold().setFontColor(vertFonce).setMarginBottom(6));
+
             Table infoTable = new Table(UnitValue.createPercentArray(new float[]{40, 60}))
-                    .useAllAvailableWidth()
-                    .setMarginBottom(25);
+                    .useAllAvailableWidth().setMarginBottom(18);
 
             String[][] infos = {
                     {"📍 Localisation",  terrainSelectionne.getLocalisation()},
@@ -256,65 +332,115 @@ public class AffichageTerrainController implements Initializable {
             };
 
             for (String[] info : infos) {
-                Cell labelCell = new Cell()
+                infoTable.addCell(new Cell()
                         .add(new Paragraph(info[0]).setBold().setFontColor(vertFonce))
-                        .setBackgroundColor(vertClair)
-                        .setPadding(8)
-                        .setBorder(new SolidBorder(vertFonce, 1));
-
-                Cell valueCell = new Cell()
+                        .setBackgroundColor(vertClair).setPadding(7)
+                        .setBorder(new SolidBorder(vertFonce, 1)));
+                infoTable.addCell(new Cell()
                         .add(new Paragraph(info[1]).setFontColor(gris))
-                        .setPadding(8)
-                        .setBorder(new SolidBorder(vertClair, 1));
-
-                infoTable.addCell(labelCell);
-                infoTable.addCell(valueCell);
+                        .setPadding(7).setBorder(new SolidBorder(vertClair, 1)));
             }
             borderCell.add(infoTable);
 
-            // ── QUALITÉ DU SOL (analyse pH) ──
+            // Analyse pH
             float ph = terrainSelectionne.getP_h();
-            String qualitePH;
-            if (ph < 6.0f)       qualitePH = "Sol acide - Convient aux myrtilles, pommes de terre";
-            else if (ph <= 7.0f) qualitePH = "Sol neutre - Idéal pour la majorité des cultures";
-            else                 qualitePH = "Sol basique - Convient aux asperges, choux";
+            String qualitePH = ph < 6.0f
+                    ? "Sol acide - Convient aux myrtilles, pommes de terre"
+                    : ph <= 7.0f
+                    ? "Sol neutre - Idéal pour la majorité des cultures"
+                    : "Sol basique - Convient aux asperges, choux";
 
-            borderCell.add(new Paragraph("Analyse du sol : " + qualitePH)
-                    .setFontSize(11)
-                    .setFontColor(gris)
-                    .setItalic()
-                    .setTextAlignment(TextAlignment.CENTER)
-                    .setMarginBottom(20));
+            borderCell.add(new Paragraph("Analyse : " + qualitePH)
+                    .setFontSize(10).setFontColor(gris).setItalic()
+                    .setTextAlignment(TextAlignment.CENTER).setMarginBottom(15));
 
-            // ── LIGNE DÉCORATIVE BAS ──
-            Table ligneDeco2 = new Table(UnitValue.createPercentArray(new float[]{100}))
-                    .useAllAvailableWidth()
-                    .setMarginBottom(15);
-            ligneDeco2.addCell(new Cell()
-                    .setHeight(3)
-                    .setBackgroundColor(vertFonce)
-                    .setBorder(Border.NO_BORDER));
-            borderCell.add(ligneDeco2);
+            // ── SECTION MÉTÉO (si disponible) ──
+            if (meteo != null) {
 
-            // ── DATE ET PIED DE PAGE ──
+                // Ligne séparatrice bleue
+                Table ligneMeteo = new Table(UnitValue.createPercentArray(new float[]{100}))
+                        .useAllAvailableWidth().setMarginBottom(10);
+                ligneMeteo.addCell(new Cell().setHeight(2).setBackgroundColor(bleuCiel).setBorder(Border.NO_BORDER));
+                borderCell.add(ligneMeteo);
+
+                // Titre météo
+                borderCell.add(new Paragraph("🌤️ Conditions Météo du Jour")
+                        .setFontSize(13).setBold().setFontColor(bleuCiel).setMarginBottom(6));
+
+                // Tableau météo (2 colonnes x 2 rangées)
+                Table meteoTable = new Table(UnitValue.createPercentArray(new float[]{25, 25, 25, 25}))
+                        .useAllAvailableWidth().setMarginBottom(10);
+
+                // Condition
+                meteoTable.addCell(new Cell()
+                        .add(new Paragraph("Condition").setBold().setFontColor(bleuCiel).setFontSize(10))
+                        .setBackgroundColor(new DeviceRgb(235, 245, 255))
+                        .setPadding(6).setBorder(new SolidBorder(bleuCiel, 1)));
+                meteoTable.addCell(new Cell()
+                        .add(new Paragraph(meteo.emoji + " " + meteo.condition).setFontColor(gris).setFontSize(10))
+                        .setPadding(6).setBorder(new SolidBorder(bleuCiel, 1)));
+
+                // Température
+                meteoTable.addCell(new Cell()
+                        .add(new Paragraph("Température").setBold().setFontColor(bleuCiel).setFontSize(10))
+                        .setBackgroundColor(new DeviceRgb(235, 245, 255))
+                        .setPadding(6).setBorder(new SolidBorder(bleuCiel, 1)));
+                meteoTable.addCell(new Cell()
+                        .add(new Paragraph(meteo.temperature + " °C").setFontColor(gris).setFontSize(10))
+                        .setPadding(6).setBorder(new SolidBorder(bleuCiel, 1)));
+
+                // Humidité
+                meteoTable.addCell(new Cell()
+                        .add(new Paragraph("Humidité").setBold().setFontColor(bleuCiel).setFontSize(10))
+                        .setBackgroundColor(new DeviceRgb(235, 245, 255))
+                        .setPadding(6).setBorder(new SolidBorder(bleuCiel, 1)));
+                meteoTable.addCell(new Cell()
+                        .add(new Paragraph(meteo.humidite + " %").setFontColor(gris).setFontSize(10))
+                        .setPadding(6).setBorder(new SolidBorder(bleuCiel, 1)));
+
+                // Vent
+                meteoTable.addCell(new Cell()
+                        .add(new Paragraph("Vent").setBold().setFontColor(bleuCiel).setFontSize(10))
+                        .setBackgroundColor(new DeviceRgb(235, 245, 255))
+                        .setPadding(6).setBorder(new SolidBorder(bleuCiel, 1)));
+                meteoTable.addCell(new Cell()
+                        .add(new Paragraph(meteo.vent + " km/h").setFontColor(gris).setFontSize(10))
+                        .setPadding(6).setBorder(new SolidBorder(bleuCiel, 1)));
+
+                borderCell.add(meteoTable);
+
+                // Conseil arrosage
+                DeviceRgb couleurConseil = meteo.temperature > 30
+                        ? orange   // orange si chaleur
+                        : vertFonce; // vert si normal
+
+                borderCell.add(new Paragraph("💡 " + meteo.conseilArrosage)
+                        .setFontSize(10).setFontColor(couleurConseil).setBold()
+                        .setTextAlignment(TextAlignment.CENTER)
+                        .setMarginBottom(15));
+            }
+
+            // ── PIED DE PAGE ──
+            Table ligneFin = new Table(UnitValue.createPercentArray(new float[]{100}))
+                    .useAllAvailableWidth().setMarginBottom(10);
+            ligneFin.addCell(new Cell().setHeight(3).setBackgroundColor(vertFonce).setBorder(Border.NO_BORDER));
+            borderCell.add(ligneFin);
+
             String dateStr = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy à HH:mm"));
             borderCell.add(new Paragraph("Délivré le : " + dateStr)
-                    .setFontSize(10)
-                    .setFontColor(gris)
-                    .setTextAlignment(TextAlignment.RIGHT));
+                    .setFontSize(10).setFontColor(gris).setTextAlignment(TextAlignment.RIGHT));
 
             borderCell.add(new Paragraph("AGROFLOW - Système de Gestion Agricole")
-                    .setFontSize(10)
-                    .setFontColor(vertClair)
-                    .setTextAlignment(TextAlignment.CENTER)
-                    .setItalic());
+                    .setFontSize(10).setFontColor(vertClair)
+                    .setTextAlignment(TextAlignment.CENTER).setItalic());
 
             borderTable.addCell(borderCell);
             document.add(borderTable);
             document.close();
 
             showAlert("✅ Certificat généré !",
-                    "Le certificat du terrain '" + terrainSelectionne.getNom_terrain() + "' a été exporté avec succès !",
+                    "Le certificat du terrain '" + terrainSelectionne.getNom_terrain() +
+                            "' avec météo a été exporté avec succès !",
                     Alert.AlertType.INFORMATION);
 
         } catch (Exception e) {
@@ -357,18 +483,14 @@ public class AffichageTerrainController implements Initializable {
             return;
         }
         Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION,
-                "⚠️ ATTENTION ⚠️\n\nSupprimer le terrain '" + terrainSelectionne.getNom_terrain() + "' ?\n\n" +
-                        "Cela supprimera aussi :\n• Toutes les rotations de ce terrain\n• L'historique des cultures\n\nLes plantes seront conservées.",
+                "⚠️ Supprimer le terrain '" + terrainSelectionne.getNom_terrain() + "' ?\n\n" +
+                        "Cela supprimera aussi toutes ses rotations.",
                 ButtonType.YES, ButtonType.NO);
         confirmation.showAndWait().ifPresent(response -> {
             if (response == ButtonType.YES) {
-                try {
-                    ts.supprimerAvecRotations(terrainSelectionne.getId_terrain());
-                    chargerDonnees();
-                    showAlert("Succès", "Terrain et ses rotations supprimés avec succès.", Alert.AlertType.INFORMATION);
-                } catch (RuntimeException e) {
-                    showAlert("Erreur", "Erreur lors de la suppression : " + e.getMessage(), Alert.AlertType.ERROR);
-                }
+                ts.supprimerAvecRotations(terrainSelectionne.getId_terrain());
+                chargerDonnees();
+                showAlert("Succès", "Terrain supprimé avec succès.", Alert.AlertType.INFORMATION);
             }
         });
     }
@@ -385,7 +507,6 @@ public class AffichageTerrainController implements Initializable {
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
-            showAlert("Erreur", "Impossible de charger la page d'ajout", Alert.AlertType.ERROR);
         }
     }
 
