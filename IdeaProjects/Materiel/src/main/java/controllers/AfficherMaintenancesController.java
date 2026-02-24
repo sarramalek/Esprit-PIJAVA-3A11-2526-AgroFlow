@@ -25,7 +25,6 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import services.MachineService;
 import services.MaintenanceApiService;
-import services.MaintenanceApiService.ResultatAlerte;
 import services.MaintenanceApiService.ResultatCout;
 import services.MaintenanceService;
 import utils.MyDatabase;
@@ -75,6 +74,10 @@ public class AfficherMaintenancesController implements Initializable {
     @FXML private Label lblPctMachine;
     @FXML private Label lblSelectionInfo;
 
+    // Nouvelle carte statistique
+    @FXML private Label lblTypeDominant;
+    @FXML private Label lblNbTypeDominant;
+
     // ── Services ─────────────────────────────────────────────────
     private MaintenanceService    maintenanceService;
     private MachineService        machineService;
@@ -103,7 +106,6 @@ public class AfficherMaintenancesController implements Initializable {
         chargerDonnees();
         configurerRecherche();
 
-        // Listener sélection tableau
         tableMaintenances.getSelectionModel().selectedItemProperty().addListener((o, ov, nv) -> {
             if (lblSelectionInfo != null) {
                 lblSelectionInfo.setText(nv != null
@@ -132,7 +134,6 @@ public class AfficherMaintenancesController implements Initializable {
         colDescription.setCellValueFactory(d ->
                 new SimpleStringProperty(d.getValue().getDescription()));
 
-        // Coloriage alternée + couleur si coût élevé
         tableMaintenances.setRowFactory(tv -> new TableRow<Maintenance>() {
             @Override protected void updateItem(Maintenance item, boolean empty) {
                 super.updateItem(item, empty);
@@ -165,7 +166,6 @@ public class AfficherMaintenancesController implements Initializable {
     }
 
     private void initialiserCombos() {
-        // Combo machines
         if (comboMachine != null) {
             comboMachine.getItems().clear();
             comboMachine.getItems().add("Toutes les machines");
@@ -174,7 +174,6 @@ public class AfficherMaintenancesController implements Initializable {
             comboMachine.getSelectionModel().selectFirst();
         }
 
-        // Combo types de panne
         if (comboTypePanne != null) {
             Set<String> types = new LinkedHashSet<>();
             types.add("Tous les types");
@@ -186,44 +185,47 @@ public class AfficherMaintenancesController implements Initializable {
     }
 
     // ═══════════════════════════════════════════════════════════
-    //  RECHERCHE / FILTRES / TRI
-    //  ← Toutes les méthodes référencées dans le FXML
+    //  RECHERCHE DYNAMIQUE
     // ═══════════════════════════════════════════════════════════
     private void configurerRecherche() {
-        if (champRecherche != null)
-            champRecherche.textProperty().addListener((o, ov, nv) -> appliquerFiltres());
+        if (champRecherche != null) {
+            // Recherche dynamique : déclenche le filtre à chaque frappe
+            champRecherche.textProperty().addListener((obs, oldVal, newVal) -> {
+                appliquerFiltres();
+            });
+        }
     }
 
-    @FXML private void rechercher()          { appliquerFiltres(); }
-    @FXML private void filtrer()             { appliquerFiltres(); }
+    @FXML private void rechercher() { appliquerFiltres(); }
+    @FXML private void filtrer()    { appliquerFiltres(); }
 
-    @FXML private void effacerRecherche() {
+    @FXML
+    private void effacerRecherche() {
         if (champRecherche != null) champRecherche.clear();
         appliquerFiltres();
     }
 
-    // ← Tri date
-    @FXML private void trierPlusRecent() { currentSort = SortMode.DATE_DESC; appliquerFiltres(); }
-    @FXML private void trierPlusAncien() { currentSort = SortMode.DATE_ASC;  appliquerFiltres(); }
-
-    // ← Tri coût  (noms exacts du FXML : trierCoutEleve / trierCoutFaible)
-    @FXML private void trierCoutEleve()  { currentSort = SortMode.COUT_DESC; appliquerFiltres(); }
-    @FXML private void trierCoutFaible() { currentSort = SortMode.COUT_ASC;  appliquerFiltres(); }
-
-    // ← Tri machine A→Z
+    // ── Tri ──────────────────────────────────────────────────────
+    @FXML private void trierPlusRecent() { currentSort = SortMode.DATE_DESC;  appliquerFiltres(); }
+    @FXML private void trierPlusAncien() { currentSort = SortMode.DATE_ASC;   appliquerFiltres(); }
+    @FXML private void trierCoutEleve()  { currentSort = SortMode.COUT_DESC;  appliquerFiltres(); }
+    @FXML private void trierCoutFaible() { currentSort = SortMode.COUT_ASC;   appliquerFiltres(); }
     @FXML private void trierMachineAZ()  { currentSort = SortMode.MACHINE_AZ; appliquerFiltres(); }
 
-    // ← Réinitialiser (nom exact du FXML : reinitialiserFiltres)
-    @FXML private void reinitialiserFiltres() {
-        if (champRecherche  != null) champRecherche.clear();
-        if (comboMachine    != null) comboMachine.getSelectionModel().selectFirst();
-        if (comboTypePanne  != null) comboTypePanne.getSelectionModel().selectFirst();
+    @FXML
+    private void reinitialiserFiltres() {
+        if (champRecherche != null) champRecherche.clear();
+        if (comboMachine   != null) comboMachine.getSelectionModel().selectFirst();
+        if (comboTypePanne != null) comboTypePanne.getSelectionModel().selectFirst();
         currentSort = SortMode.DATE_DESC;
         appliquerFiltres();
     }
 
     @FXML private void actualiser() { reinitialiserFiltres(); chargerDonnees(); }
 
+    // ═══════════════════════════════════════════════════════════
+    //  FILTRES + TRI
+    // ═══════════════════════════════════════════════════════════
     private void appliquerFiltres() {
         String recherche = champRecherche != null && champRecherche.getText() != null
                 ? champRecherche.getText().toLowerCase().trim() : "";
@@ -238,14 +240,16 @@ public class AfficherMaintenancesController implements Initializable {
         for (Maintenance m : masterList) {
             String nomM = nomMachineParId(m.getIdM());
 
+            // Filtre texte dynamique : cherche dans tous les champs avec .contains()
             boolean matchR = recherche.isEmpty()
                     || nomM.toLowerCase().contains(recherche)
                     || (m.getTypePanne()   != null && m.getTypePanne().toLowerCase().contains(recherche))
                     || (m.getDescription() != null && m.getDescription().toLowerCase().contains(recherche))
                     || String.valueOf(m.getCout()).contains(recherche)
-                    || (m.getDateMain() != null && m.getDateMain().toString().contains(recherche));
+                    || (m.getDateMain()    != null && m.getDateMain().toString().contains(recherche));
 
             boolean matchM = machineSel.equals("Toutes les machines") || nomM.equals(machineSel);
+
             boolean matchT = typeSel.equals("Tous les types")
                     || (m.getTypePanne() != null && m.getTypePanne().equals(typeSel));
 
@@ -277,11 +281,8 @@ public class AfficherMaintenancesController implements Initializable {
         double total = displayList.stream().mapToDouble(Maintenance::getCout).sum();
         double moy   = nb > 0 ? total / nb : 0;
 
-        // % élevés (> moyenne)
         long   nbEleves = displayList.stream().filter(m -> m.getCout() > moy).count();
         double pctEleve = nb > 0 ? (nbEleves * 100.0 / nb) : 0;
-
-        // % sous la moyenne
         long   nbSous   = nb - nbEleves;
         double pctSous  = nb > 0 ? (nbSous * 100.0 / nb) : 0;
 
@@ -289,28 +290,40 @@ public class AfficherMaintenancesController implements Initializable {
         Map<Integer, Double> coutParMachine = new HashMap<>();
         for (Maintenance m : displayList)
             coutParMachine.merge(m.getIdM(), m.getCout(), Double::sum);
-        int idMachMax = coutParMachine.entrySet().stream()
+        int    idMachMax   = coutParMachine.entrySet().stream()
                 .max(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey).orElse(-1);
         String nomMachMax  = idMachMax >= 0 ? nomMachineParId(idMachMax) : "-";
         double coutMachMax = idMachMax >= 0 ? coutParMachine.get(idMachMax) : 0;
         double pctMach     = total > 0 ? (coutMachMax * 100.0 / total) : 0;
 
-        if (lblTotal             != null) lblTotal.setText(String.valueOf(nb));
-        if (lblCoutTotal         != null) lblCoutTotal.setText(String.format("%.2f DT", total));
-        if (lblCoutMoyen         != null) lblCoutMoyen.setText(String.format("%.2f DT", moy));
-        if (lblMachineCouteuse   != null) lblMachineCouteuse.setText(nomMachMax);
-        if (lblPctTotal          != null) lblPctTotal.setText("100%");
-        if (lblPctCoutEleve      != null) lblPctCoutEleve.setText(String.format("%.0f%% élevés", pctEleve));
-        if (lblPctSousLaMoyenne  != null) lblPctSousLaMoyenne.setText(String.format("%.0f%% sous moy.", pctSous));
-        if (lblPctMachine        != null) lblPctMachine.setText(String.format("%.0f%% du total", pctMach));
+        // Type de panne dominant
+        Map<String, Long> compteParType = new HashMap<>();
+        for (Maintenance m : displayList) {
+            String t = m.getTypePanne() != null ? m.getTypePanne() : "Inconnu";
+            compteParType.merge(t, 1L, Long::sum);
+        }
+        String typeDominant = compteParType.entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey).orElse("-");
+        long   nbTypeDom    = compteParType.getOrDefault(typeDominant, 0L);
+
+        // Mise à jour des labels
+        if (lblTotal            != null) lblTotal.setText(String.valueOf(nb));
+        if (lblCoutTotal        != null) lblCoutTotal.setText(String.format("%.2f DT", total));
+        if (lblCoutMoyen        != null) lblCoutMoyen.setText(String.format("%.2f DT", moy));
+        if (lblMachineCouteuse  != null) lblMachineCouteuse.setText(nomMachMax);
+        if (lblPctTotal         != null) lblPctTotal.setText("100%");
+        if (lblPctCoutEleve     != null) lblPctCoutEleve.setText(String.format("%.0f%% élevés", pctEleve));
+        if (lblPctSousLaMoyenne != null) lblPctSousLaMoyenne.setText(String.format("%.0f%% sous moy.", pctSous));
+        if (lblPctMachine       != null) lblPctMachine.setText(String.format("%.0f%% du total", pctMach));
+        if (lblTypeDominant     != null) lblTypeDominant.setText(typeDominant);
+        if (lblNbTypeDominant   != null) lblNbTypeDominant.setText(nbTypeDom + " occurrence(s)");
     }
 
     // ═══════════════════════════════════════════════════════════
-    //  CRUD  ← noms exacts du FXML
+    //  CRUD
     // ═══════════════════════════════════════════════════════════
-
-    // ouvrirFormulaireAjout (FXML : onAction="#ouvrirFormulaireAjout")
     @FXML private void ouvrirFormulaireAjout() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/AjouterMaintenance.fxml"));
@@ -326,7 +339,6 @@ public class AfficherMaintenancesController implements Initializable {
         }
     }
 
-    // modifierSelection (FXML : onAction="#modifierSelection")
     @FXML private void modifierSelection() {
         Maintenance sel = tableMaintenances.getSelectionModel().getSelectedItem();
         if (sel == null) { showWarn("Sélection", "Sélectionnez une maintenance à modifier."); return; }
@@ -346,7 +358,6 @@ public class AfficherMaintenancesController implements Initializable {
         }
     }
 
-    // supprimerSelection (FXML : onAction="#supprimerSelection")
     @FXML private void supprimerSelection() {
         Maintenance sel = tableMaintenances.getSelectionModel().getSelectedItem();
         if (sel == null) { showWarn("Sélection", "Sélectionnez une maintenance à supprimer."); return; }
@@ -369,7 +380,7 @@ public class AfficherMaintenancesController implements Initializable {
     }
 
     // ═══════════════════════════════════════════════════════════
-    //  STATISTIQUES (FXML : onAction="#afficherStatistiques")
+    //  STATISTIQUES
     // ═══════════════════════════════════════════════════════════
     @FXML private void afficherStatistiques() {
         if (displayList.isEmpty()) { showInfo("Stats", "Aucune donnée à afficher."); return; }
@@ -379,74 +390,132 @@ public class AfficherMaintenancesController implements Initializable {
         stage.setTitle("📊 Statistiques des Maintenances");
         stage.setResizable(true);
 
-        // Bar chart par machine
-        Map<String, Double> dataMap = new LinkedHashMap<>();
-        for (Maintenance m : displayList)
-            dataMap.merge(nomMachineParId(m.getIdM()), m.getCout(), Double::sum);
-
-        int barW = 60, gap = 30, padL = 70, padTop = 50, chartH = 300;
-        List<String> keys = new ArrayList<>(dataMap.keySet());
-        List<Double> vals = new ArrayList<>(dataMap.values());
-        int n = keys.size();
-        int canvasW = padL + n * (barW + gap) + gap + 20;
-        int canvasH = chartH + 80 + padTop;
-
-        Canvas canvas = new Canvas(canvasW, canvasH);
-        GraphicsContext gc = canvas.getGraphicsContext2D();
-
-        gc.setFill(Color.WHITE);
-        gc.fillRect(0, 0, canvasW, canvasH);
-        gc.setFill(Color.web("#2c3e50"));
-        gc.setFont(Font.font("Arial", FontWeight.BOLD, 14));
-        gc.fillText("Coût total par machine (DT)", padL, 30);
-
-        double maxVal = vals.stream().mapToDouble(v -> v).max().orElse(1);
-        Color[] colors = { Color.web("#3498db"), Color.web("#27ae60"), Color.web("#e74c3c"),
-                Color.web("#f39c12"), Color.web("#9b59b6"), Color.web("#1abc9c") };
-
-        for (int i = 0; i <= 5; i++) {
-            double y = padTop + chartH - (chartH * i / 5.0);
-            gc.setStroke(Color.LIGHTGRAY); gc.setLineWidth(1);
-            gc.strokeLine(padL, y, canvasW - 20, y);
-            gc.setFill(Color.GRAY);
-            gc.setFont(Font.font("Arial", 10));
-            gc.fillText(String.format("%.0f", maxVal * i / 5.0), 5, y + 4);
+        Map<String, Double>  coutMap = new LinkedHashMap<>();
+        Map<String, Integer> nbMap   = new LinkedHashMap<>();
+        for (Maintenance m : displayList) {
+            String nom = nomMachineParId(m.getIdM());
+            coutMap.merge(nom, m.getCout(), Double::sum);
+            nbMap.merge(nom, 1, Integer::sum);
         }
 
-        for (int i = 0; i < n; i++) {
-            double barH = (vals.get(i) / maxVal) * chartH;
+        Map<String, Long> typeMap = new LinkedHashMap<>();
+        for (Maintenance m : displayList) {
+            String t = m.getTypePanne() != null ? m.getTypePanne() : "Inconnu";
+            typeMap.merge(t, 1L, Long::sum);
+        }
+
+        List<String>  machKeys = new ArrayList<>(coutMap.keySet());
+        List<Double>  machVals = new ArrayList<>(coutMap.values());
+        List<String>  typeKeys = new ArrayList<>(typeMap.keySet());
+        List<Long>    typeVals = new ArrayList<>(typeMap.values());
+
+        int barW = 55, gap = 25, padL = 75, padTop = 50, chartH = 250;
+        int nM = machKeys.size(), nT = typeKeys.size();
+
+        int cwL = padL + nM * (barW + gap) + gap + 20;
+        int chL = chartH + 90 + padTop;
+        Canvas canvasL = new Canvas(cwL, chL);
+        GraphicsContext gl = canvasL.getGraphicsContext2D();
+
+        gl.setFill(Color.WHITE); gl.fillRect(0, 0, cwL, chL);
+        gl.setFill(Color.web("#2c3e50"));
+        gl.setFont(Font.font("Arial", FontWeight.BOLD, 13));
+        gl.fillText("💰 Coût total par machine (DT)", padL, 30);
+
+        double maxCout = machVals.stream().mapToDouble(v -> v).max().orElse(1);
+        double coutMoyenGlobal = displayList.stream().mapToDouble(Maintenance::getCout).average().orElse(0);
+
+        Color[] colors = { Color.web("#3498db"), Color.web("#27ae60"), Color.web("#e74c3c"),
+                Color.web("#f39c12"), Color.web("#9b59b6"), Color.web("#1abc9c"),
+                Color.web("#e67e22"), Color.web("#e91e63") };
+
+        gl.setFont(Font.font("Arial", 10));
+        for (int i = 0; i <= 5; i++) {
+            double y = padTop + chartH - (chartH * i / 5.0);
+            gl.setStroke(Color.LIGHTGRAY); gl.setLineWidth(1);
+            gl.strokeLine(padL, y, cwL - 20, y);
+            gl.setFill(Color.GRAY);
+            gl.fillText(String.format("%.0f", maxCout * i / 5.0), 5, y + 4);
+        }
+
+        for (int i = 0; i < nM; i++) {
+            double barH = (machVals.get(i) / maxCout) * chartH;
             double x = padL + gap + i * (barW + gap);
             double y = padTop + chartH - barH;
             Color c = colors[i % colors.length];
-
-            gc.setFill(Color.rgb(0, 0, 0, 0.08));
-            gc.fillRoundRect(x + 3, y + 3, barW, barH, 6, 6);
-            gc.setFill(c);
-            gc.fillRoundRect(x, y, barW, barH, 6, 6);
-
-            gc.setFill(Color.web("#2c3e50"));
-            gc.setFont(Font.font("Arial", FontWeight.BOLD, 11));
-            String vs = String.format("%.0f", vals.get(i));
-            gc.fillText(vs, x + barW / 2.0 - vs.length() * 3.5, y - 6);
-
-            gc.setFont(Font.font("Arial", 10));
-            String lbl = keys.get(i).length() > 12 ? keys.get(i).substring(0, 12) + "…" : keys.get(i);
-            gc.fillText(lbl, x + barW / 2.0 - lbl.length() * 3, padTop + chartH + 16);
+            gl.setFill(Color.rgb(0, 0, 0, 0.07));
+            gl.fillRoundRect(x + 3, y + 3, barW, barH, 6, 6);
+            gl.setFill(c);
+            gl.fillRoundRect(x, y, barW, barH, 6, 6);
+            gl.setFill(Color.web("#2c3e50"));
+            gl.setFont(Font.font("Arial", FontWeight.BOLD, 11));
+            String vs = String.format("%.0f", machVals.get(i));
+            gl.fillText(vs, x + barW / 2.0 - vs.length() * 3.5, y - 6);
+            gl.setFont(Font.font("Arial", 10));
+            String lbl = machKeys.get(i).length() > 11 ? machKeys.get(i).substring(0, 11) + "…" : machKeys.get(i);
+            gl.fillText(lbl, x + barW / 2.0 - lbl.length() * 3, padTop + chartH + 16);
         }
 
-        ScrollPane sp = new ScrollPane(canvas);
-        sp.setFitToHeight(true);
-        sp.setPrefSize(Math.min(canvasW + 20, 900), canvasH + 20);
+        double yMoy = padTop + chartH - (coutMoyenGlobal / maxCout) * chartH;
+        gl.setStroke(Color.web("#e74c3c")); gl.setLineWidth(2);
+        gl.setLineDashes(8, 4);
+        gl.strokeLine(padL, yMoy, cwL - 20, yMoy);
+        gl.setLineDashes();
+        gl.setFill(Color.web("#e74c3c"));
+        gl.setFont(Font.font("Arial", FontWeight.BOLD, 10));
+        gl.fillText(String.format("Moy. %.0f DT", coutMoyenGlobal), cwL - 80, yMoy - 4);
 
-        VBox root = new VBox(10, sp);
-        root.setPadding(new Insets(15));
+        int cwR = 400;
+        int chR = padTop + 40 + nT * 42 + 20;
+        Canvas canvasR = new Canvas(cwR, Math.max(chR, chL));
+        GraphicsContext gr = canvasR.getGraphicsContext2D();
+
+        gr.setFill(Color.WHITE); gr.fillRect(0, 0, cwR, Math.max(chR, chL));
+        gr.setFill(Color.web("#2c3e50"));
+        gr.setFont(Font.font("Arial", FontWeight.BOLD, 13));
+        gr.fillText("🔧 Répartition par type de panne", 10, 30);
+
+        long maxType = typeVals.stream().mapToLong(v -> v).max().orElse(1);
+        int barAreaW = cwR - 160;
+
+        for (int i = 0; i < nT; i++) {
+            double bH = 24;
+            double y  = padTop + i * 42;
+            double bW = (typeVals.get(i) / (double) maxType) * barAreaW;
+            Color  c  = colors[i % colors.length];
+            gr.setFill(Color.rgb(0, 0, 0, 0.06));
+            gr.fillRoundRect(153, y + 3, bW, bH, 6, 6);
+            gr.setFill(c);
+            gr.fillRoundRect(150, y, bW, bH, 6, 6);
+            gr.setFill(Color.web("#2c3e50"));
+            gr.setFont(Font.font("Arial", 11));
+            String lbl = typeKeys.get(i).length() > 14 ? typeKeys.get(i).substring(0, 14) + "…" : typeKeys.get(i);
+            gr.fillText(lbl, 5, y + 17);
+            gr.setFill(Color.web("#2c3e50"));
+            gr.setFont(Font.font("Arial", FontWeight.BOLD, 11));
+            gr.fillText(String.valueOf(typeVals.get(i)), 150 + bW + 6, y + 17);
+        }
+
+        ScrollPane spL = new ScrollPane(canvasL); spL.setFitToHeight(true);
+        spL.setPrefSize(Math.min(cwL + 20, 700), chL + 20);
+        ScrollPane spR = new ScrollPane(canvasR); spR.setFitToHeight(true);
+        spR.setPrefWidth(cwR + 20);
+
+        HBox charts = new HBox(16, spL, spR);
+        charts.setPadding(new Insets(10));
+
+        Label legende = new Label("  ── Ligne rouge pointillée = coût moyen global par maintenance");
+        legende.setStyle("-fx-text-fill: #e74c3c; -fx-font-size: 11px; -fx-font-style: italic;");
+
+        VBox root = new VBox(8, legende, charts);
+        root.setPadding(new Insets(14));
         root.setStyle("-fx-background-color: white;");
         stage.setScene(new Scene(root));
         stage.show();
     }
 
     // ═══════════════════════════════════════════════════════════
-    //  API 1 — COÛT PAR MACHINE (FXML : onAction="#ouvrirCoutMachine")
+    //  API — COÛT PAR MACHINE
     // ═══════════════════════════════════════════════════════════
     @FXML private void ouvrirCoutMachine() {
         Stage stage = new Stage();
@@ -454,7 +523,6 @@ public class AfficherMaintenancesController implements Initializable {
         stage.setTitle("🏭 Coût Total de Maintenance par Machine");
         stage.setResizable(true);
 
-        // Contrôles
         ToggleGroup tg = new ToggleGroup();
         RadioButton rbGlobal  = new RadioButton("Global");
         RadioButton rbMachine = new RadioButton("Par machine");
@@ -488,7 +556,6 @@ public class AfficherMaintenancesController implements Initializable {
         ctrl.setPadding(new Insets(12));
         ctrl.setStyle("-fx-background-color: #f8f9fa; -fx-border-color: #dee2e6; -fx-border-width: 0 0 1 0;");
 
-        // Cartes
         Label cTotal = creerLabelStat("—"); Label cMoy = creerLabelStat("—");
         Label cNb    = creerLabelStat("—"); Label cMax = creerLabelStat("—");
         Label cMin   = creerLabelStat("—");
@@ -501,7 +568,6 @@ public class AfficherMaintenancesController implements Initializable {
                 creerCarte("⬇️ Min",            cMin,   "#f39c12"));
         cartes.setPadding(new Insets(12));
 
-        // Tableau synthèse
         TableView<Map<String, Object>> tblSynth = new TableView<>();
         tblSynth.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         tblSynth.setPrefHeight(160);
@@ -518,7 +584,6 @@ public class AfficherMaintenancesController implements Initializable {
         sMax.setCellValueFactory(d -> new SimpleStringProperty(String.format("%.2f", (double) d.getValue().get("max"))));
         tblSynth.getColumns().addAll(sNom, sTot, sMoy, sNb, sMax);
 
-        // Tableau détails
         TableView<Map<String, Object>> tblDet = new TableView<>();
         tblDet.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         VBox.setVgrow(tblDet, Priority.ALWAYS);
@@ -571,186 +636,6 @@ public class AfficherMaintenancesController implements Initializable {
         root.setPadding(new Insets(14));
         root.setStyle("-fx-background-color: #f5f6fa;");
         stage.setScene(new Scene(root, 980, 660));
-        stage.show();
-    }
-
-    // ═══════════════════════════════════════════════════════════
-    //  API 2 — ALERTES COÛTEUSES (FXML : onAction="#ouvrirAlertesCouteuses")
-    // ═══════════════════════════════════════════════════════════
-    @FXML private void ouvrirAlertesCouteuses() {
-        Stage stage = new Stage();
-        stage.initModality(Modality.APPLICATION_MODAL);
-        stage.setTitle("🚨 Alertes — Maintenances Coûteuses");
-        stage.setResizable(true);
-
-        // Contrôles
-        Label lblS = new Label("Seuil (DT):");
-        lblS.setStyle("-fx-font-weight: bold;");
-        TextField txtSeuil = new TextField("500");
-        txtSeuil.setPrefWidth(90);
-        txtSeuil.setStyle("-fx-border-color: #e74c3c; -fx-border-width: 2; -fx-background-radius: 6;");
-
-        Slider slider = new Slider(0, 5000, 500);
-        slider.setPrefWidth(200);
-        slider.setShowTickLabels(true);
-        slider.setMajorTickUnit(1000);
-        slider.valueProperty().addListener((o, ov, nv) -> txtSeuil.setText(String.valueOf(nv.intValue())));
-        txtSeuil.textProperty().addListener((o, ov, nv) -> {
-            try { slider.setValue(Double.parseDouble(nv)); } catch (NumberFormatException ignored) {}
-        });
-
-        Button b200  = creerBoutonPreset("200 DT");
-        Button b500  = creerBoutonPreset("500 DT");
-        Button b1000 = creerBoutonPreset("1000 DT");
-        Button bMoy  = creerBoutonPreset("Moy. auto");
-        b200.setOnAction(e  -> { txtSeuil.setText("200");  slider.setValue(200); });
-        b500.setOnAction(e  -> { txtSeuil.setText("500");  slider.setValue(500); });
-        b1000.setOnAction(e -> { txtSeuil.setText("1000"); slider.setValue(1000); });
-        bMoy.setOnAction(e  -> { txtSeuil.setText("0");    slider.setValue(0); });
-
-        Label lblM = new Label("Machine:");
-        lblM.setStyle("-fx-font-weight: bold;");
-        TextField txtMach = new TextField();
-        txtMach.setPromptText("(optionnel)");
-        txtMach.setPrefWidth(130);
-
-        Button btnAnalyser = creerBouton("🔍 Analyser", "#e74c3c");
-
-        HBox barre = new HBox(10, lblS, txtSeuil, slider, b200, b500, b1000, bMoy, lblM, txtMach, btnAnalyser);
-        barre.setAlignment(Pos.CENTER_LEFT);
-        barre.setPadding(new Insets(12));
-        barre.setStyle("-fx-background-color: #fff5f5; -fx-border-color: #fecaca; -fx-border-width: 0 0 1 0;");
-
-        Label lblInfo = new Label("Saisissez un seuil et cliquez Analyser.");
-        lblInfo.setStyle("-fx-text-fill: #999; -fx-font-size: 11px; -fx-padding: 4 12;");
-        Label lblErr  = new Label("");
-        lblErr.setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold; -fx-padding: 2 12;");
-
-        // Cartes
-        Label cNb   = creerLabelStat("—"); Label cCout = creerLabelStat("—");
-        Label cPctM = creerLabelStat("—"); Label cBudg = creerLabelStat("—");
-        Label cSeui = creerLabelStat("—"); Label cMoyG = creerLabelStat("—");
-
-        HBox cartes = new HBox(8,
-                creerCarte("🚨 Nb Alertes",   cNb,   "#e74c3c"),
-                creerCarte("💸 Coût Alertes", cCout, "#f39c12"),
-                creerCarte("📊 % Mainten.",    cPctM, "#9b59b6"),
-                creerCarte("💰 % Budget",      cBudg, "#e74c3c"),
-                creerCarte("🎯 Seuil Appl.",  cSeui, "#3498db"),
-                creerCarte("📈 Moy. Glob.",   cMoyG, "#27ae60"));
-        cartes.setPadding(new Insets(10));
-
-        // Tableau alertes
-        TableView<Map<String, Object>> tbl = new TableView<>();
-        tbl.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        VBox.setVgrow(tbl, Priority.ALWAYS);
-        tbl.setPlaceholder(new Label("Aucune alerte — lancez une analyse."));
-
-        TableColumn<Map<String, Object>, String> aId    = new TableColumn<>("ID");
-        aId.setCellValueFactory(d -> new SimpleStringProperty(String.valueOf(d.getValue().get("id"))));
-        aId.setPrefWidth(45);
-        TableColumn<Map<String, Object>, String> aMach  = new TableColumn<>("Machine");
-        aMach.setCellValueFactory(d -> new SimpleStringProperty((String) d.getValue().get("nomMachine")));
-        TableColumn<Map<String, Object>, String> aType  = new TableColumn<>("Type");
-        aType.setCellValueFactory(d -> new SimpleStringProperty((String) d.getValue().get("typePanne")));
-        TableColumn<Map<String, Object>, String> aDate  = new TableColumn<>("Date");
-        aDate.setCellValueFactory(d -> new SimpleStringProperty((String) d.getValue().get("dateMain")));
-        TableColumn<Map<String, Object>, String> aCout  = new TableColumn<>("Coût (DT)");
-        aCout.setCellValueFactory(d -> new SimpleStringProperty(String.format("%.2f", (double) d.getValue().get("cout"))));
-        TableColumn<Map<String, Object>, String> aNiv   = new TableColumn<>("Niveau");
-        aNiv.setCellValueFactory(d -> new SimpleStringProperty((String) d.getValue().get("niveau")));
-        aNiv.setCellFactory(col -> new TableCell<>() {
-            @Override protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) { setText(null); setStyle(""); return; }
-                setText(item);
-                setStyle(item.contains("CRITIQUE") ? "-fx-text-fill:#c0392b;-fx-font-weight:bold;"
-                        : item.contains("ÉLEVÉ")   ? "-fx-text-fill:#e67e22;-fx-font-weight:bold;"
-                        :                            "-fx-text-fill:#f1c40f;-fx-font-weight:bold;");
-            }
-        });
-        TableColumn<Map<String, Object>, String> aDesc  = new TableColumn<>("Description");
-        aDesc.setCellValueFactory(d -> new SimpleStringProperty((String) d.getValue().get("description")));
-        tbl.getColumns().addAll(aId, aMach, aType, aDate, aCout, aNiv, aDesc);
-
-        tbl.setRowFactory(tv -> new TableRow<>() {
-            @Override protected void updateItem(Map<String, Object> item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) { setStyle(""); return; }
-                String n = (String) item.get("niveau");
-                setStyle(n != null && n.contains("CRITIQUE") ? "-fx-background-color:#fde8e8;"
-                        : n != null && n.contains("ÉLEVÉ")   ? "-fx-background-color:#fef3e2;"
-                        :                                      "-fx-background-color:#fefce8;");
-            }
-        });
-
-        // Tableaux par type / par machine
-        TableView<Map.Entry<String, Integer>> tblType = new TableView<>();
-        tblType.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        tblType.setPrefHeight(140);
-        TableColumn<Map.Entry<String, Integer>, String> ptT = new TableColumn<>("Type");
-        ptT.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getKey()));
-        TableColumn<Map.Entry<String, Integer>, String> ptN = new TableColumn<>("Nb");
-        ptN.setCellValueFactory(d -> new SimpleStringProperty(String.valueOf(d.getValue().getValue())));
-        tblType.getColumns().addAll(ptT, ptN);
-
-        TableView<Map.Entry<String, Integer>> tblMachA = new TableView<>();
-        tblMachA.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        tblMachA.setPrefHeight(140);
-        TableColumn<Map.Entry<String, Integer>, String> pmM = new TableColumn<>("Machine");
-        pmM.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getKey()));
-        TableColumn<Map.Entry<String, Integer>, String> pmN = new TableColumn<>("Nb");
-        pmN.setCellValueFactory(d -> new SimpleStringProperty(String.valueOf(d.getValue().getValue())));
-        tblMachA.getColumns().addAll(pmM, pmN);
-
-        HBox infTbl = new HBox(16,
-                new VBox(6, new Label("🔧 Répartition par type :"), tblType),
-                new VBox(6, new Label("🏭 Par machine:"),           tblMachA));
-        HBox.setHgrow(infTbl.getChildren().get(0), Priority.ALWAYS);
-        HBox.setHgrow(infTbl.getChildren().get(1), Priority.ALWAYS);
-
-        btnAnalyser.setOnAction(ev -> {
-            lblErr.setText("");
-            double seuil;
-            try {
-                String s = txtSeuil.getText().trim();
-                seuil = s.isEmpty() ? 0 : Double.parseDouble(s);
-            } catch (NumberFormatException e) { lblErr.setText("❌ Seuil invalide."); return; }
-
-            lblInfo.setText("Analyse : seuil=" + seuil
-                    + (txtMach.getText().trim().isEmpty() ? "" : " | machine=" + txtMach.getText().trim()));
-            try {
-                ResultatAlerte res = apiService.getMaintenancesCoûteuses(seuil, txtMach.getText().trim());
-
-                double coutAl = res.alertes.stream().mapToDouble(a -> (double) a.get("cout")).sum();
-                double pctM   = res.nbTotal > 0 ? (res.alertes.size() * 100.0 / res.nbTotal) : 0;
-                double pctB   = res.coutTotal > 0 ? (coutAl * 100.0 / res.coutTotal) : 0;
-
-                cNb.setText(String.valueOf(res.alertes.size()));
-                cCout.setText(String.format("%.2f DT", coutAl));
-                cPctM.setText(String.format("%.1f%%", pctM));
-                cBudg.setText(String.format("%.1f%%", pctB));
-                cSeui.setText(String.format("%.2f DT", res.seuilApplique));
-                cMoyG.setText(String.format("%.2f DT", res.moyenneGlobale));
-
-                tbl.setItems(FXCollections.observableArrayList(res.alertes));
-                tblType.setItems(FXCollections.observableArrayList(new ArrayList<>(res.parType.entrySet())));
-                tblMachA.setItems(FXCollections.observableArrayList(new ArrayList<>(res.parMachine.entrySet())));
-            } catch (SQLException e) { lblErr.setText("❌ Erreur : " + e.getMessage()); }
-        });
-
-        Label titre = new Label("🚨 Alertes — Maintenances Coûteuses");
-        titre.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #c0392b;");
-
-        VBox root = new VBox(0,
-                barre, new HBox(lblInfo), new HBox(lblErr), new Separator(),
-                new VBox(6, titre, cartes), new Separator(),
-                new VBox(6, new Label("🔴 Maintenances dépassant le seuil :"), tbl),
-                new Separator(), infTbl);
-        root.setPadding(new Insets(12));
-        root.setSpacing(8);
-        root.setStyle("-fx-background-color: #f5f6fa;");
-        stage.setScene(new Scene(root, 1200, 760));
         stage.show();
     }
 
@@ -831,7 +716,6 @@ public class AfficherMaintenancesController implements Initializable {
 
             Row rH = sheet.createRow(0);
             for (int i = 0; i < hdr.length; i++) {
-                // ← Nom qualifié complet pour éviter ambiguïté JavaFX Cell / POI Cell
                 org.apache.poi.ss.usermodel.Cell c = rH.createCell(i);
                 c.setCellValue(hdr[i]);
                 c.setCellStyle(csH);
@@ -860,7 +744,7 @@ public class AfficherMaintenancesController implements Initializable {
     }
 
     // ═══════════════════════════════════════════════════════════
-    //  NAVIGATION ← noms exacts du FXML
+    //  NAVIGATION
     // ═══════════════════════════════════════════════════════════
     @FXML private void naviguerAnimaux()    { nav("/GestionAnimaux.fxml"); }
     @FXML private void naviguerMateriels()  { nav("/AccueilMateriel.fxml"); }
@@ -919,14 +803,6 @@ public class AfficherMaintenancesController implements Initializable {
         b.setStyle("-fx-background-color: " + couleur + "; -fx-text-fill: white; " +
                 "-fx-font-weight: bold; -fx-font-size: 13px; " +
                 "-fx-background-radius: 6; -fx-cursor: hand; -fx-padding: 10 16;");
-        return b;
-    }
-
-    private Button creerBoutonPreset(String texte) {
-        Button b = new Button(texte);
-        b.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; " +
-                "-fx-font-size: 11px; -fx-font-weight: bold; " +
-                "-fx-background-radius: 20; -fx-cursor: hand; -fx-padding: 4 10;");
         return b;
     }
 

@@ -112,6 +112,19 @@
                             prefWidth="125" prefHeight="36"
                             style="-fx-background-color:#1e8449;-fx-text-fill:white;-fx-font-size:12px;
                                    -fx-background-radius:6;-fx-cursor:hand;-fx-font-weight:bold;"/>
+
+                    <!-- Remplacer le bouton Export PDF existant par celui-ci -->
+                    <MenuButton text="📄 Rapport PDF ▾"
+                                prefWidth="140" prefHeight="36"
+                                style="-fx-background-color:#c0392b;-fx-text-fill:white;-fx-font-size:12px;
+                   -fx-background-radius:6;-fx-cursor:hand;-fx-font-weight:bold;">
+                        <items>
+                            <MenuItem text="📋 Export liste machines"  onAction="#exporterPDF"/>
+                            <MenuItem text="🧾 Générer Facture"         onAction="#genererFacture"/>
+                            <MenuItem text="📅 Rapport mensuel ventes"  onAction="#genererRapportMensuel"/>
+                            <MenuItem text="📊 Rapport statistiques"    onAction="#genererRapportStatistiques"/>
+                        </items>
+                    </MenuButton>
                 </HBox>
 
                 <!-- ── Ligne 2 : Filtre Nom + Filtre Modèle + Tri date ── -->
@@ -251,7 +264,7 @@
                         style="-fx-background-color:#8e44ad;-fx-text-fill:white;-fx-font-size:14px;
                                -fx-font-weight:bold;-fx-background-radius:10;-fx-cursor:hand;
                                -fx-effect:dropshadow(gaussian,rgba(142,68,173,0.4),10,0,0,3);"/>
-                <Button text="⚡  API AVANCÉE" onAction="#ouvrirMindSpherePage"
+                <Button text="⚡Historique" onAction="#ouvrirMindSpherePage"
                         prefWidth="190" prefHeight="48"
                         style="-fx-background-color:#1565C0;-fx-text-fill:white;-fx-font-size:14px;
                                -fx-font-weight:bold;-fx-background-radius:10;-fx-cursor:hand;

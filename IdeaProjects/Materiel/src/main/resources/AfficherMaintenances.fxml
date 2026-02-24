@@ -93,8 +93,8 @@
                     <Label text="🔍 Recherche :"
                            style="-fx-font-size: 13px; -fx-text-fill: #2c3e50; -fx-font-weight: bold;"/>
                     <TextField fx:id="champRecherche"
-                               promptText="Type de panne, machine, description..."
-                               prefWidth="310" onKeyReleased="#rechercher"
+                               promptText="Type de panne, machine, description, coût, date..."
+                               prefWidth="360"
                                style="-fx-padding: 7 10; -fx-background-radius: 6;
                                       -fx-border-color: #3498db; -fx-border-width: 1.5;
                                       -fx-border-radius: 6; -fx-font-size: 13px;
@@ -114,7 +114,7 @@
                                    -fx-padding: 7 14; -fx-background-radius: 6; -fx-cursor: hand;"/>
                 </HBox>
 
-                <!-- LIGNE 2 : Filtre Machine + Tri Date + Actualiser -->
+                <!-- LIGNE 2 : Filtre Machine + Type + Tri Date + Actualiser -->
                 <HBox spacing="8" alignment="CENTER_LEFT">
                     <Label text="⚡ Filtrer par Machine :"
                            style="-fx-font-size: 12px; -fx-text-fill: #2c3e50; -fx-font-weight: bold;"/>
@@ -122,15 +122,27 @@
                               prefWidth="170" onAction="#filtrer"
                               style="-fx-background-radius: 6; -fx-font-size: 12px;
                                      -fx-background-color: white;"/>
-                    <Label text="  📅 Trier par dat. :"
+                    <Label text="  🔧 Type :"
                            style="-fx-font-size: 12px; -fx-text-fill: #2c3e50; -fx-font-weight: bold;"/>
-                    <Button fx:id="btnPlusRecent" text="▲  Plus réce..."
-                            onAction="#trierPlusRecent"
+                    <ComboBox fx:id="comboTypePanne" promptText="Tous les types"
+                              prefWidth="150" onAction="#filtrer"
+                              style="-fx-background-radius: 6; -fx-font-size: 12px;
+                                     -fx-background-color: white;"/>
+                    <Label text="  📅 Trier :"
+                           style="-fx-font-size: 12px; -fx-text-fill: #2c3e50; -fx-font-weight: bold;"/>
+                    <Button text="▲ Récent" onAction="#trierPlusRecent"
                             style="-fx-background-color: #8e44ad; -fx-text-fill: white;
                                    -fx-font-size: 12px; -fx-font-weight: bold;
                                    -fx-padding: 6 12; -fx-background-radius: 6; -fx-cursor: hand;"/>
-                    <Button fx:id="btnPlusAncien" text="▼  Plus ancien"
-                            onAction="#trierPlusAncien"
+                    <Button text="▼ Ancien" onAction="#trierPlusAncien"
+                            style="-fx-background-color: #7f8c8d; -fx-text-fill: white;
+                                   -fx-font-size: 12px; -fx-font-weight: bold;
+                                   -fx-padding: 6 12; -fx-background-radius: 6; -fx-cursor: hand;"/>
+                    <Button text="💰 Coût ↑" onAction="#trierCoutEleve"
+                            style="-fx-background-color: #e67e22; -fx-text-fill: white;
+                                   -fx-font-size: 12px; -fx-font-weight: bold;
+                                   -fx-padding: 6 12; -fx-background-radius: 6; -fx-cursor: hand;"/>
+                    <Button text="💰 Coût ↓" onAction="#trierCoutFaible"
                             style="-fx-background-color: #7f8c8d; -fx-text-fill: white;
                                    -fx-font-size: 12px; -fx-font-weight: bold;
                                    -fx-padding: 6 12; -fx-background-radius: 6; -fx-cursor: hand;"/>
@@ -138,41 +150,16 @@
                             style="-fx-background-color: #3498db; -fx-text-fill: white;
                                    -fx-font-size: 12px; -fx-font-weight: bold;
                                    -fx-padding: 6 12; -fx-background-radius: 6; -fx-cursor: hand;"/>
-                    <Region HBox.hgrow="ALWAYS"/>
-                </HBox>
-
-                <!-- LIGNE 3 : Filtres avancés -->
-                <HBox spacing="8" alignment="CENTER_LEFT">
-                    <Label text="🔽 Filtres avancés :"
-                           style="-fx-font-size: 12px; -fx-text-fill: #2c3e50; -fx-font-weight: bold;"/>
-                    <Button fx:id="btnCoutEleve" text="💰 Coût ↑" onAction="#trierCoutEleve"
-                            style="-fx-background-color: #e67e22; -fx-text-fill: white;
-                                   -fx-font-size: 12px; -fx-font-weight: bold;
-                                   -fx-padding: 6 12; -fx-background-radius: 6; -fx-cursor: hand;"/>
-                    <Button fx:id="btnCoutFaible" text="💰 Coût ↓" onAction="#trierCoutFaible"
-                            style="-fx-background-color: #7f8c8d; -fx-text-fill: white;
-                                   -fx-font-size: 12px; -fx-font-weight: bold;
-                                   -fx-padding: 6 12; -fx-background-radius: 6; -fx-cursor: hand;"/>
-                    <Label text="  🔧 Type :"
-                           style="-fx-font-size: 12px; -fx-text-fill: #2c3e50; -fx-font-weight: bold;"/>
-                    <ComboBox fx:id="comboTypePanne" promptText="Tous les types"
-                              prefWidth="150" onAction="#filtrer"
-                              style="-fx-background-radius: 6; -fx-font-size: 12px;
-                                     -fx-background-color: white;"/>
-                    <Button fx:id="btnMachineAZ" text="🔤 Machine A→Z"
-                            onAction="#trierMachineAZ"
-                            style="-fx-background-color: #7f8c8d; -fx-text-fill: white;
-                                   -fx-font-size: 12px; -fx-font-weight: bold;
-                                   -fx-padding: 6 12; -fx-background-radius: 6; -fx-cursor: hand;"/>
-                    <Button text="↺ Réinitialiser tout" onAction="#reinitialiserFiltres"
+                    <Button text="↺ Réinit." onAction="#reinitialiserFiltres"
                             style="-fx-background-color: #2c3e50; -fx-text-fill: white;
                                    -fx-font-size: 12px; -fx-font-weight: bold;
                                    -fx-padding: 6 12; -fx-background-radius: 6; -fx-cursor: hand;"/>
                 </HBox>
+
             </VBox>
 
             <!-- TABLE -->
-            <TableView fx:id="tableMaintenances" VBox.vgrow="ALWAYS" prefHeight="280"
+            <TableView fx:id="tableMaintenances" VBox.vgrow="ALWAYS" prefHeight="310"
                        style="-fx-background-color: white; -fx-border-color: #e2e8f0;
                               -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8;">
                 <columns>
@@ -188,59 +175,38 @@
                 </placeholder>
             </TableView>
 
-            <!-- ===== BOUTONS CRUD + APIs ===== -->
+            <!-- ===== BOUTONS CRUD ===== -->
             <VBox spacing="5">
                 <HBox spacing="0" alignment="CENTER"
                       style="-fx-background-color: white; -fx-padding: 12 20;
                              -fx-background-radius: 10; -fx-border-color: #e2e8f0;
                              -fx-border-width: 1; -fx-border-radius: 10;">
                     <Region HBox.hgrow="ALWAYS"/>
-
-                    <!-- AJOUTER -->
                     <Button text="＋  AJOUTER" onAction="#ouvrirFormulaireAjout"
-                            prefWidth="140" prefHeight="44"
+                            prefWidth="160" prefHeight="44"
                             style="-fx-background-color: #27ae60; -fx-text-fill: white;
                                    -fx-font-size: 13px; -fx-font-weight: bold;
                                    -fx-background-radius: 8 0 0 8; -fx-cursor: hand;"/>
-
-                    <!-- MODIFIER -->
                     <Button text="✎  MODIFIER" onAction="#modifierSelection"
-                            prefWidth="140" prefHeight="44"
+                            prefWidth="160" prefHeight="44"
                             style="-fx-background-color: #2980b9; -fx-text-fill: white;
                                    -fx-font-size: 13px; -fx-font-weight: bold;
                                    -fx-background-radius: 0; -fx-cursor: hand;"/>
-
-                    <!-- SUPPRIMER -->
                     <Button text="🗑  SUPPRIMER" onAction="#supprimerSelection"
-                            prefWidth="140" prefHeight="44"
+                            prefWidth="160" prefHeight="44"
                             style="-fx-background-color: #e74c3c; -fx-text-fill: white;
                                    -fx-font-size: 13px; -fx-font-weight: bold;
                                    -fx-background-radius: 0; -fx-cursor: hand;"/>
-
-                    <!-- STATISTIQUES -->
                     <Button text="📊  STATISTIQUES" onAction="#afficherStatistiques"
-                            prefWidth="155" prefHeight="44"
+                            prefWidth="180" prefHeight="44"
                             style="-fx-background-color: #8e44ad; -fx-text-fill: white;
                                    -fx-font-size: 13px; -fx-font-weight: bold;
-                                   -fx-background-radius: 0; -fx-cursor: hand;
-                                   -fx-effect: dropshadow(gaussian,rgba(142,68,173,0.4),8,0,0,2);"/>
-
-                    <!-- ★ API 1 : COÛT PAR MACHINE ★ -->
+                                   -fx-background-radius: 0; -fx-cursor: hand;"/>
                     <Button text="🏭  COÛT/MACHINE" onAction="#ouvrirCoutMachine"
-                            prefWidth="155" prefHeight="44"
+                            prefWidth="180" prefHeight="44"
                             style="-fx-background-color: #2980b9; -fx-text-fill: white;
                                    -fx-font-size: 13px; -fx-font-weight: bold;
-                                   -fx-background-radius: 0; -fx-cursor: hand;
-                                   -fx-effect: dropshadow(gaussian,rgba(41,128,185,0.4),8,0,0,2);"/>
-
-                    <!-- ★ API 2 : ALERTES COÛTEUSES ★ -->
-                    <Button text="🚨  ALERTES COÛTS" onAction="#ouvrirAlertesCouteuses"
-                            prefWidth="155" prefHeight="44"
-                            style="-fx-background-color: #e74c3c; -fx-text-fill: white;
-                                   -fx-font-size: 13px; -fx-font-weight: bold;
-                                   -fx-background-radius: 0 8 8 0; -fx-cursor: hand;
-                                   -fx-effect: dropshadow(gaussian,rgba(231,76,60,0.4),8,0,0,2);"/>
-
+                                   -fx-background-radius: 0 8 8 0; -fx-cursor: hand;"/>
                     <Region HBox.hgrow="ALWAYS"/>
                 </HBox>
 
@@ -311,6 +277,21 @@
                     <Label fx:id="lblPctMachine" text="0% du total"
                            style="-fx-font-size: 11px; -fx-text-fill: #27ae60; -fx-font-weight: bold;
                                   -fx-background-color: #eafaf1; -fx-padding: 2 8; -fx-background-radius: 10;"/>
+                </VBox>
+
+                <VBox spacing="4" alignment="CENTER"
+                      style="-fx-background-color: white; -fx-padding: 10 14;
+                             -fx-border-color: #9b59b6; -fx-border-width: 0 0 0 5;
+                             -fx-background-radius: 8;
+                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.07), 5, 0, 0, 2);"
+                      HBox.hgrow="ALWAYS" maxWidth="Infinity">
+                    <Label text="🔧 Type Dominant"
+                           style="-fx-font-size: 11px; -fx-text-fill: #7f8c8d; -fx-font-weight: bold;"/>
+                    <Label fx:id="lblTypeDominant" text="-"
+                           style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #9b59b6;"/>
+                    <Label fx:id="lblNbTypeDominant" text="0 occurrence(s)"
+                           style="-fx-font-size: 11px; -fx-text-fill: #9b59b6; -fx-font-weight: bold;
+                                  -fx-background-color: #f5eef8; -fx-padding: 2 8; -fx-background-radius: 10;"/>
                 </VBox>
 
             </HBox>

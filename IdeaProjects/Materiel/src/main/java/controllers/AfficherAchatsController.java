@@ -6,6 +6,7 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -24,8 +25,6 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import services.AchatService;
-import services.AntiFraudeService;
-import services.AntiFraudeService.TypeAlerte;
 import services.MachineService;
 import utils.MyDatabase;
 
@@ -46,7 +45,6 @@ import java.io.*;
 import java.net.URL;
 import java.sql.*;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -66,10 +64,9 @@ public class AfficherAchatsController implements Initializable {
     @FXML private Label            lblQuantiteTotal;
 
     // ── Services ─────────────────────────────────────────────────────
-    private AchatService      achatService;
-    private MachineService    machineService;
-    private AntiFraudeService antiFraudeService;
-    private Connection        connection;
+    private AchatService   achatService;
+    private MachineService machineService;
+    private Connection     connection;
 
     // ── Listes ───────────────────────────────────────────────────────
     private final ObservableList<AchatVM> masterList  = FXCollections.observableArrayList();
@@ -77,7 +74,7 @@ public class AfficherAchatsController implements Initializable {
     private List<Machine> machines = new ArrayList<>();
 
     // ── Tri ──────────────────────────────────────────────────────────
-    private enum SortMode { DATE_DESC, DATE_ASC, QTE_ASC, QTE_DESC, MACHINE_AZ, NONE }
+    private enum SortMode { DATE_DESC, DATE_ASC, NONE }
     private SortMode currentSort = SortMode.DATE_DESC;
 
     // ═══════════════════════════════════════════════════════════════
@@ -131,10 +128,9 @@ public class AfficherAchatsController implements Initializable {
     // ═══════════════════════════════════════════════════════════════
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        achatService      = new AchatService();
-        machineService    = new MachineService();
-        antiFraudeService = new AntiFraudeService();
-        connection        = MyDatabase.getInstance().getConnection();
+        achatService   = new AchatService();
+        machineService = new MachineService();
+        connection     = MyDatabase.getInstance().getConnection();
 
         configurerTableau();
         chargerDonnees();
@@ -221,20 +217,26 @@ public class AfficherAchatsController implements Initializable {
     }
 
     // ═══════════════════════════════════════════════════════════════
-    //  RECHERCHE / FILTRES / TRI
+    //  RECHERCHE DYNAMIQUE
     // ═══════════════════════════════════════════════════════════════
     private void configurerRecherche() {
-        champRecherche.textProperty().addListener((o, ov, nv) -> appliquerFiltres());
+        // Recherche dynamique : chaque frappe déclenche le filtre
+        champRecherche.textProperty().addListener((obs, oldVal, newVal) -> {
+            appliquerFiltres();
+        });
     }
 
-    @FXML private void rechercher()       { appliquerFiltres(); }
-    @FXML private void filtrer()          { appliquerFiltres(); }
-    @FXML private void effacerRecherche() { champRecherche.clear(); appliquerFiltres(); }
-    @FXML private void trierPlusRecent()  { currentSort = SortMode.DATE_DESC;  appliquerFiltres(); }
-    @FXML private void trierPlusAncien()  { currentSort = SortMode.DATE_ASC;   appliquerFiltres(); }
-    @FXML private void trierQteAsc()      { currentSort = SortMode.QTE_ASC;    appliquerFiltres(); }
-    @FXML private void trierQteDesc()     { currentSort = SortMode.QTE_DESC;   appliquerFiltres(); }
-    @FXML private void trierMachineAZ()   { currentSort = SortMode.MACHINE_AZ; appliquerFiltres(); }
+    @FXML private void rechercher() { appliquerFiltres(); }
+    @FXML private void filtrer()    { appliquerFiltres(); }
+
+    @FXML
+    private void effacerRecherche() {
+        champRecherche.clear();
+        appliquerFiltres();
+    }
+
+    @FXML private void trierPlusRecent() { currentSort = SortMode.DATE_DESC; appliquerFiltres(); }
+    @FXML private void trierPlusAncien() { currentSort = SortMode.DATE_ASC;  appliquerFiltres(); }
 
     @FXML
     private void reinitialiser() {
@@ -250,12 +252,18 @@ public class AfficherAchatsController implements Initializable {
         chargerDonnees();
     }
 
+    // ═══════════════════════════════════════════════════════════════
+    //  FILTRES + TRI
+    // ═══════════════════════════════════════════════════════════════
     private void appliquerFiltres() {
         String recherche  = champRecherche.getText() == null ? "" : champRecherche.getText().toLowerCase().trim();
         String machineSel = comboMachine.getValue() == null ? "Toutes les machines" : comboMachine.getValue();
 
         List<AchatVM> filtered = new ArrayList<>();
+
         for (AchatVM a : masterList) {
+
+            // Filtre texte dynamique (machine, client, CIN, date, quantité)
             boolean matchR = recherche.isEmpty()
                     || a.getMachineNom().toLowerCase().contains(recherche)
                     || a.getNomClient().toLowerCase().contains(recherche)
@@ -263,19 +271,18 @@ public class AfficherAchatsController implements Initializable {
                     || a.getDateAchat().toString().contains(recherche)
                     || String.valueOf(a.getQuantite()).contains(recherche);
 
+            // Filtre machine combo
             boolean matchM = machineSel.equals("Toutes les machines")
                     || a.getMachineNom().equals(machineSel);
 
             if (matchR && matchM) filtered.add(a);
         }
 
+        // Tri
         switch (currentSort) {
-            case DATE_ASC   -> filtered.sort(Comparator.comparing(AchatVM::getDateAchat));
-            case DATE_DESC  -> filtered.sort(Comparator.comparing(AchatVM::getDateAchat).reversed());
-            case QTE_ASC    -> filtered.sort(Comparator.comparingInt(AchatVM::getQuantite));
-            case QTE_DESC   -> filtered.sort(Comparator.comparingInt(AchatVM::getQuantite).reversed());
-            case MACHINE_AZ -> filtered.sort(Comparator.comparing(a -> a.getMachineNom().toLowerCase()));
-            default -> {}
+            case DATE_ASC  -> filtered.sort(Comparator.comparing(AchatVM::getDateAchat));
+            case DATE_DESC -> filtered.sort(Comparator.comparing(AchatVM::getDateAchat).reversed());
+            default        -> {}
         }
 
         displayList.setAll(filtered);
@@ -286,6 +293,12 @@ public class AfficherAchatsController implements Initializable {
     // ═══════════════════════════════════════════════════════════════
     //  STATISTIQUES
     // ═══════════════════════════════════════════════════════════════
+    private void mettreAJourStats() {
+        lblTotal.setText(String.valueOf(displayList.size()));
+        int totalQ = displayList.stream().mapToInt(AchatVM::getQuantite).sum();
+        lblQuantiteTotal.setText(String.valueOf(totalQ));
+    }
+
     @FXML
     private void afficherStatistiques() {
         Map<String, Integer> dataMap = new LinkedHashMap<>();
@@ -437,7 +450,7 @@ public class AfficherAchatsController implements Initializable {
         if (file == null) return;
 
         try (XSSFWorkbook wb = new XSSFWorkbook()) {
-            org.apache.poi.ss.usermodel.Sheet sheet = wb.createSheet("Achats");
+            Sheet sheet = wb.createSheet("Achats");
 
             Row header = sheet.createRow(0);
             String[] cols = {"Date Achat", "Quantité", "Machine", "Client", "CIN"};
@@ -624,210 +637,23 @@ public class AfficherAchatsController implements Initializable {
     }
 
     // ═══════════════════════════════════════════════════════════════
-    //  ANTI-FRAUDE
+    //  HELPERS UI
     // ═══════════════════════════════════════════════════════════════
-    @FXML
-    @SuppressWarnings("unchecked")
-    private void ouvrirAntiFraude() {
-
-        // Constantes locales pour l'affichage du label de règles
-        final int SEUIL_Q   = 100;
-        final int SEUIL_NB  = 3;
-
-        Stage stage = new Stage();
-        stage.initModality(Modality.APPLICATION_MODAL);
-        stage.setTitle("🛡️ Système Anti-Fraude");
-        stage.setResizable(true);
-
-        // ── Tableau ───────────────────────────────────────────────
-        TableView<Map<String, Object>> table = new TableView<>();
-        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        VBox.setVgrow(table, Priority.ALWAYS);
-
-        TableColumn<Map<String, Object>, String> colType = new TableColumn<>("Type");
-        colType.setPrefWidth(180);
-        colType.setCellValueFactory(d -> {
-            TypeAlerte t = (TypeAlerte) d.getValue().get("typeAlerte");
-            return new SimpleStringProperty(
-                    t == TypeAlerte.QUANTITE_EXCESSIVE
-                            ? "📦 Quantité excessive"
-                            : "🔁 Achats multiples/jour");
-        });
-
-        TableColumn<Map<String, Object>, String> colDesc = new TableColumn<>("Description");
-        colDesc.setPrefWidth(430);
-        colDesc.setCellValueFactory(d ->
-                new SimpleStringProperty((String) d.getValue().get("description")));
-
-        TableColumn<Map<String, Object>, String> colDate = new TableColumn<>("Détecté le");
-        colDate.setPrefWidth(140);
-        colDate.setCellValueFactory(d -> {
-            LocalDateTime ldt = (LocalDateTime) d.getValue().get("heureDetection");
-            return new SimpleStringProperty(
-                    ldt.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
-        });
-
-        TableColumn<Map<String, Object>, String> colStatut = new TableColumn<>("Statut");
-        colStatut.setPrefWidth(110);
-        colStatut.setCellValueFactory(d ->
-                new SimpleStringProperty((boolean) d.getValue().get("traitee")
-                        ? "✅ Traitée" : "⚠️ En attente"));
-        colStatut.setCellFactory(col -> new TableCell<>() {
-            @Override protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) { setText(null); setStyle(""); return; }
-                setText(item);
-                setStyle(item.contains("Traitée")
-                        ? "-fx-text-fill: #27ae60; -fx-font-weight: bold;"
-                        : "-fx-text-fill: #e74c3c; -fx-font-weight: bold;");
-            }
-        });
-
-        table.getColumns().addAll(colType, colDesc, colDate, colStatut);
-
-        table.setRowFactory(tv -> new TableRow<>() {
-            @Override protected void updateItem(Map<String, Object> item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) { setStyle(""); return; }
-                setStyle((boolean) item.get("traitee")
-                        ? "-fx-background-color: #f0fff0;"
-                        : "-fx-background-color: #fff5f5;");
-            }
-        });
-
-        // ── Labels stats ─────────────────────────────────────────
-        Label lblTotalA      = new Label("— alerte(s)");
-        Label lblNonTraitees = new Label("— non traitée(s)");
-        lblTotalA.setStyle("-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;");
-        lblNonTraitees.setStyle("-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #e74c3c;");
-
-        // ── Rechargement interne ──────────────────────────────────
-        Runnable charger = () -> {
-            try {
-                List<Map<String, Object>> alertes = antiFraudeService.recupererAlertes();
-                table.setItems(FXCollections.observableArrayList(alertes));
-                long nt = alertes.stream().filter(a -> !(boolean) a.get("traitee")).count();
-                lblTotalA.setText(alertes.size() + " alerte(s) enregistrée(s)");
-                lblNonTraitees.setText(nt + " non traitée(s)");
-            } catch (SQLException e) { showErr("Erreur", e.getMessage()); }
-        };
-        charger.run();
-
-        // ── Boutons ───────────────────────────────────────────────
-        Button btnAnalyser = creerBouton("🔍 Analyser tous les achats", "#2980b9");
-        Button btnVoirNT   = creerBouton("⚠️ Non traitées",             "#e67e22");
-        Button btnVoirTout = creerBouton("📋 Voir tout",                 "#7f8c8d");
-        Button btnTraiter  = creerBouton("✅ Marquer traitée",            "#27ae60");
-        Button btnSuppr    = creerBouton("🗑️ Supprimer",                 "#e74c3c");
-
-        btnAnalyser.setOnAction(ev -> {
-            try {
-                List<Map<String, Object>> nouvelles = antiFraudeService.analyserTousLesAchats();
-                charger.run();
-                if (nouvelles.isEmpty()) {
-                    showInfo("✅ Analyse terminée", "Aucune fraude détectée.");
-                } else {
-                    StringBuilder sb = new StringBuilder();
-                    nouvelles.forEach(a -> sb.append("• ").append(a.get("description")).append("\n"));
-                    showWarn("⚠️ " + nouvelles.size() + " alerte(s) générée(s)", sb.toString());
-                }
-            } catch (SQLException e) { showErr("Erreur analyse", e.getMessage()); }
-        });
-
-        btnVoirNT.setOnAction(ev -> {
-            try {
-                List<Map<String, Object>> alertes = antiFraudeService.recupererAlertesNonTraitees();
-                table.setItems(FXCollections.observableArrayList(alertes));
-                lblTotalA.setText(alertes.size() + " alerte(s) non traitée(s)");
-            } catch (SQLException e) { showErr("Erreur", e.getMessage()); }
-        });
-
-        btnVoirTout.setOnAction(ev -> charger.run());
-
-        btnTraiter.setOnAction(ev -> {
-            Map<String, Object> sel = table.getSelectionModel().getSelectedItem();
-            if (sel == null) { showWarn("Sélection", "Sélectionnez une alerte."); return; }
-            if ((boolean) sel.get("traitee")) { showInfo("Info", "Déjà traitée."); return; }
-            try {
-                antiFraudeService.marquerCommeTraitee((int) sel.get("idAlerte"));
-                charger.run();
-            } catch (SQLException e) { showErr("Erreur", e.getMessage()); }
-        });
-
-        btnSuppr.setOnAction(ev -> {
-            Map<String, Object> sel = table.getSelectionModel().getSelectedItem();
-            if (sel == null) { showWarn("Sélection", "Sélectionnez une alerte."); return; }
-            Alert confirm = new Alert(Alert.AlertType.CONFIRMATION,
-                    "Supprimer définitivement cette alerte ?", ButtonType.OK, ButtonType.CANCEL);
-            confirm.setTitle("Confirmation");
-            confirm.showAndWait().ifPresent(bt -> {
-                if (bt == ButtonType.OK) {
-                    try {
-                        antiFraudeService.supprimerAlerte((int) sel.get("idAlerte"));
-                        charger.run();
-                    } catch (SQLException e) { showErr("Erreur", e.getMessage()); }
-                }
-            });
-        });
-
-        // ── Layout ────────────────────────────────────────────────
-        Label titre = new Label("🛡️ Système Anti-Fraude");
-        titre.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;");
-
-        Label regle = new Label(
-                "Règles actives :  📦 Quantité > " + SEUIL_Q +
-                        " unités   |   🔁 ≥ " + SEUIL_NB + " achats le même jour pour un même client");
-        regle.setStyle("-fx-font-size: 12px; -fx-text-fill: #7f8c8d;");
-
-        HBox stats = new HBox(30, lblTotalA, lblNonTraitees);
-        stats.setAlignment(Pos.CENTER_LEFT);
-        stats.setPadding(new Insets(6, 0, 6, 0));
-
-        HBox actions = new HBox(10, btnAnalyser, btnVoirNT, btnVoirTout, btnTraiter, btnSuppr);
-        actions.setAlignment(Pos.CENTER_LEFT);
-        actions.setPadding(new Insets(8, 0, 8, 0));
-
-        VBox root = new VBox(10, titre, regle, new Separator(), stats, actions, table);
-        root.setPadding(new Insets(20));
-        root.setStyle("-fx-background-color: #f5f6fa;");
-
-        stage.setScene(new Scene(root, 1050, 560));
-        stage.show();
-    }
-
-    // ═══════════════════════════════════════════════════════════════
-    //  HELPERS
-    // ═══════════════════════════════════════════════════════════════
-    private Button creerBouton(String texte, String couleur) {
-        Button b = new Button(texte);
-        b.setStyle("-fx-background-color: " + couleur + "; -fx-text-fill: white; " +
-                "-fx-font-weight: bold; -fx-font-size: 12px; " +
-                "-fx-background-radius: 6; -fx-cursor: hand; -fx-padding: 8 16;");
-        return b;
-    }
-
-    private void mettreAJourStats() {
-        if (lblTotal         != null) lblTotal.setText(String.valueOf(displayList.size()));
-        if (lblQuantiteTotal != null) {
-            int t = displayList.stream().mapToInt(AchatVM::getQuantite).sum();
-            lblQuantiteTotal.setText(String.valueOf(t));
-        }
+    private Label makeLabel(String text) {
+        Label l = new Label(text);
+        l.setStyle("-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #2c3e50;");
+        return l;
     }
 
     private ObservableList<UserInfo> recupererUsers() {
-        ObservableList<UserInfo> users = FXCollections.observableArrayList();
+        ObservableList<UserInfo> list = FXCollections.observableArrayList();
+        String sql = "SELECT cin, nom, prenom FROM users ORDER BY nom, prenom";
         try (Statement st = connection.createStatement();
-             ResultSet rs = st.executeQuery("SELECT cin, nom, prenom FROM users ORDER BY nom, prenom")) {
+             ResultSet rs = st.executeQuery(sql)) {
             while (rs.next())
-                users.add(new UserInfo(rs.getInt("cin"), rs.getString("nom"), rs.getString("prenom")));
-        } catch (SQLException e) { System.err.println("Erreur users : " + e.getMessage()); }
-        return users;
-    }
-
-    private Label makeLabel(String text) {
-        Label l = new Label(text);
-        l.setStyle("-fx-font-weight: bold; -fx-text-fill: #34495e;");
-        return l;
+                list.add(new UserInfo(rs.getInt("cin"), rs.getString("nom"), rs.getString("prenom")));
+        } catch (SQLException e) { showErr("Erreur", "Chargement utilisateurs : " + e.getMessage()); }
+        return list;
     }
 
     // ═══════════════════════════════════════════════════════════════

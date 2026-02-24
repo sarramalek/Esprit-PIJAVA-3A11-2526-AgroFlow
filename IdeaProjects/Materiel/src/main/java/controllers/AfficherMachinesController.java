@@ -61,11 +61,8 @@ public class AfficherMachinesController {
     @FXML private TableColumn<Machine, String>    colNom;
 
     // ── Recherche & Filtres ───────────────────────────────────────────────────
-    /** Recherche libre sur tous les attributs sauf la date */
     @FXML private TextField        champRecherche;
-    /** Filtre combo par NOM */
     @FXML private ComboBox<String> comboNom;
-    /** Filtre combo par MODELE */
     @FXML private ComboBox<String> comboModele;
 
     // ── Statistiques ─────────────────────────────────────────────────────────
@@ -79,7 +76,7 @@ public class AfficherMachinesController {
     // ── Service ───────────────────────────────────────────────────────────────
     private final MachineService machineService = new MachineService();
 
-    // ── Données ───────────────────────────────────────────────────────────────
+    // ── Donnees ───────────────────────────────────────────────────────────────
     private final ObservableList<Machine> masterList   = FXCollections.observableArrayList();
     private       FilteredList<Machine>   filteredList;
     private       SortedList<Machine>     sortedList;
@@ -106,7 +103,6 @@ public class AfficherMachinesController {
         colDateAchat.setCellValueFactory(new PropertyValueFactory<>("dateAchat"));
         colNom.setCellValueFactory(new PropertyValueFactory<>("nom"));
 
-        // Colonne État colorée
         colEtat.setCellFactory(col -> new TableCell<>() {
             @Override
             protected void updateItem(String val, boolean empty) {
@@ -124,7 +120,6 @@ public class AfficherMachinesController {
             }
         });
 
-        // Colonne Date formatée
         colDateAchat.setCellFactory(col -> new TableCell<>() {
             @Override
             protected void updateItem(LocalDate val, boolean empty) {
@@ -157,12 +152,7 @@ public class AfficherMachinesController {
         }
     }
 
-    /**
-     * Peuple comboNom (valeurs distinctes du champ Nom)
-     * et comboModele (valeurs distinctes du champ Modele).
-     */
     private void peuplerCombos() {
-        // ── Combo NOM ─────────────────────────────────────────────────────────
         List<String> noms = masterList.stream()
                 .map(Machine::getNom)
                 .filter(n -> n != null && !n.isBlank())
@@ -172,24 +162,18 @@ public class AfficherMachinesController {
         comboNom.setItems(FXCollections.observableArrayList(noms));
         comboNom.getSelectionModel().selectFirst();
 
-        // ── Combo MODELE ──────────────────────────────────────────────────────
         List<String> modeles = masterList.stream()
                 .map(Machine::getModele)
                 .filter(m -> m != null && !m.isBlank())
                 .distinct().sorted()
                 .collect(Collectors.toList());
-        modeles.add(0, "Tous les modèles");
+        modeles.add(0, "Tous les modeles");
         comboModele.setItems(FXCollections.observableArrayList(modeles));
         comboModele.getSelectionModel().selectFirst();
     }
 
     // ════════════════════════════════════════════════════════════════════════
     //  FILTRES & RECHERCHE
-    //
-    //  champRecherche → recherche sur TOUS les attributs sauf la date
-    //                   (Marque, Modèle, État, N° Série, Nom)
-    //  comboNom       → filtre supplémentaire par NOM exact
-    //  comboModele    → filtre supplémentaire par MODELE exact
     // ════════════════════════════════════════════════════════════════════════
 
     @FXML
@@ -200,8 +184,6 @@ public class AfficherMachinesController {
         String modele = comboModele.getValue();
 
         filteredList.setPredicate(m -> {
-
-            // ── 1. Recherche libre (tous attributs sauf date) ─────────────────
             boolean okRecherche = texte.isEmpty()
                     || contient(m.getMarque(),      texte)
                     || contient(m.getModele(),      texte)
@@ -209,11 +191,9 @@ public class AfficherMachinesController {
                     || contient(m.getNumeroSerie(), texte)
                     || contient(m.getNom(),         texte);
 
-            // ── 2. Filtre combo Nom ───────────────────────────────────────────
             boolean okNom = nom == null || nom.startsWith("Tous")
                     || nom.equalsIgnoreCase(m.getNom());
 
-            // ── 3. Filtre combo Modèle ────────────────────────────────────────
             boolean okModele = modele == null || modele.startsWith("Tous")
                     || modele.equalsIgnoreCase(m.getModele());
 
@@ -223,7 +203,6 @@ public class AfficherMachinesController {
         majStatistiques();
     }
 
-    /** Remet à zéro tous les filtres et relance l'affichage complet. */
     @FXML
     private void reinitialiserFiltres() {
         champRecherche.clear();
@@ -232,10 +211,6 @@ public class AfficherMachinesController {
         appliquerFiltres();
     }
 
-    /**
-     * Recharge toutes les données depuis la base de données,
-     * rafraîchit les combos et réapplique les filtres courants.
-     */
     @FXML
     private void actualiser() {
         chargerMachines();
@@ -305,7 +280,7 @@ public class AfficherMachinesController {
         if (occasion > 0) d.add(new PieChart.Data("Occasion/Bon (" + occasion + ")", occasion));
         if (enPanne  > 0) d.add(new PieChart.Data("En panne ("     + enPanne  + ")", enPanne));
         if (autres   > 0) d.add(new PieChart.Data("Autres ("       + autres   + ")", autres));
-        if (d.isEmpty())  d.add(new PieChart.Data("Aucune donnée", 1));
+        if (d.isEmpty())  d.add(new PieChart.Data("Aucune donnee", 1));
         pieStats.setData(d);
         Platform.runLater(() -> appliquerCouleursPie(d, PIE_COLORS));
     }
@@ -318,7 +293,7 @@ public class AfficherMachinesController {
     }
 
     // ════════════════════════════════════════════════════════════════════════
-    //  POPUP STATISTIQUES DÉTAILLÉES
+    //  POPUP STATISTIQUES DETAILLEES
     // ════════════════════════════════════════════════════════════════════════
 
     @FXML
@@ -329,9 +304,9 @@ public class AfficherMachinesController {
         long enPanne  = compterEtatSimple("en panne");
         long autres   = total - neuves - occasion - enPanne;
 
-        Label titre = new Label("📊  Statistiques des Machines");
+        Label titre = new Label("Statistiques des Machines");
         titre.setStyle("-fx-font-size:20px;-fx-font-weight:bold;-fx-text-fill:#2c3e50;");
-        Label sousTitre = new Label("Total : " + total + "   |   Affichés : " + sortedList.size());
+        Label sousTitre = new Label("Total : " + total + "   |   Affiches : " + sortedList.size());
         sousTitre.setStyle("-fx-font-size:12px;-fx-text-fill:#7f8c8d;");
 
         ObservableList<PieChart.Data> pd = FXCollections.observableArrayList();
@@ -345,7 +320,7 @@ public class AfficherMachinesController {
             if (autres   > 0) pd.add(new PieChart.Data(
                     String.format("Autres\n%d (%.1f%%)",       autres,   pct(autres,   total)), autres));
         } else {
-            pd.add(new PieChart.Data("Aucune donnée", 1));
+            pd.add(new PieChart.Data("Aucune donnee", 1));
         }
 
         PieChart chart = new PieChart(pd);
@@ -354,7 +329,7 @@ public class AfficherMachinesController {
         chart.setStyle("-fx-background-color:transparent;");
         Platform.runLater(() -> appliquerCouleursPie(pd, PIE_COLORS));
 
-        Button btnFermer = new Button("✖  Fermer");
+        Button btnFermer = new Button("Fermer");
         btnFermer.setPrefSize(140, 40);
         btnFermer.setStyle("-fx-background-color:#8e44ad;-fx-text-fill:white;"
                 + "-fx-font-size:14px;-fx-font-weight:bold;"
@@ -373,7 +348,7 @@ public class AfficherMachinesController {
         layout.setStyle("-fx-background-color:#f0f2f5;");
 
         Stage popup = new Stage();
-        popup.setTitle("📊 Statistiques — Gestion des Machines");
+        popup.setTitle("Statistiques - Gestion des Machines");
         popup.setScene(new Scene(layout, 620, 720));
         popup.initModality(Modality.APPLICATION_MODAL);
         popup.initOwner(tableMachines.getScene().getWindow());
@@ -396,7 +371,7 @@ public class AfficherMachinesController {
             Parent root = FXMLLoader.load(fxmlUrl);
             Stage stage = (Stage) tableMachines.getScene().getWindow();
             stage.setScene(new Scene(root, 1300, 820));
-            stage.setTitle("⚡ MindSphere IoT — API Avancée | AGROFLOW");
+            stage.setTitle("MindSphere IoT - API Avancee | AGROFLOW");
             stage.show();
         } catch (IOException e) {
             alerte("Erreur MindSphere",
@@ -415,7 +390,7 @@ public class AfficherMachinesController {
     private void versModifier() {
         Machine sel = tableMachines.getSelectionModel().getSelectedItem();
         if (sel == null) {
-            alerte("Attention", "Sélectionnez une machine à modifier.", Alert.AlertType.WARNING);
+            alerte("Attention", "Selectionnez une machine a modifier.", Alert.AlertType.WARNING);
             return;
         }
         try {
@@ -435,18 +410,18 @@ public class AfficherMachinesController {
     private void handleSupprimer() {
         Machine sel = tableMachines.getSelectionModel().getSelectedItem();
         if (sel == null) {
-            alerte("Attention", "Sélectionnez une machine à supprimer.", Alert.AlertType.WARNING);
+            alerte("Attention", "Selectionnez une machine a supprimer.", Alert.AlertType.WARNING);
             return;
         }
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION,
-                "Supprimer « " + sel.getMarque() + " " + sel.getModele() + " » ?",
+                "Supprimer " + sel.getMarque() + " " + sel.getModele() + " ?",
                 ButtonType.YES, ButtonType.NO);
         confirm.setTitle("Confirmation suppression"); confirm.setHeaderText(null);
         confirm.showAndWait().ifPresent(btn -> {
             if (btn == ButtonType.YES) {
                 try {
                     machineService.supprimer(sel.getIdM());
-                    alerte("Succès", "Machine supprimée avec succès.", Alert.AlertType.INFORMATION);
+                    alerte("Succes", "Machine supprimee avec succes.", Alert.AlertType.INFORMATION);
                     chargerMachines();
                 } catch (Exception e) {
                     alerte("Erreur", "Impossible de supprimer : " + e.getMessage(),
@@ -489,8 +464,8 @@ public class AfficherMachinesController {
 
                     cs.beginText(); cs.setFont(plain, 9);
                     cs.newLineAtOffset(marg, y);
-                    cs.showText("Exporté le " + LocalDate.now().format(DATE_FMT)
-                            + " | Résultats : " + lignes.size()
+                    cs.showText("Exporte le " + LocalDate.now().format(DATE_FMT)
+                            + " | Resultats : " + lignes.size()
                             + " / Total : " + masterList.size()
                             + " | Page " + (pi + 1) + "/" + pages);
                     cs.endText(); y -= 14;
@@ -559,7 +534,7 @@ public class AfficherMachinesController {
                         cs.setNonStrokingColor(0.2f, 0.2f, 0.2f);
                         cs.beginText(); cs.setFont(bold, 9);
                         cs.newLineAtOffset(marg, y);
-                        cs.showText("Stats — Total:" + masterList.size()
+                        cs.showText("Stats - Total:" + masterList.size()
                                 + " | Neuves:" + lblNeuves.getText()
                                 + " | Occasion:" + lblOccasion.getText()
                                 + " | Pannes:" + lblEnPanne.getText());
@@ -568,10 +543,10 @@ public class AfficherMachinesController {
                 }
             }
             doc.save(fichier);
-            alerte("Export PDF", "Fichier sauvegardé :\n" + fichier.getPath(),
+            alerte("Export PDF", "Fichier sauvegarde :\n" + fichier.getPath(),
                     Alert.AlertType.INFORMATION);
         } catch (IOException e) {
-            alerte("Erreur PDF", "Export échoué : " + e.getMessage(), Alert.AlertType.ERROR);
+            alerte("Erreur PDF", "Export echoue : " + e.getMessage(), Alert.AlertType.ERROR);
         }
     }
 
@@ -606,13 +581,13 @@ public class AfficherMachinesController {
 
             Row r0 = sheet.createRow(0);
             org.apache.poi.ss.usermodel.Cell c0 = r0.createCell(0);
-            c0.setCellValue("AGROFLOW - Machines - Exporté le " + LocalDate.now().format(DATE_FMT));
+            c0.setCellValue("AGROFLOW - Machines - Exporte le " + LocalDate.now().format(DATE_FMT));
             c0.setCellStyle(csT);
             sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 5));
             sheet.createRow(1).createCell(0).setCellValue(
-                    "Résultats : " + lignes.size() + " / Total : " + masterList.size());
+                    "Resultats : " + lignes.size() + " / Total : " + masterList.size());
 
-            String[] hdr = {"Marque","Modèle","État","N° Série","Date Achat","Nom"};
+            String[] hdr = {"Marque","Modele","Etat","N Serie","Date Achat","Nom"};
             Row rH = sheet.createRow(3);
             for (int i = 0; i < hdr.length; i++) {
                 org.apache.poi.ss.usermodel.Cell c = rH.createCell(i);
@@ -640,7 +615,6 @@ public class AfficherMachinesController {
                 }
             }
 
-            // Onglet Statistiques
             Sheet ss = wb.createSheet("Statistiques");
             ss.setDefaultColumnWidth(28);
             CellStyle csS = wb.createCellStyle(); Font fS = wb.createFont();
@@ -654,7 +628,7 @@ public class AfficherMachinesController {
                     {"Neuves/Disponibles", lblNeuves.getText()},
                     {"Occasion/Bon",       lblOccasion.getText()},
                     {"En panne",           lblEnPanne.getText()},
-                    {"Résultats affichés", lblFiltres.getText()},
+                    {"Resultats affiches", lblFiltres.getText()},
                     {"Date export",        LocalDate.now().format(DATE_FMT)}
             };
             for (int i = 0; i < stats.length; i++) {
@@ -667,10 +641,10 @@ public class AfficherMachinesController {
             }
 
             try (FileOutputStream fos = new FileOutputStream(fichier)) { wb.write(fos); }
-            alerte("Export Excel", "Fichier sauvegardé :\n" + fichier.getPath()
+            alerte("Export Excel", "Fichier sauvegarde :\n" + fichier.getPath()
                     + "\n(2 onglets : 'Machines' + 'Statistiques')", Alert.AlertType.INFORMATION);
         } catch (IOException e) {
-            alerte("Erreur Excel", "Export échoué : " + e.getMessage(), Alert.AlertType.ERROR);
+            alerte("Erreur Excel", "Export echoue : " + e.getMessage(), Alert.AlertType.ERROR);
         }
     }
 
@@ -730,7 +704,7 @@ public class AfficherMachinesController {
                 {"Neuves/Disponibles", PIE_COLORS[0]},
                 {"Occasion/Bon",       PIE_COLORS[1]},
                 {"En panne",           PIE_COLORS[2]},
-                {"Autres états",       PIE_COLORS[3]}
+                {"Autres etats",       PIE_COLORS[3]}
         };
         for (String[] ld : data) {
             Label dot = new Label("●");
@@ -749,10 +723,10 @@ public class AfficherMachinesController {
         h.setAlignment(Pos.CENTER);
         h.setPadding(new Insets(10, 20, 10, 20));
         Object[][] data = {
-                {"📋 Total",       total,    "#3498db", total > 0 ? 100.0 : 0.0},
-                {"✅ Neuves/Dispo", neuves,   "#27ae60", pct(neuves,   total)},
-                {"🔧 Occasion/Bon", occasion, "#e67e22", pct(occasion, total)},
-                {"🔴 En panne",    enPanne,  "#e74c3c", pct(enPanne,  total)}
+                {"Total",        total,    "#3498db", total > 0 ? 100.0 : 0.0},
+                {"Neuves/Dispo", neuves,   "#27ae60", pct(neuves,   total)},
+                {"Occasion/Bon", occasion, "#e67e22", pct(occasion, total)},
+                {"En panne",     enPanne,  "#e74c3c", pct(enPanne,  total)}
         };
         for (Object[] cd : data) {
             VBox card = new VBox(4);
@@ -794,9 +768,677 @@ public class AfficherMachinesController {
         }
         VBox box = new VBox(4);
         box.setPadding(new Insets(0, 20, 0, 20));
-        Label lbl = new Label("Répartition visuelle");
+        Label lbl = new Label("Repartition visuelle");
         lbl.setStyle("-fx-font-size:11px;-fx-text-fill:#7f8c8d;-fx-font-weight:bold;");
         box.getChildren().addAll(lbl, b);
         return box;
     }
-}
+
+    // ════════════════════════════════════════════════════════════════════════
+    //  GENERER FACTURE PDF
+    // ════════════════════════════════════════════════════════════════════════
+
+    @FXML
+    private void genererFacture() {
+        Machine sel = tableMachines.getSelectionModel().getSelectedItem();
+        if (sel == null) {
+            alerte("Attention", "Selectionnez une machine pour generer sa facture.", Alert.AlertType.WARNING);
+            return;
+        }
+
+        File fichier = choisirFichier("PDF", "*.pdf",
+                "facture_" + sel.getNumeroSerie() + "_" + LocalDate.now() + ".pdf");
+        if (fichier == null) return;
+
+        float pageW = PDRectangle.A4.getWidth(), pageH = PDRectangle.A4.getHeight();
+        float marg = 50f;
+
+        try (PDDocument doc = new PDDocument()) {
+            PDPage page = new PDPage(PDRectangle.A4);
+            doc.addPage(page);
+
+            PDType1Font bold    = new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD);
+            PDType1Font plain   = new PDType1Font(Standard14Fonts.FontName.HELVETICA);
+            PDType1Font oblique = new PDType1Font(Standard14Fonts.FontName.HELVETICA_OBLIQUE);
+
+            try (PDPageContentStream cs = new PDPageContentStream(doc, page)) {
+                float y = pageH - marg;
+
+                cs.setNonStrokingColor(0.17f, 0.24f, 0.31f);
+                cs.addRect(marg - 10, y - 70, pageW - 2 * marg + 20, 75);
+                cs.fill();
+
+                cs.setNonStrokingColor(1f, 1f, 1f);
+                cs.beginText(); cs.setFont(bold, 22);
+                cs.newLineAtOffset(marg, y - 30);
+                cs.showText("AGROFLOW"); cs.endText();
+
+                cs.beginText(); cs.setFont(plain, 10);
+                cs.newLineAtOffset(marg, y - 48);
+                cs.showText("Gestion Agricole Intelligente"); cs.endText();
+
+                cs.beginText(); cs.setFont(plain, 9);
+                cs.newLineAtOffset(marg, y - 62);
+                cs.showText("contact@agroflow.tn  |  www.agroflow.tn  |  +216 XX XXX XXX"); cs.endText();
+
+                String numFacture = "FAC-" + LocalDate.now().getYear()
+                        + String.format("%04d", (int)(Math.random() * 9999 + 1));
+                cs.setNonStrokingColor(0.96f, 0.76f, 0.15f);
+                cs.beginText(); cs.setFont(bold, 13);
+                cs.newLineAtOffset(pageW - marg - 120, y - 30);
+                cs.showText("FACTURE"); cs.endText();
+                cs.setNonStrokingColor(1f, 1f, 1f);
+                cs.beginText(); cs.setFont(plain, 10);
+                cs.newLineAtOffset(pageW - marg - 120, y - 46);
+                cs.showText("N " + numFacture); cs.endText();
+                cs.beginText(); cs.setFont(plain, 9);
+                cs.newLineAtOffset(pageW - marg - 120, y - 59);
+                cs.showText("Date : " + LocalDate.now().format(DATE_FMT)); cs.endText();
+
+                y -= 90;
+
+                cs.setNonStrokingColor(0.17f, 0.24f, 0.31f);
+                cs.beginText(); cs.setFont(bold, 15);
+                cs.newLineAtOffset(marg, y);
+                cs.showText("FACTURE D'ACQUISITION DE MACHINE"); cs.endText();
+                y -= 6;
+                cs.setStrokingColor(0.17f, 0.24f, 0.31f);
+                cs.setLineWidth(2f);
+                cs.moveTo(marg, y); cs.lineTo(pageW - marg, y); cs.stroke();
+                y -= 20;
+
+                cs.setNonStrokingColor(0.27f, 0.60f, 0.38f);
+                cs.addRect(marg - 5, y - 4, pageW - 2 * marg + 10, 20);
+                cs.fill();
+                cs.setNonStrokingColor(1f, 1f, 1f);
+                cs.beginText(); cs.setFont(bold, 10);
+                cs.newLineAtOffset(marg, y + 2);
+                cs.showText("DETAILS DE LA MACHINE"); cs.endText();
+                y -= 18;
+
+                String[][] infos = {
+                        {"Marque",          s(sel.getMarque())},
+                        {"Modele",          s(sel.getModele())},
+                        {"Numero de serie", s(sel.getNumeroSerie())},
+                        {"Etat",            s(sel.getEtatM())},
+                        {"Date d achat",    sel.getDateAchat() != null ? sel.getDateAchat().format(DATE_FMT) : "N/A"},
+                        {"Responsable",     s(sel.getNom())}
+                };
+
+                boolean alt = false;
+                for (String[] info : infos) {
+                    if (alt) {
+                        cs.setNonStrokingColor(0.95f, 0.97f, 0.99f);
+                        cs.addRect(marg - 5, y - 4, pageW - 2 * marg + 10, 18);
+                        cs.fill();
+                    }
+                    alt = !alt;
+                    cs.setNonStrokingColor(0.3f, 0.3f, 0.3f);
+                    cs.beginText(); cs.setFont(bold, 10);
+                    cs.newLineAtOffset(marg, y);
+                    cs.showText(info[0] + " :"); cs.endText();
+
+                    cs.setNonStrokingColor(0.1f, 0.1f, 0.1f);
+                    cs.beginText(); cs.setFont(plain, 10);
+                    cs.newLineAtOffset(marg + 140, y);
+                    cs.showText(info[1]); cs.endText();
+                    y -= 18;
+                }
+                y -= 16;
+
+                cs.setNonStrokingColor(0.17f, 0.24f, 0.31f);
+                cs.addRect(marg - 5, y - 4, pageW - 2 * marg + 10, 20);
+                cs.fill();
+                cs.setNonStrokingColor(1f, 1f, 1f);
+                cs.beginText(); cs.setFont(bold, 10);
+                cs.newLineAtOffset(marg, y + 2);
+                cs.showText("RECAPITULATIF FINANCIER"); cs.endText();
+                y -= 20;
+
+                float[] cw2 = {200, 80, 80, 80};
+                String[] hdr2 = {"Designation", "Qte", "P.U (TND)", "Total (TND)"};
+                float xc = marg;
+                cs.setNonStrokingColor(0.85f, 0.90f, 0.95f);
+                cs.addRect(marg - 5, y - 4, pageW - 2 * marg + 10, 18);
+                cs.fill();
+                cs.setNonStrokingColor(0.2f, 0.2f, 0.2f);
+                for (int i = 0; i < hdr2.length; i++) {
+                    cs.beginText(); cs.setFont(bold, 9);
+                    cs.newLineAtOffset(xc, y);
+                    cs.showText(hdr2[i]); cs.endText();
+                    xc += cw2[i];
+                }
+                y -= 18;
+
+                xc = marg;
+                String[] row1 = {s(sel.getMarque()) + " " + s(sel.getModele()), "1", "Sur devis", "Sur devis"};
+                cs.setNonStrokingColor(0.95f, 0.97f, 0.99f);
+                cs.addRect(marg - 5, y - 4, pageW - 2 * marg + 10, 18);
+                cs.fill();
+                cs.setNonStrokingColor(0.1f, 0.1f, 0.1f);
+                for (int i = 0; i < row1.length; i++) {
+                    cs.beginText(); cs.setFont(plain, 9);
+                    cs.newLineAtOffset(xc, y);
+                    cs.showText(row1[i]); cs.endText();
+                    xc += cw2[i];
+                }
+                y -= 40;
+
+                cs.setLineWidth(0.5f); cs.setStrokingColor(0.7f, 0.7f, 0.7f);
+                cs.moveTo(pageW - marg - 160, y + 15); cs.lineTo(pageW - marg, y + 15); cs.stroke();
+                cs.setNonStrokingColor(0.3f, 0.3f, 0.3f);
+                cs.beginText(); cs.setFont(plain, 10);
+                cs.newLineAtOffset(pageW - marg - 160, y);
+                cs.showText("Sous-total HT :"); cs.endText();
+                cs.beginText(); cs.setFont(plain, 10);
+                cs.newLineAtOffset(pageW - marg - 40, y);
+                cs.showText("Sur devis"); cs.endText();
+                y -= 16;
+
+                cs.beginText(); cs.setFont(plain, 10);
+                cs.newLineAtOffset(pageW - marg - 160, y);
+                cs.showText("TVA (19%) :"); cs.endText();
+                cs.beginText(); cs.setFont(plain, 10);
+                cs.newLineAtOffset(pageW - marg - 40, y);
+                cs.showText("---"); cs.endText();
+                y -= 16;
+
+                cs.setNonStrokingColor(0.17f, 0.24f, 0.31f);
+                cs.addRect(pageW - marg - 165, y - 4, 170, 20);
+                cs.fill();
+                cs.setNonStrokingColor(1f, 1f, 1f);
+                cs.beginText(); cs.setFont(bold, 11);
+                cs.newLineAtOffset(pageW - marg - 160, y);
+                cs.showText("TOTAL TTC :"); cs.endText();
+                cs.beginText(); cs.setFont(bold, 11);
+                cs.newLineAtOffset(pageW - marg - 40, y);
+                cs.showText("Sur devis"); cs.endText();
+                y -= 40;
+
+                cs.setLineWidth(1f); cs.setStrokingColor(0.17f, 0.24f, 0.31f);
+                cs.moveTo(marg, marg + 50); cs.lineTo(pageW - marg, marg + 50); cs.stroke();
+                cs.setNonStrokingColor(0.4f, 0.4f, 0.4f);
+                cs.beginText(); cs.setFont(oblique, 8);
+                cs.newLineAtOffset(marg, marg + 36);
+                cs.showText("Ce document est genere automatiquement par AGROFLOW - Systeme de Gestion Agricole"); cs.endText();
+                cs.beginText(); cs.setFont(plain, 8);
+                cs.newLineAtOffset(marg, marg + 22);
+                cs.showText("Numero de facture : " + numFacture + "  |  Emise le : " + LocalDate.now().format(DATE_FMT)); cs.endText();
+                cs.beginText(); cs.setFont(plain, 8);
+                cs.newLineAtOffset(marg, marg + 10);
+                cs.showText("Signature & cachet de l entreprise : ____________________"); cs.endText();
+
+                cs.beginText(); cs.setFont(plain, 8);
+                cs.newLineAtOffset(pageW - marg - 140, marg + 22);
+                cs.showText("Signature du client :"); cs.endText();
+                cs.beginText(); cs.setFont(plain, 8);
+                cs.newLineAtOffset(pageW - marg - 140, marg + 10);
+                cs.showText("____________________"); cs.endText();
+            }
+
+            doc.save(fichier);
+            alerte("Facture generee",
+                    "Facture sauvegardee :\n" + fichier.getPath(), Alert.AlertType.INFORMATION);
+        } catch (IOException e) {
+            alerte("Erreur Facture", "Generation echouee : " + e.getMessage(), Alert.AlertType.ERROR);
+        }
+    }
+
+    // ════════════════════════════════════════════════════════════════════════
+    //  RAPPORT MENSUEL DES ACQUISITIONS
+    // ════════════════════════════════════════════════════════════════════════
+
+    @FXML
+    private void genererRapportMensuel() {
+        File fichier = choisirFichier("PDF", "*.pdf",
+                "rapport_mensuel_" + LocalDate.now().getYear()
+                        + "_" + String.format("%02d", LocalDate.now().getMonthValue()) + ".pdf");
+        if (fichier == null) return;
+
+        java.util.Map<String, List<Machine>> parMois = masterList.stream()
+                .filter(m -> m.getDateAchat() != null)
+                .collect(Collectors.groupingBy(m -> {
+                    LocalDate d = m.getDateAchat();
+                    return String.format("%04d-%02d", d.getYear(), d.getMonthValue());
+                }));
+
+        List<String> moisTries = parMois.keySet().stream()
+                .sorted(Comparator.reverseOrder()).collect(Collectors.toList());
+
+        float pageW = PDRectangle.A4.getWidth(), pageH = PDRectangle.A4.getHeight();
+        float marg = 45f, rowH = 18f;
+
+        try (PDDocument doc = new PDDocument()) {
+            PDType1Font bold  = new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD);
+            PDType1Font plain = new PDType1Font(Standard14Fonts.FontName.HELVETICA);
+
+            PDPage cover = new PDPage(PDRectangle.A4);
+            doc.addPage(cover);
+            try (PDPageContentStream cs = new PDPageContentStream(doc, cover)) {
+                cs.setNonStrokingColor(0.11f, 0.16f, 0.19f);
+                cs.addRect(0, pageH * 0.55f, pageW, pageH * 0.45f); cs.fill();
+                cs.setNonStrokingColor(0.15f, 0.60f, 0.38f);
+                cs.addRect(0, pageH * 0.48f, pageW, pageH * 0.08f); cs.fill();
+                cs.setNonStrokingColor(0.95f, 0.97f, 1f);
+                cs.addRect(0, 0, pageW, pageH * 0.48f); cs.fill();
+
+                cs.setNonStrokingColor(1f, 1f, 1f);
+                cs.beginText(); cs.setFont(bold, 36);
+                cs.newLineAtOffset(marg, pageH * 0.55f + 100);
+                cs.showText("AGROFLOW"); cs.endText();
+
+                cs.setNonStrokingColor(0.60f, 0.93f, 0.68f);
+                cs.beginText(); cs.setFont(plain, 14);
+                cs.newLineAtOffset(marg, pageH * 0.55f + 72);
+                cs.showText("Gestion Agricole Intelligente"); cs.endText();
+
+                cs.setNonStrokingColor(0.17f, 0.24f, 0.31f);
+                cs.beginText(); cs.setFont(bold, 26);
+                cs.newLineAtOffset(marg, pageH * 0.48f - 60);
+                cs.showText("RAPPORT MENSUEL"); cs.endText();
+                cs.beginText(); cs.setFont(bold, 20);
+                cs.newLineAtOffset(marg, pageH * 0.48f - 90);
+                cs.showText("DES ACQUISITIONS MACHINES"); cs.endText();
+
+                cs.beginText(); cs.setFont(plain, 12);
+                cs.newLineAtOffset(marg, pageH * 0.48f - 120);
+                cs.showText("Annee " + LocalDate.now().getYear()
+                        + "  |  Genere le " + LocalDate.now().format(DATE_FMT)); cs.endText();
+
+                cs.setNonStrokingColor(0.27f, 0.60f, 0.38f);
+                cs.addRect(marg - 5, pageH * 0.48f - 190, pageW - 2 * marg + 10, 55);
+                cs.fill();
+                cs.setNonStrokingColor(1f, 1f, 1f);
+                cs.beginText(); cs.setFont(bold, 11);
+                cs.newLineAtOffset(marg, pageH * 0.48f - 148);
+                cs.showText("SYNTHESE GLOBALE"); cs.endText();
+                cs.beginText(); cs.setFont(plain, 10);
+                cs.newLineAtOffset(marg, pageH * 0.48f - 164);
+                cs.showText("Total machines : " + masterList.size()
+                        + "    |    Mois analyses : " + moisTries.size()
+                        + "    |    Neuves : " + lblNeuves.getText()
+                        + "    |    En panne : " + lblEnPanne.getText()); cs.endText();
+            }
+
+            String[] moisNoms = {"","Janvier","Fevrier","Mars","Avril","Mai","Juin",
+                    "Juillet","Aout","Septembre","Octobre","Novembre","Decembre"};
+
+            for (String moisKey : moisTries) {
+                List<Machine> mMachines = parMois.get(moisKey);
+                String[] parts = moisKey.split("-");
+                String moisLabel = moisNoms[Integer.parseInt(parts[1])] + " " + parts[0];
+
+                PDPage page = new PDPage(PDRectangle.A4);
+                doc.addPage(page);
+
+                try (PDPageContentStream cs = new PDPageContentStream(doc, page)) {
+                    float y = pageH - marg;
+
+                    cs.setNonStrokingColor(0.17f, 0.24f, 0.31f);
+                    cs.addRect(marg - 5, y - 35, pageW - 2 * marg + 10, 40);
+                    cs.fill();
+                    cs.setNonStrokingColor(0.96f, 0.76f, 0.15f);
+                    cs.beginText(); cs.setFont(bold, 16);
+                    cs.newLineAtOffset(marg, y - 24);
+                    cs.showText(moisLabel.toUpperCase()); cs.endText();
+                    cs.setNonStrokingColor(1f, 1f, 1f);
+                    cs.beginText(); cs.setFont(plain, 10);
+                    cs.newLineAtOffset(pageW - marg - 80, y - 24);
+                    cs.showText(mMachines.size() + " machine(s)"); cs.endText();
+                    y -= 52;
+
+                    long nv = mMachines.stream().filter(m -> m.getEtatM() != null
+                            && (m.getEtatM().equalsIgnoreCase("neuf") || m.getEtatM().equalsIgnoreCase("disponible"))).count();
+                    long oc = mMachines.stream().filter(m -> m.getEtatM() != null
+                            && (m.getEtatM().equalsIgnoreCase("occasion") || m.getEtatM().equalsIgnoreCase("bon"))).count();
+                    long ep = mMachines.stream().filter(m -> m.getEtatM() != null
+                            && m.getEtatM().equalsIgnoreCase("en panne")).count();
+
+                    cs.setNonStrokingColor(0.17f, 0.53f, 0.25f);
+                    cs.beginText(); cs.setFont(plain, 9);
+                    cs.newLineAtOffset(marg, y);
+                    cs.showText("Neuves/Dispo : " + nv); cs.endText();
+                    cs.setNonStrokingColor(0.90f, 0.49f, 0.13f);
+                    cs.beginText(); cs.setFont(plain, 9);
+                    cs.newLineAtOffset(marg + 130, y);
+                    cs.showText("Occasion/Bon : " + oc); cs.endText();
+                    cs.setNonStrokingColor(0.91f, 0.30f, 0.24f);
+                    cs.beginText(); cs.setFont(plain, 9);
+                    cs.newLineAtOffset(marg + 260, y);
+                    cs.showText("En panne : " + ep); cs.endText();
+                    y -= 16;
+
+                    cs.setStrokingColor(0.8f, 0.8f, 0.8f); cs.setLineWidth(0.5f);
+                    cs.moveTo(marg, y); cs.lineTo(pageW - marg, y); cs.stroke();
+                    y -= 10;
+
+                    float[] cw3 = {90, 85, 80, 120, 85, 45};
+                    String[] hdr3 = {"Marque","Modele","Etat","N Serie","Date Achat","Nom"};
+                    cs.setNonStrokingColor(0.22f, 0.34f, 0.42f);
+                    cs.addRect(marg - 5, y - 4, pageW - 2 * marg + 10, 18);
+                    cs.fill();
+                    float xc = marg;
+                    cs.setNonStrokingColor(1f, 1f, 1f);
+                    for (int i = 0; i < hdr3.length; i++) {
+                        cs.beginText(); cs.setFont(bold, 9);
+                        cs.newLineAtOffset(xc, y);
+                        cs.showText(hdr3[i]); cs.endText();
+                        xc += cw3[i];
+                    }
+                    y -= 18;
+
+                    boolean alt = false;
+                    for (Machine m : mMachines) {
+                        if (alt) {
+                            cs.setNonStrokingColor(0.95f, 0.97f, 1f);
+                            cs.addRect(marg - 5, y - 4, pageW - 2 * marg + 10, rowH);
+                            cs.fill();
+                        }
+                        alt = !alt;
+                        String ds = m.getDateAchat() != null ? m.getDateAchat().format(DATE_FMT) : "";
+                        String[] vals = {s(m.getMarque()), s(m.getModele()), s(m.getEtatM()),
+                                s(m.getNumeroSerie()), ds, s(m.getNom())};
+                        xc = marg;
+                        for (int i = 0; i < vals.length; i++) {
+                            boolean isEtat = (i == 2);
+                            if (isEtat) {
+                                float[] ec = switch (vals[i].toLowerCase()) {
+                                    case "neuf","disponible" -> new float[]{0.15f,0.53f,0.38f};
+                                    case "occasion","bon"    -> new float[]{0.90f,0.49f,0.13f};
+                                    case "en panne"          -> new float[]{0.91f,0.30f,0.24f};
+                                    default                  -> new float[]{0.3f,0.3f,0.3f};
+                                };
+                                cs.setNonStrokingColor(ec[0], ec[1], ec[2]);
+                                cs.beginText(); cs.setFont(bold, 9);
+                            } else {
+                                cs.setNonStrokingColor(0.1f, 0.1f, 0.1f);
+                                cs.beginText(); cs.setFont(plain, 9);
+                            }
+                            cs.newLineAtOffset(xc, y);
+                            String t = vals[i]; if (t.length() > 15) t = t.substring(0, 13) + "..";
+                            cs.showText(t); cs.endText();
+                            xc += cw3[i];
+                        }
+                        y -= rowH;
+                        if (y < marg + 40) break;
+                    }
+                }
+            }
+
+            PDPage lastPage = new PDPage(PDRectangle.A4);
+            doc.addPage(lastPage);
+            try (PDPageContentStream cs = new PDPageContentStream(doc, lastPage)) {
+                float y = pageH - marg;
+                cs.setNonStrokingColor(0.17f, 0.24f, 0.31f);
+                cs.addRect(marg - 5, y - 35, pageW - 2 * marg + 10, 40);
+                cs.fill();
+                cs.setNonStrokingColor(1f, 1f, 1f);
+                cs.beginText(); cs.setFont(bold, 16);
+                cs.newLineAtOffset(marg, y - 24);
+                cs.showText("RECAPITULATIF ANNUEL - " + LocalDate.now().getYear()); cs.endText();
+                y -= 55;
+
+                String[] mn = {"","Jan","Fev","Mar","Avr","Mai","Jun","Jul","Aou","Sep","Oct","Nov","Dec"};
+                for (String moisKey : moisTries) {
+                    List<Machine> ml = parMois.get(moisKey);
+                    String[] p = moisKey.split("-");
+                    String lbl = mn[Integer.parseInt(p[1])] + " " + p[0];
+
+                    float barW = (ml.size() * 1.0f / masterList.size()) * (pageW - 2 * marg - 60);
+                    cs.setNonStrokingColor(0.16f, 0.50f, 0.73f);
+                    cs.addRect(marg + 55, y - 12, Math.max(barW, 5), 14); cs.fill();
+                    cs.setNonStrokingColor(0.3f, 0.3f, 0.3f);
+                    cs.beginText(); cs.setFont(plain, 9);
+                    cs.newLineAtOffset(marg, y - 4); cs.showText(lbl); cs.endText();
+                    cs.setNonStrokingColor(0.1f, 0.1f, 0.1f);
+                    cs.beginText(); cs.setFont(bold, 9);
+                    cs.newLineAtOffset(marg + 57 + barW, y - 4);
+                    cs.showText(" " + ml.size()); cs.endText();
+                    y -= 20;
+                    if (y < marg + 40) break;
+                }
+            }
+
+            doc.save(fichier);
+            alerte("Rapport Mensuel",
+                    "Rapport sauvegarde :\n" + fichier.getPath(), Alert.AlertType.INFORMATION);
+        } catch (IOException e) {
+            alerte("Erreur Rapport", "Generation echouee : " + e.getMessage(), Alert.AlertType.ERROR);
+        }
+    }
+
+    // ════════════════════════════════════════════════════════════════════════
+    //  RAPPORT STATISTIQUES GRAPHIQUE PDF
+    // ════════════════════════════════════════════════════════════════════════
+
+    @FXML
+    private void genererRapportStatistiques() {
+        File fichier = choisirFichier("PDF", "*.pdf",
+                "rapport_stats_" + LocalDate.now() + ".pdf");
+        if (fichier == null) return;
+
+        long total    = masterList.size();
+        long neuves   = compterEtat("neuf", "disponible");
+        long occasion = compterEtat("occasion", "bon");
+        long enPanne  = compterEtatSimple("en panne");
+        long autres   = total - neuves - occasion - enPanne;
+
+        float pageW = PDRectangle.A4.getWidth(), pageH = PDRectangle.A4.getHeight();
+        float marg = 45f;
+
+        try (PDDocument doc = new PDDocument()) {
+            PDType1Font bold  = new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD);
+            PDType1Font plain = new PDType1Font(Standard14Fonts.FontName.HELVETICA);
+
+            PDPage p1 = new PDPage(PDRectangle.A4);
+            doc.addPage(p1);
+
+            try (PDPageContentStream cs = new PDPageContentStream(doc, p1)) {
+                float y = pageH - marg;
+
+                // ── En-tete ───────────────────────────────────────────────────
+                cs.setNonStrokingColor(0.17f, 0.24f, 0.31f);
+                cs.addRect(0, y - 50, pageW, 60);
+                cs.fill();
+                cs.setNonStrokingColor(1f, 1f, 1f);
+                cs.beginText(); cs.setFont(bold, 20);
+                cs.newLineAtOffset(marg, y - 20);
+                cs.showText("AGROFLOW  -  RAPPORT STATISTIQUES");
+                cs.endText();
+                cs.beginText(); cs.setFont(plain, 10);
+                cs.newLineAtOffset(marg, y - 38);
+                cs.showText("Genere le : " + LocalDate.now().format(DATE_FMT)
+                        + "  |  Total machines : " + total
+                        + "  |  Resultats filtres : " + sortedList.size());
+                cs.endText();
+                y -= 70;
+
+                // ── KPI Cards ─────────────────────────────────────────────────
+                float[][] kpiColors = {
+                        {0.20f, 0.60f, 0.86f},
+                        {0.15f, 0.68f, 0.38f},
+                        {0.90f, 0.49f, 0.13f},
+                        {0.91f, 0.30f, 0.24f}
+                };
+                String[] kpiLabels = {"TOTAL", "NEUVES/DISPO", "OCCASION/BON", "EN PANNE"};
+                long[]   kpiVals   = {total, neuves, occasion, enPanne};
+                float    kpiW      = (pageW - 2 * marg - 30) / 4;
+
+                for (int i = 0; i < 4; i++) {
+                    float kx = marg + i * (kpiW + 10);
+                    cs.setNonStrokingColor(kpiColors[i][0], kpiColors[i][1], kpiColors[i][2]);
+                    cs.addRect(kx, y - 65, kpiW, 68);
+                    cs.fill();
+                    cs.setNonStrokingColor(1f, 1f, 1f);
+                    cs.beginText(); cs.setFont(bold, 28);
+                    cs.newLineAtOffset(kx + 8, y - 34);
+                    cs.showText(String.valueOf(kpiVals[i]));
+                    cs.endText();
+                    cs.beginText(); cs.setFont(plain, 10);
+                    cs.newLineAtOffset(kx + 8, y - 50);
+                    cs.showText(String.format("%.1f%%", pct(kpiVals[i], total)));
+                    cs.endText();
+                    cs.beginText(); cs.setFont(bold, 8);
+                    cs.newLineAtOffset(kx + 8, y - 62);
+                    cs.showText(kpiLabels[i]);
+                    cs.endText();
+                }
+                y -= 85;
+
+                // ── Barres horizontales ───────────────────────────────────────
+                cs.setNonStrokingColor(0.17f, 0.24f, 0.31f);
+                cs.beginText(); cs.setFont(bold, 13);
+                cs.newLineAtOffset(marg, y);
+                cs.showText("Repartition par etat");
+                cs.endText();
+                y -= 18;
+
+                float maxBarW = pageW - 2 * marg - 120;
+                long[]    barVals   = {neuves, occasion, enPanne, autres};
+                String[]  barLbls   = {"Neuves / Disponibles", "Occasion / Bon etat", "En panne", "Autres etats"};
+                float[][] barColors = {
+                        {0.15f, 0.68f, 0.38f},
+                        {0.90f, 0.49f, 0.13f},
+                        {0.91f, 0.30f, 0.24f},
+                        {0.59f, 0.60f, 0.60f}
+                };
+
+                for (int i = 0; i < 4; i++) {
+                    float bw = (total == 0) ? 0 : (float)(barVals[i] * maxBarW / total);
+                    cs.setNonStrokingColor(0.2f, 0.2f, 0.2f);
+                    cs.beginText(); cs.setFont(plain, 10);
+                    cs.newLineAtOffset(marg, y);
+                    cs.showText(barLbls[i]);
+                    cs.endText();
+                    y -= 14;
+                    cs.setNonStrokingColor(0.92f, 0.93f, 0.94f);
+                    cs.addRect(marg, y - 2, maxBarW, 16);
+                    cs.fill();
+                    if (bw > 0) {
+                        cs.setNonStrokingColor(barColors[i][0], barColors[i][1], barColors[i][2]);
+                        cs.addRect(marg, y - 2, bw, 16);
+                        cs.fill();
+                    }
+                    cs.setNonStrokingColor(0.1f, 0.1f, 0.1f);
+                    cs.beginText(); cs.setFont(bold, 9);
+                    cs.newLineAtOffset(marg + maxBarW + 5, y + 2);
+                    cs.showText(barVals[i] + " (" + String.format("%.1f", pct(barVals[i], total)) + "%)");
+                    cs.endText();
+                    y -= 24;
+                }
+                y -= 20;
+
+                // ── Distribution visuelle ─────────────────────────────────────
+                cs.setNonStrokingColor(0.17f, 0.24f, 0.31f);
+                cs.beginText(); cs.setFont(bold, 13);
+                cs.newLineAtOffset(marg, y);
+                cs.showText("Distribution visuelle");
+                cs.endText();
+                y -= 25;
+
+                float pieH   = 40f;
+                float totalW = pageW - 2 * marg;
+                float cx = marg;
+                for (int i = 0; i < 4; i++) {
+                    if (barVals[i] == 0 || total == 0) continue;
+                    float segW = (float)(barVals[i] * totalW / total);
+                    cs.setNonStrokingColor(barColors[i][0], barColors[i][1], barColors[i][2]);
+                    cs.addRect(cx, y - pieH, segW - 1, pieH);
+                    cs.fill();
+                    if (segW > 30) {
+                        cs.setNonStrokingColor(1f, 1f, 1f);
+                        cs.beginText(); cs.setFont(bold, 8);
+                        cs.newLineAtOffset(cx + 3, y - pieH / 2 - 4);
+                        cs.showText(String.format("%.0f%%", pct(barVals[i], total)));
+                        cs.endText();
+                    }
+                    cx += segW;
+                }
+                y -= pieH + 12;
+
+                // Legende
+                String[] legLabels = {"Neuves/Dispo", "Occasion/Bon", "En panne", "Autres"};
+                float lx = marg;
+                for (int i = 0; i < 4; i++) {
+                    cs.setNonStrokingColor(barColors[i][0], barColors[i][1], barColors[i][2]);
+                    cs.addRect(lx, y - 10, 12, 12);
+                    cs.fill();
+                    cs.setNonStrokingColor(0.2f, 0.2f, 0.2f);
+                    cs.beginText(); cs.setFont(plain, 9);
+                    cs.newLineAtOffset(lx + 16, y - 4);
+                    cs.showText(legLabels[i]);
+                    cs.endText();
+                    lx += 110;
+                }
+                y -= 30;
+
+                // ── Tableau recapitulatif ─────────────────────────────────────
+                cs.setNonStrokingColor(0.17f, 0.24f, 0.31f);
+                cs.beginText(); cs.setFont(bold, 13);
+                cs.newLineAtOffset(marg, y);
+                cs.showText("Synthese chiffree");
+                cs.endText();
+                y -= 16;
+
+                String[][] recap = {
+                        {"Indicateur",           "Valeur",                          "Pourcentage"},
+                        {"Total machines",        String.valueOf(total),              "100.0%"},
+                        {"Neuves / Disponibles",  String.valueOf(neuves),             String.format("%.1f%%", pct(neuves,   total))},
+                        {"Occasion / Bon etat",   String.valueOf(occasion),           String.format("%.1f%%", pct(occasion, total))},
+                        {"En panne",              String.valueOf(enPanne),            String.format("%.1f%%", pct(enPanne,  total))},
+                        {"Autres etats",          String.valueOf(autres),             String.format("%.1f%%", pct(autres,   total))},
+                        {"Resultats filtres",      String.valueOf(sortedList.size()),  total > 0 ? String.format("%.1f%%", pct(sortedList.size(), total)) : "0%"},
+                        {"Date generation",       LocalDate.now().format(DATE_FMT),   "---"}
+                };
+
+                for (int i = 0; i < recap.length; i++) {
+                    if (i == 0) {
+                        cs.setNonStrokingColor(0.22f, 0.34f, 0.42f);
+                        cs.addRect(marg - 5, y - 4, pageW - 2 * marg + 10, 18);
+                        cs.fill();
+                        cs.setNonStrokingColor(1f, 1f, 1f);
+                    } else if (i % 2 == 0) {
+                        cs.setNonStrokingColor(0.95f, 0.97f, 1f);
+                        cs.addRect(marg - 5, y - 4, pageW - 2 * marg + 10, 16);
+                        cs.fill();
+                        cs.setNonStrokingColor(0.1f, 0.1f, 0.1f);
+                    } else {
+                        cs.setNonStrokingColor(0.1f, 0.1f, 0.1f);
+                    }
+                    cs.beginText(); cs.setFont(i == 0 ? bold : plain, 9);
+                    cs.newLineAtOffset(marg, y);
+                    cs.showText(recap[i][0]);
+                    cs.endText();
+                    cs.beginText(); cs.setFont(bold, 9);
+                    cs.newLineAtOffset(marg + 200, y);
+                    cs.showText(recap[i][1]);
+                    cs.endText();
+                    cs.beginText(); cs.setFont(i == 0 ? bold : plain, 9);
+                    cs.newLineAtOffset(marg + 310, y);
+                    cs.showText(recap[i][2]);
+                    cs.endText();
+                    y -= 17;
+                }
+
+                // ── Pied de page ──────────────────────────────────────────────
+                cs.setNonStrokingColor(0.17f, 0.24f, 0.31f);
+                cs.addRect(0, 0, pageW, marg - 10);
+                cs.fill();
+                cs.setNonStrokingColor(1f, 1f, 1f);
+                cs.beginText(); cs.setFont(plain, 8);
+                cs.newLineAtOffset(marg, 14);
+                cs.showText("AGROFLOW - Rapport Statistiques Machines - "
+                        + LocalDate.now().format(DATE_FMT) + "  |  Confidentiel");
+                cs.endText();
+            }
+
+            doc.save(fichier);
+            alerte("Rapport Statistiques",
+                    "Rapport genere :\n" + fichier.getPath(), Alert.AlertType.INFORMATION);
+
+        } catch (IOException e) {
+            alerte("Erreur Stats", "Generation echouee : " + e.getMessage(), Alert.AlertType.ERROR);
+        }
+    } // fin genererRapportStatistiques
+
+} // fin AfficherMachinesController
