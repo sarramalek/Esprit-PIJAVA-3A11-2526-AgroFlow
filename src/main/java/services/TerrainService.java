@@ -227,4 +227,96 @@ public class TerrainService {
         }
         return null;
     }
+    // ── RECOMMANDATION DE PLANTE SELON pH ──
+    public String getRecommandationPlante(float ph) {
+        if (ph < 4.5f) {
+            return "⚠️ Sol très acide - Peu de plantes adaptées.\n" +
+                    "✅ Recommandées : Myrtille, Rhododendron, Azalée\n" +
+                    "❌ Éviter : Blé, Maïs, Luzerne";
+
+        } else if (ph < 5.5f) {
+            return "🟡 Sol acide\n" +
+                    "✅ Recommandées : Pomme de terre, Fraise, Patate douce, Pastèque\n" +
+                    "❌ Éviter : Chou, Asperge, Betterave";
+
+        } else if (ph < 6.0f) {
+            return "🟡 Sol légèrement acide\n" +
+                    "✅ Recommandées : Tomate, Maïs, Concombre, Poivron, Courge\n" +
+                    "❌ Éviter : Asperge, Epinard, Céleri";
+
+        } else if (ph <= 7.0f) {
+            return "🟢 Sol neutre - Idéal pour la majorité des cultures !\n" +
+                    "✅ Recommandées : Blé, Laitue, Haricot, Carotte, Oignon, Persil\n" +
+                    "✅ Toutes les grandes cultures sont adaptées";
+
+        } else if (ph <= 7.5f) {
+            return "🟡 Sol légèrement basique\n" +
+                    "✅ Recommandées : Asperge, Chou, Betterave, Epinard, Céleri\n" +
+                    "❌ Éviter : Pomme de terre, Tomate, Fraise";
+
+        } else if (ph <= 8.0f) {
+            return "🟠 Sol basique\n" +
+                    "✅ Recommandées : Asperge, Choux de Bruxelles, Artichaut\n" +
+                    "❌ Éviter : La plupart des fruits et légumes courants";
+
+        } else {
+            return "🔴 Sol très basique - Sol difficile à cultiver.\n" +
+                    "✅ Recommandées : Peu de plantes résistent\n" +
+                    "💡 Conseil : Amender le sol avec du soufre pour réduire le pH";
+        }
+    }
+
+    // ── SCORE DE SANTÉ DU TERRAIN /100 ──
+    public int calculerScoreSante(terrain t) {
+        int score = 0;
+
+        // ── Critère 1 : pH (40 points) ──
+        float ph = t.getP_h();
+        if (ph >= 6.0f && ph <= 7.0f)        score += 40; // Parfait
+        else if (ph >= 5.5f && ph < 6.0f)    score += 30; // Bon
+        else if (ph > 7.0f && ph <= 7.5f)    score += 30; // Bon
+        else if (ph >= 5.0f && ph < 5.5f)    score += 18; // Moyen
+        else if (ph > 7.5f && ph <= 8.0f)    score += 18; // Moyen
+        else                                  score += 5;  // Mauvais
+
+        // ── Critère 2 : Surface (30 points) ──
+        float surface = t.getSurface();
+        if (surface >= 5000)                  score += 30; // Grande exploitation
+        else if (surface >= 2000)             score += 24; // Moyenne
+        else if (surface >= 500)              score += 16; // Petite
+        else if (surface >= 100)              score += 10; // Très petite
+        else                                  score += 4;  // Micro parcelle
+
+        // ── Critère 3 : Type de sol (30 points) ──
+        String typeSol = t.getType_sol() != null ? t.getType_sol().toLowerCase() : "";
+        if (typeSol.contains("limon") || typeSol.contains("argilo-limoneux"))
+            score += 30; // Meilleur sol agricole
+        else if (typeSol.contains("argile") || typeSol.contains("argileux"))
+            score += 22; // Bon mais dense
+        else if (typeSol.contains("sable") || typeSol.contains("sableux"))
+            score += 16; // Drainant mais peu fertile
+        else if (typeSol.contains("calcaire"))
+            score += 12; // Basique, difficile
+        else if (typeSol.contains("pierreux") || typeSol.contains("rocheux"))
+            score += 6;  // Mauvais
+        else
+            score += 15; // Sol inconnu = score moyen
+
+        return Math.min(score, 100); // Maximum 100
+    }
+
+    // ── DESCRIPTION DU SCORE ──
+    public String getDescriptionScore(int score) {
+        if (score >= 85)
+            return "🏆 Excellent - Terrain de haute qualité agricole";
+        else if (score >= 70)
+            return "✅ Bon - Terrain bien adapté à la culture";
+        else if (score >= 50)
+            return "🟡 Moyen - Terrain cultivable avec améliorations";
+        else if (score >= 30)
+            return "🟠 Faible - Terrain nécessite des travaux";
+        else
+            return "🔴 Mauvais - Terrain difficile à exploiter";
+    }
+
 }

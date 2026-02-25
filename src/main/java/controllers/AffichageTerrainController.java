@@ -1,6 +1,9 @@
 package controllers;
 
 import entities.terrain;
+import javafx.scene.control.ProgressBar;
+import javafx.scene.control.Separator;
+import javafx.scene.control.Label;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -448,6 +451,81 @@ public class AffichageTerrainController implements Initializable {
             e.printStackTrace();
         }
     }
+    @FXML
+    public void afficherRecommandation(ActionEvent event) {
+        terrain terrainSelectionne = tableTerrains.getSelectionModel().getSelectedItem();
+
+        if (terrainSelectionne == null) {
+            showAlert("Attention", "Veuillez sélectionner un terrain.", Alert.AlertType.WARNING);
+            return;
+        }
+
+        float ph    = terrainSelectionne.getP_h();
+        int score   = ts.calculerScoreSante(terrainSelectionne);
+        String desc = ts.getDescriptionScore(score);
+        String reco = ts.getRecommandationPlante(ph);
+
+        // ── FENÊTRE DE RÉSULTAT ──
+        Stage stageReco = new Stage();
+        stageReco.setTitle("🌱 Analyse - " + terrainSelectionne.getNom_terrain());
+
+        VBox vbox = new VBox(15);
+        vbox.setStyle("-fx-padding: 25; -fx-background-color: #fcf8e6; -fx-alignment: center;");
+
+        // Titre
+        Label lblTitre = new Label("🌱 Analyse du Terrain");
+        lblTitre.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;");
+
+        Label lblNom = new Label(terrainSelectionne.getNom_terrain().toUpperCase());
+        lblNom.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #2D5A27;");
+
+        // ── SCORE ──
+        Label lblScoreTitre = new Label("📊 Score de Santé du Terrain");
+        lblScoreTitre.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;");
+
+        // Barre de progression score
+        ProgressBar progressBar = new ProgressBar(score / 100.0);
+        progressBar.setPrefWidth(400);
+        progressBar.setPrefHeight(25);
+        String couleurBarre = score >= 70 ? "#2D5A27" : score >= 50 ? "#F39C12" : "#E74C3C";
+        progressBar.setStyle("-fx-accent: " + couleurBarre + ";");
+
+        Label lblScore = new Label(score + " / 100  —  " + desc);
+        lblScore.setStyle("-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;");
+
+        // Détails score
+        Label lblDetailScore = new Label(
+                "  pH (" + ph + ") : " + (ph >= 6.0f && ph <= 7.0f ? "Optimal ✅" : "À améliorer ⚠️") + "\n" +
+                        "  Surface : " + terrainSelectionne.getSurface() + " m²\n" +
+                        "  Type sol : " + terrainSelectionne.getType_sol()
+        );
+        lblDetailScore.setStyle("-fx-font-size: 12px; -fx-text-fill: #555; " +
+                "-fx-background-color: white; -fx-padding: 10; -fx-background-radius: 8;");
+
+        // ── RECOMMANDATION PLANTE ──
+        Label lblRecoTitre = new Label("🌿 Recommandation de Plantes (pH = " + ph + ")");
+        lblRecoTitre.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;");
+
+        Label lblReco = new Label(reco);
+        lblReco.setStyle("-fx-font-size: 13px; -fx-text-fill: #2C3E50; " +
+                "-fx-background-color: #EAF5EA; -fx-padding: 12; -fx-background-radius: 8;");
+        lblReco.setWrapText(true);
+        lblReco.setMaxWidth(430);
+
+        Separator sep = new Separator();
+        sep.setOpacity(0.3);
+
+        vbox.getChildren().addAll(
+                lblTitre, lblNom, sep,
+                lblScoreTitre, progressBar, lblScore, lblDetailScore,
+                new Separator(),
+                lblRecoTitre, lblReco
+        );
+
+        stageReco.setScene(new Scene(vbox, 480, 500));
+        stageReco.show();
+    }
+
 
     // ============================================================
     // NAVIGATION

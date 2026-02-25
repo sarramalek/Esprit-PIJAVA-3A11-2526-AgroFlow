@@ -228,4 +228,73 @@ public class PlanteService {
         }
         return null;
     }
+    public String getRecommandationArrosage(plante p, double temperature, double humidite, double precipitation) {
+        float besoinEau = p.getBesoin_eau();
+        String nom      = p.getNom_p();
+        String conseil;
+
+        // ── CAS 1 : Il pleut déjà assez ──
+        if (precipitation >= besoinEau) {
+            return "✅ Pas d'arrosage nécessaire pour " + nom + "\n" +
+                    "🌧️ La pluie (" + precipitation + " mm) couvre le besoin (" + besoinEau + " L)";
+        }
+
+        // ── CAS 2 : Chaleur extrême ──
+        if (temperature > 38) {
+            return "🚨 ARROSAGE URGENT pour " + nom + " !\n" +
+                    "🌡️ Température critique (" + temperature + "°C)\n" +
+                    "💧 Quantité recommandée : " + (besoinEau * 2) + " L\n" +
+                    "⏰ Arrosez tôt le matin (6h-8h) ou après 18h";
+        }
+
+        // ── CAS 3 : Forte chaleur + air sec ──
+        if (temperature > 30 && humidite < 40) {
+            return "⚠️ Arrosage important pour " + nom + "\n" +
+                    "🌡️ Chaleur (" + temperature + "°C) + Air sec (" + humidite + "%)\n" +
+                    "💧 Quantité recommandée : " + (besoinEau * 1.5) + " L\n" +
+                    "⏰ Arrosez le matin et le soir";
+        }
+
+        // ── CAS 4 : Selon besoin en eau de la plante ──
+        if (besoinEau > 3.0f) {
+            // Plante gourmande en eau
+            if (temperature > 25) {
+                conseil = "⚠️ Arrosage important recommandé\n" +
+                        "💧 " + nom + " est gourmande en eau (" + besoinEau + " L)\n" +
+                        "🌡️ Température : " + temperature + "°C\n" +
+                        "💧 Quantité : " + besoinEau + " L — Arrosez maintenant";
+            } else {
+                conseil = "💧 Arrosage modéré recommandé\n" +
+                        "🌱 " + nom + " besoin : " + besoinEau + " L\n" +
+                        "💧 Quantité : " + (besoinEau * 0.8) + " L aujourd'hui";
+            }
+
+        } else if (besoinEau >= 1.5f) {
+            // Plante à besoin moyen
+            if (humidite > 70) {
+                conseil = "✅ Arrosage réduit pour " + nom + "\n" +
+                        "💧 Humidité élevée (" + humidite + "%) — Réduisez les doses\n" +
+                        "⚠️ Attention aux maladies fongiques\n" +
+                        "💧 Quantité : " + (besoinEau * 0.5) + " L maximum";
+            } else {
+                conseil = "💧 Arrosage standard pour " + nom + "\n" +
+                        "🌡️ Température : " + temperature + "°C  💧 Humidité : " + humidite + "%\n" +
+                        "💧 Quantité recommandée : " + besoinEau + " L";
+            }
+
+        } else {
+            // Plante peu gourmande en eau
+            if (humidite > 60) {
+                conseil = "✅ Pas d'arrosage nécessaire pour " + nom + "\n" +
+                        "💧 " + nom + " a un faible besoin (" + besoinEau + " L)\n" +
+                        "🌫️ Humidité suffisante (" + humidite + "%)";
+            } else {
+                conseil = "💧 Arrosage léger pour " + nom + "\n" +
+                        "🌱 Plante économe en eau\n" +
+                        "💧 Quantité : " + besoinEau + " L — 1 fois tous les 2 jours";
+            }
+        }
+
+        return conseil;
+    }
 }

@@ -39,6 +39,15 @@ import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
+import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
+import javafx.scene.control.Separator;
+import javafx.application.Platform;
+import services.ApiMeteoService;
+import javafx.stage.Stage;
+import javafx.scene.Scene;
+
+
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -188,7 +197,7 @@ public class AffichagePlanteController implements Initializable {
     // ============================================================
     @FXML
     public void exporterPDF(ActionEvent event) {
-        List<plante> plantes      = ps.afficherToutes();
+        List<plante> plantes = ps.afficherToutes();
         Map<String, Object> stats = ps.getStatistiques();
 
         FileChooser fileChooser = new FileChooser();
@@ -202,16 +211,16 @@ public class AffichagePlanteController implements Initializable {
         if (fichier == null) return;
 
         try {
-            PdfWriter writer   = new PdfWriter(new FileOutputStream(fichier));
+            PdfWriter writer = new PdfWriter(new FileOutputStream(fichier));
             PdfDocument pdfDoc = new PdfDocument(writer);
-            Document document  = new Document(pdfDoc);
+            Document document = new Document(pdfDoc);
 
             // ── COULEURS ──
             DeviceRgb vertFonce = new DeviceRgb(45, 90, 39);
             DeviceRgb vertClair = new DeviceRgb(168, 198, 159);
-            DeviceRgb gris      = new DeviceRgb(44, 62, 80);
-            DeviceRgb bleu      = new DeviceRgb(41, 128, 185);
-            DeviceRgb orange    = new DeviceRgb(230, 126, 34);
+            DeviceRgb gris = new DeviceRgb(44, 62, 80);
+            DeviceRgb bleu = new DeviceRgb(41, 128, 185);
+            DeviceRgb orange = new DeviceRgb(230, 126, 34);
 
             // ── TITRE ──
             document.add(new Paragraph("AGROFLOW")
@@ -254,7 +263,7 @@ public class AffichagePlanteController implements Initializable {
             }
 
             // Plante max eau et max cycle
-            plante maxEau   = ps.getPlanteMaxEau();
+            plante maxEau = ps.getPlanteMaxEau();
             plante maxCycle = ps.getPlanteMaxCycle();
             if (maxEau != null) {
                 tableStats.addCell(new Cell().add(new Paragraph("Plante + gourmande en eau"))
@@ -326,8 +335,110 @@ public class AffichagePlanteController implements Initializable {
             e.printStackTrace();
         }
     }
+        @FXML
+        public void afficherRecommandationArrosage (ActionEvent event){
+            plante planteSelectionnee = tablePlantes.getSelectionModel().getSelectedItem();
 
-    // ============================================================
+            if (planteSelectionnee == null) {
+                showAlert("Attention", "Veuillez sélectionner une plante.", Alert.AlertType.WARNING);
+                return;
+            }
+
+            // Chargement API dans thread séparé
+            new Thread(() -> {
+                try {
+                    // ── Appel API météo (Tunis par défaut) ──
+                    ApiMeteoService apiService = new ApiMeteoService();
+                    ApiMeteoService.MeteoResult meteo = apiService.getMeteoParAdresse("Tunis, Tunisie");
+
+                    // ── Calcul recommandation ──
+                    String recommandation = ps.getRecommandationArrosage(
+                            planteSelectionnee,
+                            meteo.temperature,
+                            meteo.humidite,
+                            meteo.precipitation
+                    );
+
+                    javafx.application.Platform.runLater(() -> {
+                        Stage stageReco = new Stage();
+                        stageReco.setTitle("💧 Arrosage - " + planteSelectionnee.getNom_p());
+
+                        VBox vbox = new VBox(15);
+                        vbox.setStyle("-fx-padding: 25; -fx-background-color: #fcf8e6; -fx-alignment: center;");
+
+                        // ── Titre ──
+                        Label lblTitre = new Label("💧 Recommandation d'Arrosage");
+                        lblTitre.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;");
+
+                        Label lblNom = new Label("🌱 " + planteSelectionnee.getNom_p().toUpperCase()
+                                + "  •  " + planteSelectionnee.getVariete());
+                        lblNom.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2D5A27;");
+
+                        Separator sep1 = new Separator();
+                        sep1.setOpacity(0.3);
+
+                        // ── Infos plante ──
+                        Label lblInfoPlante = new Label(
+                                "📋 Besoin en eau : " + planteSelectionnee.getBesoin_eau() + " L\n" +
+                                        "🔄 Cycle de croissance : " + planteSelectionnee.getCycle_jours() + " jours"
+                        );
+                        lblInfoPlante.setStyle("-fx-font-size: 12px; -fx-text-fill: #555; " +
+                                "-fx-background-color: white; -fx-padding: 10; " +
+                                "-fx-background-radius: 8; -fx-border-color: #D5E8D5; " +
+                                "-fx-border-radius: 8;");
+
+                        // ── Météo actuelle ──
+                        Label lblMeteoTitre = new Label("🌤️ Météo Actuelle");
+                        lblMeteoTitre.setStyle("-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #2980B9;");
+
+                        Label lblMeteo = new Label(
+                                meteo.emoji + "  " + meteo.condition + "\n" +
+                                        "🌡️ Température : " + meteo.temperature + " °C\n" +
+                                        "💧 Humidité    : " + meteo.humidite + " %\n" +
+                                        "🌧️ Pluie       : " + meteo.precipitation + " mm"
+                        );
+                        lblMeteo.setStyle("-fx-font-size: 12px; -fx-text-fill: #2C3E50; " +
+                                "-fx-background-color: #EBF5FB; -fx-padding: 12; " +
+                                "-fx-background-radius: 8;");
+
+                        Separator sep2 = new Separator();
+                        sep2.setOpacity(0.3);
+
+                        // ── Recommandation finale ──
+                        Label lblRecoTitre = new Label("💡 Recommandation");
+                        lblRecoTitre.setStyle("-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #2D5A27;");
+
+                        Label lblReco = new Label(recommandation);
+                        lblReco.setStyle("-fx-font-size: 13px; -fx-text-fill: #2C3E50; " +
+                                "-fx-background-color: #EAF5EA; -fx-padding: 14; " +
+                                "-fx-background-radius: 10; -fx-border-color: #A8C69F; " +
+                                "-fx-border-radius: 10;");
+                        lblReco.setWrapText(true);
+                        lblReco.setMaxWidth(430);
+
+                        vbox.getChildren().addAll(
+                                lblTitre, lblNom, sep1,
+                                lblInfoPlante,
+                                lblMeteoTitre, lblMeteo,
+                                sep2,
+                                lblRecoTitre, lblReco
+                        );
+
+                        stageReco.setScene(new Scene(vbox, 480, 530));
+                        stageReco.show();
+                    });
+
+                } catch (Exception e) {
+                    javafx.application.Platform.runLater(() ->
+                            showAlert("❌ Erreur", "Impossible de récupérer la météo :\n" + e.getMessage(),
+                                    Alert.AlertType.ERROR));
+                }
+            }).start();
+
+    }
+
+
+        // ============================================================
     // NAVIGATION
     // ============================================================
     @FXML

@@ -72,6 +72,11 @@
                         <Button onAction="#reinitialiserRecherche" prefHeight="35.0" prefWidth="100.0"
                                 style="-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-cursor: hand;"
                                 text="Réinitialiser" />
+                        <Button onAction="#afficherRecommandation" prefHeight="44.0" prefWidth="175.0"
+                                style="-fx-background-color: linear-gradient(to right, #1A5276, #2E86C1);
+               -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;
+               -fx-background-radius: 22; -fx-font-size: 13px;"
+                                text="🌿  ANALYSE TERRAIN" />
                     </children>
                 </HBox>
 
@@ -109,6 +114,7 @@
                         <Button onAction="#afficherMeteo" prefHeight="40.0" prefWidth="120.0"
                                 style="-fx-background-color: #1ABC9C; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;"
                                 text="🌤️ MÉTÉO" />
+
                     </children>
                 </HBox>
 
