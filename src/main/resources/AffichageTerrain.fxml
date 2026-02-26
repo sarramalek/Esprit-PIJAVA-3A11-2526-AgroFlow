@@ -13,6 +13,12 @@
             <children>
                 <Text fill="WHITE" text="AGROFLOW">
                     <font><Font name="System Bold" size="24.0" /></font>
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="CIN Propriétaire :" prefWidth="150"/>
+                        <TextField fx:id="txtProprietaire" prefWidth="250"
+                                   promptText="CIN du propriétaire (optionnel)"
+                                   style="-fx-border-color: #A8C69F; -fx-border-radius: 5;"/>
+                    </HBox>
                 </Text>
                 <Separator opacity="0.2" prefHeight="20.0" />
                 <Button maxWidth="Infinity" alignment="BASELINE_LEFT" prefHeight="45.0"

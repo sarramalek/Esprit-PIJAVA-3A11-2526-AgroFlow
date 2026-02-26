@@ -20,7 +20,8 @@ public class MainProgGUI extends Application {
         // Assure-toi que le chemin commence par "/" s'il est à la racine des ressources
         //FXMLLoader loader2 = new FXMLLoader(getClass().getResource("/ajoutplante.fxml"));
         //FXMLLoader loader = new FXMLLoader(getClass().getResource("/AffichagePlante.fxml"));
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/acceuilterrain.fxml"));
+        //FXMLLoader loader = new FXMLLoader(getClass().getResource("/acceuilterrain.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/acceuilagricoleterrain.fxml"));
 
         Parent root = loader.load();
         Scene scene = new Scene(root);

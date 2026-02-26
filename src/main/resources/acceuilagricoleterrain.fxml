@@ -9,7 +9,7 @@
             style="-fx-background-color: #fcf8e6;"
             xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="controllers.AccueilTerrainController">
+            fx:controller="controllers.AccueilTerrainagricole">
 
     <!-- ═══════════════════════════════════════════════════ -->
     <!-- SIDEBAR AGRICOLE VERTE                              -->

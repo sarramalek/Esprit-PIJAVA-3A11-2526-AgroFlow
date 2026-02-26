@@ -39,8 +39,8 @@ public class Main {
 
         System.out.println("\n========== [2] CRUD TERRAIN ==========");
         // CREATE
-        ts.ajouter(new terrain(0, "Parcelle Sud", 12.5f, "Sableux", "Ariana", 6.2f));
-        ts.ajouter(new terrain(0, "Verger Citrons", 5.0f, "Argileux", "Tunis", 7.1f));
+        //ts.ajouter(new terrain(0, "Parcelle Sud", 12.5f, "Sableux", "Ariana", 6.2f));
+       // ts.ajouter(new terrain(0, "Verger Citrons", 5.0f, "Argileux", "Tunis", 7.1f));
 
         // READ
         List<terrain> terrains = ts.afficherTous();
