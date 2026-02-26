@@ -241,19 +241,24 @@
                         GridPane.rowIndex="6" GridPane.columnIndex="1"
                         style="-fx-font-size: 13px;" prefWidth="250"/>
 
-            <!-- Adresse -->
-            <Label text="Adresse" GridPane.rowIndex="7" GridPane.columnIndex="0"
-                   style="-fx-font-size: 14px; -fx-text-fill: #34495E;"/>
-            <TextField fx:id="adresseField" promptText="Adresse complète"
-                       GridPane.rowIndex="7" GridPane.columnIndex="1"
-                       style="-fx-font-size: 13px; -fx-padding: 8;"/>
+            <Label text="Gouvernorat *" GridPane.rowIndex="7" GridPane.columnIndex="0"
+                   style="-fx-font-size: 14px; -fx-text-fill: #34495E; -fx-font-weight: bold;"/>
+            <ComboBox fx:id="gouvernoratComboBox"
+                      promptText="🏛 Choisir un gouvernorat"
+                      GridPane.rowIndex="7"
+                      GridPane.columnIndex="1"
+                      prefWidth="250"
+                      styleClass="combo-styled"/>
 
-            <!-- Ville -->
-            <Label text="Ville" GridPane.rowIndex="8" GridPane.columnIndex="0"
-                   style="-fx-font-size: 14px; -fx-text-fill: #34495E;"/>
-            <TextField fx:id="villeField" promptText="Ville"
-                       GridPane.rowIndex="8" GridPane.columnIndex="1"
-                       style="-fx-font-size: 13px; -fx-padding: 8;"/>
+            <Label text="Ville *" GridPane.rowIndex="8" GridPane.columnIndex="0"
+                   style="-fx-font-size: 14px; -fx-text-fill: #34495E; -fx-font-weight: bold;"/>
+            <ComboBox fx:id="villeComboBox"
+                      promptText="🏙 Choisir une ville"
+                      GridPane.rowIndex="8"
+                      GridPane.columnIndex="1"
+                      prefWidth="250"
+                      styleClass="combo-styled"/>
+
         </GridPane>
 
         <!-- Note obligatoire -->

@@ -1,5 +1,9 @@
 package controllers.Terrains;
 
+import controllers.User.ProfilEmploye;
+import javafx.scene.Node;
+import javafx.scene.input.MouseEvent;
+import javafx.stage.Modality;
 import models.Terrains.rotation;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -14,6 +18,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import models.User.Personne;
 import services.Terrains.RotationService;
 import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.pdf.PdfDocument;
@@ -26,8 +31,10 @@ import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
+import utils.SessionManager;
 
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -46,6 +53,10 @@ public class EmployeRotationController implements Initializable {
     @FXML private TextField txtRecherche;
     @FXML private ComboBox<String> comboFiltre;
     @FXML private VBox rotationsContainer;
+    private Personne currentUser;
+    @FXML private Label userNameLabel;
+    @FXML private Label userRoleLabel;
+    @FXML private Button logoutBtn;
 
     private final RotationService rs = new RotationService();
     private List<rotation> toutesRotations;
@@ -434,11 +445,29 @@ public class EmployeRotationController implements Initializable {
     // NAVIGATION
     // ============================================================
     @FXML
-    public void versRotations(ActionEvent event) { naviguer("/AffichageRotation.fxml", event); }
+    public void versRotations(MouseEvent event) { chargerPage(event,"/TerrainsInterface/AffichageRotation.fxml", " Rotations"); }
 
     @FXML
-    public void versAccueil(ActionEvent event) { naviguer("/.fxml", event); }
+    public void versAccueil(MouseEvent event) { chargerPage( event,"/UsersInterface/AcceuilAgr.fxml","Acceuil"); }
+    private void chargerPage(MouseEvent event, String fxmlPath, String titre) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            Parent root = loader.load();
 
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+
+            boolean etaitMaximise = stage.isMaximized();  // ← SAUVEGARDER AVANT
+
+            stage.setScene(new Scene(root));
+            stage.setTitle(titre);
+            stage.setMaximized(etaitMaximise);  // ← RESTAURER APRÈS
+
+            stage.show();
+        } catch (IOException e) {
+            System.err.println("Erreur de chargement FXML : " + fxmlPath);
+            e.printStackTrace();
+        }
+    }
     private void naviguer(String fxml, ActionEvent event) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxml));
@@ -475,5 +504,86 @@ public class EmployeRotationController implements Initializable {
         alert.setTitle(titre);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    public void ouvrirTerrains(MouseEvent mouseEvent) {
+    }
+
+    public void ouvrirPlantes(MouseEvent mouseEvent) {
+    }
+
+    public void ouvrirRotations(MouseEvent mouseEvent) {
+    }
+
+    public void handleDashboard(MouseEvent mouseEvent) {chargerPage(mouseEvent,"/UsersInterface/AcceuilEmp.fxml", " Dashboard Employe");
+    }
+
+    public void handleMesTaches(MouseEvent mouseEvent) {
+        chargerPage(mouseEvent,"/UsersInterface/MesTaches.fxml", " Mes-Taches");
+    }
+
+    @FXML
+    public void handleMonProfil() {
+        System.out.println("👤 Ouverture Mon Profil...");
+
+        // ✅ Toujours relire depuis SessionManager en cas de doute
+        if (currentUser == null) {
+            currentUser = SessionManager.getCurrentUser();
+        }
+
+        if (currentUser == null) {
+            showError("Erreur", "Session expirée. Veuillez vous reconnecter.");
+            return;
+        }
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/ProfilEmplye.fxml"));
+            Parent root = loader.load();
+            ProfilEmploye controller = loader.getController();
+            if (controller != null) {
+                controller.setCurrentUser(currentUser);
+                System.out.println("✓ Utilisateur passé au profil: " + currentUser.getNom());
+            }
+            Stage stage = new Stage();
+            stage.setTitle("Mon Profil");
+            stage.setScene(new Scene(root, 1500, 700));
+            stage.setResizable(false);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.centerOnScreen();
+            stage.showAndWait();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showError("Erreur", "Impossible d'ouvrir le profil: " + e.getMessage());
+        }
+    }
+    private void showError(String title, String msg)   { alert(Alert.AlertType.ERROR,       title, msg); }
+    private void alert(Alert.AlertType type, String title, String msg) {
+        Alert a = new Alert(type);
+        a.setTitle(title);
+        a.setHeaderText(null);
+        a.setContentText(msg);
+        a.showAndWait();
+    }
+
+    public void handleMesTerrains(ActionEvent actionEvent) {
+    }
+    @FXML
+    private void handleLogout() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Déconnexion");
+        alert.setContentText("Voulez-vous vraiment vous déconnecter ?");
+        alert.showAndWait().filter(r -> r == ButtonType.OK).ifPresent(r -> {
+            SessionManager.setCurrentUser(null); // ✅ vider la session
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/login.fxml"));
+                Parent root = loader.load();
+                Stage stage = (Stage) logoutBtn.getScene().getWindow();
+                stage.setScene(new Scene(root, 1200, 700));
+                stage.setTitle("AgroFlow - Connexion");
+                stage.setMaximized(true);
+            } catch (IOException e) {
+                showError("Erreur", "Impossible de retourner à la connexion");
+            }
+        });
     }
 }

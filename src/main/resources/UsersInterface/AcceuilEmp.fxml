@@ -10,7 +10,6 @@
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="controllers.User.AcceuilEmploye">
 
-    <!-- SIDEBAR EMPLOYÉ -->
     <left>
         <VBox prefWidth="250" style="-fx-background-color: linear-gradient(to bottom, #1a237e, #283593, #3949ab);">
             <padding><Insets bottom="20" top="20" /></padding>
@@ -54,17 +53,18 @@
             <VBox spacing="10" style="-fx-padding: 20 0 0 0;">
 
                 <!-- Dashboard (actif) -->
-                <Button fx:id="dashboardBtn" onAction="#handleDashboard" prefHeight="50" prefWidth="230"
-                        style="-fx-background-color: linear-gradient(to right, #4CAF50, #45a049);
-                               -fx-text-fill: white; -fx-font-size: 14px; -fx-alignment: CENTER-LEFT;
-                               -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand;
-                               -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0, 0, 2);"
+                <Button fx:id="dashboardBtn" onMouseClicked="#handleDashboard" prefHeight="50" prefWidth="230"
+                        style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
+                               -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
+                               -fx-background-radius: 12; -fx-cursor: hand;
+                               -fx-border-color: rgba(255,255,255,0.2); -fx-border-width: 1;
+                               -fx-border-radius: 12;"
                         text="📊  Dashboard">
                     <font><Font name="System Bold" size="14" /></font>
                 </Button>
 
                 <!-- Mes Tâches -->
-                <Button onAction="#handleMesTaches" prefHeight="50" prefWidth="230"
+                <Button onMouseClicked="#handleMesTaches" prefHeight="50" prefWidth="230"
                         style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
                                -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
                                -fx-background-radius: 12; -fx-cursor: hand;
@@ -75,7 +75,7 @@
                 </Button>
 
                 <!-- Mon Profil -->
-                <Button onAction="#handleMonProfil" prefHeight="50" prefWidth="230"
+                <Button onMouseClicked= "#handleMonProfil" prefHeight="50" prefWidth="230"
                         style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
                                -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
                                -fx-background-radius: 12; -fx-cursor: hand;
@@ -85,22 +85,46 @@
                     <font><Font name="System Bold" size="14" /></font>
                 </Button>
 
-                <!-- Rapports -->
-                <Button onAction="#handleRapports" prefHeight="50" prefWidth="230"
-                        style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
-                               -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
-                               -fx-background-radius: 12; -fx-cursor: hand;
-                               -fx-border-color: rgba(255,255,255,0.2); -fx-border-width: 1;
-                               -fx-border-radius: 12;"
-                        text="📈  Rapports">
-                    <font><Font name="System Bold" size="14" /></font>
-                </Button>
+                <VBox spacing="0">
+                    <Button onAction="#handleMesTerrains" prefHeight="48" prefWidth="230"
+                            style="-fx-background-color: linear-gradient(to right, #4CAF50, #45a049);
+                                   -fx-text-fill: white; -fx-font-size: 14px; -fx-alignment: CENTER-LEFT;
+                                   -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand;"
+                            text="🌾  Mes Terrains  ▾">
+                        <font><Font name="System Bold" size="14" /></font>
+                    </Button>
+                    <!-- Sous-menu Terrains -->
+                    <VBox fx:id="terrainsSubMenu" spacing="2" style="-fx-padding: 4 0 0 0;" visible="true" managed="true">
+                        <Button onMouseClicked="#ouvrirTerrains" prefHeight="40" prefWidth="230"
+                                style="-fx-background-color: rgba(0,0,0,0.20); -fx-text-fill: white;
+                                       -fx-font-size: 13px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 40;
+                                       -fx-background-radius: 10; -fx-cursor: hand;"
+                                text="🚜  Terrains">
+                            <font><Font name="System Bold" size="13" /></font>
+                        </Button>
+                        <Button onMouseClicked="#ouvrirPlantes" prefHeight="40" prefWidth="230"
+                                style="-fx-background-color: rgba(0,0,0,0.15); -fx-text-fill: rgba(255,255,255,0.9);
+                                       -fx-font-size: 13px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 40;
+                                       -fx-background-radius: 10; -fx-cursor: hand;"
+                                text="🌱  Plantes">
+                            <font><Font name="System" size="13" /></font>
+                        </Button>
+                        <Button onMouseClicked="#ouvrirRotations" prefHeight="40" prefWidth="230"
+                                style="-fx-background-color: rgba(0,0,0,0.15); -fx-text-fill: rgba(255,255,255,0.9);
+                                       -fx-font-size: 13px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 40;
+                                       -fx-background-radius: 10; -fx-cursor: hand;"
+                                text="📋  Rotations">
+                            <font><Font name="System" size="13" /></font>
+                        </Button>
+                    </VBox>
+                </VBox>
+
             </VBox>
 
             <Region VBox.vgrow="ALWAYS" />
 
             <!-- Logout -->
-            <Button fx:id="logoutBtn" onAction="#handleLogout" prefHeight="50" prefWidth="230"
+            <Button fx:id="logoutBtn" onMouseClicked="#handleLogout" prefHeight="50" prefWidth="230"
                     style="-fx-background-color: #E74C3C; -fx-text-fill: white; -fx-font-size: 14px;
                            -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22; -fx-background-radius: 12;
                            -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 10, 0, 0, 3);"
@@ -231,7 +255,7 @@
                             <font><Font name="System Bold" size="22" /></font>
                         </Label>
                         <Region HBox.hgrow="ALWAYS" />
-                        <Button onAction="#handleMesTaches"
+                        <Button onMouseClicked="#handleMesTaches"
                                 style="-fx-background-color: #3498DB; -fx-text-fill: white; -fx-font-size: 14px;
                                        -fx-padding: 10 20; -fx-background-radius: 8; -fx-cursor: hand;"
                                 text="Voir tout →">

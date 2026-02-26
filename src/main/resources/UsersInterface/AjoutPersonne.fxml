@@ -4,108 +4,197 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-<BorderPane  style="-fx-background-color: #fcf8e6;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.User.AjoutPersonne">
+<?import javafx.scene.shape.Line?>
 
-<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+<BorderPane
+        style="-fx-background-color: #F0F4FF;"
+        xmlns="http://javafx.com/javafx/17.0.12"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="controllers.User.AjoutPersonne"
+        prefHeight="700.0"
+        prefWidth="760.0">
 
-      spacing="20" style="-fx-background-color: white; -fx-padding: 30;">
+    <center>
+        <VBox alignment="TOP_CENTER" spacing="0">
 
-    <!-- Titre -->
-    <Label text="Ajouter un Employé" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;">
-        <font>
-            <Font name="System Bold" size="24.0"/>
-        </font>
-    </Label>
+            <!-- Header Banner -->
+            <VBox alignment="CENTER" spacing="6"
+                  style="-fx-background-color: #1B5E20;
+                         -fx-padding: 28 40 24 40;">
+                <Label text="👤  Nouvel Employé"
+                       style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: white;">
+                    <font><Font name="System Bold" size="22.0"/></font>
+                </Label>
+                <Label text="Remplissez les informations pour enregistrer un nouveau membre"
+                       style="-fx-font-size: 12px; -fx-text-fill: #A5D6A7; -fx-font-style: italic;">
+                    <font><Font name="System Italic" size="12.0"/></font>
+                </Label>
+            </VBox>
 
-    <!-- Message d'erreur -->
-    <Label fx:id="errorLabel" visible="false" wrapText="true"
-           style="-fx-text-fill: #D32F2F; -fx-font-size: 12px;"/>
+            <!-- Card Form -->
+            <VBox spacing="16"
+                  style="-fx-background-color: white;
+                         -fx-padding: 28 36 28 36;
+                         -fx-effect: dropshadow(gaussian, rgba(27,94,32,0.12), 16, 0, 0, 4);">
 
-    <!-- Formulaire -->
-    <GridPane hgap="15" vgap="15">
-        <columnConstraints>
-            <ColumnConstraints minWidth="120" prefWidth="120"/>
-            <ColumnConstraints minWidth="250" prefWidth="250"/>
-        </columnConstraints>
+                <!-- Error Label -->
+                <Label fx:id="errorLabel" visible="false" wrapText="true" maxWidth="Infinity"
+                       style="-fx-text-fill: #C62828; -fx-font-size: 12px;
+                              -fx-background-color: #FFEBEE; -fx-background-radius: 6;
+                              -fx-padding: 10 14; -fx-border-color: #EF9A9A;
+                              -fx-border-radius: 6; -fx-border-width: 1;"/>
 
-        <!-- CIN -->
-        <Label text="CIN *" GridPane.rowIndex="0" GridPane.columnIndex="0"
-               style="-fx-font-size: 14px; -fx-text-fill: #34495E;"/>
-        <TextField fx:id="cinField" promptText="Ex: 12345678"
-                   GridPane.rowIndex="0" GridPane.columnIndex="1"
-                   style="-fx-font-size: 13px; -fx-padding: 8;"/>
+                <!-- Two-column layout -->
+                <HBox spacing="30">
 
-        <!-- Nom -->
-        <Label text="Nom *" GridPane.rowIndex="1" GridPane.columnIndex="0"
-               style="-fx-font-size: 14px; -fx-text-fill: #34495E;"/>
-        <TextField fx:id="nomField" promptText="Nom de famille"
-                   GridPane.rowIndex="1" GridPane.columnIndex="1"
-                   style="-fx-font-size: 13px; -fx-padding: 8;"/>
+                    <!-- Left: Identité -->
+                    <VBox spacing="14" HBox.hgrow="ALWAYS">
+                        <Label text="IDENTITÉ"
+                               style="-fx-font-size: 11px; -fx-font-weight: bold;
+                                      -fx-text-fill: #2E7D32; -fx-letter-spacing: 1;">
+                            <font><Font name="System Bold" size="11.0"/></font>
+                        </Label>
+                        <Line endX="200" stroke="#C8E6C9" strokeWidth="1.5"/>
 
-        <!-- Prénom -->
-        <Label text="Prénom *" GridPane.rowIndex="2" GridPane.columnIndex="0"
-               style="-fx-font-size: 14px; -fx-text-fill: #34495E;"/>
-        <TextField fx:id="prenomField" promptText="Prénom"
-                   GridPane.rowIndex="2" GridPane.columnIndex="1"
-                   style="-fx-font-size: 13px; -fx-padding: 8;"/>
+                        <VBox spacing="4">
+                            <Label text="CIN *" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #37474F;">
+                                <font><Font name="System Bold" size="12.0"/></font>
+                            </Label>
+                            <TextField fx:id="cinField" promptText="Ex: 12345678"
+                                       style="-fx-font-size: 13px; -fx-padding: 9 12;
+                                              -fx-background-color: #F9FBF9;
+                                              -fx-border-color: #C8E6C9; -fx-border-radius: 7;
+                                              -fx-background-radius: 7; -fx-border-width: 1.5;"/>
+                        </VBox>
 
-        <!-- Email -->
-        <Label text="Email *" GridPane.rowIndex="3" GridPane.columnIndex="0"
-               style="-fx-font-size: 14px; -fx-text-fill: #34495E;"/>
-        <TextField fx:id="emailField" promptText="exemple@email.com"
-                   GridPane.rowIndex="3" GridPane.columnIndex="1"
-                   style="-fx-font-size: 13px; -fx-padding: 8;"/>
+                        <VBox spacing="4">
+                            <Label text="Nom *" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #37474F;">
+                                <font><Font name="System Bold" size="12.0"/></font>
+                            </Label>
+                            <TextField fx:id="nomField" promptText="Nom de famille"
+                                       style="-fx-font-size: 13px; -fx-padding: 9 12;
+                                              -fx-background-color: #F9FBF9;
+                                              -fx-border-color: #C8E6C9; -fx-border-radius: 7;
+                                              -fx-background-radius: 7; -fx-border-width: 1.5;"/>
+                        </VBox>
 
-        <!-- Mot de passe -->
-        <Label text="Mot de passe *" GridPane.rowIndex="4" GridPane.columnIndex="0"
-               style="-fx-font-size: 14px; -fx-text-fill: #34495E;"/>
-        <PasswordField fx:id="passwordField" promptText="Minimum 6 caractères"
-                       GridPane.rowIndex="4" GridPane.columnIndex="1"
-                       style="-fx-font-size: 13px; -fx-padding: 8;"/>
+                        <VBox spacing="4">
+                            <Label text="Prénom *" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #37474F;">
+                                <font><Font name="System Bold" size="12.0"/></font>
+                            </Label>
+                            <TextField fx:id="prenomField" promptText="Prénom"
+                                       style="-fx-font-size: 13px; -fx-padding: 9 12;
+                                              -fx-background-color: #F9FBF9;
+                                              -fx-border-color: #C8E6C9; -fx-border-radius: 7;
+                                              -fx-background-radius: 7; -fx-border-width: 1.5;"/>
+                        </VBox>
 
-        <!-- Téléphone -->
-        <Label text="Téléphone *" GridPane.rowIndex="5" GridPane.columnIndex="0"
-               style="-fx-font-size: 14px; -fx-text-fill: #34495E;"/>
-        <TextField fx:id="telField" promptText="Ex: 0612345678"
-                   GridPane.rowIndex="5" GridPane.columnIndex="1"
-                   style="-fx-font-size: 13px; -fx-padding: 8;"/>
+                        <VBox spacing="4">
+                            <Label text="Mot de passe *" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #37474F;">
+                                <font><Font name="System Bold" size="12.0"/></font>
+                            </Label>
+                            <PasswordField fx:id="passwordField" promptText="6 caractères minimum"
+                                           style="-fx-font-size: 13px; -fx-padding: 9 12;
+                                                  -fx-background-color: #F9FBF9;
+                                                  -fx-border-color: #C8E6C9; -fx-border-radius: 7;
+                                                  -fx-background-radius: 7; -fx-border-width: 1.5;"/>
+                        </VBox>
+                    </VBox>
 
-        <!-- Date de naissance -->
-        <Label text="Date de naissance" GridPane.rowIndex="6" GridPane.columnIndex="0"
-               style="-fx-font-size: 14px; -fx-text-fill: #34495E;"/>
-        <DatePicker fx:id="dateNaissancePicker" promptText="Sélectionner une date"
-                    GridPane.rowIndex="6" GridPane.columnIndex="1"
-                    style="-fx-font-size: 13px;" prefWidth="250"/>
+                    <!-- Right: Coordonnées -->
+                    <VBox spacing="14" HBox.hgrow="ALWAYS">
+                        <Label text="COORDONNÉES"
+                               style="-fx-font-size: 11px; -fx-font-weight: bold;
+                                      -fx-text-fill: #2E7D32;">
+                            <font><Font name="System Bold" size="11.0"/></font>
+                        </Label>
+                        <Line endX="200" stroke="#C8E6C9" strokeWidth="1.5"/>
 
-        <!-- Adresse -->
-        <Label text="Adresse" GridPane.rowIndex="7" GridPane.columnIndex="0"
-               style="-fx-font-size: 14px; -fx-text-fill: #34495E;"/>
-        <TextField fx:id="adresseField" promptText="Adresse complète"
-                   GridPane.rowIndex="7" GridPane.columnIndex="1"
-                   style="-fx-font-size: 13px; -fx-padding: 8;"/>
+                        <VBox spacing="4">
+                            <Label text="Email *" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #37474F;">
+                                <font><Font name="System Bold" size="12.0"/></font>
+                            </Label>
+                            <TextField fx:id="emailField" promptText="exemple@email.com"
+                                       style="-fx-font-size: 13px; -fx-padding: 9 12;
+                                              -fx-background-color: #F9FBF9;
+                                              -fx-border-color: #C8E6C9; -fx-border-radius: 7;
+                                              -fx-background-radius: 7; -fx-border-width: 1.5;"/>
+                        </VBox>
 
-        <!-- Ville -->
-        <Label text="Ville" GridPane.rowIndex="8" GridPane.columnIndex="0"
-               style="-fx-font-size: 14px; -fx-text-fill: #34495E;"/>
-        <TextField fx:id="villeField" promptText="Ville"
-                   GridPane.rowIndex="8" GridPane.columnIndex="1"
-                   style="-fx-font-size: 13px; -fx-padding: 8;"/>
-    </GridPane>
+                        <VBox spacing="4">
+                            <Label text="Téléphone *" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #37474F;">
+                                <font><Font name="System Bold" size="12.0"/></font>
+                            </Label>
+                            <TextField fx:id="telField" promptText="Ex: 216..."
+                                       style="-fx-font-size: 13px; -fx-padding: 9 12;
+                                              -fx-background-color: #F9FBF9;
+                                              -fx-border-color: #C8E6C9; -fx-border-radius: 7;
+                                              -fx-background-radius: 7; -fx-border-width: 1.5;"/>
+                        </VBox>
 
-    <!-- Note obligatoire -->
-    <Label text="* Champs obligatoires" style="-fx-font-size: 11px; -fx-text-fill: #7F8C8D; -fx-font-style: italic;"/>
+                        <VBox spacing="4">
+                            <Label text="Date de naissance" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #37474F;">
+                                <font><Font name="System Bold" size="12.0"/></font>
+                            </Label>
+                            <DatePicker fx:id="dateNaissancePicker" maxWidth="Infinity"
+                                        style="-fx-font-size: 13px;
+                                               -fx-background-color: #F9FBF9;
+                                               -fx-border-color: #C8E6C9; -fx-border-radius: 7;
+                                               -fx-background-radius: 7; -fx-border-width: 1.5;"/>
+                        </VBox>
 
-    <!-- Boutons -->
-    <HBox spacing="10" alignment="CENTER_RIGHT">
-        <Button fx:id="cancelButton" text="Annuler" onAction="#handleCancel"
-                style="-fx-background-color: #95A5A6; -fx-text-fill: white; -fx-font-size: 14px;
-                       -fx-padding: 10 30; -fx-background-radius: 5; -fx-cursor: hand;"
-                minWidth="120"/>
-        <Button fx:id="saveButton" text="Enregistrer" onAction="#handleSave"
-                style="-fx-background-color: #27AE60; -fx-text-fill: white; -fx-font-size: 14px;
-                       -fx-padding: 10 30; -fx-background-radius: 5; -fx-cursor: hand;"
-                minWidth="120" defaultButton="true"/>
-    </HBox>
+                        <VBox spacing="4">
+                            <Label text="Ville" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #37474F;">
+                                <font><Font name="System Bold" size="12.0"/></font>
+                            </Label>
+                            <TextField fx:id="villeField" promptText="Votre ville"
+                                       style="-fx-font-size: 13px; -fx-padding: 9 12;
+                                              -fx-background-color: #F9FBF9;
+                                              -fx-border-color: #C8E6C9; -fx-border-radius: 7;
+                                              -fx-background-radius: 7; -fx-border-width: 1.5;"/>
+                        </VBox>
+                    </VBox>
+                </HBox>
 
-</VBox>
+                <!-- Adresse full width -->
+                <VBox spacing="4">
+                    <Label text="Adresse complète" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #37474F;">
+                        <font><Font name="System Bold" size="12.0"/></font>
+                    </Label>
+                    <TextField fx:id="adresseField" promptText="Numéro, rue, quartier..."
+                               style="-fx-font-size: 13px; -fx-padding: 9 12;
+                                      -fx-background-color: #F9FBF9;
+                                      -fx-border-color: #C8E6C9; -fx-border-radius: 7;
+                                      -fx-background-radius: 7; -fx-border-width: 1.5;"/>
+                </VBox>
+
+                <Separator style="-fx-background-color: #E8F5E9;"/>
+
+                <!-- Footer -->
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label text="* Champs obligatoires"
+                           style="-fx-font-size: 11px; -fx-text-fill: #90A4AE; -fx-font-style: italic;">
+                        <font><Font name="System Italic" size="11.0"/></font>
+                    </Label>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="cancelButton" text="Annuler" onAction="#handleCancel"
+                            minWidth="110"
+                            style="-fx-background-color: transparent; -fx-text-fill: #546E7A;
+                                   -fx-font-size: 13px; -fx-padding: 10 24; -fx-background-radius: 7;
+                                   -fx-border-color: #B0BEC5; -fx-border-radius: 7;
+                                   -fx-border-width: 1.5; -fx-cursor: hand;">
+                        <font><Font name="System" size="13"/></font>
+                    </Button>
+                    <Button fx:id="saveButton" text="Enregistrer l'employé" onAction="#handleSave"
+                            defaultButton="true" minWidth="160"
+                            style="-fx-background-color: #1B5E20; -fx-text-fill: white;
+                                   -fx-font-size: 13px; -fx-font-weight: bold;
+                                   -fx-padding: 10 24; -fx-background-radius: 7; -fx-cursor: hand;
+                                   -fx-effect: dropshadow(gaussian, rgba(27,94,32,0.35), 8, 0, 0, 2);">
+                        <font><Font name="System Bold" size="13"/></font>
+                    </Button>
+                </HBox>
+            </VBox>
+        </VBox>
+    </center>
 </BorderPane>

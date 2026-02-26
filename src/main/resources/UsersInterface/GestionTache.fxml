@@ -5,7 +5,8 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<BorderPane  style="-fx-background-color: #fcf8e6;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.User.GestionTache">
+<?import org.controlsfx.control.HyperlinkLabel?>
+<BorderPane style="-fx-background-color: #fcf8e6;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.User.GestionTache">
 
     <!-- SIDEBAR MODERNISÉE -->
     <!-- SIDEBAR MODERNISÉE -->
@@ -66,6 +67,11 @@
                         <Button fx:id="offresBtn" onMouseClicked="#handleOffres" prefHeight="42" prefWidth="215"
                                 style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.95); -fx-font-size: 13px; -fx-alignment: CENTER_LEFT; -fx-padding: 0 0 0 15; -fx-background-radius: 8; -fx-cursor: hand;"
                                 text="🎁  Offres">
+                            <font><Font name="System" size="13" /></font>
+                        </Button>
+                        <Button fx:id="StatsBtn" onMouseClicked="#openDashboard" prefHeight="42" prefWidth="215"
+                                style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.95); -fx-font-size: 13px; -fx-alignment: CENTER_LEFT; -fx-padding: 0 0 0 15; -fx-background-radius: 8; -fx-cursor: hand;"
+                                text="📊 Statistiques ">
                             <font><Font name="System" size="13" /></font>
                         </Button>
                     </VBox>
@@ -141,6 +147,8 @@
                             <Font name="System" size="14" />
                         </font>
                     </Button>
+                    <HyperlinkLabel onMouseClicked="#handleMonProfil" text="Mon Profil"/>
+
                     <Label fx:id="userNameLabel" style="-fx-font-size: 14px; -fx-text-fill: #2C3E50;" text="Admin">
                         <font>
                             <Font name="System" size="14" />
@@ -273,6 +281,24 @@
                         </font>
                     </Label>
                     <Region HBox.hgrow="ALWAYS" />
+                </HBox>
+                <HBox alignment="CENTER_LEFT" spacing="14" style="-fx-padding: 10 0 8 0;">
+                    <Label fx:id="selectedPersonLabel"
+                           text="Sélectionnez une personne pour générer son PDF"
+                           style="-fx-text-fill: #7F8C8D; -fx-font-size: 12px; -fx-font-style: italic;" />
+                    <Region HBox.hgrow="ALWAYS" />
+                    <Button fx:id="pdfBtn"
+                            text="📄  Générer PDF abonnement"
+                            onAction="#handleGeneratePdf"
+                            disable="true"
+                            style="-fx-background-color: #E74C3C;
+                   -fx-text-fill: white;
+                   -fx-font-size: 12px;
+                   -fx-font-weight: bold;
+                   -fx-background-radius: 8;
+                   -fx-padding: 8 20 8 20;
+                   -fx-cursor: hand;
+                   -fx-effect: dropshadow(gaussian, rgba(231,76,60,0.4), 8, 0, 0, 2);" />
                 </HBox>
 
                 <!-- Table -->

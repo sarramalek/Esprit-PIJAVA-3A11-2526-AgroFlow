@@ -9,6 +9,7 @@ import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.geometry.Pos;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import models.User.Abonnements;
 import models.User.Personne;
@@ -179,9 +180,22 @@ public class AcceuilAgricole {
     }
 
     // ── Navigation ────────────────────────────────────────────────────────────
+    @FXML
+    void ouvrirTerrains(MouseEvent event) {
+        navigateTo(event, "/TerrainsInterface/agricoleaffichageterrain.fxml", "Gestion des Terrains");
+    }
 
+    @FXML
+    void ouvrirPlantes(MouseEvent event) {
+        navigateTo(event, "/TerrainsInterface/agricoleaffichageplante.fxml", "Liste des Plantes");
+    }
+
+    @FXML
+    void ouvrirRotations(MouseEvent event) {
+        navigateTo(event, "/TerrainsInterface/agricoleaffichagerotation.fxml", "Gestion des Rotations");
+    }
     @FXML private void handleDashboard()    { /* Déjà sur cette page */ }
-    @FXML private void handleMesTerrains()  { System.out.println("🌾 Terrains..."); }
+    @FXML private void handleMesTerrains(MouseEvent event )  { navigateTo(event,"/TerrainsInterface/acceuilagricoleterrain.fxml","Mes Terrains"); }
     @FXML private void handleMesAnimaux()   { System.out.println("🐄 Animaux..."); }
     @FXML private void handleMesStocks()    { System.out.println("📦 Stocks..."); }
     @FXML private void handleMonMateriel()  { System.out.println("🚜 Matériel..."); }
@@ -264,8 +278,17 @@ public class AcceuilAgricole {
 
     // Ajouter cette méthode handleAPropos()
     @FXML
-    private void handleAPropos(MouseEvent event) {
-        navigateTo(event,"/UsersInterface/ProfilAgricole.fxml","ddd");
+    private void handleAPropos() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/ProfilEmplye.fxml"));
+            Parent root = loader.load();
+            ProfilEmploye ctrl = loader.getController();
+            if (ctrl != null && currentUser != null) ctrl.setCurrentUser(currentUser);
+            Stage s = new Stage();
+            s.setTitle("Mon Profil"); s.setScene(new Scene(root));
+            s.setResizable(true); s.initModality(Modality.APPLICATION_MODAL);
+            s.centerOnScreen(); s.showAndWait();
+        } catch (IOException e) { showError("Erreur"+ e.getMessage()); }
     }
     private void navigateTo(MouseEvent event, String fxmlPath, String title) {
         try {

@@ -1,5 +1,6 @@
 package controllers.User;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -238,17 +239,20 @@ public class AcceuilEmploye {
 
     @FXML
     private void handleMesTaches(MouseEvent event) {
-        System.out.println("📋 Ouverture Mes Tâches...");
 
-        // Vérifier que l'utilisateur existe
-        if (currentUser == null) {
-            System.err.println("✗ currentUser est NULL !");
-            showError("Erreur", "Session expirée. Veuillez vous reconnecter.");
-            return;
-        }
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/MesTaches.fxml"));
+            Parent root = loader.load();
 
-        navigateTo(event,"/UsersInterface/MesTaches.fxml", "AgroFlow - Mes Tâches");
-    }
+            MesTaches ctrl = loader.getController();
+            ctrl.setCurrentUser(currentUser); // ← c'est ce qui manque !
+
+            Stage stage = (Stage)((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setTitle("AgroFlow - Mes Tâches");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }    }
 
     @FXML
     private void handleMonProfil() {
@@ -369,5 +373,18 @@ navigateTo(event,"/UsersInterface/login.fxml", "Login");
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    public void handleMesTerrains(ActionEvent actionEvent) {
+    }
+
+    public void ouvrirTerrains(MouseEvent mouseEvent) {
+    }
+
+    public void ouvrirPlantes(MouseEvent mouseEvent) {
+    }
+
+    public void ouvrirRotations(MouseEvent mouseEvent) {
+        navigateTo(mouseEvent, "/TerrainsInterface/EmployeRotation.fxml", "EmployeRotation");
     }
 }

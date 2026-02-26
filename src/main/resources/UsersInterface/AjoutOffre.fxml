@@ -1,123 +1,128 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
-<BorderPane  style="-fx-background-color: #fcf8e6;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.User.AjoutOffre">
+<?import javafx.scene.text.Font?>
 
-<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+<BorderPane
+        style="-fx-background-color: #F0F4FF;"
+        xmlns="http://javafx.com/javafx/17.0.12"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="controllers.User.AjoutOffre"
+        prefHeight="580.0"
+        prefWidth="560.0">
 
-      spacing="20" style="-fx-background-color: white; -fx-padding: 30;">
+    <center>
+        <VBox alignment="TOP_CENTER" spacing="0">
 
-    <!-- Titre -->
-    <Label text="Ajouter une Offre" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;">
-        <font>
-            <Font name="System Bold" size="24.0"/>
-        </font>
-    </Label>
+            <!-- Header Banner -->
+            <VBox alignment="CENTER" spacing="6"
+                  style="-fx-background-color: #4A148C;
+                         -fx-padding: 28 40 24 40;">
+                <Label text="🏷️  Ajouter une Offre"
+                       style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: white;">
+                    <font><Font name="System Bold" size="22.0"/></font>
+                </Label>
+                <Label text="Définissez les détails de la nouvelle offre"
+                       style="-fx-font-size: 12px; -fx-text-fill: #CE93D8; -fx-font-style: italic;">
+                    <font><Font name="System Italic" size="12.0"/></font>
+                </Label>
+            </VBox>
 
-    <!-- Message d'erreur -->
-    <Label fx:id="errorLabel" visible="false" wrapText="true"
-           style="-fx-text-fill: #D32F2F; -fx-font-size: 12px;"/>
+            <!-- Card Form -->
+            <VBox spacing="16"
+                  style="-fx-background-color: white;
+                         -fx-padding: 28 36 28 36;
+                         -fx-effect: dropshadow(gaussian, rgba(74,20,140,0.12), 16, 0, 0, 4);">
 
-    <!-- Formulaire -->
-    <GridPane hgap="15" vgap="15">
-        <columnConstraints>
-            <ColumnConstraints minWidth="120" prefWidth="120"/>
-            <ColumnConstraints minWidth="300" prefWidth="300"/>
-        </columnConstraints>
+                <!-- Error Label -->
+                <Label fx:id="errorLabel" visible="false" wrapText="true" maxWidth="Infinity"
+                       style="-fx-text-fill: #C62828; -fx-font-size: 12px;
+                              -fx-background-color: #FFEBEE; -fx-background-radius: 6;
+                              -fx-padding: 10 14; -fx-border-color: #EF9A9A;
+                              -fx-border-radius: 6; -fx-border-width: 1;"/>
 
-        <!-- Nom de l'offre -->
-        <Label text="Nom de l'offre *" GridPane.rowIndex="0" GridPane.columnIndex="0"
-               style="-fx-font-size: 14px; -fx-text-fill: #34495E;">
-            <font>
-                <Font name="System" size="14"/>
-            </font>
-        </Label>
-        <TextField fx:id="nomField" promptText="Ex: Offre Premium"
-                   GridPane.rowIndex="0" GridPane.columnIndex="1"
-                   style="-fx-font-size: 13px; -fx-padding: 10;">
-            <font>
-                <Font name="System" size="13"/>
-            </font>
-        </TextField>
+                <!-- Nom -->
+                <VBox spacing="4">
+                    <Label text="Nom de l'offre *"
+                           style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #37474F;">
+                        <font><Font name="System Bold" size="12.0"/></font>
+                    </Label>
+                    <TextField fx:id="nomField" promptText="Ex: Offre Premium"
+                               style="-fx-font-size: 13px; -fx-padding: 9 12;
+                                      -fx-background-color: #FAF8FF;
+                                      -fx-border-color: #E1BEE7; -fx-border-radius: 7;
+                                      -fx-background-radius: 7; -fx-border-width: 1.5;"/>
+                </VBox>
 
-        <!-- Description -->
-        <Label text="Description *" GridPane.rowIndex="1" GridPane.columnIndex="0"
-               style="-fx-font-size: 14px; -fx-text-fill: #34495E;">
-            <font>
-                <Font name="System" size="14"/>
-            </font>
-        </Label>
-        <TextArea fx:id="descriptionArea" promptText="Décrivez l'offre en détail..."
-                  GridPane.rowIndex="1" GridPane.columnIndex="1"
-                  prefRowCount="4" wrapText="true"
-                  style="-fx-font-size: 13px; -fx-padding: 10;">
-            <font>
-                <Font name="System" size="13"/>
-            </font>
-        </TextArea>
+                <!-- Description -->
+                <VBox spacing="4">
+                    <Label text="Description *"
+                           style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #37474F;">
+                        <font><Font name="System Bold" size="12.0"/></font>
+                    </Label>
+                    <TextArea fx:id="descriptionArea" promptText="Décrivez l'offre en détail..."
+                              prefRowCount="4" wrapText="true"
+                              style="-fx-font-size: 13px; -fx-padding: 9 12;
+                                     -fx-background-color: #FAF8FF;
+                                     -fx-border-color: #E1BEE7; -fx-border-radius: 7;
+                                     -fx-background-radius: 7; -fx-border-width: 1.5;"/>
+                </VBox>
 
-        <!-- Prix -->
-        <Label text="Prix (DT) *" GridPane.rowIndex="2" GridPane.columnIndex="0"
-               style="-fx-font-size: 14px; -fx-text-fill: #34495E;">
-            <font>
-                <Font name="System" size="14"/>
-            </font>
-        </Label>
-        <TextField fx:id="prixField" promptText="Ex: 99.99"
-                   GridPane.rowIndex="2" GridPane.columnIndex="1"
-                   style="-fx-font-size: 13px; -fx-padding: 10;">
-            <font>
-                <Font name="System" size="13"/>
-            </font>
-        </TextField>
+                <!-- Prix + Durée side by side -->
+                <HBox spacing="16">
+                    <VBox spacing="4" HBox.hgrow="ALWAYS">
+                        <Label text="Prix (DT) *"
+                               style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #37474F;">
+                            <font><Font name="System Bold" size="12.0"/></font>
+                        </Label>
+                        <TextField fx:id="prixField" promptText="Ex: 99.99"
+                                   style="-fx-font-size: 13px; -fx-padding: 9 12;
+                                          -fx-background-color: #FAF8FF;
+                                          -fx-border-color: #E1BEE7; -fx-border-radius: 7;
+                                          -fx-background-radius: 7; -fx-border-width: 1.5;"/>
+                    </VBox>
+                    <VBox spacing="4" HBox.hgrow="ALWAYS">
+                        <Label text="Durée (jours) *"
+                               style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #37474F;">
+                            <font><Font name="System Bold" size="12.0"/></font>
+                        </Label>
+                        <TextField fx:id="dureeField" promptText="Ex: 30"
+                                   style="-fx-font-size: 13px; -fx-padding: 9 12;
+                                          -fx-background-color: #FAF8FF;
+                                          -fx-border-color: #E1BEE7; -fx-border-radius: 7;
+                                          -fx-background-radius: 7; -fx-border-width: 1.5;"/>
+                    </VBox>
+                </HBox>
 
-        <!-- Durée -->
-        <Label text="Durée (jours) *" GridPane.rowIndex="3" GridPane.columnIndex="0"
-               style="-fx-font-size: 14px; -fx-text-fill: #34495E;">
-            <font>
-                <Font name="System" size="14"/>
-            </font>
-        </Label>
-        <TextField fx:id="dureeField" promptText="Ex: 30"
-                   GridPane.rowIndex="3" GridPane.columnIndex="1"
-                   style="-fx-font-size: 13px; -fx-padding: 10;">
-            <font>
-                <Font name="System" size="13"/>
-            </font>
-        </TextField>
+                <Separator style="-fx-background-color: #F3E5F5;"/>
 
-    </GridPane>
-
-    <!-- Note obligatoire -->
-    <Label text="* Champs obligatoires"
-           style="-fx-font-size: 11px; -fx-text-fill: #7F8C8D; -fx-font-style: italic;">
-        <font>
-            <Font name="System Italic" size="11"/>
-        </font>
-    </Label>
-
-    <!-- Boutons -->
-    <HBox spacing="10" alignment="CENTER_RIGHT">
-        <Button fx:id="cancelButton" text="Annuler" onAction="#handleCancel"
-                style="-fx-background-color: #95A5A6; -fx-text-fill: white; -fx-font-size: 14px;
-                       -fx-padding: 10 30; -fx-background-radius: 5; -fx-cursor: hand;"
-                minWidth="120">
-            <font>
-                <Font name="System" size="14"/>
-            </font>
-        </Button>
-        <Button fx:id="saveButton" text="Enregistrer" onAction="#handleSave"
-                style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 14px;
-                       -fx-padding: 10 30; -fx-background-radius: 5; -fx-cursor: hand;"
-                minWidth="120" defaultButton="true">
-            <font>
-                <Font name="System Bold" size="14"/>
-            </font>
-        </Button>
-    </HBox>
-
-</VBox>
+                <!-- Footer -->
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label text="* Champs obligatoires"
+                           style="-fx-font-size: 11px; -fx-text-fill: #90A4AE; -fx-font-style: italic;">
+                        <font><Font name="System Italic" size="11.0"/></font>
+                    </Label>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="cancelButton" text="Annuler" onAction="#handleCancel"
+                            minWidth="110"
+                            style="-fx-background-color: transparent; -fx-text-fill: #546E7A;
+                                   -fx-font-size: 13px; -fx-padding: 10 24; -fx-background-radius: 7;
+                                   -fx-border-color: #B0BEC5; -fx-border-radius: 7;
+                                   -fx-border-width: 1.5; -fx-cursor: hand;">
+                        <font><Font name="System" size="13"/></font>
+                    </Button>
+                    <Button fx:id="saveButton" text="Enregistrer" onAction="#handleSave"
+                            defaultButton="true" minWidth="130"
+                            style="-fx-background-color: #4A148C; -fx-text-fill: white;
+                                   -fx-font-size: 13px; -fx-font-weight: bold;
+                                   -fx-padding: 10 24; -fx-background-radius: 7; -fx-cursor: hand;
+                                   -fx-effect: dropshadow(gaussian, rgba(74,20,140,0.35), 8, 0, 0, 2);">
+                        <font><Font name="System Bold" size="13"/></font>
+                    </Button>
+                </HBox>
+            </VBox>
+        </VBox>
+    </center>
 </BorderPane>

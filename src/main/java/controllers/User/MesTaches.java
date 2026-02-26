@@ -2,9 +2,11 @@ package controllers.User;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
+import javafx.print.*;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -13,19 +15,24 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import models.User.Personne;
 import models.User.Tache;
 import services.User.TacheService;
 
-import java.io.IOException;
+import java.io.*;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Contrôleur pour la vue "Mes Tâches" des employés
+ * - Recherche filtrée et triée
+ * - Statistiques d'états
+ * - Génération de rapport (tâche sélectionnée ou toutes)
  */
 public class MesTaches {
 
@@ -43,6 +50,22 @@ public class MesTaches {
     @FXML private Button dashboardBtn;
     @FXML private Button logoutBtn;
 
+    // Filtres et tri
+    @FXML private ComboBox<String> filterStatut;
+    @FXML private ComboBox<String> filterPriorite;
+    @FXML private ComboBox<String> sortCombo;
+
+    // Statistiques
+    @FXML private Label statTotal;
+    @FXML private Label statEnCours;
+    @FXML private Label statTerminee;
+    @FXML private Label statEnAttente;
+    @FXML private Label statEnRetard;
+
+    // Boutons rapport
+    @FXML private Button rapportSelectionBtn;
+    @FXML private Button rapportToutBtn;
+
     // Table et colonnes
     @FXML private TableView<Tache> taskTable;
     @FXML private TableColumn<Tache, Integer> idColumn;
@@ -58,8 +81,7 @@ public class MesTaches {
     // ══════════════════════════════════════════════════════════════
 
     private TacheService tacheService;
-    private ObservableList<Tache> tachesList;
-    private ObservableList<Tache> allTachesList;
+    private ObservableList<Tache> allTachesList = FXCollections.observableArrayList();
     private Personne currentUser;
 
     // ══════════════════════════════════════════════════════════════
@@ -72,11 +94,13 @@ public class MesTaches {
             tacheService = new TacheService();
             System.out.println("✓ MesTaches Controller initialisé");
 
+            setupFilters();
+            setupSort();
+            setupSearch();
+
             if (taskTable != null) {
                 setupTable();
             }
-
-            setupSearch();
 
         } catch (Exception e) {
             System.err.println("✗ Erreur initialisation MesTaches");
@@ -90,38 +114,20 @@ public class MesTaches {
     // User Management
     // ══════════════════════════════════════════════════════════════
 
-    /**
-     * CRITIQUE: Définir l'utilisateur connecté et charger ses tâches
-     */
-    /**
-     * Définir l'utilisateur connecté et charger les données
-     */
     public void setCurrentUser(Personne user) {
         this.currentUser = user;
         if (user != null) {
             System.out.println("✓ setCurrentUser appelé pour: " + user.getNom());
 
-            // Mise à jour des labels utilisateur
             if (userNameLabel != null)
                 userNameLabel.setText(user.getPrenom() + " " + user.getNom());
-            else
-                System.err.println("✗ userNameLabel est NULL !");
-
             if (userRoleLabel != null)
-                userRoleLabel.setText(getRoleText(user.getRole())); // Méthode helper ci-dessous
-            else
-                System.err.println("✗ userRoleLabel est NULL !");
+                userRoleLabel.setText(getRoleText(user.getRole()));
 
-            // Charger les données spécifiques au contrôleur
-            loadData();
-        } else {
-            System.err.println("✗ setCurrentUser appelé avec user NULL !");
+            loadMyTaches();
         }
     }
 
-    /**
-     * Helper pour obtenir le texte du rôle
-     */
     private String getRoleText(int role) {
         switch (role) {
             case 1: return "🌾 AGRICULTEUR";
@@ -131,14 +137,154 @@ public class MesTaches {
         }
     }
 
-    /**
-     * Charger les données (à implémenter dans chaque contrôleur)
-     */
-    private void loadData() {
-        // AcceuilEmploye: loadStatistiques()
-        // MesTaches: loadMyTaches()
-        // ProfilEmploye: loadUserData()
-        // MesAbonnements: loadMesAbonnements() + loadOffresDisponibles()
+    // ══════════════════════════════════════════════════════════════
+    // Setup Filters & Sort
+    // ══════════════════════════════════════════════════════════════
+
+    private void setupFilters() {
+        if (filterStatut != null) {
+            filterStatut.setItems(FXCollections.observableArrayList(
+                    "Tous", "En attente", "En cours", "Terminée", "En retard"
+            ));
+            filterStatut.setValue("Tous");
+            filterStatut.setOnAction(e -> applyFiltersAndSort());
+        }
+
+        if (filterPriorite != null) {
+            filterPriorite.setItems(FXCollections.observableArrayList(
+                    "Toutes", "Basse", "Moyenne", "Haute", "Urgente"
+            ));
+            filterPriorite.setValue("Toutes");
+            filterPriorite.setOnAction(e -> applyFiltersAndSort());
+        }
+    }
+
+    private void setupSort() {
+        if (sortCombo != null) {
+            sortCombo.setItems(FXCollections.observableArrayList(
+                    "Par défaut", "Titre (A→Z)", "Titre (Z→A)",
+                    "Priorité (Urgente→Basse)", "Priorité (Basse→Urgente)",
+                    "Date (Récente→Ancienne)", "Date (Ancienne→Récente)"
+            ));
+            sortCombo.setValue("Par défaut");
+            sortCombo.setOnAction(e -> applyFiltersAndSort());
+        }
+    }
+
+    private void setupSearch() {
+        if (searchField != null) {
+            searchField.textProperty().addListener((obs, old, newVal) -> applyFiltersAndSort());
+        }
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // Filter + Sort Logic (combiné)
+    // ══════════════════════════════════════════════════════════════
+
+    private void applyFiltersAndSort() {
+        if (allTachesList == null || taskTable == null) return;
+
+        String searchText = searchField != null ? searchField.getText().toLowerCase().trim() : "";
+        String statut = filterStatut != null ? filterStatut.getValue() : "Tous";
+        String priorite = filterPriorite != null ? filterPriorite.getValue() : "Toutes";
+        String sort = sortCombo != null ? sortCombo.getValue() : "Par défaut";
+
+        // 1. Filtrer
+        List<Tache> filtered = allTachesList.stream()
+                .filter(t -> {
+                    // Filtre texte
+                    if (!searchText.isEmpty()) {
+                        boolean matchSearch =
+                                (t.getNom_tache() != null && t.getNom_tache().toLowerCase().contains(searchText)) ||
+                                        (t.getDescription() != null && t.getDescription().toLowerCase().contains(searchText)) ||
+                                        (t.getEtat() != null && t.getEtat().toLowerCase().contains(searchText)) ||
+                                        (t.getPriorite() != null && t.getPriorite().toLowerCase().contains(searchText)) ||
+                                        String.valueOf(t.getId_tache()).contains(searchText);
+                        if (!matchSearch) return false;
+                    }
+                    // Filtre statut
+                    if (statut != null && !statut.equals("Tous")) {
+                        if (t.getEtat() == null || !t.getEtat().equalsIgnoreCase(statut)) return false;
+                    }
+                    // Filtre priorité
+                    if (priorite != null && !priorite.equals("Toutes")) {
+                        if (t.getPriorite() == null || !t.getPriorite().equalsIgnoreCase(priorite)) return false;
+                    }
+                    return true;
+                })
+                .collect(Collectors.toList());
+
+        // 2. Trier
+        if (sort != null) {
+            switch (sort) {
+                case "Titre (A→Z)":
+                    filtered.sort(Comparator.comparing(t -> t.getNom_tache() != null ? t.getNom_tache() : ""));
+                    break;
+                case "Titre (Z→A)":
+                    filtered.sort((a, b) -> {
+                        String na = a.getNom_tache() != null ? a.getNom_tache() : "";
+                        String nb = b.getNom_tache() != null ? b.getNom_tache() : "";
+                        return nb.compareTo(na);
+                    });
+                    break;
+                case "Priorité (Urgente→Basse)":
+                    filtered.sort(Comparator.comparingInt(t -> prioriteOrdre(t.getPriorite())));
+                    break;
+                case "Priorité (Basse→Urgente)":
+                    filtered.sort((a, b) -> prioriteOrdre(b.getPriorite()) - prioriteOrdre(a.getPriorite()));
+                    break;
+                case "Date (Récente→Ancienne)":
+                    filtered.sort((a, b) -> {
+                        String da = a.getDate_echeancee() != null ? a.getDate_echeancee().toString() : "";
+                        String db = b.getDate_echeancee() != null ? b.getDate_echeancee().toString() : "";
+                        return db.compareTo(da);
+                    });
+                    break;
+                case "Date (Ancienne→Récente)":
+                    filtered.sort((a, b) -> {
+                        String da = a.getDate_echeancee() != null ? a.getDate_echeancee().toString() : "";
+                        String db = b.getDate_echeancee() != null ? b.getDate_echeancee().toString() : "";
+                        return da.compareTo(db);
+                    });
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        taskTable.setItems(FXCollections.observableArrayList(filtered));
+    }
+
+    /** Ordre décroissant urgence: Urgente=0, Haute=1, Moyenne=2, Basse=3 */
+    private int prioriteOrdre(String p) {
+        if (p == null) return 99;
+        switch (p.toLowerCase()) {
+            case "urgente": return 0;
+            case "haute":   return 1;
+            case "moyenne": return 2;
+            case "basse":   return 3;
+            default:        return 99;
+        }
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // Statistics
+    // ══════════════════════════════════════════════════════════════
+
+    private void updateStatistics() {
+        if (allTachesList == null) return;
+
+        int total = allTachesList.size();
+        long enCours   = allTachesList.stream().filter(t -> "En cours".equalsIgnoreCase(t.getEtat())).count();
+        long terminee  = allTachesList.stream().filter(t -> t.getEtat() != null && t.getEtat().toLowerCase().contains("termin")).count();
+        long enAttente = allTachesList.stream().filter(t -> "En attente".equalsIgnoreCase(t.getEtat())).count();
+        long enRetard  = allTachesList.stream().filter(t -> "En retard".equalsIgnoreCase(t.getEtat())).count();
+
+        if (statTotal != null)     statTotal.setText(String.valueOf(total));
+        if (statEnCours != null)   statEnCours.setText(String.valueOf(enCours));
+        if (statTerminee != null)  statTerminee.setText(String.valueOf(terminee));
+        if (statEnAttente != null) statEnAttente.setText(String.valueOf(enAttente));
+        if (statEnRetard != null)  statEnRetard.setText(String.valueOf(enRetard));
     }
 
     // ══════════════════════════════════════════════════════════════
@@ -153,91 +299,56 @@ public class MesTaches {
         prioriteColumn.setCellValueFactory(new PropertyValueFactory<>("priorite"));
         dateColumn.setCellValueFactory(new PropertyValueFactory<>("date_echeancee"));
 
-        // Style pour le statut
+        // Style statut
         statutColumn.setCellFactory(col -> new TableCell<Tache, String>() {
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText(null);
-                    setStyle("");
-                } else {
-                    setText(item);
-                    switch (item.toLowerCase()) {
-                        case "en cours":
-                            setStyle("-fx-text-fill: #F39C12; -fx-font-weight: bold;");
-                            break;
-                        case "terminée":
-                        case "terminee":
-                            setStyle("-fx-text-fill: #27AE60; -fx-font-weight: bold;");
-                            break;
-                        case "en retard":
-                            setStyle("-fx-text-fill: #E74C3C; -fx-font-weight: bold;");
-                            break;
-                        case "en attente":
-                            setStyle("-fx-text-fill: #3498DB; -fx-font-weight: bold;");
-                            break;
-                        default:
-                            setStyle("-fx-text-fill: #95A5A6; -fx-font-weight: bold;");
-                    }
+                if (empty || item == null) { setText(null); setStyle(""); return; }
+                setText(item);
+                switch (item.toLowerCase()) {
+                    case "en cours":   setStyle("-fx-text-fill: #F39C12; -fx-font-weight: bold;"); break;
+                    case "terminée":
+                    case "terminee":   setStyle("-fx-text-fill: #27AE60; -fx-font-weight: bold;"); break;
+                    case "en retard":  setStyle("-fx-text-fill: #E74C3C; -fx-font-weight: bold;"); break;
+                    case "en attente": setStyle("-fx-text-fill: #3498DB; -fx-font-weight: bold;"); break;
+                    default:           setStyle("-fx-text-fill: #95A5A6; -fx-font-weight: bold;");
                 }
             }
         });
 
-        // Style pour la priorité
+        // Style priorité
         prioriteColumn.setCellFactory(col -> new TableCell<Tache, String>() {
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText(null);
-                    setStyle("");
-                } else {
-                    setText(item);
-                    switch (item.toLowerCase()) {
-                        case "urgente":
-                            setStyle("-fx-text-fill: #E74C3C; -fx-font-weight: bold;");
-                            break;
-                        case "haute":
-                            setStyle("-fx-text-fill: #F39C12; -fx-font-weight: bold;");
-                            break;
-                        case "moyenne":
-                            setStyle("-fx-text-fill: #3498DB; -fx-font-weight: bold;");
-                            break;
-                        case "basse":
-                            setStyle("-fx-text-fill: #95A5A6; -fx-font-weight: bold;");
-                            break;
-                        default:
-                            setStyle("-fx-text-fill: #7F8C8D; -fx-font-weight: bold;");
-                    }
+                if (empty || item == null) { setText(null); setStyle(""); return; }
+                setText(item);
+                switch (item.toLowerCase()) {
+                    case "urgente": setStyle("-fx-text-fill: #E74C3C; -fx-font-weight: bold;"); break;
+                    case "haute":   setStyle("-fx-text-fill: #F39C12; -fx-font-weight: bold;"); break;
+                    case "moyenne": setStyle("-fx-text-fill: #3498DB; -fx-font-weight: bold;"); break;
+                    case "basse":   setStyle("-fx-text-fill: #95A5A6; -fx-font-weight: bold;"); break;
+                    default:        setStyle("-fx-text-fill: #7F8C8D; -fx-font-weight: bold;");
                 }
             }
         });
 
         // Colonne Actions
         actionsColumn.setCellFactory(param -> new TableCell<>() {
-            private final Button viewBtn = new Button("👁️ Voir");
+            private final Button viewBtn   = new Button("👁️ Voir");
             private final Button statusBtn = new Button("📝 Statut");
             private final HBox hbox = new HBox(5, viewBtn, statusBtn);
 
             {
                 hbox.setAlignment(Pos.CENTER);
                 viewBtn.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white; " +
-                        "-fx-background-radius: 5; -fx-padding: 4 10; -fx-cursor: hand; " +
-                        "-fx-font-size: 11px;");
+                        "-fx-background-radius: 5; -fx-padding: 4 10; -fx-cursor: hand; -fx-font-size: 11px;");
                 statusBtn.setStyle("-fx-background-color: #FF9800; -fx-text-fill: white; " +
-                        "-fx-background-radius: 5; -fx-padding: 4 10; -fx-cursor: hand; " +
-                        "-fx-font-size: 11px;");
+                        "-fx-background-radius: 5; -fx-padding: 4 10; -fx-cursor: hand; -fx-font-size: 11px;");
 
-                viewBtn.setOnAction(e -> {
-                    Tache t = getTableView().getItems().get(getIndex());
-                    handleViewTask(t);
-                });
-
-                statusBtn.setOnAction(e -> {
-                    Tache t = getTableView().getItems().get(getIndex());
-                    handleChangeStatus(t);
-                });
+                viewBtn.setOnAction(e -> handleViewTask(getTableView().getItems().get(getIndex())));
+                statusBtn.setOnAction(e -> handleChangeStatus(getTableView().getItems().get(getIndex())));
             }
 
             @Override
@@ -253,70 +364,21 @@ public class MesTaches {
     // ══════════════════════════════════════════════════════════════
 
     private void loadMyTaches() {
-        System.out.println("\n=== loadMyTaches appelé ===");
-
         if (currentUser == null) {
-            System.err.println("✗ ERREUR CRITIQUE: currentUser est NULL !");
-            System.err.println("⚠️ Aucun utilisateur connecté - impossible de charger les tâches");
             showError("Erreur", "Session expirée. Veuillez vous reconnecter.");
             return;
         }
-
-        System.out.println("✓ currentUser présent: " + currentUser.getNom());
-
-        if (taskTable == null) {
-            System.err.println("⚠️ taskTable est NULL");
-            return;
-        }
+        if (taskTable == null) return;
 
         try {
-            System.out.println("🔄 Récupération des tâches pour CIN: " + currentUser.getCin());
             List<Tache> taches = tacheService.recupererTachesParPersonne(currentUser.getCin());
-
             allTachesList = FXCollections.observableArrayList(taches);
-            tachesList = FXCollections.observableArrayList(taches);
-
-            taskTable.setItems(tachesList);
-
-            System.out.println("✓ " + taches.size() + " tâches chargées pour " + currentUser.getNom());
-            System.out.println("============================\n");
-
+            applyFiltersAndSort();
+            updateStatistics();
+            System.out.println("✓ " + taches.size() + " tâches chargées");
         } catch (SQLException e) {
-            System.err.println("✗ Erreur chargement tâches");
             e.printStackTrace();
             showError("Erreur", "Impossible de charger vos tâches: " + e.getMessage());
-        }
-    }
-
-    // ══════════════════════════════════════════════════════════════
-    // Search Functionality
-    // ══════════════════════════════════════════════════════════════
-
-    private void setupSearch() {
-        if (searchField != null) {
-            searchField.textProperty().addListener((obs, old, newVal) -> applyFilter(newVal));
-        }
-    }
-
-    private void applyFilter(String searchText) {
-        if (allTachesList == null || taskTable == null) return;
-
-        String filter = searchText.toLowerCase().trim();
-
-        if (filter.isEmpty()) {
-            taskTable.setItems(allTachesList);
-        } else {
-            ObservableList<Tache> filtered = FXCollections.observableArrayList();
-            for (Tache t : allTachesList) {
-                if ((t.getNom_tache() != null && t.getNom_tache().toLowerCase().contains(filter)) ||
-                        (t.getDescription() != null && t.getDescription().toLowerCase().contains(filter)) ||
-                        (t.getEtat() != null && t.getEtat().toLowerCase().contains(filter)) ||
-                        (t.getPriorite() != null && t.getPriorite().toLowerCase().contains(filter)) ||
-                        String.valueOf(t.getId_tache()).contains(filter)) {
-                    filtered.add(t);
-                }
-            }
-            taskTable.setItems(filtered);
         }
     }
 
@@ -328,13 +390,11 @@ public class MesTaches {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Détails de la Tâche #" + tache.getId_tache());
         alert.setHeaderText(tache.getNom_tache());
-
         StringBuilder content = new StringBuilder();
         content.append("Description: ").append(tache.getDescription() != null ? tache.getDescription() : "N/A").append("\n\n");
         content.append("Statut: ").append(tache.getEtat() != null ? tache.getEtat() : "N/A").append("\n");
         content.append("Priorité: ").append(tache.getPriorite() != null ? tache.getPriorite() : "N/A").append("\n");
         content.append("Date d'échéance: ").append(tache.getDate_echeancee() != null ? tache.getDate_echeancee() : "N/A");
-
         alert.setContentText(content.toString());
         alert.getDialogPane().setMinWidth(500);
         alert.showAndWait();
@@ -342,22 +402,17 @@ public class MesTaches {
 
     private void handleChangeStatus(Tache tache) {
         ChoiceDialog<String> dialog = new ChoiceDialog<>(
-                tache.getEtat(),
-                "En attente", "En cours", "Terminée"
-        );
-
+                tache.getEtat(), "En attente", "En cours", "Terminée");
         dialog.setTitle("Changer le statut");
         dialog.setHeaderText("Tâche: " + tache.getNom_tache());
         dialog.setContentText("Nouveau statut:");
 
-        Optional<String> result = dialog.showAndWait();
-        result.ifPresent(nouveauStatut -> {
+        dialog.showAndWait().ifPresent(nouveauStatut -> {
             try {
                 tache.setEtat(nouveauStatut);
                 tacheService.modifier(tache);
                 loadMyTaches();
                 showSuccess("Succès", "Statut mis à jour avec succès");
-                System.out.println("✓ Statut changé: " + nouveauStatut);
             } catch (SQLException e) {
                 e.printStackTrace();
                 showError("Erreur", "Impossible de modifier le statut: " + e.getMessage());
@@ -366,38 +421,141 @@ public class MesTaches {
     }
 
     // ══════════════════════════════════════════════════════════════
+    // Rapport Generation
+    // ══════════════════════════════════════════════════════════════
+
+    /**
+     * Génère un rapport pour la tâche sélectionnée dans le tableau
+     */
+    @FXML
+    private void handleRapportSelection() {
+        if (taskTable == null) return;
+        Tache selected = taskTable.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showInfo("Aucune sélection", "Veuillez sélectionner une tâche dans le tableau.");
+            return;
+        }
+        generateRapport(Collections.singletonList(selected), "rapport_tache_" + selected.getId_tache());
+    }
+
+    /**
+     * Génère un rapport pour toutes les tâches affichées (après filtres)
+     */
+    @FXML
+    private void handleRapportTout() {
+        if (taskTable == null || taskTable.getItems().isEmpty()) {
+            showInfo("Aucune tâche", "Il n'y a aucune tâche à exporter.");
+            return;
+        }
+        generateRapport(new ArrayList<>(taskTable.getItems()), "rapport_toutes_taches");
+    }
+
+    /**
+     * Génère un fichier texte/CSV du rapport et propose de le sauvegarder
+     */
+    private void generateRapport(List<Tache> taches, String defaultName) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Enregistrer le rapport");
+        fileChooser.setInitialFileName(defaultName + ".txt");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Fichier texte", "*.txt"),
+                new FileChooser.ExtensionFilter("CSV", "*.csv")
+        );
+
+        Stage stage = getStage();
+        File file = fileChooser.showSaveDialog(stage);
+        if (file == null) return;
+
+        try (PrintWriter writer = new PrintWriter(new OutputStreamWriter(
+                new FileOutputStream(file), "UTF-8"))) {
+
+            boolean isCsv = file.getName().endsWith(".csv");
+
+            if (isCsv) {
+                writer.println("ID,Titre,Description,Statut,Priorité,Échéance");
+                for (Tache t : taches) {
+                    writer.printf("%d,\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"%n",
+                            t.getId_tache(),
+                            safe(t.getNom_tache()),
+                            safe(t.getDescription()),
+                            safe(t.getEtat()),
+                            safe(t.getPriorite()),
+                            t.getDate_echeancee() != null ? t.getDate_echeancee().toString() : "N/A"
+                    );
+                }
+            } else {
+                // Entête rapport
+                writer.println("══════════════════════════════════════════════════════");
+                writer.println("               RAPPORT DE TÂCHES - AgroFlow");
+                writer.println("══════════════════════════════════════════════════════");
+                if (currentUser != null) {
+                    writer.println("Employé   : " + currentUser.getPrenom() + " " + currentUser.getNom());
+                    writer.println("CIN       : " + currentUser.getCin());
+                }
+                writer.println("Date      : " + new java.util.Date());
+                writer.println("Nb tâches : " + taches.size());
+                writer.println("──────────────────────────────────────────────────────");
+                writer.println();
+
+                // Statistiques rapides
+                long enCours   = taches.stream().filter(t -> "En cours".equalsIgnoreCase(t.getEtat())).count();
+                long terminee  = taches.stream().filter(t -> t.getEtat() != null && t.getEtat().toLowerCase().contains("termin")).count();
+                long enAttente = taches.stream().filter(t -> "En attente".equalsIgnoreCase(t.getEtat())).count();
+                long enRetard  = taches.stream().filter(t -> "En retard".equalsIgnoreCase(t.getEtat())).count();
+
+                writer.println("RÉSUMÉ DES STATUTS :");
+                writer.printf("  ✓ Terminées : %d   |  ▶ En cours : %d   |  ⏳ En attente : %d   |  ⚠ En retard : %d%n",
+                        terminee, enCours, enAttente, enRetard);
+                writer.println();
+                writer.println("══════════════════════════════════════════════════════");
+                writer.println();
+
+                // Détail de chaque tâche
+                int i = 1;
+                for (Tache t : taches) {
+                    writer.println("TÂCHE #" + i++ + " (ID: " + t.getId_tache() + ")");
+                    writer.println("  Titre       : " + safe(t.getNom_tache()));
+                    writer.println("  Description : " + safe(t.getDescription()));
+                    writer.println("  Statut      : " + safe(t.getEtat()));
+                    writer.println("  Priorité    : " + safe(t.getPriorite()));
+                    writer.println("  Échéance    : " + (t.getDate_echeancee() != null ? t.getDate_echeancee() : "N/A"));
+                    writer.println("──────────────────────────────────────────────────────");
+                }
+            }
+
+            showSuccess("Rapport généré", "Le rapport a été sauvegardé avec succès :\n" + file.getAbsolutePath());
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            showError("Erreur", "Impossible de générer le rapport : " + e.getMessage());
+        }
+    }
+
+    private String safe(String s) {
+        return s != null ? s.replace("\"", "\"\"") : "N/A";
+    }
+
+    // ══════════════════════════════════════════════════════════════
     // Navigation Handlers
     // ══════════════════════════════════════════════════════════════
 
     @FXML
     private void handleRefresh() {
-        System.out.println("🔄 Rafraîchissement...");
-
         if (currentUser == null) {
-            System.err.println("✗ Impossible de rafraîchir: currentUser est NULL");
             showError("Erreur", "Session expirée. Veuillez vous reconnecter.");
             return;
         }
-
+        if (searchField != null) searchField.clear();
+        if (filterStatut != null) filterStatut.setValue("Tous");
+        if (filterPriorite != null) filterPriorite.setValue("Toutes");
+        if (sortCombo != null) sortCombo.setValue("Par défaut");
         loadMyTaches();
-        if (searchField != null) {
-            searchField.clear();
-        }
     }
 
     @FXML
     private void handleDashboard(MouseEvent event) {
-        System.out.println("\n=== handleDashboard appelé ===");
-        System.out.println("📊 Retour au dashboard employé...");
-
-        // CRITIQUE: Vérifier currentUser AVANT la navigation
         if (currentUser == null) {
-            System.err.println("✗ ERREUR CRITIQUE: currentUser est NULL !");
-            System.err.println("⚠️ Impossible de naviguer sans utilisateur");
-            showError("Erreur de session",
-                    "Votre session a expiré.\nVeuillez vous reconnecter.");
-
-            // Rediriger vers login
+            showError("Erreur de session", "Votre session a expiré.\nVeuillez vous reconnecter.");
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/login.fxml"));
                 Parent root = loader.load();
@@ -406,39 +564,24 @@ public class MesTaches {
                     stage.setScene(new Scene(root, 900, 600));
                     stage.setTitle("AgroFlow - Connexion");
                     stage.setMaximized(true);
-
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            } catch (IOException e) { e.printStackTrace(); }
             return;
         }
-
-        System.out.println("✓ currentUser présent: " + currentUser.getNom() + " (CIN: " + currentUser.getCin() + ")");
-
-        // Navigation vers le dashboard
-        navigateTo(event,"/UsersInterface/AcceuilEmp.fxml", "AgroFlow - Dashboard Employé");
+        navigateTo(event, "/UsersInterface/AcceuilEmp.fxml", "AgroFlow - Dashboard Employé");
     }
 
     @FXML
     private void handleMonProfil() {
-        System.out.println("👤 Ouverture Mon Profil...");
-
         if (currentUser == null) {
             showError("Erreur", "Session expirée. Veuillez vous reconnecter.");
             return;
         }
-
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/ProfilEmplye.fxml"));
             Parent root = loader.load();
-
             ProfilEmploye controller = loader.getController();
-            if (controller != null) {
-                controller.setCurrentUser(currentUser);
-                System.out.println("✓ Utilisateur passé au profil");
-            }
-
+            if (controller != null) controller.setCurrentUser(currentUser);
             Stage stage = new Stage();
             stage.setTitle("Mon Profil - Employé");
             stage.setScene(new Scene(root, 600, 700));
@@ -446,20 +589,15 @@ public class MesTaches {
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.centerOnScreen();
             stage.showAndWait();
-
-            System.out.println("✓ Modal profil fermée");
-
         } catch (IOException e) {
             e.printStackTrace();
             showError("Erreur", "Impossible d'ouvrir le profil: " + e.getMessage());
         }
     }
 
-
     @FXML
     private void handleRapports() {
-        System.out.println("📊 Ouverture Rapports...");
-        showInfo("À venir", "Le module Rapports sera disponible prochainement.");
+        showInfo("À venir", "Le module Rapports avancés sera disponible prochainement.");
     }
 
     @FXML
@@ -472,19 +610,14 @@ public class MesTaches {
         alert.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
                 try {
-                    // Nettoyer la session
                     currentUser = null;
-
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/login.fxml"));
                     Parent root = loader.load();
-
                     Stage stage = getStage();
                     if (stage != null) {
                         stage.setScene(new Scene(root, 900, 600));
                         stage.setTitle("AgroFlow - Connexion");
                         stage.setMaximized(true);
-
-                        System.out.println("✓ Déconnexion réussie");
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -498,38 +631,29 @@ public class MesTaches {
     // Navigation Utility
     // ══════════════════════════════════════════════════════════════
 
-    /**
-     * CRITIQUE: Navigation avec transfert d'utilisateur
-     */
     private void navigateTo(MouseEvent event, String fxmlPath, String title) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
-
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-
-            boolean etaitMaximise = stage.isMaximized();  // ← SAUVEGARDER AVANT
-
+            boolean etaitMaximise = stage.isMaximized();
             stage.setScene(new Scene(root));
             stage.setTitle(title);
-            stage.setMaximized(etaitMaximise);  // ← RESTAURER APRÈS
-
+            stage.setMaximized(etaitMaximise);
             stage.show();
         } catch (IOException e) {
             System.err.println("Erreur de chargement FXML : " + fxmlPath);
             e.printStackTrace();
         }
     }
+
     private Stage getStage() {
-        if (dashboardBtn != null && dashboardBtn.getScene() != null) {
+        if (dashboardBtn != null && dashboardBtn.getScene() != null)
             return (Stage) dashboardBtn.getScene().getWindow();
-        }
-        if (logoutBtn != null && logoutBtn.getScene() != null) {
+        if (logoutBtn != null && logoutBtn.getScene() != null)
             return (Stage) logoutBtn.getScene().getWindow();
-        }
-        if (taskTable != null && taskTable.getScene() != null) {
+        if (taskTable != null && taskTable.getScene() != null)
             return (Stage) taskTable.getScene().getWindow();
-        }
         return null;
     }
 
@@ -539,25 +663,31 @@ public class MesTaches {
 
     private void showError(String title, String msg) {
         Alert a = new Alert(Alert.AlertType.ERROR);
-        a.setTitle(title);
-        a.setHeaderText(null);
-        a.setContentText(msg);
-        a.showAndWait();
+        a.setTitle(title); a.setHeaderText(null); a.setContentText(msg); a.showAndWait();
     }
 
     private void showSuccess(String title, String msg) {
         Alert a = new Alert(Alert.AlertType.INFORMATION);
-        a.setTitle(title);
-        a.setHeaderText(null);
-        a.setContentText(msg);
-        a.showAndWait();
+        a.setTitle(title); a.setHeaderText(null); a.setContentText(msg); a.showAndWait();
     }
 
     private void showInfo(String title, String msg) {
         Alert a = new Alert(Alert.AlertType.INFORMATION);
-        a.setTitle(title);
-        a.setHeaderText(null);
-        a.setContentText(msg);
-        a.showAndWait();
+        a.setTitle(title); a.setHeaderText(null); a.setContentText(msg); a.showAndWait();
     }
+
+    public void handleMesTerrains(ActionEvent actionEvent) {
+    }
+
+    public void ouvrirTerrains(MouseEvent mouseEvent) {
+    }
+
+    public void ouvrirPlantes(MouseEvent mouseEvent) {
+
+    }
+
+    public void ouvrirRotations(MouseEvent mouseEvent) {
+        navigateTo(mouseEvent,"/TerrainsInterface/EmployeRotation.fxml","Rotations Employee ");
+    }
+
 }

@@ -25,8 +25,7 @@
             </Label>
             <Label fx:id="roleLabel"
                    style="-fx-font-size: 14px; -fx-text-fill: #7F8C8D; -fx-background-color: #E8EAF6;
-                          -fx-padding: 4 12; -fx-background-radius: 12;"
-                   text="👷 EMPLOYÉ">
+                          -fx-padding: 4 12; -fx-background-radius: 12;">
                 <font><Font name="System Bold" size="14" /></font>
             </Label>
         </VBox>
@@ -136,7 +135,11 @@
                text="🔒 Changer le Mot de Passe">
             <font><Font name="System Bold" size="18" /></font>
         </Label>
-
+        <Button fx:id="2fauthBtn" onMouseClicked="#handleNavigateToSettings2FA"
+                style="-fx-background-color: linear-gradient(to right, #4CAF50, #45a049); -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 12 24; -fx-background-radius: 10; -fx-cursor: hand; -fx-font-weight: bold; -fx-effect: dropshadow(gaussian, rgba(76,175,80,0.4), 10, 0, 0, 3);"
+                text="Activer l' Authentification a 2 Facteurs  ">
+            <font><Font name="System Bold" size="14" /></font>
+        </Button>
         <Separator/>
 
         <GridPane hgap="15" vgap="15">

@@ -13,6 +13,7 @@
     <!-- ══════════════════════════════════════════════ -->
     <!-- SIDEBAR EMPLOYÉ (bleue)                        -->
     <!-- ══════════════════════════════════════════════ -->
+    <!-- SIDEBAR EMPLOYÉ -->
     <left>
         <VBox prefWidth="250" style="-fx-background-color: linear-gradient(to bottom, #1a237e, #283593, #3949ab);">
             <padding><Insets bottom="20" top="20" /></padding>
@@ -27,19 +28,24 @@
                         <font><Font name="System Bold" size="26" /></font>
                     </Label>
                     <Label style="-fx-font-size: 11px; -fx-text-fill: rgba(255,255,255,0.7);"
-                           text="Espace Employé" />
+                           text="Espace Employé">
+                        <font><Font name="System" size="11" /></font>
+                    </Label>
                 </VBox>
             </HBox>
 
             <!-- Info Utilisateur -->
             <VBox alignment="CENTER" spacing="8"
-                  style="-fx-background-color: rgba(255,255,255,0.1); -fx-background-radius: 15; -fx-padding: 20;">
+                  style="-fx-background-color: rgba(255,255,255,0.1); -fx-background-radius: 15;
+                         -fx-padding: 20; -fx-margin: 10;">
                 <Label style="-fx-font-size: 30px;" text="👤" />
-                <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;"
+                <Label fx:id="userNameLabel"
+                       style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;"
                        text="Nom Employé">
                     <font><Font name="System Bold" size="16" /></font>
                 </Label>
-                <Label style="-fx-font-size: 12px; -fx-text-fill: rgba(255,255,255,0.8);
+                <Label fx:id="userRoleLabel"
+                       style="-fx-font-size: 12px; -fx-text-fill: rgba(255,255,255,0.8);
                               -fx-background-color: rgba(76,175,80,0.3); -fx-padding: 4 12;
                               -fx-background-radius: 15;"
                        text="👷 EMPLOYÉ">
@@ -47,97 +53,90 @@
                 </Label>
             </VBox>
 
-            <!-- Navigation -->
+            <!-- Navigation Menu -->
             <VBox spacing="10" style="-fx-padding: 20 0 0 0;">
 
-                <Button prefHeight="50" prefWidth="230"
-                        onAction="#versAccueilAgricole"
+                <!-- Dashboard (actif) -->
+                <Button fx:id="dashboardBtn" onMouseClicked="#handleDashboard" prefHeight="50" prefWidth="230"
                         style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
                                -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
                                -fx-background-radius: 12; -fx-cursor: hand;
-                               -fx-border-color: rgba(255,255,255,0.2); -fx-border-width: 1; -fx-border-radius: 12;"
+                               -fx-border-color: rgba(255,255,255,0.2); -fx-border-width: 1;
+                               -fx-border-radius: 12;"
                         text="📊  Dashboard">
                     <font><Font name="System Bold" size="14" /></font>
                 </Button>
 
-                <Button prefHeight="50" prefWidth="230"
+                <!-- Mes Tâches -->
+                <Button onMouseClicked="#handleMesTaches" prefHeight="50" prefWidth="230"
                         style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
                                -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
                                -fx-background-radius: 12; -fx-cursor: hand;
-                               -fx-border-color: rgba(255,255,255,0.2); -fx-border-width: 1; -fx-border-radius: 12;"
-                        text="🌾  Mes Terrains">
+                               -fx-border-color: rgba(255,255,255,0.2); -fx-border-width: 1;
+                               -fx-border-radius: 12;"
+                        text="📋  Mes Tâches">
                     <font><Font name="System Bold" size="14" /></font>
                 </Button>
 
-                <Button prefHeight="50" prefWidth="230"
+                <!-- Mon Profil -->
+                <Button onMouseClicked= "#handleMonProfil" prefHeight="50" prefWidth="230"
                         style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
                                -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
                                -fx-background-radius: 12; -fx-cursor: hand;
-                               -fx-border-color: rgba(255,255,255,0.2); -fx-border-width: 1; -fx-border-radius: 12;"
-                        text="🌱  Mes Plantes">
-                    <font><Font name="System Bold" size="14" /></font>
-                </Button>
-
-                <!-- ACTIF -->
-                <Button prefHeight="50" prefWidth="230"
-                        style="-fx-background-color: linear-gradient(to right, #4CAF50, #45a049);
-                               -fx-text-fill: white; -fx-font-size: 14px; -fx-alignment: CENTER-LEFT;
-                               -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand;
-                               -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0, 0, 2);"
-                        text="🔄  Mes Rotations">
-                    <font><Font name="System Bold" size="14" /></font>
-                </Button>
-
-                <Button prefHeight="50" prefWidth="230"
-                        style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
-                               -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
-                               -fx-background-radius: 12; -fx-cursor: hand;
-                               -fx-border-color: rgba(255,255,255,0.2); -fx-border-width: 1; -fx-border-radius: 12;"
-                        text="🐄  Mes Animaux">
-                    <font><Font name="System Bold" size="14" /></font>
-                </Button>
-
-                <Button prefHeight="50" prefWidth="230"
-                        style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
-                               -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
-                               -fx-background-radius: 12; -fx-cursor: hand;
-                               -fx-border-color: rgba(255,255,255,0.2); -fx-border-width: 1; -fx-border-radius: 12;"
-                        text="📦  Mes Stocks">
-                    <font><Font name="System Bold" size="14" /></font>
-                </Button>
-
-                <Button prefHeight="50" prefWidth="230"
-                        style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
-                               -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
-                               -fx-background-radius: 12; -fx-cursor: hand;
-                               -fx-border-color: rgba(255,255,255,0.2); -fx-border-width: 1; -fx-border-radius: 12;"
+                               -fx-border-color: rgba(255,255,255,0.2); -fx-border-width: 1;
+                               -fx-border-radius: 12;"
                         text="👤  Mon Profil">
                     <font><Font name="System Bold" size="14" /></font>
                 </Button>
 
-                <Button prefHeight="50" prefWidth="230"
-                        style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
-                               -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
-                               -fx-background-radius: 12; -fx-cursor: hand;
-                               -fx-border-color: rgba(255,255,255,0.2); -fx-border-width: 1; -fx-border-radius: 12;"
-                        text="📈  Rapports">
-                    <font><Font name="System Bold" size="14" /></font>
-                </Button>
+                <VBox spacing="0">
+                    <Button onAction="#handleMesTerrains" prefHeight="48" prefWidth="230"
+                            style="-fx-background-color: linear-gradient(to right, #4CAF50, #45a049);
+                                   -fx-text-fill: white; -fx-font-size: 14px; -fx-alignment: CENTER-LEFT;
+                                   -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand;"
+                            text="🌾  Mes Terrains  ▾">
+                        <font><Font name="System Bold" size="14" /></font>
+                    </Button>
+                    <!-- Sous-menu Terrains -->
+                    <VBox fx:id="terrainsSubMenu" spacing="2" style="-fx-padding: 4 0 0 0;" visible="true" managed="true">
+                        <Button onMouseClicked="#ouvrirTerrains" prefHeight="40" prefWidth="230"
+                                style="-fx-background-color: rgba(0,0,0,0.20); -fx-text-fill: white;
+                                       -fx-font-size: 13px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 40;
+                                       -fx-background-radius: 10; -fx-cursor: hand;"
+                                text="🚜  Terrains">
+                            <font><Font name="System Bold" size="13" /></font>
+                        </Button>
+                        <Button onMouseClicked="#ouvrirPlantes" prefHeight="40" prefWidth="230"
+                                style="-fx-background-color: rgba(0,0,0,0.15); -fx-text-fill: rgba(255,255,255,0.9);
+                                       -fx-font-size: 13px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 40;
+                                       -fx-background-radius: 10; -fx-cursor: hand;"
+                                text="🌱  Plantes">
+                            <font><Font name="System" size="13" /></font>
+                        </Button>
+                        <Button onMouseClicked="#ouvrirRotations" prefHeight="40" prefWidth="230"
+                                style="-fx-background-color: rgba(0,0,0,0.15); -fx-text-fill: rgba(255,255,255,0.9);
+                                       -fx-font-size: 13px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 40;
+                                       -fx-background-radius: 10; -fx-cursor: hand;"
+                                text="📋  Rotations">
+                            <font><Font name="System" size="13" /></font>
+                        </Button>
+                    </VBox>
+                </VBox>
+
             </VBox>
 
             <Region VBox.vgrow="ALWAYS" />
 
-            <Button fx:id="logoutBtn" prefHeight="50" prefWidth="230"
+            <!-- Logout -->
+            <Button fx:id="logoutBtn" onMouseClicked="#handleLogout" prefHeight="50" prefWidth="230"
                     style="-fx-background-color: #E74C3C; -fx-text-fill: white; -fx-font-size: 14px;
-                           -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
-                           -fx-background-radius: 12; -fx-cursor: hand;
-                           -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 10, 0, 0, 3);"
+                           -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22; -fx-background-radius: 12;
+                           -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 10, 0, 0, 3);"
                     text="🚪  Déconnexion">
                 <font><Font name="System Bold" size="14" /></font>
             </Button>
         </VBox>
     </left>
-
     <!-- ══════════════════════════════════════════════ -->
     <!-- CONTENU PRINCIPAL — identique à l'original    -->
     <!-- ══════════════════════════════════════════════ -->
@@ -151,7 +150,7 @@
                       style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 20;
                              -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 12, 0, 0, 2);">
 
-                    <Button onAction="#versAccueilAgricole"
+                    <Button onMouseClicked="#versAccueil"
                             style="-fx-background-color: #E8EAF6; -fx-text-fill: #3949ab;
                                    -fx-cursor: hand; -fx-background-radius: 20; -fx-font-size: 12px;
                                    -fx-font-weight: bold; -fx-padding: 9 20;

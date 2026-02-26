@@ -7,6 +7,7 @@ import models.User.Employe;
 import models.User.Personne;
 import services.User.PersonneService;
 
+
 import java.sql.SQLException;
 import java.time.LocalDate;
 
@@ -69,8 +70,8 @@ public class ModifierPersonne {
     /**
      * Charger les données de l'employé à modifier
      */
-    public void setEmploye(Employe employe) {
-        this.employeActuel = employe;
+    public void setEmploye( Personne employe) {
+
 
         System.out.println("📝 Chargement des données de l'employé:");
         System.out.println("  CIN: " + employe.getCin());

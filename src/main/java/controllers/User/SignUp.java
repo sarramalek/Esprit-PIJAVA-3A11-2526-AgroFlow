@@ -1,5 +1,8 @@
 package controllers.User;
 
+import com.sun.javafx.charts.Legend;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -12,6 +15,10 @@ import models.User.Employe;
 import models.User.Personne;
 import models.User.Utilisateur;
 import services.User.PersonneService;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 
 import java.io.IOException;
 import java.net.URL;
@@ -63,6 +70,8 @@ public class SignUp implements Initializable {
     private PersonneService personneService;
     private ToggleGroup roleToggleGroup;
     private int selectedRole = 1; // 1=Utilisateur (Agricole), 2=Employé, 3=Admin
+    @FXML
+    private ComboBox<String> gouvernoratComboBox,villeComboBox;
 
     // ═══════════════════════════════════════════════════════
     // INITIALIZATION
@@ -72,17 +81,70 @@ public class SignUp implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         personneService = new PersonneService();
 
-        // Configurer le ToggleGroup pour les rôles
+        // Données gouvernorats → villes
+        Map<String, List<String>> gouvernoratVillesMap = new LinkedHashMap<>();
+        gouvernoratVillesMap.put("Ariana",      List.of("Ariana Ville", "La Soukra", "Raoued", "Kalâat el-Andalous", "Sidi Thabet", "Ettadhamen", "Mnihla"));
+        gouvernoratVillesMap.put("Béja",        List.of("Béja", "Medjez el-Bab", "Testour", "Nefza", "Thibar", "Goubellat"));
+        gouvernoratVillesMap.put("Ben Arous",   List.of("Ben Arous", "Radès", "Mégrine", "Hammam Lif", "Ezzahra", "Boumhal", "Fouchana", "Mohamedia"));
+        gouvernoratVillesMap.put("Bizerte",     List.of("Bizerte", "Mateur", "Menzel Bourguiba", "Ras Jebel", "Sejnane", "Ghar El Melh"));
+        gouvernoratVillesMap.put("Gabès",       List.of("Gabès", "El Hamma", "Mareth", "Matmata", "Nouvelle Matmata", "Metouia"));
+        gouvernoratVillesMap.put("Gafsa",       List.of("Gafsa", "El Ksar", "Métlaoui", "Redeyef", "Moularès", "Om Laârayes"));
+        gouvernoratVillesMap.put("Jendouba",    List.of("Jendouba", "Bou Salem", "Tabarka", "Aïn Draham", "Ghardimaou", "Fernana"));
+        gouvernoratVillesMap.put("Kairouan",    List.of("Kairouan", "Sbikha", "El Alaa", "Haffouz", "Oueslatia", "Chebika"));
+        gouvernoratVillesMap.put("Kasserine",   List.of("Kasserine", "Sbeitla", "Fériana", "Thala", "Hassi El Ferid", "Hidra"));
+        gouvernoratVillesMap.put("Kébili",      List.of("Kébili", "Douz", "Souk Lahad", "Faouar"));
+        gouvernoratVillesMap.put("Kef",         List.of("Le Kef", "Tajerouine", "Dahmani", "Sers", "Nebeur", "Kalaat Senan"));
+        gouvernoratVillesMap.put("Mahdia",      List.of("Mahdia", "Ksour Essaf", "El Djem", "Chebba", "Bou Merdes", "Rejiche"));
+        gouvernoratVillesMap.put("Manouba",     List.of("Manouba", "Den Den", "Douar Hicher", "Oued Ellil", "Tebourba", "El Battan"));
+        gouvernoratVillesMap.put("Médenine",    List.of("Médenine", "Houmt Souk (Djerba)", "Midoun", "Zarzis", "Ben Gardane", "Beni Khedache"));
+        gouvernoratVillesMap.put("Monastir",    List.of("Monastir", "Skanes", "Ksar Hellal", "Jemmal", "Moknine", "Téboulba", "Sayada"));
+        gouvernoratVillesMap.put("Nabeul",      List.of("Nabeul", "Hammamet", "Kelibia", "Korba", "Menzel Temime", "Grombalia", "Soliman"));
+        gouvernoratVillesMap.put("Sfax",        List.of("Sfax", "Sakiet Ezzit", "El Ain", "Thyna", "Agareb", "Jebeniana", "Mahres"));
+        gouvernoratVillesMap.put("Sidi Bouzid", List.of("Sidi Bouzid", "Regueb", "Meknassy", "Jilma", "Bir El Hafey", "Souk Jedid"));
+        gouvernoratVillesMap.put("Siliana",     List.of("Siliana", "Bou Arada", "Gaâfour", "Rohia", "Makthar", "Kesra"));
+        gouvernoratVillesMap.put("Sousse",      List.of("Sousse", "Hammam Sousse", "Akouda", "Kalaa Kebira", "Msaken", "Enfidha", "Hergla"));
+        gouvernoratVillesMap.put("Tataouine",   List.of("Tataouine", "Ghomrassen", "Remada", "Bir Lahmar", "Dehiba"));
+        gouvernoratVillesMap.put("Tozeur",      List.of("Tozeur", "Nefta", "Hazoua", "Degache", "Tameghza"));
+        gouvernoratVillesMap.put("Tunis",       List.of("Tunis Centre", "La Marsa", "Le Bardo", "Carthage", "Sidi Bou Saïd", "La Goulette", "Le Kram", "L'Ariana"));
+        gouvernoratVillesMap.put("Zaghouan",    List.of("Zaghouan", "Bir Mcherga", "El Fahs", "Nadhour", "Zriba", "Saouaf"));
+
+        // Remplir gouvernorats
+        gouvernoratComboBox.setItems(FXCollections.observableArrayList(gouvernoratVillesMap.keySet()));
+
+        // Ville désactivée par défaut
+        villeComboBox.setDisable(true);
+        villeComboBox.setPromptText("Choisir d'abord un gouvernorat");
+
+        // Listener dynamique gouvernorat → villes
+        gouvernoratComboBox.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            villeComboBox.getSelectionModel().clearSelection();
+            villeComboBox.setValue(null);
+            if (newVal != null) {
+                villeComboBox.setItems(FXCollections.observableArrayList(gouvernoratVillesMap.get(newVal)));
+                villeComboBox.setDisable(false);
+                villeComboBox.setPromptText("Choisir une ville");
+            } else {
+                villeComboBox.setItems(FXCollections.emptyObservableList());
+                villeComboBox.setDisable(true);
+            }
+        });
+
         setupRoleToggles();
-
-        // Ajouter des listeners de validation
         setupValidationListeners();
-
-        // Masquer le message d'erreur au départ
         errorLabel.setVisible(false);
         errorLabel.setManaged(false);
     }
-
+    private void updateVilles(String gov) {
+        ObservableList<String> villes = FXCollections.observableArrayList();
+        switch (gov) {
+            case "Tunis": villes.addAll("La Marsa", "Le Bardo", "Carthage", "Sidi Bou Said"); break;
+            case "Sousse": villes.addAll("Hammem Sousse", "Akouda", "Kalaa Kebira", "Port El Kantaoui"); break;
+            case "Sfax": villes.addAll("Sakiet Ezzit", "Thyna", "Agareb"); break;
+            // Ajoutez les autres cas selon vos besoins
+            default: villes.add("Autre...");
+        }
+        villeComboBox.setItems(villes);
+    }
     /**
      * Configure les toggle buttons pour la sélection du rôle
      */
@@ -312,8 +374,8 @@ public class SignUp implements Initializable {
                 personne.setDate_naiss(null);
             }
 
-            personne.setAdresse(adresseField.getText() != null ? adresseField.getText().trim() : "");
-            personne.setVille(villeField.getText() != null ? villeField.getText().trim() : "");
+            personne.setAdresse(gouvernoratComboBox.getValue() != null ? gouvernoratComboBox.getValue() : "");
+            personne.setVille(villeComboBox.getValue() != null ? villeComboBox.getValue() : "");
 
             // Dates de création et dernier changement
             LocalDate now = LocalDate.now();

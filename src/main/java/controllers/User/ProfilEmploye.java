@@ -5,9 +5,13 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import models.User.Personne;
 import services.User.PersonneService;
+import services.User.SmsService;
+import utils.SessionManager;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -357,5 +361,137 @@ public class ProfilEmploye {
             }
         });
     }
+//--------2 F-A --------------------------------------------------
+    @FXML
+    private void handleNavigateToSettings2FA(MouseEvent event) {
+        try {
+            // ✅ Utiliser this.currentUser (déjà chargé) plutôt que SessionManager ici
+            if (currentUser == null) {
+                showAlert(Alert.AlertType.ERROR, "Erreur", "Session expirée.");
+                return;
+            }
+            String telephone = currentUser.getTel();
+
+            if (telephone == null || telephone.isEmpty()) {
+                navigateToSettings2FA(event);
+                return;
+            }
+
+            String otp = String.format("%06d", (int)(Math.random() * 999999));
+            SessionManager.setTempOtp(otp);
+            SmsService smsService = new SmsService();
+            boolean sent = smsService.sendOtpCode(telephone, otp);
+
+            if (!sent) {
+                showAlert(Alert.AlertType.ERROR, "Erreur", "Impossible d'envoyer le SMS.");
+                return;
+            }
+
+            String masked = telephone.length() > 4
+                    ? telephone.substring(0, telephone.length() - 4).replaceAll("\\d", "*")
+                    + telephone.substring(telephone.length() - 4)
+                    : telephone;
+
+            Dialog<String> dialog = new Dialog<>();
+            dialog.setTitle("🔐 Vérification SMS");
+            dialog.setHeaderText("Code envoyé au : " + masked);
+
+            ButtonType verifyBtn = new ButtonType("Vérifier", ButtonBar.ButtonData.OK_DONE);
+            ButtonType resendBtn = new ButtonType("Renvoyer", ButtonBar.ButtonData.LEFT);
+            dialog.getDialogPane().getButtonTypes().addAll(verifyBtn, resendBtn, ButtonType.CANCEL);
+
+            TextField codeField = new TextField();
+            codeField.setPromptText("000000");
+            codeField.setMaxWidth(200);
+            codeField.setStyle("-fx-font-family: 'Courier New'; -fx-font-size: 24px;" +
+                    "-fx-alignment: center; -fx-pref-height: 52px;" +
+                    "-fx-border-color: #52B788; -fx-border-radius: 8;" +
+                    "-fx-background-radius: 8; -fx-border-width: 2;");
+            codeField.textProperty().addListener((obs, o, n) -> {
+                if (!n.matches("\\d*")) codeField.setText(n.replaceAll("[^\\d]", ""));
+                if (n.length() > 6)     codeField.setText(n.substring(0, 6));
+            });
+
+            VBox content = new VBox(14);
+            content.setAlignment(javafx.geometry.Pos.CENTER);
+            content.getChildren().addAll(
+                    new Label("📱 Entrez le code reçu par SMS :"),
+                    codeField,
+                    new Label("⏱  Valable 5 minutes"));
+            dialog.getDialogPane().setContent(content);
+
+            final String[] currentOtp = { otp };
+            dialog.setResultConverter(btn -> {
+                if (btn == resendBtn) {
+                    String newOtp = String.format("%06d", (int)(Math.random() * 999999));
+                    currentOtp[0] = newOtp;
+                    SessionManager.setTempOtp(newOtp);
+                    boolean reSent = smsService.sendOtpCode(telephone, newOtp);
+                    Alert info = new Alert(reSent ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR);
+                    info.setTitle(reSent ? "SMS renvoyé" : "Erreur");
+                    info.setHeaderText(null);
+                    info.setContentText(reSent ? "Nouveau code envoyé au " + masked : "Échec envoi SMS.");
+                    info.showAndWait();
+                    return null;
+                }
+                if (btn == verifyBtn) return codeField.getText();
+                return null;
+            });
+
+            dialog.showAndWait().ifPresent(code -> {
+                if (code.equals(currentOtp[0])) {
+                    SessionManager.clearTempOtp();
+                    navigateToSettings2FA(event);
+                } else {
+                    showAlert(Alert.AlertType.ERROR, "Code incorrect", "Code SMS invalide. Accès refusé.");
+                }
+            });
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    // ═══════════════════════════════════════════════════════════════════
+    // ALERTES
+    // ═══════════════════════════════════════════════════════════════════
+
+
+    private void showWarning(String title, String msg) { alert(Alert.AlertType.WARNING,     title, msg); }
+    private void showSuccess(String msg)               { alert(Alert.AlertType.INFORMATION, "Succès", msg); }
+    private void showAlertSimple(String msg)           { alert(Alert.AlertType.ERROR,       "Erreur", msg); }
+
+
+    private void alert(Alert.AlertType type, String title, String msg) {
+        Alert a = new Alert(type);
+        a.setTitle(title);
+        a.setHeaderText(null);
+        a.setContentText(msg);
+        a.showAndWait();
+    }
+
+    private void showAlert(Alert.AlertType type, String title, String content) {
+        alert(type, title, content);
+    }
+
+    private void showProgress(String message) {
+        Alert progress = new Alert(Alert.AlertType.INFORMATION);
+        progress.setTitle("En cours...");
+        progress.setHeaderText(null);
+        progress.setContentText(message);
+        progress.show();
+        new Thread(() -> {
+            try {
+                Thread.sleep(2000);
+                javafx.application.Platform.runLater(progress::close);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
+    private void navigateToSettings2FA(MouseEvent event) {
+        Settings2FA settings = new Settings2FA();
+        settings.launch();
+    }
+
 
 }

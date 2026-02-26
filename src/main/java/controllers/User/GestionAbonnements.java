@@ -485,4 +485,42 @@ public class GestionAbonnements {
     public void handleMateriels(MouseEvent mouseEvent) {
         this.navigateTo(mouseEvent,"/MaterielsInterface/AccueilMateriel.fxml","gestion Materiels - AgroFlow ");
     }
+
+    public void handleGeneratePdf(ActionEvent actionEvent) {
+    }
+
+    @FXML
+    private void handleMonProfil() {
+        System.out.println("👤 Ouverture Mon Profil...");
+
+        if (currentUser == null) {
+            showError("Erreur", "Session expirée. Veuillez vous reconnecter.");
+            return;
+        }
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/ProfilEmplye.fxml"));
+            Parent root = loader.load();
+
+            ProfilEmploye controller = loader.getController();
+            if (controller != null) {
+                controller.setCurrentUser(currentUser);
+                System.out.println("✓ Utilisateur passé au profil");
+            }
+
+            Stage stage = new Stage();
+            stage.setTitle("Mon Profil - Employé");
+            stage.setScene(new Scene(root, 1500, 700));
+            stage.setResizable(false);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.centerOnScreen();
+            stage.showAndWait();
+
+            System.out.println("✓ Modal profil fermée");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            showError("Erreur", "Impossible d'ouvrir le profil: " + e.getMessage());
+        }
+    }
 }
