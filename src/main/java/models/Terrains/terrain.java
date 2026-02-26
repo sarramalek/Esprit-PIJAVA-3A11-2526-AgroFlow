@@ -9,6 +9,7 @@ public class terrain {
     private String type_sol;
     private String localisation;
     private float p_h;
+    private float proprietaire;
 
     public terrain(int id_terrain, String nom_terrain, float surface, String type_sol, String localisation, float p_h) {
         this.id_terrain = id_terrain;
