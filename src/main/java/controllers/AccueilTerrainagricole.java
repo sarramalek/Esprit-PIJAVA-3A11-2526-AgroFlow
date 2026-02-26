@@ -24,7 +24,7 @@ public class AccueilTerrainagricole {
 
         @FXML
         void ouvrirRotations(MouseEvent event) {
-            chargerPage(event, "/.fxml", "Gestion des Rotations");
+            chargerPage(event, "/agricoleaffichagerotation.fxml", "Gestion des Rotations");
         }
 
         private void chargerPage(MouseEvent event, String fxmlPath, String titre) {

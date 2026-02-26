@@ -22,6 +22,7 @@ public class MainProgGUI extends Application {
         //FXMLLoader loader = new FXMLLoader(getClass().getResource("/AffichagePlante.fxml"));
         //FXMLLoader loader = new FXMLLoader(getClass().getResource("/acceuilterrain.fxml"));
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/acceuilagricoleterrain.fxml"));
+        //FXMLLoader loader = new FXMLLoader(getClass().getResource("/EmployeRotation.fxml"));
 
         Parent root = loader.load();
         Scene scene = new Scene(root);
