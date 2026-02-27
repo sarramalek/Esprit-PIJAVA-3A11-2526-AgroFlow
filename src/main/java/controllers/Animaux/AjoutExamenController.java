@@ -10,10 +10,15 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
+import models.User.Personne;
 import services.Animaux.ServiceExamen;
 import services.Animaux.ServiceAnimal;
+import utils.SessionManager;
+
 import java.io.IOException;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.util.Objects;
 
 public class AjoutExamenController {
 
@@ -28,7 +33,6 @@ public class AjoutExamenController {
 
     @FXML
     public void initialize() {
-
         try {
             // Chargement de la liste des animaux dans le ComboBox
             cbAnimal.getItems().setAll(serviceAn.afficher());
@@ -74,14 +78,20 @@ public class AjoutExamenController {
         return true;
     }
 
-    @FXML
-    void retourListe(ActionEvent event) {
-        try {
-            Parent root = FXMLLoader.load(getClass().getResource("/AnimalsInterface/AfficherExamens.fxml"));
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root));
-        } catch (IOException e) {
-            e.printStackTrace();
+
+        @FXML
+        void retourListe(ActionEvent event) {
+            try {
+                Personne currentUser = SessionManager.getCurrentUser();
+                String fxml = (currentUser != null && currentUser.getRole() == 1)
+                        ? "/AnimalsInterface/acceuilagricoleexamens.fxml"
+                        : "/AnimalsInterface/AfficherExamens.fxml";
+
+                Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource(fxml)));
+                Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                stage.setScene(new Scene(root));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
-}

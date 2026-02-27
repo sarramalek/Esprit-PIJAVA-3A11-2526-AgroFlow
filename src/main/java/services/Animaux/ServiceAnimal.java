@@ -7,6 +7,7 @@ import utils.MyDatabase;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ServiceAnimal implements IService<animaux> {
     private Connection cnx;
@@ -49,7 +50,6 @@ public class ServiceAnimal implements IService<animaux> {
         ps.setInt(1, id);
         ps.executeUpdate();
     }
-
     @Override
     public List<animaux> recuperer() throws SQLException {
         List<animaux> liste = new ArrayList<>();
@@ -69,7 +69,6 @@ public class ServiceAnimal implements IService<animaux> {
         }
         return liste;
     }
-
     @Override
     public animaux rechercherParId(int id) throws SQLException {
         String sql = "SELECT * FROM animaux WHERE id=?";
@@ -87,11 +86,31 @@ public class ServiceAnimal implements IService<animaux> {
                     rs.getFloat("poids")
             );
         }
-        return null;
+    return null ;}
+    public List<animaux> afficher() throws SQLException {
+        List<animaux> liste = new ArrayList<>();
+        String sql = "SELECT * FROM animaux";
+        Statement st = cnx.createStatement();
+        ResultSet rs = st.executeQuery(sql);
+        while (rs.next()) {
+            liste.add(new animaux(rs.getInt("id"), rs.getString("nom"), rs.getString("espece"),
+                    rs.getString("race"), rs.getDate("date_naissance"),
+                    Sexe.valueOf(rs.getString("sexe")), rs.getFloat("poids")));
+        }
+        return liste;
     }
 
-    // Méthode afficher() conservée pour compatibilité
-    public List<animaux> afficher() throws SQLException {
-        return recuperer();
+    // Méthode utilisant l'API Stream et Collectors
+    public List<animaux> trouverPartenaires(animaux selectionne) {
+        try {
+            return afficher().stream()
+                    .filter(a -> a.getId() != selectionne.getId())
+                    .filter(a -> a.getEspece().equalsIgnoreCase(selectionne.getEspece()))
+                    .filter(a -> !a.getSexe().equals(selectionne.getSexe()))
+                    .collect(Collectors.toList()); // Fonctionne grâce à l'import Collectors
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
     }
 }

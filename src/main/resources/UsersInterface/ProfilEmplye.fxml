@@ -181,7 +181,11 @@
                                style="-fx-padding: 10; -fx-background-radius: 6;"/>
                 </VBox>
             </GridPane>
-
+            <Button fx:id="2fauthBtn" onMouseClicked="#handleNavigateToSettings2FA"
+                    style="-fx-background-color: linear-gradient(to right, #4CAF50, #45a049); -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 12 24; -fx-background-radius: 10; -fx-cursor: hand; -fx-font-weight: bold; -fx-effect: dropshadow(gaussian, rgba(76,175,80,0.4), 10, 0, 0, 3);"
+                    text="Activer l' Authentification a 2 Facteurs  ">
+                <font><Font name="System Bold" size="14" /></font>
+            </Button>
             <!-- Section Mot de Passe -->
             <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #1a237e; -fx-padding: 10 0 0 0;"
                    text="🔒 Changer le Mot de Passe">

@@ -7,6 +7,10 @@
 
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.image.Image?>
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.NumberAxis?>
 <BorderPane style="-fx-background-color: #fcf8e6;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.User.Acceuil">
 
     <!-- SIDEBAR MODERNISÉE -->
@@ -116,94 +120,234 @@
     </left>
     <!-- ================= CENTER ================= -->
     <center>
-        <ScrollPane fitToWidth="true" style="-fx-background-color: #fcf8e6; -fx-border-color: transparent;">
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER"
+                    style="-fx-background-color: #fcf8e6; -fx-border-color: transparent;">
+            <VBox spacing="22" style="-fx-background-color: #fcf8e6;">
+                <padding><Insets top="28" right="28" bottom="28" left="28"/></padding>
 
-        <VBox spacing="40" alignment="CENTER" style="-fx-padding: 60; -fx-background-color: #F5F7FA;">
+                <!-- Titre page -->
+                <HBox alignment="CENTER_LEFT" spacing="14"
+                      style="-fx-background-color: white; -fx-background-radius: 14; -fx-padding: 20 26; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 2);">
+                    <Label text="📊" style="-fx-font-size: 28px;"/>
+                    <VBox spacing="3" HBox.hgrow="ALWAYS">
+                        <Label text="Tableau de bord — Statistiques"
+                               style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #1a237e;">
+                            <font><Font name="System Bold" size="24"/></font>
+                        </Label>
+                        <Label text="Vue en temps réel des données utilisateurs, abonnements et offres"
+                               style="-fx-font-size: 13px; -fx-text-fill: #7F8C8D;"/>
+                    </VBox>
+                    <Button onAction="#handleRefresh"
+                            style="-fx-background-color: #E8F5E9; -fx-text-fill: #2E7D32; -fx-font-size: 13px; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 8 18; -fx-cursor: hand;"
+                            text="🔄  Actualiser"/>
+                </HBox>
 
-            <!-- Titre -->
-            <VBox spacing="10" alignment="CENTER">
-                <Text text="Tableau de bord AgroFlow" fill="#2C3E50">
-                    <font>
-                        <Font name="System Bold" size="36"/>
-                    </font>
-                </Text>
-                <Text text="Choisissez un module pour commencer" fill="#7F8C8D">
-                    <font>
-                        <Font name="System" size="16"/>
-                    </font>
-                </Text>
+                <!-- ── Section KPI ── -->
+                <Label text="VUE GÉNÉRALE"
+                       style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #9CA3AF; -fx-padding: 0 0 0 2;">
+                    <font><Font name="System Bold" size="11"/></font>
+                </Label>
+
+                <GridPane hgap="14" vgap="14">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="25"/>
+                        <ColumnConstraints percentWidth="25"/>
+                        <ColumnConstraints percentWidth="25"/>
+                        <ColumnConstraints percentWidth="25"/>
+                    </columnConstraints>
+
+                    <!-- KPI 1 : Total Utilisateurs -->
+                    <VBox GridPane.columnIndex="0" GridPane.rowIndex="0" spacing="10"
+                          style="-fx-background-color: white; -fx-background-radius: 14; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.07), 10, 0, 0, 2);">
+                        <HBox alignment="CENTER_LEFT" spacing="8">
+                            <Label text="👥" style="-fx-font-size: 18px;"/>
+                            <Label text="UTILISATEURS"
+                                   style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #6B7280;">
+                                <font><Font name="System Bold" size="11"/></font>
+                            </Label>
+                        </HBox>
+                        <Label fx:id="lblTotalUsers" text="—"
+                               style="-fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: #3B82F6;">
+                            <font><Font name="System Bold" size="36"/></font>
+                        </Label>
+                        <Separator style="-fx-background-color: #E5E7EB;"/>
+                        <HBox spacing="6" alignment="CENTER_LEFT">
+                            <Label text="dont employés :"
+                                   style="-fx-font-size: 12px; -fx-text-fill: #6B7280;"/>
+                            <Label fx:id="lblNbEmployes" text="—"
+                                   style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #3B82F6;">
+                                <font><Font name="System Bold" size="12"/></font>
+                            </Label>
+                        </HBox>
+                        <ProgressBar fx:id="progressEmployes" maxWidth="1.7976931348623157E308"
+                                     prefHeight="6"
+                                     style="-fx-accent: #3B82F6; -fx-background-color: #DBEAFE; -fx-background-radius: 4;"/>
+                    </VBox>
+
+                    <!-- KPI 2 : Abonnements actifs -->
+                    <VBox GridPane.columnIndex="1" GridPane.rowIndex="0" spacing="10"
+                          style="-fx-background-color: white; -fx-background-radius: 14; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.07), 10, 0, 0, 2);">
+                        <HBox alignment="CENTER_LEFT" spacing="8">
+                            <Label text="💳" style="-fx-font-size: 18px;"/>
+                            <Label text="ABONNEMENTS ACTIFS"
+                                   style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #6B7280;">
+                                <font><Font name="System Bold" size="11"/></font>
+                            </Label>
+                        </HBox>
+                        <Label fx:id="lblAbonnementsActifs" text="—"
+                               style="-fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: #10B981;">
+                            <font><Font name="System Bold" size="36"/></font>
+                        </Label>
+                        <Separator style="-fx-background-color: #E5E7EB;"/>
+                        <HBox spacing="6" alignment="CENTER_LEFT">
+                            <Label text="Taux d'activité :"
+                                   style="-fx-font-size: 12px; -fx-text-fill: #6B7280;"/>
+                            <Label fx:id="lblTauxActifs" text="—"
+                                   style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #10B981;">
+                                <font><Font name="System Bold" size="12"/></font>
+                            </Label>
+                        </HBox>
+                        <ProgressBar fx:id="progressActifs" maxWidth="1.7976931348623157E308"
+                                     prefHeight="6"
+                                     style="-fx-accent: #10B981; -fx-background-color: #D1FAE5; -fx-background-radius: 4;"/>
+                    </VBox>
+
+                    <!-- KPI 3 : Offres -->
+                    <VBox GridPane.columnIndex="2" GridPane.rowIndex="0" spacing="10"
+                          style="-fx-background-color: white; -fx-background-radius: 14; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.07), 10, 0, 0, 2);">
+                        <HBox alignment="CENTER_LEFT" spacing="8">
+                            <Label text="🎁" style="-fx-font-size: 18px;"/>
+                            <Label text="OFFRES DISPONIBLES"
+                                   style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #6B7280;">
+                                <font><Font name="System Bold" size="11"/></font>
+                            </Label>
+                        </HBox>
+                        <Label fx:id="lblTotalOffres" text="—"
+                               style="-fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: #F59E0B;">
+                            <font><Font name="System Bold" size="36"/></font>
+                        </Label>
+                        <Separator style="-fx-background-color: #E5E7EB;"/>
+                        <HBox spacing="6" alignment="CENTER_LEFT">
+                            <Label text="Revenu mensuel estimé :"
+                                   style="-fx-font-size: 12px; -fx-text-fill: #6B7280;"/>
+                            <Label fx:id="lblRevenuMensuel" text="—"
+                                   style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #F59E0B;">
+                                <font><Font name="System Bold" size="12"/></font>
+                            </Label>
+                        </HBox>
+                        <ProgressBar maxWidth="1.7976931348623157E308" prefHeight="6" progress="1.0"
+                                     style="-fx-accent: #F59E0B; -fx-background-color: #FEF3C7; -fx-background-radius: 4;"/>
+                    </VBox>
+
+                    <!-- KPI 4 : Abonnements expirés -->
+                    <VBox GridPane.columnIndex="3" GridPane.rowIndex="0" spacing="10"
+                          style="-fx-background-color: white; -fx-background-radius: 14; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.07), 10, 0, 0, 2);">
+                        <HBox alignment="CENTER_LEFT" spacing="8">
+                            <Label text="⚠️" style="-fx-font-size: 18px;"/>
+                            <Label text="ABONNEMENTS EXPIRÉS"
+                                   style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #6B7280;">
+                                <font><Font name="System Bold" size="11"/></font>
+                            </Label>
+                        </HBox>
+                        <Label fx:id="lblAbonnementsExpires" text="—"
+                               style="-fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: #EF4444;">
+                            <font><Font name="System Bold" size="36"/></font>
+                        </Label>
+                        <Separator style="-fx-background-color: #E5E7EB;"/>
+                        <HBox spacing="6" alignment="CENTER_LEFT">
+                            <Label text="Total abonnements :"
+                                   style="-fx-font-size: 12px; -fx-text-fill: #6B7280;"/>
+                            <Label fx:id="lblTotalAbonnements" text="—"
+                                   style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #EF4444;">
+                                <font><Font name="System Bold" size="12"/></font>
+                            </Label>
+                        </HBox>
+                        <ProgressBar fx:id="progressExpires" maxWidth="1.7976931348623157E308"
+                                     prefHeight="6"
+                                     style="-fx-accent: #EF4444; -fx-background-color: #FEE2E2; -fx-background-radius: 4;"/>
+                    </VBox>
+                </GridPane>
+
+                <!-- ── Section Graphiques ── -->
+                <Label text="GRAPHIQUES"
+                       style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #9CA3AF; -fx-padding: 4 0 0 2;">
+                    <font><Font name="System Bold" size="11"/></font>
+                </Label>
+
+                <!-- Row 1 : Pie charts -->
+                <HBox spacing="14">
+                    <!-- Pie abonnements par statut -->
+                    <VBox HBox.hgrow="ALWAYS" spacing="10"
+                          style="-fx-background-color: white; -fx-background-radius: 14; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.07), 10, 0, 0, 2);">
+                        <Label text="Abonnements par statut"
+                               style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #1F2937;">
+                            <font><Font name="System Bold" size="15"/></font>
+                        </Label>
+                        <Separator style="-fx-background-color: #E5E7EB;"/>
+                        <PieChart fx:id="pieAbonnements" prefHeight="240"
+                                  legendVisible="true" labelsVisible="true"
+                                  style="-fx-background-color: transparent;"/>
+                    </VBox>
+
+                    <!-- Pie users par rôle -->
+                    <VBox HBox.hgrow="ALWAYS" spacing="10"
+                          style="-fx-background-color: white; -fx-background-radius: 14; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.07), 10, 0, 0, 2);">
+                        <Label text="Utilisateurs par rôle"
+                               style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #1F2937;">
+                            <font><Font name="System Bold" size="15"/></font>
+                        </Label>
+                        <Separator style="-fx-background-color: #E5E7EB;"/>
+                        <PieChart fx:id="pieUsers" prefHeight="240"
+                                  legendVisible="true" labelsVisible="true"
+                                  style="-fx-background-color: transparent;"/>
+                    </VBox>
+                </HBox>
+
+                <!-- Row 2 : Bar chart popularité offres -->
+                <VBox spacing="10"
+                      style="-fx-background-color: white; -fx-background-radius: 14; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.07), 10, 0, 0, 2);">
+                    <Label text="Popularité des offres (nombre d'abonnés)"
+                           style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #1F2937;">
+                        <font><Font name="System Bold" size="15"/></font>
+                    </Label>
+                    <Separator style="-fx-background-color: #E5E7EB;"/>
+                    <BarChart fx:id="barOffres" prefHeight="260" animated="true" legendVisible="false"
+                              style="-fx-background-color: transparent;">
+                        <xAxis><CategoryAxis label="Offre"/></xAxis>
+                        <yAxis><NumberAxis label="Abonnés" minorTickVisible="false"/></yAxis>
+                    </BarChart>
+                </VBox>
+
+                <!-- ── Section Tableau ── -->
+                <Label text="DÉTAIL DES OFFRES"
+                       style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #9CA3AF; -fx-padding: 4 0 0 2;">
+                    <font><Font name="System Bold" size="11"/></font>
+                </Label>
+
+                <VBox spacing="10"
+                      style="-fx-background-color: white; -fx-background-radius: 14; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.07), 10, 0, 0, 2);">
+                    <Label text="Récapitulatif des offres"
+                           style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #1F2937;">
+                        <font><Font name="System Bold" size="15"/></font>
+                    </Label>
+                    <Separator style="-fx-background-color: #E5E7EB;"/>
+                    <TableView fx:id="tableOffres" prefHeight="200"
+                               maxWidth="1.7976931348623157E308"
+                               style="-fx-background-color: transparent; -fx-border-color: #E5E7EB; -fx-border-radius: 8; -fx-border-width: 1;">
+                        <columns>
+                            <TableColumn fx:id="colNomOffre"  text="Nom de l'offre"  prefWidth="280"/>
+                            <TableColumn fx:id="colPrix"      text="Prix (TND)"      prefWidth="160"/>
+                            <TableColumn fx:id="colDuree"     text="Durée (mois)"    prefWidth="160"/>
+                            <TableColumn fx:id="colNbAbonnes" text="Nb abonnés"      prefWidth="160"/>
+                        </columns>
+                        <placeholder>
+                            <Label text="Aucune offre disponible"
+                                   style="-fx-text-fill: #9CA3AF; -fx-font-size: 13px;"/>
+                        </placeholder>
+                    </TableView>
+                </VBox>
+
             </VBox>
-
-            <!-- Grille des modules -->
-            <GridPane hgap="30" vgap="30" alignment="CENTER">
-                <columnConstraints>
-                    <ColumnConstraints />
-                    <ColumnConstraints />
-                    <ColumnConstraints />
-                </columnConstraints>
-
-                <!-- MODULE PERSONNES -->
-                <VBox spacing="15" alignment="CENTER"
-                      onMouseClicked="#handlePersonnes"
-                      GridPane.columnIndex="0" GridPane.rowIndex="0"
-                      style="-fx-background-color: white; -fx-padding: 40 50;
-                             -fx-border-radius: 15; -fx-background-radius: 15;
-                             -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 15, 0, 0, 5);">
-                    <children>
-                        <Text text="👥" style="-fx-font-size: 64px;"/>
-                        <Text text="Personnes" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-fill: #2C3E50;"/>
-                        <Text text="Gestion du personnel" style="-fx-font-size: 13px; -fx-fill: #7F8C8D;"/>
-                    </children>
-                </VBox>
-
-                <!-- MODULE TÂCHES -->
-                <VBox spacing="15" alignment="CENTER"
-                      onMouseClicked ="#handleTaches"
-                      GridPane.columnIndex="1" GridPane.rowIndex="0"
-                      style="-fx-background-color: white; -fx-padding: 40 50;
-                             -fx-border-radius: 15; -fx-background-radius: 15;
-                             -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 15, 0, 0, 5);">
-                    <children>
-                        <Text text="✓" style="-fx-font-size: 64px;"/>
-                        <Text text="Tâches" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-fill: #2C3E50;"/>
-                        <Text text="Suivi des activités" style="-fx-font-size: 13px; -fx-fill: #7F8C8D;"/>
-                    </children>
-                </VBox>
-
-                <!-- MODULE OFFRES -->
-                <VBox spacing="15" alignment="CENTER"
-                      onMouseClicked="#handleOffres"
-                      GridPane.columnIndex="2" GridPane.rowIndex="0"
-                      style="-fx-background-color: white; -fx-padding: 40 50;
-                             -fx-border-radius: 15; -fx-background-radius: 15;
-                             -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 15, 0, 0, 5);">
-                    <children>
-                        <Text text="🏷️" style="-fx-font-size: 64px;"/>
-                        <Text text="Offres" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-fill: #2C3E50;"/>
-                        <Text text="Gestion des offres" style="-fx-font-size: 13px; -fx-fill: #7F8C8D;"/>
-                    </children>
-                </VBox>
-
-                <!-- MODULE ABONNEMENTS -->
-                <VBox spacing="15" alignment="CENTER"
-                      onMouseClicked="#handleAbonnements"
-                      GridPane.columnIndex="0" GridPane.rowIndex="1"
-                      style="-fx-background-color: white; -fx-padding: 40 50;
-                             -fx-border-radius: 15; -fx-background-radius: 15;
-                             -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 15, 0, 0, 5);">
-                    <children>
-                        <Text text="📋" style="-fx-font-size: 64px;"/>
-                        <Text text="Abonnements" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-fill: #2C3E50;"/>
-                        <Text text="Gestion abonnements" style="-fx-font-size: 13px; -fx-fill: #7F8C8D;"/>
-                    </children>
-                </VBox>
-
-                <!-- MODULE AFFECTATIONS -->
-
-
-            </GridPane>
-        </VBox>
         </ScrollPane>
     </center>
-
 </BorderPane>

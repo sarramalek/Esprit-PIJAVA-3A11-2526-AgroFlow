@@ -1,6 +1,7 @@
 package models.Animaux;
 
 import java.util.Date;
+import java.util.Objects;
 
 public class animaux {
     private int id;
@@ -40,7 +41,19 @@ public class animaux {
     public void setPoids(float poids) { this.poids = poids; }
 
     @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        animaux animaux = (animaux) o;
+        return getId() == animaux.getId();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, nom, espece, race, date_naissance, sexe, poids);
+    }
+
+    @Override
     public String toString() {
-        return "Animal [id=" + id + ", nom=" + nom + ", espece=" + espece + ", sexe=" + sexe + "]";
+        return "Animal [ nom=" + nom + ", espece=" + espece + ", sexe=" + sexe + "]";
     }
 }

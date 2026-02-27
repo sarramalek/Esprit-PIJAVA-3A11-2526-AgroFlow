@@ -4,6 +4,7 @@ import models.Animaux.examens;
 import org.junit.jupiter.api.*;
 import services.Animaux.ServiceExamen;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 

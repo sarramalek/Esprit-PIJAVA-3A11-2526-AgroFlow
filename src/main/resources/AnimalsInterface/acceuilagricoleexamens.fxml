@@ -1,20 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
+<?import javafx.geometry.*?>
 
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.image.ImageView?>
-<BorderPane prefHeight="805.0" prefWidth="1520.0" style="-fx-background-color: #F8F9FA;"
+<BorderPane prefHeight="805.0" prefWidth="1520.0"
+            style="-fx-background-color: #fcf8e6;"
             xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="controllers.Terrains.agricoleterrainController">
+            fx:controller="controllers.Animaux.AfficherExamensController">
 
-    <!-- ══════════════════════════════════════════════ -->
-    <!-- SIDEBAR                                        -->
-    <!-- ══════════════════════════════════════════════ -->
+    <!-- SIDEBAR AGRICOLE -->
     <left>
         <VBox prefWidth="250" style="-fx-background-color: linear-gradient(to bottom, #2E7D32, #388E3C, #43A047);">
             <padding><Insets bottom="20" top="20" /></padding>
@@ -77,17 +76,17 @@
 
             <!-- Navigation Menu -->
             <VBox spacing="8" style="-fx-padding: 20 0 0 0;">
-                <Button onMouseClicked="#handleDashboard" prefHeight="48" prefWidth="230"
+                <Button onMouseClicked="#handleDashboardAgricole" prefHeight="48" prefWidth="230"
                         style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
                                -fx-font-size: 14px; -fx-alignment: CENTER-LEFT;
                                -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand;"
-                        text="📊  Acceuil">
+                        text="📊  Acceuil ">
                     <font><Font name="System Bold" size="14" /></font>
                 </Button>
 
                 <!-- Mes Terrains avec sous-menu (ouvert par défaut ici) -->
                 <VBox spacing="0">
-                    <Button onAction="#handleMesTerrains" prefHeight="48" prefWidth="230"
+                    <Button onMouseClicked="#handleMesTerrains" prefHeight="48" prefWidth="230"
                             style="-fx-background-color: linear-gradient(to right, #4CAF50, #45a049);
                                    -fx-text-fill: white; -fx-font-size: 14px; -fx-alignment: CENTER-LEFT;
                                    -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand;"
@@ -161,93 +160,78 @@
             </Button>
         </VBox>
     </left>
-    <!-- ══════════════════════════════════════════════ -->
-    <!-- CONTENU PRINCIPAL                              -->
-    <!-- ══════════════════════════════════════════════ -->
+
+    <!-- CONTENU PRINCIPAL -->
     <center>
-        <ScrollPane fitToWidth="true" style="-fx-background-color: #F8F9FA; -fx-border-color: transparent;">
-            <VBox spacing="25" style="-fx-background-color: #F8F9FA;">
-                <padding><Insets bottom="35" left="35" right="35" top="35" /></padding>
+        <VBox spacing="20.0" AnchorPane.bottomAnchor="30.0" AnchorPane.leftAnchor="280.0" AnchorPane.rightAnchor="30.0" AnchorPane.topAnchor="30.0">
+            <children>
+                <HBox alignment="CENTER_LEFT" spacing="15.0">
+                    <children>
+                        <Text fill="#2C3E50" text="Gestion des Examens">
+                            <font><Font name="System Bold" size="26.0" /></font>
+                        </Text>
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Button onMouseClicked="#handleMesAnimaux" style="-fx-background-color: #A3C1AD; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 20;" text="Table Animaux" />
+                        <Button style="-fx-background-color: #2D5A27; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 20;" text="Table Examens" />
 
-                <!-- ── TOP BAR ── -->
-                <HBox alignment="CENTER_LEFT" spacing="15"
-                      style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 20;
-                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 12, 0, 0, 2);">
-
-                    <!-- BOUTON RETOUR -->
-                    <Button onAction="#versAccueilAgricole"
-                            style="-fx-background-color: #EAF5EA; -fx-text-fill: #2D5A27;
-                                   -fx-cursor: hand; -fx-background-radius: 20; -fx-font-size: 12px;
-                                   -fx-font-weight: bold; -fx-padding: 9 20;
-                                   -fx-border-color: #A8C69F; -fx-border-radius: 20;
-                                   -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 4, 0, 0, 1);"
-                            text="⬅  Retour Accueil">
-                        <font><Font name="System Bold" size="12" /></font>
-                    </Button>
-
-                    <Region HBox.hgrow="ALWAYS" />
-
-                    <VBox spacing="4" alignment="CENTER">
-                        <HBox alignment="CENTER" spacing="10">
-                            <Label style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #2E7D32;"
-                                   text="Bienvenue,">
-                                <font><Font name="System Bold" size="26" /></font>
-                            </Label>
-                            <Label fx:id="welcomeNameLabel"
-                                   style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #4CAF50;"
-                                   text="Agriculteur">
-                                <font><Font name="System Bold" size="26" /></font>
-                            </Label>
-                            <Label style="-fx-background-color: #E8F5E9; -fx-text-fill: #2E7D32;
-                                          -fx-padding: 5 12; -fx-background-radius: 20;
-                                          -fx-font-size: 11px; -fx-font-weight: bold;" text="ACTIF">
-                                <font><Font name="System Bold" size="11" /></font>
-                            </Label>
-                        </HBox>
-                        <Label style="-fx-font-size: 13px; -fx-text-fill: #7F8C8D;"
-                               text="Gérez votre exploitation agricole en toute simplicité" />
-                    </VBox>
-
-                    <Region HBox.hgrow="ALWAYS" />
-
-                    <!-- BOUTON STATS GLOBALES -->
-                    <Button onAction="#afficherStatistiquesGlobales"
-                            style="-fx-background-color: linear-gradient(to right, #4A235A, #7D3C98);
-                                   -fx-text-fill: white; -fx-cursor: hand; -fx-background-radius: 20;
-                                   -fx-font-size: 12px; -fx-font-weight: bold; -fx-padding: 9 20;
-                                   -fx-effect: dropshadow(gaussian, rgba(74,35,90,0.4), 6, 0, 0, 2);"
-                            text="📊  Stats Globales">
-                        <font><Font name="System Bold" size="12" /></font>
-                    </Button>
-
-                    <Label style="-fx-font-size: 26px; -fx-background-color: linear-gradient(to bottom right, #4CAF50, #388E3C);
-                                  -fx-text-fill: white; -fx-padding: 14; -fx-background-radius: 50%;
-                                  -fx-min-width: 54; -fx-min-height: 54; -fx-alignment: center;" text="🌾" />
+                        <MenuButton mnemonicParsing="false" style="-fx-background-color: #34495E; -fx-text-fill: white; -fx-font-weight: bold;" text="🔔 Suivi Médical" textFill="WHITE">
+                            <items>
+                                <MenuItem mnemonicParsing="false" onAction="#ouvrirDetailsAlertes" text="⚠️ Voir les Alertes" />
+                                <MenuItem mnemonicParsing="false" onAction="#ouvrirStats" text="📊 Stats Mensuelles" />
+                                <SeparatorMenuItem />
+                                <MenuItem mnemonicParsing="false" onAction="#traduireDiagnostics" text="🌍 Traduire Diagnostics (API)" />
+                                <MenuItem mnemonicParsing="false" onAction="#afficherConseilsSante" text="💡 Conseils de Santé" />
+                            </items>
+                        </MenuButton>
+                    </children>
                 </HBox>
 
+                <HBox alignment="CENTER_LEFT" spacing="15.0" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);">
+                    <children>
+                        <VBox spacing="5.0">
+                            <children>
+                                <Label style="-fx-font-weight: bold; -fx-text-fill: #2C3E50;" text="🔍 Type d'Examen :" />
+                                <TextField fx:id="filterType" prefWidth="180.0" promptText="Ex: Vaccin..." style="-fx-background-radius: 10; -fx-border-color: #A3C1AD;" />
+                            </children>
+                        </VBox>
+                        <VBox spacing="5.0">
+                            <children>
+                                <Label style="-fx-font-weight: bold; -fx-text-fill: #2C3E50;" text="📅 Date précise :" />
+                                <DatePicker fx:id="filterDate" prefWidth="160.0" style="-fx-border-color: #A3C1AD;" />
+                            </children>
+                        </VBox>
+                        <Button onAction="#reinitialiserFiltres" style="-fx-background-color: #BDC3C7; -fx-text-fill: white; -fx-background-radius: 10;" text="Réinitialiser">
+                            <HBox.margin><Insets top="20.0" /></HBox.margin>
+                        </Button>
+                    </children>
+                </HBox>
+
+                <TableView fx:id="tvExamens" style="-fx-background-radius: 10; -fx-border-color: #D5D8DC;" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="colAnimal" prefWidth="100.0" text="Animal" />
+                        <TableColumn fx:id="colType" prefWidth="110.0" text="Type" />
+                        <TableColumn fx:id="colDate" prefWidth="95.0" text="Date" />
+                        <TableColumn fx:id="colDiagnostic" prefWidth="120.0" text="Diagnostic" />
+                        <TableColumn fx:id="colTraitement" prefWidth="120.0" text="Traitement" />
+                        <TableColumn fx:id="colTraduction" prefWidth="140.0" text="Traduction (EN)" />
+                        <TableColumn fx:id="colConseils" prefWidth="180.0" text="Conseils Médicaux" />
+                    </columns>
+                    <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                    </columnResizePolicy>
+                </TableView>
+
+                <HBox alignment="CENTER" spacing="25.0">
+                    <children>
+                        <Button onMouseClicked="#naviguerAjout" prefHeight="45.0" prefWidth="160.0" style="-fx-background-color: #2D5A27; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10;" text="+ AJOUTER" />
+                        <Button onAction="#handleModifierAgr" prefHeight="45.0" prefWidth="160.0" style="-fx-background-color: #A3C1AD; -fx-text-fill: #2C3E50; -fx-font-weight: bold; -fx-background-radius: 10;" text="MODIFIER" />
+                        <Button onAction="#handleSupprimer" prefHeight="45.0" prefWidth="160.0" style="-fx-background-color: #E74C3C; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10;" text="SUPPRIMER" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
 
 
-
-
-                <!-- ── LISTE TERRAINS ── -->
-                <VBox spacing="15"
-                      style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 25;
-                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 15, 0, 0, 3);">
-                    <HBox alignment="CENTER_LEFT" spacing="15">
-                        <Label style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;"
-                               text="🌍  Mes Terrains">
-                            <font><Font name="System Bold" size="20" /></font>
-                        </Label>
-                        <Region HBox.hgrow="ALWAYS" />
-
-                    </HBox>
-
-                    <!-- Rempli dynamiquement par le controller -->
-                    <VBox fx:id="abonnementsContainer" spacing="12" />
-                </VBox>
-
-            </VBox>
-        </ScrollPane>
     </center>
 
 </BorderPane>

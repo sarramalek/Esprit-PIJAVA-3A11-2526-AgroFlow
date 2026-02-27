@@ -27,7 +27,7 @@
             <!-- Navigation Menu -->
             <VBox spacing="10">
                 <!-- Dashboard -->
-                <Button fx:id="dashboardBtn" onAction="#handleDashboard" prefHeight="50" prefWidth="230"
+                <Button fx:id="dashboardBtn" onMouseClicked="#handleDashboard" prefHeight="50" prefWidth="230"
                         style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white; -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand; -fx-border-color: rgba(255,255,255,0.2); -fx-border-width: 1; -fx-border-radius: 12;"
                         text="📊  Dashboard">
                     <font><Font name="System Bold" size="14" /></font>
@@ -133,8 +133,8 @@
 
                 <HBox spacing="15.0">
                     <children>
-                        <Button onAction="#handleModifier" prefHeight="40.0" style="-fx-background-color: #2D5A27; -fx-text-fill: white; -fx-font-weight: bold;" text="ENREGISTRER LES MODIFS" />
-                        <Button onAction="#retourListe" prefHeight="40.0" style="-fx-background-color: #A8C69F; -fx-text-fill: #2C3E50;" text="ANNULER" />
+                        <Button onMouseClicked="#handleModifier" prefHeight="40.0" style="-fx-background-color: #2D5A27; -fx-text-fill: white; -fx-font-weight: bold;" text="ENREGISTRER LES MODIFS" />
+                        <Button onMouseClicked="#retourListe" prefHeight="40.0" style="-fx-background-color: #A8C69F; -fx-text-fill: #2C3E50;" text="ANNULER" />
                     </children>
                 </HBox>
             </children>

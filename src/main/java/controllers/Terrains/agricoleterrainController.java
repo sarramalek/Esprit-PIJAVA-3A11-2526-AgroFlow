@@ -635,7 +635,7 @@ public class agricoleterrainController implements Initializable {
     }
     @FXML private void handleDashboard(MouseEvent event)    { navigateTo(event,"/UsersInterface/AcceuillAgr.fxml","Dashboard"); }
     @FXML private void handleMesTerrains()  { System.out.println("🌾 Current Page "); }
-    @FXML private void handleMesAnimaux()   { System.out.println("🐄 Animaux..."); }
+    @FXML private void handleMesAnimaux(MouseEvent event)  { navigateTo(event,"/AnimalsInterface/acceuilagricoleanimaux.fxml","Dashboard"); }
     @FXML private void handleMesStocks()    { System.out.println("📦 Stocks..."); }
     @FXML private void handleMonMateriel()  { System.out.println("🚜 Matériel..."); }
     @FXML private void handleMonProfil(MouseEvent event )    {navigateTo(event,"/UsersInterface/ProfilEmplye.fxml","Mon Profil");  }
@@ -715,11 +715,7 @@ public class agricoleterrainController implements Initializable {
         }
     }
 
-    // Ajouter cette méthode handleAPropos()
-    @FXML
-    private void handleAPropos(MouseEvent event) {
-        navigateTo(event,"/UsersInterface/ProfilAgricole.fxml","ddd");
-    }
+
     private void navigateTo(MouseEvent event, String fxmlPath, String title) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));

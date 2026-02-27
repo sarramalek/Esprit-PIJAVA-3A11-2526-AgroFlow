@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox spacing="15.0" style="-fx-padding: 20; -fx-background-color: #fcf8e6;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.Animaux.SuggestionController">
+    <children>
+        <Text fill="#2C3E50" text="Conseils Alimentaires">
+            <font><Font name="System Bold" size="18.0" /></font>
+        </Text>
+
+        <HBox spacing="10.0" alignment="CENTER_LEFT">
+            <Label text="Espèce :" />
+            <ComboBox fx:id="comboEspecePop" prefWidth="150.0" promptText="Choisir..." />
+        </HBox>
+
+        <Label text="Suggestions de l'API OpenFoodFacts :" textFill="#2D5A27" />
+
+        <ListView fx:id="lvSuggestionsPop" prefHeight="200.0" prefWidth="300.0" />
+
+        <Button text="Fermer" onAction="#fermer" maxWidth="Infinity" style="-fx-background-color: #A8C69F;" />
+    </children>
+</VBox>

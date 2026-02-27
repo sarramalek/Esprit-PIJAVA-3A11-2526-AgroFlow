@@ -806,7 +806,7 @@ public class MesAbonnements {
 
     @FXML private void handleDashboard(MouseEvent e)   { nav(e, "/UsersInterface/AcceuillAgr.fxml", "AgroFlow - Dashboard Agricole"); }
     @FXML private void handleMesTerrains(MouseEvent e) { nav(e, "/TerrainsInterface/agricoleaffichageterrain.fxml",  "Mes Terrains"); }
-    @FXML private void handleMesAnimaux(MouseEvent e)  { nav(e, "/MesAnimaux.fxml",   "Mes Animaux");  }
+    @FXML private void handleMesAnimaux(MouseEvent e)  { nav(e, "/AnimaLsInterface/acceuilagricoleanimaux.fxml",   "Mes Animaux");  }
     @FXML private void handleMesStocks(MouseEvent e)   { nav(e, "/MesStocks.fxml",    "Mes Stocks");   }
     @FXML private void handleMonMateriel(MouseEvent e) { nav(e, "/MonMateriel.fxml",  "Mon Matériel"); }
     @FXML private void handleMonAbonnement() { /* déjà sur cette page */ }

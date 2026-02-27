@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<BorderPane prefHeight="600.0" prefWidth="900.0" style="-fx-background-color: #fcf8e6;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.Animaux.ModifierExamenController">
+
+
+    <center>
+        <VBox spacing="30.0" style="-fx-padding: 40;">
+            <children>
+                <Text fill="#2C3E50" text="Modifier l'Examen">
+                    <font><Font name="System Bold" size="26.0" /></font>
+                </Text>
+
+                <GridPane hgap="15.0" vgap="15.0">
+                    <columnConstraints>
+                        <ColumnConstraints minWidth="120.0" />
+                        <ColumnConstraints minWidth="300.0" />
+                    </columnConstraints>
+                    <children>
+                        <Label text="Animal :" textFill="#2C3E50" GridPane.rowIndex="0" />
+                        <ComboBox fx:id="cbAnimal" prefHeight="35.0" prefWidth="400.0" style="-fx-border-color: #A8C69F;" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                        <Label text="Type d'examen :" textFill="#2C3E50" GridPane.rowIndex="1" />
+                        <TextField fx:id="tfType" prefHeight="35.0" style="-fx-border-color: #A8C69F;" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                        <Label text="Date :" textFill="#2C3E50" GridPane.rowIndex="2" />
+                        <DatePicker fx:id="dpDate" prefHeight="35.0" prefWidth="400.0" style="-fx-border-color: #A8C69F;" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                        <Label text="Diagnostic :" textFill="#2C3E50" GridPane.rowIndex="3" />
+                        <TextArea fx:id="taDiagnostic" prefHeight="80.0" style="-fx-border-color: #A8C69F;" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+                        <Label text="Traitement :" textFill="#2C3E50" GridPane.rowIndex="4" />
+                        <TextArea fx:id="taTraitement" prefHeight="80.0" style="-fx-border-color: #A8C69F;" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                    </children>
+                </GridPane>
+
+                <HBox spacing="15.0">
+                    <children>
+                        <Button onMouseClicked="#handleModifierAgr" prefHeight="40.0" style="-fx-background-color: #2D5A27; -fx-text-fill: white; -fx-font-weight: bold;" text="ENREGISTRER LES MODIFS" />
+                        <Button onMouseClicked="#retourListeAgr" prefHeight="40.0" style="-fx-background-color: #A8C69F; -fx-text-fill: #2C3E50;" text="ANNULER" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+    </center>
+</BorderPane>

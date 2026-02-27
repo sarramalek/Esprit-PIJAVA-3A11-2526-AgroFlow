@@ -80,13 +80,13 @@
                         style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
                                -fx-font-size: 14px; -fx-alignment: CENTER-LEFT;
                                -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand;"
-                        text="📊  Dashboard">
+                        text="📊  Acceuil ">
                     <font><Font name="System Bold" size="14" /></font>
                 </Button>
 
                 <!-- Mes Terrains avec sous-menu (ouvert par défaut ici) -->
                 <VBox spacing="0">
-                    <Button onAction="#handleMesTerrains" prefHeight="48" prefWidth="230"
+                    <Button onMouseClicked="#handleMesTerrains" prefHeight="48" prefWidth="230"
                             style="-fx-background-color: linear-gradient(to right, #4CAF50, #45a049);
                                    -fx-text-fill: white; -fx-font-size: 14px; -fx-alignment: CENTER-LEFT;
                                    -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand;"
@@ -119,7 +119,7 @@
                     </VBox>
                 </VBox>
 
-                <Button onAction="#handleMesAnimaux" prefHeight="48" prefWidth="230"
+                <Button onMouseClicked="#handleMesAnimaux" prefHeight="48" prefWidth="230"
                         style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
                                -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
                                -fx-background-radius: 12; -fx-cursor: hand;"

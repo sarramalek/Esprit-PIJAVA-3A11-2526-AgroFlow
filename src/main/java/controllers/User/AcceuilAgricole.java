@@ -248,7 +248,7 @@ public class AcceuilAgricole {
     }
     @FXML private void handleDashboard()    { /* Déjà sur cette page */ }
     @FXML private void handleMesTerrains(MouseEvent event )  { navigateTo(event,"/TerrainsInterface/acceuilagricoleterrain.fxml","Mes Terrains"); }
-    @FXML private void handleMesAnimaux()   { System.out.println("🐄 Animaux..."); }
+    @FXML private void handleMesAnimaux(MouseEvent event)  { navigateTo(event,"/AnimalsInterface/acceuilagricoleanimaux.fxml","Animaux"); }
     @FXML private void handleMesStocks()    { System.out.println("📦 Stocks..."); }
     @FXML private void handleMonMateriel()  { System.out.println("🚜 Matériel..."); }
     @FXML private void handleMonProfil()    { System.out.println("👤 Profil..."); }

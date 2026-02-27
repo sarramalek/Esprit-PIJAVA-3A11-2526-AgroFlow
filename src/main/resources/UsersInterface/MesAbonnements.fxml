@@ -83,7 +83,7 @@
                         style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
                                -fx-font-size: 14px; -fx-alignment: CENTER-LEFT;
                                -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand;"
-                        text="📊  Dashboard">
+                        text="📊  Acceuil">
                     <font><Font name="System Bold" size="14" /></font>
                 </Button>
 
@@ -122,21 +122,21 @@
                     </VBox>
                 </VBox>
 
-                <Button onAction="#handleMesAnimaux" prefHeight="48" prefWidth="230"
+                <Button onMouseClicked="#handleMesAnimaux" prefHeight="48" prefWidth="230"
                         style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
                                -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
                                -fx-background-radius: 12; -fx-cursor: hand;"
                         text="🐄  Mes Animaux">
                     <font><Font name="System Bold" size="14" /></font>
                 </Button>
-                <Button onAction="#handleMesStocks" prefHeight="48" prefWidth="230"
+                <Button onMouseClicked="#handleMesStocks" prefHeight="48" prefWidth="230"
                         style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
                                -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
                                -fx-background-radius: 12; -fx-cursor: hand;"
                         text="📦  Mes Stocks">
                     <font><Font name="System Bold" size="14" /></font>
                 </Button>
-                <Button onAction="#handleMonMateriel" prefHeight="48" prefWidth="230"
+                <Button onMouseClicked="#handleMonMateriel" prefHeight="48" prefWidth="230"
                         style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
                                -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
                                -fx-background-radius: 12; -fx-cursor: hand;"
