@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 
 <VBox spacing="0" prefWidth="500"
-      style="-fx-background-color: white;"
+      style="-fx-background-color: #fcf8e6;"
       xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="controllers.AjouterMaintenanceController">
 
@@ -20,18 +20,18 @@
     <!-- ===== FORMULAIRE ===== -->
     <VBox spacing="14" style="-fx-padding: 25 25 10 25;">
 
-        <!-- Machine (JOINTURE : affiche le NOM, stocke l'idM) -->
+        <!-- Machine -->
         <VBox spacing="5">
             <HBox spacing="4" alignment="CENTER_LEFT">
                 <Label text="Machine" style="-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #2c3e50;"/>
                 <Label text="*" style="-fx-text-fill: #e74c3c; -fx-font-weight: bold;"/>
             </HBox>
-            <!-- ComboBox typée Machine : affiche le nom, retourne l'objet Machine complet -->
             <ComboBox fx:id="comboMachine"
                       promptText="Selectionner une machine"
                       maxWidth="Infinity"
-                      style="-fx-background-radius: 6; -fx-border-color: #cbd5e0;
-                             -fx-border-radius: 6; -fx-font-size: 13px; -fx-padding: 4;"/>
+                      style="-fx-background-radius: 6; -fx-border-color: #c8b99a;
+                             -fx-border-radius: 6; -fx-font-size: 13px; -fx-padding: 4;
+                             -fx-background-color: white;"/>
             <Label fx:id="errMachine" text=""
                    style="-fx-text-fill: #e74c3c; -fx-font-size: 11px;"/>
         </VBox>
@@ -44,8 +44,9 @@
             </HBox>
             <TextField fx:id="txtTypePanne"
                        promptText="Ex: Panne moteur, Hydraulique..."
-                       style="-fx-background-radius: 6; -fx-border-color: #cbd5e0;
-                              -fx-border-radius: 6; -fx-font-size: 13px; -fx-padding: 8;"/>
+                       style="-fx-background-radius: 6; -fx-border-color: #c8b99a;
+                              -fx-border-radius: 6; -fx-font-size: 13px; -fx-padding: 8;
+                              -fx-background-color: white;"/>
             <Label fx:id="errTypePanne" text=""
                    style="-fx-text-fill: #e74c3c; -fx-font-size: 11px;"/>
         </VBox>
@@ -58,7 +59,7 @@
             </HBox>
             <DatePicker fx:id="datePickerMain"
                         maxWidth="Infinity"
-                        style="-fx-background-radius: 6; -fx-border-color: #cbd5e0;
+                        style="-fx-background-radius: 6; -fx-border-color: #c8b99a;
                                -fx-border-radius: 6; -fx-font-size: 13px;"/>
             <Label fx:id="errDate" text=""
                    style="-fx-text-fill: #e74c3c; -fx-font-size: 11px;"/>
@@ -72,27 +73,28 @@
             </HBox>
             <TextField fx:id="txtCout"
                        promptText="0.00"
-                       style="-fx-background-radius: 6; -fx-border-color: #cbd5e0;
-                              -fx-border-radius: 6; -fx-font-size: 13px; -fx-padding: 8;"/>
+                       style="-fx-background-radius: 6; -fx-border-color: #c8b99a;
+                              -fx-border-radius: 6; -fx-font-size: 13px; -fx-padding: 8;
+                              -fx-background-color: white;"/>
             <Label fx:id="errCout" text=""
                    style="-fx-text-fill: #e74c3c; -fx-font-size: 11px;"/>
         </VBox>
 
-        <!-- Description (optionnel) -->
+        <!-- Description -->
         <VBox spacing="5">
             <Label text="Description (optionnel)"
                    style="-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #2c3e50;"/>
             <TextArea fx:id="txtDescription"
                       prefHeight="90" wrapText="true"
                       promptText="Details de l'intervention, pieces changees..."
-                      style="-fx-background-radius: 6; -fx-border-color: #cbd5e0;
-                             -fx-border-radius: 6; -fx-font-size: 13px;"/>
+                      style="-fx-background-radius: 6; -fx-border-color: #c8b99a;
+                             -fx-border-radius: 6; -fx-font-size: 13px;
+                             -fx-background-color: white;"/>
         </VBox>
 
     </VBox>
 
-    <!-- ===== SEPARATEUR ===== -->
-    <Separator style="-fx-padding: 0 0 10 0;"/>
+    <Separator/>
 
     <!-- ===== BOUTONS ===== -->
     <HBox spacing="12" alignment="CENTER_RIGHT" style="-fx-padding: 15 25 20 25;">

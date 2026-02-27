@@ -17,7 +17,9 @@ public class MainProgGUI extends Application {
     @Override
     public void start(Stage primaryStage) throws IOException {
         // Charge le fichier FXML pour l'accueil du module matériel
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/AccueilMateriel.fxml"));
+       //FXMLLoader loader = new FXMLLoader(getClass().getResource("/AccueilMateriel.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/AgricoleAffichageMachine.fxml"));
+         //FXMLLoader loader = new FXMLLoader(getClass().getResource("/AgricoleAffichageAchat.fxml"));
         Parent root = loader.load();
         Scene scene = new Scene(root);
 

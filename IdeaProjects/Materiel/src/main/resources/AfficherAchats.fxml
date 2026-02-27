@@ -5,70 +5,79 @@
 <?import javafx.geometry.Insets?>
 
 <BorderPane prefHeight="780.0" prefWidth="1250.0"
-            style="-fx-background-color: #ecf0f1;"
+            style="-fx-background-color: #fcf8e6;"
             xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="controllers.AfficherAchatsController">
 
-    <!-- ================= SIDEBAR ================= -->
+    <!-- ═══════════════════  SIDEBAR UNIFIÉE  ═══════════════════ -->
     <left>
-        <VBox prefWidth="260" spacing="0"
+        <VBox prefWidth="240" spacing="0"
               style="-fx-background-color: #2c3e50; -fx-padding: 0;">
 
-            <VBox style="-fx-background-color: #1a252f; -fx-padding: 20 15;">
-                <Label text="✸  AGROFLOW"
-                       style="-fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: bold;"/>
+            <!-- En-tête logo -->
+            <VBox style="-fx-background-color: #1a252f; -fx-padding: 22 18 18 18; -fx-spacing: 4; -fx-alignment: center-left;">
+                <Label text="✳ AGROFLOW"
+                       style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;"/>
                 <Label text="Gestion Agricole"
-                       style="-fx-text-fill: #7f8c8d; -fx-font-size: 11px;"/>
+                       style="-fx-text-fill: #95a5a6; -fx-font-size: 11px;"/>
             </VBox>
 
-            <VBox spacing="2" style="-fx-padding: 10 0;">
-                <Button text="🐄  Gestion Animaux" onAction="#naviguerAnimaux"
-                        prefWidth="260" prefHeight="48"
-                        style="-fx-background-color: transparent; -fx-text-fill: #bdc3c7;
-                               -fx-font-size: 13px; -fx-alignment: center-left;
-                               -fx-padding: 0 20; -fx-border-width: 0; -fx-cursor: hand;"/>
-                <Button text="🚜  Gestion Materiels" onAction="#naviguerMateriels"
-                        prefWidth="260" prefHeight="48"
-                        style="-fx-background-color: #27ae60; -fx-text-fill: white;
-                               -fx-font-size: 13px; -fx-alignment: center-left;
-                               -fx-padding: 0 20; -fx-border-width: 0;
-                               -fx-font-weight: bold; -fx-cursor: hand;"/>
-                <Button text="📦  Gestion Stocks" onAction="#naviguerStocks"
-                        prefWidth="260" prefHeight="48"
-                        style="-fx-background-color: transparent; -fx-text-fill: #bdc3c7;
-                               -fx-font-size: 13px; -fx-alignment: center-left;
-                               -fx-padding: 0 20; -fx-border-width: 0; -fx-cursor: hand;"/>
-                <Button text="🌍  Gestion Terrains" onAction="#naviguerTerrains"
-                        prefWidth="260" prefHeight="48"
-                        style="-fx-background-color: transparent; -fx-text-fill: #bdc3c7;
-                               -fx-font-size: 13px; -fx-alignment: center-left;
-                               -fx-padding: 0 20; -fx-border-width: 0; -fx-cursor: hand;"/>
-                <Button text="📅  Evenements" onAction="#naviguerEvenements"
-                        prefWidth="260" prefHeight="48"
-                        style="-fx-background-color: transparent; -fx-text-fill: #bdc3c7;
-                               -fx-font-size: 13px; -fx-alignment: center-left;
-                               -fx-padding: 0 20; -fx-border-width: 0; -fx-cursor: hand;"/>
-                <Button text="👥  Utilisateurs" onAction="#naviguerUsers"
-                        prefWidth="260" prefHeight="48"
-                        style="-fx-background-color: transparent; -fx-text-fill: #bdc3c7;
-                               -fx-font-size: 13px; -fx-alignment: center-left;
-                               -fx-padding: 0 20; -fx-border-width: 0; -fx-cursor: hand;"/>
+            <Separator style="-fx-background-color: #34495e;"/>
+
+            <!-- Menu de navigation -->
+            <VBox spacing="2" style="-fx-padding: 10 0 10 0;">
+                <Button text="🐄 Gestion Animaux" onAction="#naviguerAnimaux"
+                        prefWidth="240" prefHeight="46"
+                        style="-fx-background-color: transparent; -fx-text-fill: #bdc3c7; -fx-font-size: 13px;
+                               -fx-alignment: center-left; -fx-padding: 0 0 0 22; -fx-border-width: 0;
+                               -fx-cursor: hand; -fx-background-radius: 0;"/>
+
+                <Button text="🚜 Gestion Matériels" onAction="#naviguerMateriels"
+                        prefWidth="240" prefHeight="46"
+                        style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-size: 13px;
+                               -fx-alignment: center-left; -fx-padding: 0 0 0 22; -fx-border-width: 0;
+                               -fx-font-weight: bold; -fx-cursor: hand; -fx-background-radius: 0;"/>
+
+                <Button text="📦 Gestion Stocks" onAction="#naviguerStocks"
+                        prefWidth="240" prefHeight="46"
+                        style="-fx-background-color: transparent; -fx-text-fill: #bdc3c7; -fx-font-size: 13px;
+                               -fx-alignment: center-left; -fx-padding: 0 0 0 22; -fx-border-width: 0;
+                               -fx-cursor: hand; -fx-background-radius: 0;"/>
+
+                <Button text="🌐 Gestion Terrains" onAction="#naviguerTerrains"
+                        prefWidth="240" prefHeight="46"
+                        style="-fx-background-color: transparent; -fx-text-fill: #bdc3c7; -fx-font-size: 13px;
+                               -fx-alignment: center-left; -fx-padding: 0 0 0 22; -fx-border-width: 0;
+                               -fx-cursor: hand; -fx-background-radius: 0;"/>
+
+                <Button text="📅 Événements" onAction="#naviguerEvenements"
+                        prefWidth="240" prefHeight="46"
+                        style="-fx-background-color: transparent; -fx-text-fill: #bdc3c7; -fx-font-size: 13px;
+                               -fx-alignment: center-left; -fx-padding: 0 0 0 22; -fx-border-width: 0;
+                               -fx-cursor: hand; -fx-background-radius: 0;"/>
+
+                <Button text="👥 Utilisateurs" onAction="#naviguerUsers"
+                        prefWidth="240" prefHeight="46"
+                        style="-fx-background-color: transparent; -fx-text-fill: #bdc3c7; -fx-font-size: 13px;
+                               -fx-alignment: center-left; -fx-padding: 0 0 0 22; -fx-border-width: 0;
+                               -fx-cursor: hand; -fx-background-radius: 0;"/>
             </VBox>
 
             <Region VBox.vgrow="ALWAYS"/>
 
-            <Button text="⏻  Deconnexion" onAction="#deconnexion"
-                    prefWidth="260" prefHeight="50"
-                    style="-fx-background-color: #c0392b; -fx-text-fill: white;
-                           -fx-font-size: 13px; -fx-border-width: 0;
-                           -fx-font-weight: bold; -fx-cursor: hand;"/>
+            <!-- Bouton déconnexion -->
+            <Button text="⏻ Déconnexion" onAction="#deconnexion"
+                    prefWidth="240" prefHeight="52"
+                    style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 13px;
+                           -fx-border-width: 0; -fx-font-weight: bold; -fx-cursor: hand;
+                           -fx-background-radius: 0; -fx-alignment: center-left; -fx-padding: 0 0 0 22;"/>
         </VBox>
     </left>
 
     <!-- ================= CENTER ================= -->
     <center>
-        <VBox spacing="10" style="-fx-padding: 20; -fx-background-color: #f5f6fa;">
+        <VBox spacing="10" style="-fx-padding: 20; -fx-background-color: #fcf8e6;">
 
             <!-- En-tête -->
             <HBox alignment="CENTER_LEFT" spacing="15">
@@ -84,8 +93,8 @@
 
             <!-- ══ ZONE RECHERCHE/FILTRES ══ -->
             <VBox spacing="8"
-                  style="-fx-background-color: #dbeafe; -fx-padding: 12 16;
-                         -fx-background-radius: 10; -fx-border-color: #bfdbfe;
+                  style="-fx-background-color: #fcf8e6; -fx-padding: 12 16;
+                         -fx-background-radius: 10; -fx-border-color: #e0d9c0;
                          -fx-border-width: 1; -fx-border-radius: 10;">
 
                 <!-- Ligne 1 : Recherche | Export -->
@@ -95,8 +104,8 @@
                     <TextField fx:id="champRecherche"
                                promptText="Machine, client, CIN, date, quantité..."
                                prefWidth="360" prefHeight="36"
-                               style="-fx-background-color: white; -fx-border-color: #3b82f6;
-                                      -fx-border-width: 2; -fx-border-radius: 6;
+                               style="-fx-background-color: white; -fx-border-color: #c8b99a;
+                                      -fx-border-width: 1.5; -fx-border-radius: 6;
                                       -fx-background-radius: 6; -fx-padding: 6 10; -fx-font-size: 13px;"/>
                     <Button text="✕  Effacer" onAction="#effacerRecherche" prefHeight="36"
                             style="-fx-background-color: #e74c3c; -fx-text-fill: white;
@@ -160,10 +169,40 @@
                 </placeholder>
             </TableView>
 
+            <!-- ====== STATS ====== -->
+            <HBox spacing="20" alignment="CENTER">
+                <HBox alignment="CENTER_LEFT" spacing="15"
+                      style="-fx-background-color: #fcf8e6; -fx-padding: 12 28;
+                             -fx-border-color: #3498db; -fx-border-width: 0 0 0 5;
+                             -fx-background-radius: 8;
+                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);"
+                      HBox.hgrow="ALWAYS" maxWidth="Infinity">
+                    <VBox spacing="2">
+                        <Label text="Total Achats"
+                               style="-fx-font-size: 12px; -fx-text-fill: #7f8c8d; -fx-font-weight: bold;"/>
+                        <Label fx:id="lblTotal" text="0"
+                               style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #3498db;"/>
+                    </VBox>
+                </HBox>
+                <HBox alignment="CENTER_LEFT" spacing="15"
+                      style="-fx-background-color: #fcf8e6; -fx-padding: 12 28;
+                             -fx-border-color: #27ae60; -fx-border-width: 0 0 0 5;
+                             -fx-background-radius: 8;
+                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);"
+                      HBox.hgrow="ALWAYS" maxWidth="Infinity">
+                    <VBox spacing="2">
+                        <Label text="Quantite Totale"
+                               style="-fx-font-size: 12px; -fx-text-fill: #7f8c8d; -fx-font-weight: bold;"/>
+                        <Label fx:id="lblQuantiteTotal" text="0"
+                               style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #27ae60;"/>
+                    </VBox>
+                </HBox>
+            </HBox>
+
             <!-- ====== BOUTONS CRUD EN BAS ====== -->
             <HBox spacing="15" alignment="CENTER"
-                  style="-fx-background-color: white; -fx-padding: 14 20;
-                         -fx-background-radius: 8; -fx-border-color: #e2e8f0;
+                  style="-fx-background-color: #fcf8e6; -fx-padding: 14 20;
+                         -fx-background-radius: 8; -fx-border-color: #e0d9c0;
                          -fx-border-width: 1; -fx-border-radius: 8;">
                 <Button text="➕  Ajouter" onAction="#ouvrirAjout"
                         prefWidth="180" prefHeight="42"
@@ -180,36 +219,6 @@
                         style="-fx-background-color: #e74c3c; -fx-text-fill: white;
                                -fx-font-size: 14px; -fx-font-weight: bold;
                                -fx-background-radius: 8; -fx-cursor: hand;"/>
-            </HBox>
-
-            <!-- ====== STATS BAS ====== -->
-            <HBox spacing="20" alignment="CENTER">
-                <HBox alignment="CENTER_LEFT" spacing="15"
-                      style="-fx-background-color: white; -fx-padding: 12 28;
-                             -fx-border-color: #3498db; -fx-border-width: 0 0 0 5;
-                             -fx-background-radius: 8;
-                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);"
-                      HBox.hgrow="ALWAYS" maxWidth="Infinity">
-                    <VBox spacing="2">
-                        <Label text="Total Achats"
-                               style="-fx-font-size: 12px; -fx-text-fill: #7f8c8d; -fx-font-weight: bold;"/>
-                        <Label fx:id="lblTotal" text="0"
-                               style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #3498db;"/>
-                    </VBox>
-                </HBox>
-                <HBox alignment="CENTER_LEFT" spacing="15"
-                      style="-fx-background-color: white; -fx-padding: 12 28;
-                             -fx-border-color: #27ae60; -fx-border-width: 0 0 0 5;
-                             -fx-background-radius: 8;
-                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);"
-                      HBox.hgrow="ALWAYS" maxWidth="Infinity">
-                    <VBox spacing="2">
-                        <Label text="Quantite Totale"
-                               style="-fx-font-size: 12px; -fx-text-fill: #7f8c8d; -fx-font-weight: bold;"/>
-                        <Label fx:id="lblQuantiteTotal" text="0"
-                               style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #27ae60;"/>
-                    </VBox>
-                </HBox>
             </HBox>
 
         </VBox>
