@@ -1,6 +1,7 @@
 package controllers.User;
 
 import com.itextpdf.layout.element.Cell;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -10,9 +11,12 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.FileChooser;
@@ -91,7 +95,10 @@ public class MesAbonnements {
     // Menu gestion
     @FXML private VBox   gestionSubmenu, gestionContainer;
     @FXML private Button gestionBtn;
-
+//image user
+@FXML private ImageView sidebarAvatarImageView;
+    @FXML private Label     sidebarAvatarDefault;
+    @FXML private Circle sidebarAvatarBg;
     // ══════════════════════════════════════════════════════════════
     // État interne
     // ══════════════════════════════════════════════════════════════
@@ -114,7 +121,13 @@ public class MesAbonnements {
     @FXML
     public void initialize() {
         System.out.println("✓ MesAbonnements Controller initialisé");
-
+        this.currentUser = SessionManager.getCurrentUser();
+        if (this.currentUser != null) {
+            System.out.println("✓ currentUser chargé depuis SessionManager: " + currentUser.getNom());
+        } else {
+            System.err.println("✗ SessionManager.getCurrentUser() est NULL !");
+        }
+        chargerSidebarAvatar(SessionManager.getCurrentUser());
         // Récupérer le user depuis SessionManager
         this.currentUser = SessionManager.getCurrentUser();
         if (this.currentUser != null) {
@@ -145,6 +158,41 @@ public class MesAbonnements {
             e.printStackTrace();
             showError("Erreur d'initialisation", e.getMessage());
         }
+    }
+    private void chargerSidebarAvatar(Personne user) {
+        if (user == null) return;
+
+        // Nom et rôle
+        if (userNameLabel != null)
+            userNameLabel.setText(user.getPrenom() + " " + user.getNom());
+
+        // Clip circulaire appliqué en Java (radius=35, centre=35,35 pour fitWidth/Height=70)
+        if (sidebarAvatarImageView != null) {
+            Circle clip = new Circle(35, 35, 35);
+            sidebarAvatarImageView.setClip(clip);
+        }
+
+        String photoUrl = user.getPhotoUrl();
+        if (photoUrl == null || photoUrl.isBlank()) return;
+
+        Thread thread = new Thread(() -> {
+            try {
+                javafx.scene.image.Image image = new Image(photoUrl, 70, 70, false, true, true);
+                Platform.runLater(() -> {
+                    if (!image.isError()) {
+                        sidebarAvatarImageView.setImage(image);
+                        sidebarAvatarImageView.setVisible(true);
+                        sidebarAvatarImageView.setManaged(true);
+                        sidebarAvatarDefault.setVisible(false);
+                        if (sidebarAvatarBg != null) sidebarAvatarBg.setVisible(false);
+                    }
+                });
+            } catch (Exception e) {
+                System.err.println("⚠️ Avatar sidebar : " + e.getMessage());
+            }
+        });
+        thread.setDaemon(true);
+        thread.start();
     }
 
     // ══════════════════════════════════════════════════════════════

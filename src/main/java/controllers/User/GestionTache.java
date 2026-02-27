@@ -1,5 +1,6 @@
 package controllers.User;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -10,9 +11,12 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Circle;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -61,7 +65,10 @@ public class GestionTache {
     private List<Employe> employes;
     private Personne currentUser;
     private Tache selectedTache;
-
+    // Image user
+    @FXML private ImageView avatarImageView;
+    @FXML private Label     avatarDefaultLabel;
+    @FXML private Circle avatarBg;
     // ═══════════════════════════════════════════════════════════════
     @FXML
     public void initialize() {
@@ -72,6 +79,8 @@ public class GestionTache {
         } else {
             System.err.println("✗ SessionManager.getCurrentUser() est NULL !");
         }
+        chargerAvatarTopBar(SessionManager.getCurrentUser());
+
         if (gestionSubmenu != null) { gestionSubmenu.setVisible(false); gestionSubmenu.setManaged(false); }
         if (gestionBtn != null && gestionContainer != null) {
             gestionBtn.setOnMouseEntered(e -> showGestionSubmenu());
@@ -120,6 +129,46 @@ public class GestionTache {
         } else {
             System.err.println("✗ userRoleLabel est NULL (non lié en FXML ?)");
         }
+    }
+    private void chargerAvatarTopBar(Personne user) {
+        if (user == null) return;
+
+        // Afficher le nom
+        if (userNameLabel != null) {
+            userNameLabel.setText(user.getPrenom() + " " + user.getNom());
+        }
+
+        // Charger la photo depuis l'URL Cloudinary dans un thread background
+        String photoUrl = user.getPhotoUrl();
+        if (photoUrl == null || photoUrl.isBlank()) {
+            // Pas de photo → garder l'emoji par défaut, rien à faire
+            return;
+        }
+
+        // Appliquer le clip circulaire en Java (ne fonctionne pas correctement en FXML)
+        Circle clip = new Circle(24, 24, 24);
+        avatarImageView.setClip(clip);
+
+        Thread thread = new Thread(() -> {
+            try {
+                Image image = new Image(photoUrl, 48, 48, false, true, true);
+
+                Platform.runLater(() -> {
+                    if (!image.isError()) {
+                        avatarImageView.setImage(image);
+                        avatarImageView.setVisible(true);
+                        avatarImageView.setManaged(true);
+                        avatarDefaultLabel.setVisible(false);
+                        if (avatarBg != null) avatarBg.setVisible(false);
+                    }
+                });
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        thread.setDaemon(true);
+        thread.start();
     }
 
     // ═══════════════════════════════════════════════════════════════

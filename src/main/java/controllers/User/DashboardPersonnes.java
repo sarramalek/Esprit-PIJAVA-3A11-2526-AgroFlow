@@ -3,8 +3,10 @@ import javax.activation.*;
 
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Circle;
 import javafx.stage.Modality;
 import models.User.Personne;
 import models.User.Employe;
@@ -34,9 +36,18 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+import javafx.application.Platform;
+ import javafx.scene.image.Image;
+ import javafx.scene.image.ImageView;
+import javafx.scene.shape.Circle;
+
 
 public class DashboardPersonnes {
 
+    @FXML private ImageView avatarImageView;
+    @FXML private Label     avatarDefaultLabel;
+    @FXML private Circle avatarBg;
+    @FXML private Label     userNameLabel;
     // sub menu
     @FXML private VBox gestionSubmenu, operationsSubmenu, gestionContainer;
     @FXML private Button gestionToggle, operationsToggle;
@@ -54,7 +65,7 @@ public class DashboardPersonnes {
     @FXML private Button logoutBtn;
     @FXML private Button addEmployeeBtn;
     @FXML private Label  userRoleLabel;
-    @FXML private Label  userNameLabel;
+    //@FXML private Label  userNameLabel;
     @FXML private TextField searchField;
 
     @FXML private Button pdfBtn;
@@ -100,6 +111,7 @@ public class DashboardPersonnes {
         } else {
             System.err.println("✗ SessionManager.getCurrentUser() est NULL !");
         }
+        chargerAvatarTopBar(SessionManager.getCurrentUser());
 
         // Mise à jour des labels
         updateUserLabels();
@@ -124,6 +136,46 @@ public class DashboardPersonnes {
             showError("Erreur d'initialisation", "Impossible de charger le dashboard");
             e.printStackTrace();
         }
+    }
+    private void chargerAvatarTopBar(Personne user) {
+        if (user == null) return;
+
+        // Afficher le nom
+        if (userNameLabel != null) {
+            userNameLabel.setText(user.getPrenom() + " " + user.getNom());
+        }
+
+        // Charger la photo depuis l'URL Cloudinary dans un thread background
+        String photoUrl = user.getPhotoUrl();
+        if (photoUrl == null || photoUrl.isBlank()) {
+            // Pas de photo → garder l'emoji par défaut, rien à faire
+            return;
+        }
+
+        // Appliquer le clip circulaire en Java (ne fonctionne pas correctement en FXML)
+        Circle clip = new Circle(24, 24, 24);
+        avatarImageView.setClip(clip);
+
+        Thread thread = new Thread(() -> {
+            try {
+                Image image = new Image(photoUrl, 48, 48, false, true, true);
+
+                Platform.runLater(() -> {
+                    if (!image.isError()) {
+                        avatarImageView.setImage(image);
+                        avatarImageView.setVisible(true);
+                        avatarImageView.setManaged(true);
+                        avatarDefaultLabel.setVisible(false);
+                        if (avatarBg != null) avatarBg.setVisible(false);
+                    }
+                });
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        thread.setDaemon(true);
+        thread.start();
     }
 
     // ═══════════════════════════════════════════════════════════════════
@@ -454,7 +506,7 @@ public class DashboardPersonnes {
     // NAVIGATION  — utilise ActionEvent pour compatibilité FXML boutons
     // ═══════════════════════════════════════════════════════════════════
 
-    private void navigateTo(ActionEvent event, String fxmlPath, String title) {
+    private void navigateTo(MouseEvent event, String fxmlPath, String title) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
@@ -482,16 +534,16 @@ public class DashboardPersonnes {
         }
     }
 
-    @FXML private void handleDashboard(ActionEvent e)    { navigateTo(e, "/UsersInterface/Acceuil.fxml",             "Accueil - AgroFlow"); }
-    @FXML private void handlePersonnes(ActionEvent e)    { navigateTo(e, "/UsersInterface/Acceuil.fxml",             "Personnes - AgroFlow"); }
-    @FXML private void handleTaches(ActionEvent e)       { navigateTo(e, "/UsersInterface/GestionTache.fxml",        "Tâches - AgroFlow"); }
-    @FXML private void handleAbonnements(ActionEvent e)  { navigateTo(e, "/UsersInterface/GestionAbonnements.fxml",  "Abonnements - AgroFlow"); }
-    @FXML private void handleOffres(ActionEvent e)       { navigateTo(e, "/UsersInterface/GestionOffre.fxml",        "Offres - AgroFlow"); }
-    @FXML private void handleAnimals(ActionEvent e)      { navigateTo(e, "/AnimalsInterface/AfficherAnimaux.fxml",   "Animaux - AgroFlow"); }
-    @FXML private void handleStocks(ActionEvent e)       { navigateTo(e, "/StocksInterface/afficherarticle.fxml",    "Stocks - AgroFlow"); }
-    @FXML private void handleTerrains(ActionEvent e)     { navigateTo(e, "/TerrainsInterface/acceuilterrain.fxml",   "Terrains - AgroFlow"); }
-    @FXML private void handleEvents(ActionEvent e)       { navigateTo(e, "/G-Evenements/Accueil.fxml",               "Événements - AgroFlow"); }
-    @FXML private void handleMateriels(ActionEvent e)    { navigateTo(e, "/MaterielsInterface/AccueilMateriel.fxml", "Matériels - AgroFlow"); }
+    @FXML private void handleDashboard(MouseEvent e)    { navigateTo(e, "/UsersInterface/Acceuil.fxml",             "Accueil - AgroFlow"); }
+    @FXML private void handlePersonnes(MouseEvent e)    { navigateTo(e, "/UsersInterface/Acceuil.fxml",             "Personnes - AgroFlow"); }
+    @FXML private void handleTaches(MouseEvent e)       { navigateTo(e, "/UsersInterface/GestionTache.fxml",        "Tâches - AgroFlow"); }
+    @FXML private void handleAbonnements(MouseEvent e)  { navigateTo(e, "/UsersInterface/GestionAbonnements.fxml",  "Abonnements - AgroFlow"); }
+    @FXML private void handleOffres(MouseEvent e)       { navigateTo(e, "/UsersInterface/GestionOffre.fxml",        "Offres - AgroFlow"); }
+    @FXML private void handleAnimals(MouseEvent e)      { navigateTo(e, "/AnimalsInterface/AfficherAnimaux.fxml",   "Animaux - AgroFlow"); }
+    @FXML private void handleStocks(MouseEvent e)       { navigateTo(e, "/StocksInterface/afficherarticle.fxml",    "Stocks - AgroFlow"); }
+    @FXML private void handleTerrains(MouseEvent e)     { navigateTo(e, "/TerrainsInterface/acceuilterrain.fxml",   "Terrains - AgroFlow"); }
+    @FXML private void handleEvents(MouseEvent e)       { navigateTo(e, "/G-Evenements/Accueil.fxml",               "Événements - AgroFlow"); }
+    @FXML private void handleMateriels(MouseEvent e)    { navigateTo(e, "/MaterielsInterface/AccueilMateriel.fxml", "Matériels - AgroFlow"); }
 
     @FXML
     private void handleLogout() {

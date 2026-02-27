@@ -1,19 +1,24 @@
 package controllers.User;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.geometry.Pos;
+import javafx.scene.shape.Circle;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import models.User.Abonnements;
 import models.User.Personne;
 import services.User.AbonnementService;
+import utils.SessionManager;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -31,6 +36,10 @@ public class AcceuilAgricole {
     @FXML private Label userRoleLabel;
     @FXML private Button logoutBtn;
 
+//image useer
+@FXML private ImageView sidebarAvatarImageView;
+    @FXML private Label     sidebarAvatarDefault;
+    @FXML private Circle sidebarAvatarBg;
     // Labels stats abonnements
     @FXML private VBox abonnementsContainer;
 
@@ -39,6 +48,14 @@ public class AcceuilAgricole {
 
     @FXML
     public void initialize() {
+        this.currentUser = SessionManager.getCurrentUser();
+        if (this.currentUser != null) {
+            System.out.println("✓ currentUser chargé depuis SessionManager: " + currentUser.getNom());
+        } else {
+            System.err.println("✗ SessionManager.getCurrentUser() est NULL !");
+        }
+        chargerSidebarAvatar(SessionManager.getCurrentUser());
+
         System.out.println("✓ AcceuilAgricole Controller initialisé");
 
         abonnementService = new AbonnementService();
@@ -68,6 +85,41 @@ public class AcceuilAgricole {
             loadAbonnements();
         }
     }*/
+    private void chargerSidebarAvatar(Personne user) {
+        if (user == null) return;
+
+        // Nom et rôle
+        if (userNameLabel != null)
+            userNameLabel.setText(user.getPrenom() + " " + user.getNom());
+
+        // Clip circulaire appliqué en Java (radius=35, centre=35,35 pour fitWidth/Height=70)
+        if (sidebarAvatarImageView != null) {
+            Circle clip = new Circle(35, 35, 35);
+            sidebarAvatarImageView.setClip(clip);
+        }
+
+        String photoUrl = user.getPhotoUrl();
+        if (photoUrl == null || photoUrl.isBlank()) return;
+
+        Thread thread = new Thread(() -> {
+            try {
+                Image image = new Image(photoUrl, 70, 70, false, true, true);
+                Platform.runLater(() -> {
+                    if (!image.isError()) {
+                        sidebarAvatarImageView.setImage(image);
+                        sidebarAvatarImageView.setVisible(true);
+                        sidebarAvatarImageView.setManaged(true);
+                        sidebarAvatarDefault.setVisible(false);
+                        if (sidebarAvatarBg != null) sidebarAvatarBg.setVisible(false);
+                    }
+                });
+            } catch (Exception e) {
+                System.err.println("⚠️ Avatar sidebar : " + e.getMessage());
+            }
+        });
+        thread.setDaemon(true);
+        thread.start();
+    }
 
     /**
      * Charger et afficher les abonnements de l'utilisateur connecté

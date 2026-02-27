@@ -5,6 +5,8 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.image.ImageView?>
 <BorderPane style="-fx-background-color: #F8F9FA;"
             xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
@@ -35,7 +37,23 @@
             <!-- Info Utilisateur avec Hyperlink À Propos -->
             <VBox alignment="CENTER" spacing="8"
                   style="-fx-background-color: rgba(255,255,255,0.1); -fx-background-radius: 15; -fx-padding: 20; -fx-margin: 10;">
-                <Label style="-fx-font-size: 30px;" text="👨‍🌾" />
+
+                <!-- Avatar circulaire -->
+                <StackPane>
+                    <!-- Fond dégradé (visible par défaut) -->
+                    <Circle fx:id="sidebarAvatarBg" radius="35"
+                            fill="rgba(255,255,255,0.2)" />
+                    <!-- Emoji par défaut -->
+                    <Label fx:id="sidebarAvatarDefault"
+                           style="-fx-font-size: 30px;"
+                           text="👨‍🌾" />
+                    <!-- Photo Cloudinary (cachée par défaut, clip appliqué en Java) -->
+                    <ImageView fx:id="sidebarAvatarImageView"
+                               fitWidth="70" fitHeight="70"
+                               preserveRatio="false"
+                               visible="false" managed="false" />
+                </StackPane>
+
                 <Label fx:id="userNameLabel"
                        style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;"
                        text="Nom Agriculteur">
@@ -43,8 +61,8 @@
                 </Label>
                 <Label fx:id="userRoleLabel"
                        style="-fx-font-size: 12px; -fx-text-fill: rgba(255,255,255,0.8);
-                              -fx-background-color: rgba(76,175,80,0.3); -fx-padding: 4 12;
-                              -fx-background-radius: 15;"
+                  -fx-background-color: rgba(76,175,80,0.3); -fx-padding: 4 12;
+                  -fx-background-radius: 15;"
                        text="🌾 AGRICULTEUR">
                     <font><Font name="System Bold" size="12" /></font>
                 </Label>
@@ -52,9 +70,9 @@
                 <Hyperlink fx:id="aproposLink" text="👤 À propos de moi"
                            onAction="#handleAPropos"
                            style="-fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 13px;
-                                  -fx-border-color: rgba(255,255,255,0.4); -fx-padding: 5 15;
-                                  -fx-background-radius: 20; -fx-border-radius: 20;
-                                  -fx-cursor: hand;">
+                      -fx-border-color: rgba(255,255,255,0.4); -fx-padding: 5 15;
+                      -fx-background-radius: 20; -fx-border-radius: 20;
+                      -fx-cursor: hand;">
                     <font><Font name="System" size="13" /></font>
                 </Hyperlink>
             </VBox>
@@ -71,7 +89,7 @@
 
                 <!-- Mes Terrains avec sous-menu (ouvert par défaut ici) -->
                 <VBox spacing="0">
-                    <Button onAction="#handleMesTerrains" prefHeight="48" prefWidth="230"
+                    <Button onMouseClicked="#handleMesTerrains" prefHeight="48" prefWidth="230"
                             style="-fx-background-color: linear-gradient(to right, #4CAF50, #45a049);
                                    -fx-text-fill: white; -fx-font-size: 14px; -fx-alignment: CENTER-LEFT;
                                    -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand;"
@@ -163,7 +181,7 @@
                         <font><Font name="System Bold" size="22"/></font>
                     </Label>
                     <Region HBox.hgrow="ALWAYS"/>
-                    <Label fx:id="userNameLabel" text="Utilisateur: " textFill="white">
+                    <Label fx:id="userNameLabel1" text="Utilisateur: " textFill="white">
                         <font><Font size="14"/></font>
                     </Label>
                     <!-- ✅ Bouton PDF global -->

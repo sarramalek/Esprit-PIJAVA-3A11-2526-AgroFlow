@@ -1,71 +1,77 @@
 package controllers.User;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Circle;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import models.User.Personne;
+import services.User.CloudinaryService;
 import services.User.PersonneService;
 import services.User.SmsService;
 import utils.SessionManager;
 
+import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 
-/**
- * Contrôleur pour le profil de l'employé
- * Permet de consulter et modifier ses informations personnelles
- */
 public class ProfilEmploye {
 
     // ══════════════════════════════════════════════════════════════
-    // FXML Components
+    // FXML — Photo
     // ══════════════════════════════════════════════════════════════
+    @FXML private ImageView profileImageView;
+    @FXML private Label     defaultAvatarLabel;
+    @FXML private Label     photoStatusLabel;
+    @FXML private Circle    photoCircleBg;
 
-    @FXML private TextField cinField;
-    @FXML private TextField nomField;
-    @FXML private TextField prenomField;
-    @FXML private TextField emailField;
-    @FXML private TextField telField;
-    @FXML private TextField adresseField;
-    @FXML private TextField villeField;
-    @FXML private DatePicker dateNaissField;
+    // ══════════════════════════════════════════════════════════════
+    // FXML — Formulaire
+    // ══════════════════════════════════════════════════════════════
+    @FXML private TextField     cinField;
+    @FXML private TextField     nomField;
+    @FXML private TextField     prenomField;
+    @FXML private TextField     emailField;
+    @FXML private TextField     telField;
+    @FXML private TextField     adresseField;
+    @FXML private TextField     villeField;
+    @FXML private DatePicker    dateNaissField;
     @FXML private PasswordField ancienMdpField;
     @FXML private PasswordField nouveauMdpField;
     @FXML private PasswordField confirmMdpField;
-    @FXML private Button saveBtn;
-    @FXML private Button desactiverBtn;
-    @FXML private Button cancelBtn;
-    @FXML private Label roleLabel;
+    @FXML private Button        saveBtn;
+    @FXML private Button        desactiverBtn;
+    @FXML private Button        cancelBtn;
+    @FXML private Label         roleLabel;
 
     // ══════════════════════════════════════════════════════════════
     // Instance Variables
     // ══════════════════════════════════════════════════════════════
-
-    private Personne currentUser;
-    private PersonneService personneService;
-    private AcceuilEmploye parentController;
+    private File              selectedPhotoFile = null;
+    private Personne          currentUser;
+    private PersonneService   personneService;
+    private CloudinaryService cloudinaryService;
+    private AcceuilEmploye    parentController;
 
     // ══════════════════════════════════════════════════════════════
     // Initialization
     // ══════════════════════════════════════════════════════════════
-
     @FXML
     public void initialize() {
-        System.out.println("✓ ProfilEmploye Controller initialisé");
-
         try {
-            personneService = new PersonneService();
+            personneService   = new PersonneService();
+            cloudinaryService = new CloudinaryService();
         } catch (Exception e) {
-            System.err.println("✗ Erreur initialisation PersonneService");
             e.printStackTrace();
         }
-
-        // Le CIN n'est pas modifiable
         if (cinField != null) {
             cinField.setEditable(false);
             cinField.setStyle("-fx-background-color: #F0F0F0;");
@@ -73,112 +79,196 @@ public class ProfilEmploye {
     }
 
     // ══════════════════════════════════════════════════════════════
-    // User Management
+    // Setters
     // ══════════════════════════════════════════════════════════════
-
     public void setCurrentUser(Personne user) {
-        System.out.println("\n=== setCurrentUser appelé dans ProfilEmploye ===");
-
-        if (user == null) {
-            System.err.println("✗ ERREUR: user est NULL");
-            return;
-        }
-
+        if (user == null) return;
         this.currentUser = user;
-
-        System.out.println("✓ Utilisateur reçu:");
-        System.out.println("  - CIN: " + user.getCin());
-        System.out.println("  - Nom: " + user.getNom());
-        System.out.println("  - Prénom: " + user.getPrenom());
-
-        // Remplir les champs
         loadUserData();
+    }
 
-        System.out.println("================================================\n");
+    public void setParentController(AcceuilEmploye parent) {
+        this.parentController = parent;
     }
 
     // ══════════════════════════════════════════════════════════════
     // Load Data
     // ══════════════════════════════════════════════════════════════
-
     private void loadUserData() {
-        if (currentUser == null) {
-            System.err.println("⚠️ currentUser est NULL");
-            return;
+        if (currentUser == null) return;
+
+        if (cinField     != null) cinField.setText(String.valueOf(currentUser.getCin()));
+        if (nomField     != null) nomField.setText(currentUser.getNom());
+        if (prenomField  != null) prenomField.setText(currentUser.getPrenom());
+        if (emailField   != null) emailField.setText(currentUser.getEmail());
+        if (telField     != null) telField.setText(currentUser.getTel());
+        if (adresseField != null) adresseField.setText(currentUser.getAdresse());
+        if (villeField   != null) villeField.setText(currentUser.getVille());
+        if (roleLabel    != null) roleLabel.setText("👷 EMPLOYÉ");
+
+        if (dateNaissField != null && currentUser.getDate_naiss() != null) {
+            try {
+                String[] p = currentUser.getDate_naiss().split("-");
+                if (p.length == 3)
+                    dateNaissField.setValue(java.time.LocalDate.of(
+                            Integer.parseInt(p[0]), Integer.parseInt(p[1]), Integer.parseInt(p[2])));
+            } catch (Exception ignored) {}
         }
 
-        try {
-            // Informations de base
-            if (cinField != null) {
-                cinField.setText(String.valueOf(currentUser.getCin()));
-            }
-            if (nomField != null) {
-                nomField.setText(currentUser.getNom());
-            }
-            if (prenomField != null) {
-                prenomField.setText(currentUser.getPrenom());
-            }
-            if (emailField != null) {
-                emailField.setText(currentUser.getEmail());
-            }
-            if (telField != null) {
-                telField.setText(currentUser.getTel());
-            }
-            if (adresseField != null) {
-                adresseField.setText(currentUser.getAdresse());
-            }
-            if (villeField != null) {
-                villeField.setText(currentUser.getVille());
-            }
-            if (roleLabel != null) {
-                roleLabel.setText("👷 EMPLOYÉ");
-            }
-
-            // Date de naissance (si le champ existe)
-            if (dateNaissField != null && currentUser.getDate_naiss() != null) {
-                try {
-                    // Supposant format yyyy-MM-dd
-                    String[] parts = currentUser.getDate_naiss().split("-");
-                    if (parts.length == 3) {
-                        dateNaissField.setValue(java.time.LocalDate.of(
-                                Integer.parseInt(parts[0]),
-                                Integer.parseInt(parts[1]),
-                                Integer.parseInt(parts[2])
-                        ));
-                    }
-                } catch (Exception e) {
-                    System.err.println("⚠️ Erreur parsing date: " + e.getMessage());
-                }
-            }
-
-            System.out.println("✓ Données utilisateur chargées");
-
-        } catch (Exception e) {
-            System.err.println("✗ Erreur chargement données");
-            e.printStackTrace();
-        }
+        // ── Charger la photo depuis l'URL Cloudinary ──────────────────────────
+        chargerPhotoDepuisUrl(currentUser.getPhotoUrl());
     }
 
     // ══════════════════════════════════════════════════════════════
-    // Action Handlers
+    // Photo — Chargement depuis URL (thread background)
     // ══════════════════════════════════════════════════════════════
 
+    /**
+     * Télécharge et affiche la photo depuis l'URL Cloudinary dans un thread
+     * séparé pour ne pas bloquer l'interface.
+     */
+    private void chargerPhotoDepuisUrl(String photoUrl) {
+        if (photoUrl == null || photoUrl.isBlank()) {
+            afficherAvatarParDefaut();
+            return;
+        }
+
+        if (photoStatusLabel != null) photoStatusLabel.setText("⏳ Chargement de la photo...");
+
+        Thread thread = new Thread(() -> {
+            try {
+                // Image JavaFX accepte directement les URLs https://
+                Image image = new Image(photoUrl, 100, 100, false, true, true);
+
+                Platform.runLater(() -> {
+                    if (image.isError()) {
+                        afficherAvatarParDefaut();
+                        if (photoStatusLabel != null) photoStatusLabel.setText("⚠️ Photo indisponible");
+                    } else {
+                        profileImageView.setImage(image);
+                        profileImageView.setVisible(true);
+                        profileImageView.setManaged(true);
+                        defaultAvatarLabel.setVisible(false);
+                        if (photoCircleBg    != null) photoCircleBg.setVisible(false);
+                        if (photoStatusLabel != null) photoStatusLabel.setText("✓ Photo chargée");
+                    }
+                });
+
+            } catch (Exception e) {
+                Platform.runLater(() -> {
+                    afficherAvatarParDefaut();
+                    if (photoStatusLabel != null) photoStatusLabel.setText("⚠️ Erreur réseau");
+                });
+                e.printStackTrace();
+            }
+        });
+        thread.setDaemon(true);
+        thread.start();
+    }
+
+    private void afficherAvatarParDefaut() {
+        profileImageView.setVisible(false);
+        profileImageView.setManaged(false);
+        defaultAvatarLabel.setVisible(true);
+        if (photoCircleBg    != null) photoCircleBg.setVisible(true);
+        if (photoStatusLabel != null) photoStatusLabel.setText("Aucune photo de profil");
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // Photo — Sélection locale
+    // ══════════════════════════════════════════════════════════════
+    @FXML
+    private void handleUploadPhoto() {
+        FileChooser fc = new FileChooser();
+        fc.setTitle("Choisir une photo de profil");
+        fc.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Images", "*.jpg", "*.jpeg", "*.png"));
+
+        File file = fc.showOpenDialog(profileImageView.getScene().getWindow());
+        if (file == null) return;
+
+        if (file.length() > 2 * 1024 * 1024) {
+            alert(Alert.AlertType.WARNING, "Fichier trop volumineux", "La photo ne doit pas dépasser 2 Mo.");
+            return;
+        }
+
+        selectedPhotoFile = file;
+
+        // Aperçu local immédiat sans attendre l'upload Cloudinary
+        Image preview = new Image(file.toURI().toString(), 100, 100, false, true);
+        profileImageView.setImage(preview);
+        profileImageView.setVisible(true);
+        profileImageView.setManaged(true);
+        defaultAvatarLabel.setVisible(false);
+        if (photoCircleBg    != null) photoCircleBg.setVisible(false);
+        if (photoStatusLabel != null) photoStatusLabel.setText("📎 " + file.getName() + " (cliquez Enregistrer pour sauvegarder)");
+    }
+
+    @FXML
+    private void handleRemovePhoto() {
+        selectedPhotoFile = null;
+        if (currentUser != null) currentUser.setPhotoUrl(null);
+        afficherAvatarParDefaut();
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // Photo — Upload Cloudinary (thread background)
+    // ══════════════════════════════════════════════════════════════
+
+    /**
+     * Upload le fichier sélectionné vers Cloudinary, met à jour currentUser.photoUrl,
+     * puis appelle onSuccess sur le thread UI.
+     */
+    private void uploadVersCloudinaire(File file, Runnable onSuccess) {
+        if (photoStatusLabel != null) photoStatusLabel.setText("⬆️ Upload en cours...");
+        if (saveBtn != null) saveBtn.setDisable(true);
+
+        Thread thread = new Thread(() -> {
+            String publicId = "employe_" + currentUser.getCin();
+            String url = cloudinaryService.uploadImage(file, publicId);
+
+            Platform.runLater(() -> {
+                if (url != null) {
+                    currentUser.setPhotoUrl(url);
+                    if (photoStatusLabel != null) photoStatusLabel.setText("✓ Photo uploadée");
+                    if (onSuccess != null) onSuccess.run();
+                } else {
+                    if (saveBtn != null) saveBtn.setDisable(false);
+                    alert(Alert.AlertType.ERROR, "Échec upload",
+                            "Impossible d'uploader la photo vers Cloudinary.\n" +
+                                    "Vérifiez vos identifiants dans CloudinaryService.java et votre connexion internet.");
+                    if (photoStatusLabel != null) photoStatusLabel.setText("✗ Upload échoué");
+                }
+            });
+        });
+        thread.setDaemon(true);
+        thread.start();
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // Save
+    // ══════════════════════════════════════════════════════════════
     @FXML
     private void handleSave() {
-        System.out.println("💾 Sauvegarde du profil...");
+        if (currentUser == null) { alert(Alert.AlertType.ERROR, "Erreur", "Session expirée."); return; }
+        if (!validateFields()) return;
 
-        if (currentUser == null) {
-            showError("Erreur", "Session expirée");
-            return;
+        if (saveBtn != null) saveBtn.setDisable(true);
+
+        if (selectedPhotoFile != null) {
+            // 1. Upload Cloudinary → 2. Save BDD
+            uploadVersCloudinaire(selectedPhotoFile, () -> {
+                selectedPhotoFile = null;
+                sauvegarderProfil();
+            });
+        } else {
+            // Pas de nouvelle photo → Save BDD directement
+            sauvegarderProfil();
         }
+    }
 
-        // Validation
-        if (!validateFields()) {
-            return;
-        }
-
+    private void sauvegarderProfil() {
         try {
-            // Mettre à jour les données
             currentUser.setNom(nomField.getText().trim());
             currentUser.setPrenom(prenomField.getText().trim());
             currentUser.setEmail(emailField.getText().trim());
@@ -186,281 +276,168 @@ public class ProfilEmploye {
             currentUser.setAdresse(adresseField.getText().trim());
             currentUser.setVille(villeField.getText().trim());
 
-            // Date de naissance
-            if (dateNaissField != null && dateNaissField.getValue() != null) {
+            if (dateNaissField != null && dateNaissField.getValue() != null)
                 currentUser.setDate_naiss(dateNaissField.getValue().toString());
-            }
 
-            // Mot de passe (si modifié)
-            if (nouveauMdpField != null && !nouveauMdpField.getText().isEmpty()) {
-                if (!handlePasswordChange()) {
-                    return;
-                }
-            }
+            if (nouveauMdpField != null && !nouveauMdpField.getText().isEmpty())
+                if (!handlePasswordChange()) { if (saveBtn != null) saveBtn.setDisable(false); return; }
 
-            // Sauvegarder en base
+            // photo_url est déjà dans currentUser (mis à jour par uploadVersCloudinaire)
             personneService.modifier(currentUser);
 
-            showSuccess("Succès", "Profil mis à jour avec succès !");
-            System.out.println("✓ Profil sauvegardé");
-
-            // Fermer la fenêtre
+            alert(Alert.AlertType.INFORMATION, "Succès", "Profil mis à jour avec succès !");
             handleFermer();
 
         } catch (SQLException e) {
-            System.err.println("✗ Erreur sauvegarde");
             e.printStackTrace();
-            showError("Erreur", "Impossible de sauvegarder le profil: " + e.getMessage());
+            alert(Alert.AlertType.ERROR, "Erreur BDD", "Impossible de sauvegarder : " + e.getMessage());
+        } finally {
+            if (saveBtn != null) saveBtn.setDisable(false);
         }
     }
 
-    /**
-     * Valider les champs
-     */
+    // ══════════════════════════════════════════════════════════════
+    // Validation
+    // ══════════════════════════════════════════════════════════════
     private boolean validateFields() {
         if (nomField.getText().trim().isEmpty()) {
-            showError("Validation", "Le nom est obligatoire");
-            return false;
-        }
+            alert(Alert.AlertType.WARNING, "Validation", "Le nom est obligatoire."); return false; }
         if (prenomField.getText().trim().isEmpty()) {
-            showError("Validation", "Le prénom est obligatoire");
-            return false;
-        }
-        if (emailField.getText().trim().isEmpty()) {
-            showError("Validation", "L'email est obligatoire");
-            return false;
-        }
-        if (!emailField.getText().contains("@")) {
-            showError("Validation", "Email invalide");
-            return false;
-        }
-
-        // Validation mot de passe si modifié
+            alert(Alert.AlertType.WARNING, "Validation", "Le prénom est obligatoire."); return false; }
+        if (emailField.getText().trim().isEmpty() || !emailField.getText().contains("@")) {
+            alert(Alert.AlertType.WARNING, "Validation", "Email invalide."); return false; }
         if (nouveauMdpField != null && !nouveauMdpField.getText().isEmpty()) {
             if (ancienMdpField.getText().isEmpty()) {
-                showError("Validation", "Veuillez saisir l'ancien mot de passe");
-                return false;
-            }
+                alert(Alert.AlertType.WARNING, "Validation", "Saisissez l'ancien mot de passe."); return false; }
             if (!nouveauMdpField.getText().equals(confirmMdpField.getText())) {
-                showError("Validation", "Les mots de passe ne correspondent pas");
-                return false;
-            }
+                alert(Alert.AlertType.WARNING, "Validation", "Les mots de passe ne correspondent pas."); return false; }
             if (nouveauMdpField.getText().length() < 6) {
-                showError("Validation", "Le mot de passe doit contenir au moins 6 caractères");
-                return false;
-            }
+                alert(Alert.AlertType.WARNING, "Validation", "Mot de passe trop court (6 car. min)."); return false; }
         }
-
         return true;
     }
 
-    /**
-     * Gérer le changement de mot de passe
-     */
     private boolean handlePasswordChange() {
-        // Vérifier l'ancien mot de passe
         if (!currentUser.getMdp().equals(ancienMdpField.getText())) {
-            showError("Erreur", "Ancien mot de passe incorrect");
-            return false;
-        }
-
-        // Mettre à jour
+            alert(Alert.AlertType.ERROR, "Erreur", "Ancien mot de passe incorrect."); return false; }
         currentUser.setMdp(nouveauMdpField.getText());
-        System.out.println("✓ Mot de passe mis à jour");
         return true;
     }
 
+    // ══════════════════════════════════════════════════════════════
+    // Fermer
+    // ══════════════════════════════════════════════════════════════
     @FXML
     private void handleFermer() {
-        System.out.println("🚪 Fermeture du profil...");
-
-        // Méthode robuste pour fermer la fenêtre
         Stage stage = null;
-
-        // Essayer plusieurs composants pour obtenir le stage
-        if (cancelBtn != null && cancelBtn.getScene() != null && cancelBtn.getScene().getWindow() != null) {
+        if (cancelBtn != null && cancelBtn.getScene() != null)
             stage = (Stage) cancelBtn.getScene().getWindow();
-        } else if (saveBtn != null && saveBtn.getScene() != null && saveBtn.getScene().getWindow() != null) {
+        else if (saveBtn != null && saveBtn.getScene() != null)
             stage = (Stage) saveBtn.getScene().getWindow();
-        } else if (nomField != null && nomField.getScene() != null && nomField.getScene().getWindow() != null) {
-            stage = (Stage) nomField.getScene().getWindow();
-        }
-
-        if (stage != null) {
-            stage.close();
-            System.out.println("✓ Fenêtre fermée");
-        } else {
-            System.err.println("⚠️ Impossible de fermer la fenêtre (stage est NULL)");
-        }
+        if (stage != null) stage.close();
     }
 
     // ══════════════════════════════════════════════════════════════
-    // Alert Helpers
+    // Désactiver compte
     // ══════════════════════════════════════════════════════════════
-
-    private void showError(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-
-    private void showSuccess(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-
     @FXML
     private void handleDesactiver() {
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
         confirm.setTitle("Confirmation");
         confirm.setHeaderText("⚠️ Désactiver votre compte");
-        confirm.setContentText(
-                "Cette action est irréversible.\n\n" +
-                        "Votre compte et toutes vos données seront supprimés définitivement.\n\n" +
-                        "Êtes-vous sûr de vouloir continuer ?"
-        );
-
-        // Boutons personnalisés
-        ButtonType btnSupprimer = new ButtonType("Oui, supprimer", ButtonBar.ButtonData.OK_DONE);
-        ButtonType btnAnnuler   = new ButtonType("Annuler", ButtonBar.ButtonData.CANCEL_CLOSE);
-        confirm.getButtonTypes().setAll(btnSupprimer, btnAnnuler);
-
-        confirm.showAndWait().ifPresent(response -> {
-            if (response == btnSupprimer) {
+        confirm.setContentText("Cette action est irréversible.\nVotre compte sera supprimé définitivement.\n\nÊtes-vous sûr ?");
+        ButtonType btnOui     = new ButtonType("Oui, supprimer", ButtonBar.ButtonData.OK_DONE);
+        ButtonType btnAnnuler = new ButtonType("Annuler",         ButtonBar.ButtonData.CANCEL_CLOSE);
+        confirm.getButtonTypes().setAll(btnOui, btnAnnuler);
+        confirm.showAndWait().ifPresent(r -> {
+            if (r == btnOui) {
                 try {
                     personneService.supprimer(currentUser.getCin());
-                    System.out.println("✓ Compte supprimé: " + currentUser.getCin());
-
-                    // Fermer cette fenêtre
                     Stage stage = (Stage) desactiverBtn.getScene().getWindow();
                     stage.close();
-
-                    // Retourner à la page de login
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/login.fxml"));
                     Parent root = loader.load();
                     Stage loginStage = new Stage();
                     loginStage.setScene(new Scene(root, 900, 600));
                     loginStage.setTitle("AgroFlow - Connexion");
                     loginStage.show();
-
-                    // Fermer le dashboard agricole
                     if (parentController != null) {
-                        Stage dashStage = parentController.getStage();
-                        if (dashStage != null) dashStage.close();
+                        Stage dash = parentController.getStage();
+                        if (dash != null) dash.close();
                     }
-
                 } catch (SQLException | IOException e) {
                     e.printStackTrace();
-                    showError("Erreur lors de la suppression du compte","error");
+                    alert(Alert.AlertType.ERROR, "Erreur", "Impossible de supprimer le compte.");
                 }
             }
         });
     }
-//--------2 F-A --------------------------------------------------
+
+    // ══════════════════════════════════════════════════════════════
+    // 2FA
+    // ══════════════════════════════════════════════════════════════
     @FXML
     private void handleNavigateToSettings2FA(MouseEvent event) {
+        if (currentUser == null) { alert(Alert.AlertType.ERROR, "Erreur", "Session expirée."); return; }
+        String telephone = currentUser.getTel();
+        if (telephone == null || telephone.isEmpty()) { navigateToSettings2FA(event); return; }
         try {
-            // ✅ Utiliser this.currentUser (déjà chargé) plutôt que SessionManager ici
-            if (currentUser == null) {
-                showAlert(Alert.AlertType.ERROR, "Erreur", "Session expirée.");
-                return;
-            }
-            String telephone = currentUser.getTel();
-
-            if (telephone == null || telephone.isEmpty()) {
-                navigateToSettings2FA(event);
-                return;
-            }
-
             String otp = String.format("%06d", (int)(Math.random() * 999999));
             SessionManager.setTempOtp(otp);
             SmsService smsService = new SmsService();
-            boolean sent = smsService.sendOtpCode(telephone, otp);
-
-            if (!sent) {
-                showAlert(Alert.AlertType.ERROR, "Erreur", "Impossible d'envoyer le SMS.");
-                return;
-            }
-
+            if (!smsService.sendOtpCode(telephone, otp)) {
+                alert(Alert.AlertType.ERROR, "Erreur", "Impossible d'envoyer le SMS."); return; }
             String masked = telephone.length() > 4
                     ? telephone.substring(0, telephone.length() - 4).replaceAll("\\d", "*")
                     + telephone.substring(telephone.length() - 4)
                     : telephone;
-
             Dialog<String> dialog = new Dialog<>();
             dialog.setTitle("🔐 Vérification SMS");
             dialog.setHeaderText("Code envoyé au : " + masked);
-
             ButtonType verifyBtn = new ButtonType("Vérifier", ButtonBar.ButtonData.OK_DONE);
             ButtonType resendBtn = new ButtonType("Renvoyer", ButtonBar.ButtonData.LEFT);
             dialog.getDialogPane().getButtonTypes().addAll(verifyBtn, resendBtn, ButtonType.CANCEL);
-
             TextField codeField = new TextField();
             codeField.setPromptText("000000");
             codeField.setMaxWidth(200);
-            codeField.setStyle("-fx-font-family: 'Courier New'; -fx-font-size: 24px;" +
-                    "-fx-alignment: center; -fx-pref-height: 52px;" +
-                    "-fx-border-color: #52B788; -fx-border-radius: 8;" +
+            codeField.setStyle("-fx-font-family: 'Courier New'; -fx-font-size: 24px; -fx-alignment: center;" +
+                    "-fx-pref-height: 52px; -fx-border-color: #52B788; -fx-border-radius: 8;" +
                     "-fx-background-radius: 8; -fx-border-width: 2;");
             codeField.textProperty().addListener((obs, o, n) -> {
                 if (!n.matches("\\d*")) codeField.setText(n.replaceAll("[^\\d]", ""));
                 if (n.length() > 6)     codeField.setText(n.substring(0, 6));
             });
-
             VBox content = new VBox(14);
             content.setAlignment(javafx.geometry.Pos.CENTER);
-            content.getChildren().addAll(
-                    new Label("📱 Entrez le code reçu par SMS :"),
-                    codeField,
-                    new Label("⏱  Valable 5 minutes"));
+            content.getChildren().addAll(new Label("📱 Entrez le code reçu par SMS :"), codeField, new Label("⏱ Valable 5 minutes"));
             dialog.getDialogPane().setContent(content);
-
-            final String[] currentOtp = { otp };
+            final String[] cur = { otp };
             dialog.setResultConverter(btn -> {
                 if (btn == resendBtn) {
-                    String newOtp = String.format("%06d", (int)(Math.random() * 999999));
-                    currentOtp[0] = newOtp;
-                    SessionManager.setTempOtp(newOtp);
-                    boolean reSent = smsService.sendOtpCode(telephone, newOtp);
-                    Alert info = new Alert(reSent ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR);
-                    info.setTitle(reSent ? "SMS renvoyé" : "Erreur");
-                    info.setHeaderText(null);
-                    info.setContentText(reSent ? "Nouveau code envoyé au " + masked : "Échec envoi SMS.");
-                    info.showAndWait();
+                    String nOtp = String.format("%06d", (int)(Math.random() * 999999));
+                    cur[0] = nOtp; SessionManager.setTempOtp(nOtp);
+                    boolean ok = smsService.sendOtpCode(telephone, nOtp);
+                    alert(ok ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR,
+                            ok ? "SMS renvoyé" : "Erreur",
+                            ok ? "Nouveau code envoyé au " + masked : "Échec envoi SMS.");
                     return null;
                 }
-                if (btn == verifyBtn) return codeField.getText();
-                return null;
+                return btn == verifyBtn ? codeField.getText() : null;
             });
-
             dialog.showAndWait().ifPresent(code -> {
-                if (code.equals(currentOtp[0])) {
-                    SessionManager.clearTempOtp();
-                    navigateToSettings2FA(event);
-                } else {
-                    showAlert(Alert.AlertType.ERROR, "Code incorrect", "Code SMS invalide. Accès refusé.");
-                }
+                if (code.equals(cur[0])) { SessionManager.clearTempOtp(); navigateToSettings2FA(event); }
+                else alert(Alert.AlertType.ERROR, "Code incorrect", "Code SMS invalide.");
             });
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        } catch (Exception e) { e.printStackTrace(); }
     }
-    // ═══════════════════════════════════════════════════════════════════
-    // ALERTES
-    // ═══════════════════════════════════════════════════════════════════
 
+    private void navigateToSettings2FA(MouseEvent event) {
+        new Settings2FA().launch();
+    }
 
-    private void showWarning(String title, String msg) { alert(Alert.AlertType.WARNING,     title, msg); }
-    private void showSuccess(String msg)               { alert(Alert.AlertType.INFORMATION, "Succès", msg); }
-    private void showAlertSimple(String msg)           { alert(Alert.AlertType.ERROR,       "Erreur", msg); }
-
-
+    // ══════════════════════════════════════════════════════════════
+    // Alert Helper
+    // ══════════════════════════════════════════════════════════════
     private void alert(Alert.AlertType type, String title, String msg) {
         Alert a = new Alert(type);
         a.setTitle(title);
@@ -468,30 +445,4 @@ public class ProfilEmploye {
         a.setContentText(msg);
         a.showAndWait();
     }
-
-    private void showAlert(Alert.AlertType type, String title, String content) {
-        alert(type, title, content);
-    }
-
-    private void showProgress(String message) {
-        Alert progress = new Alert(Alert.AlertType.INFORMATION);
-        progress.setTitle("En cours...");
-        progress.setHeaderText(null);
-        progress.setContentText(message);
-        progress.show();
-        new Thread(() -> {
-            try {
-                Thread.sleep(2000);
-                javafx.application.Platform.runLater(progress::close);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }).start();
-    }
-    private void navigateToSettings2FA(MouseEvent event) {
-        Settings2FA settings = new Settings2FA();
-        settings.launch();
-    }
-
-
 }

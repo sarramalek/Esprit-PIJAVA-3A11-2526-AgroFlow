@@ -156,7 +156,7 @@ public class PersonneService implements IService<Personne> {
         }
 
         String query = "UPDATE users SET nom=?, prenom=?, tel=?, date_naiss=?, email=?, mdp=?, " +
-                "adresse=?, ville=?, role=?, date_creationcpt=?, date_dernierchg=? WHERE cin=?";
+                "adresse=?, ville=?, role=?, date_creationcpt=?, date_dernierchg=? , img=? WHERE cin=?";
 
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             pst.setString(1, personne.getNom());
@@ -170,7 +170,8 @@ public class PersonneService implements IService<Personne> {
             pst.setInt(9, personne.getRole());
             pst.setString(10, personne.getDate_creationcpt());
             pst.setString(11, personne.getDate_dernierchg());
-            pst.setInt(12, personne.getCin());
+            pst.setInt(13, personne.getCin());
+            pst.setString(12,personne.getPhotoUrl());
             pst.executeUpdate();
         }
     }
@@ -409,17 +410,10 @@ public class PersonneService implements IService<Personne> {
         Personne personne;
 
         switch (role) {
-            case 1:
-                personne = new Utilisateur();
-                break;
-            case 2:
-                personne = new Employe();
-                break;
-            case 3:
-                personne = new Admin();
-                break;
-            default:
-                personne = new Utilisateur();
+            case 1:  personne = new Utilisateur(); break;
+            case 2:  personne = new Employe();     break;
+            case 3:  personne = new Admin();        break;
+            default: personne = new Utilisateur();
         }
 
         personne.setCin(rs.getInt("cin"));
@@ -433,6 +427,9 @@ public class PersonneService implements IService<Personne> {
         personne.setVille(rs.getString("ville"));
         personne.setDate_creationcpt(rs.getString("date_creationcpt"));
         personne.setDate_dernierchg(rs.getString("date_dernierchg"));
+
+        // ✅ FIX 2 : mapper photo_url depuis la BDD
+        personne.setPhotoUrl(rs.getString("img"));
 
         return personne;
     }

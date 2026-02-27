@@ -13,6 +13,12 @@ public abstract class Personne {
     private String date_creationcpt;
     private String date_dernierchg;
 
+    public String getPhotoUrl() {
+        return photoUrl;
+    }
+
+    private String photoUrl;
+
     // Constructeur par défaut
     public Personne() {
     }
@@ -32,6 +38,7 @@ public abstract class Personne {
         this.ville = ville;
         this.date_creationcpt = date_creationcpt;
         this.date_dernierchg = date_dernierchg;
+        this.photoUrl = "";
     }
 
     // Méthode abstraite pour obtenir le rôle
@@ -125,6 +132,9 @@ public abstract class Personne {
 
     public void setDate_dernierchg(String date_dernierchg) {
         this.date_dernierchg = date_dernierchg;
+    }
+    public void setPhotoUrl(String photoUrl) {
+        this.photoUrl = photoUrl;
     }
 
     @Override

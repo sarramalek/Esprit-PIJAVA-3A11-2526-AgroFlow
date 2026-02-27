@@ -5,27 +5,27 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
 <BorderPane prefHeight="700.0" prefWidth="1200.0" style="-fx-background-color: #fcf8e6;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.Events.AfficherEvenementsController">
 
     <!-- SIDEBAR MODERNISÉE -->
     <left>
-        <VBox prefWidth="250" style="-fx-background-color:  #2C3E50;">
+        <VBox prefWidth="250" style="-fx-background-color:  #617e9c;">
             <padding>
                 <Insets bottom="20" top="20" />
             </padding>
 
             <!-- Logo/Header MODERNE -->
-            <HBox alignment="CENTER" spacing="12" style="-fx-padding: 0 0 35 0;">
-                <Label style="-fx-font-size: 32px;" text="🌱" />
-                <VBox alignment="CENTER_LEFT" spacing="2">
-                    <Label style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: white; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 5, 0, 0, 2);" text="AgroFlow">
-                        <font><Font name="System Bold" size="26" /></font>
-                    </Label>
-                    <Label style="-fx-font-size: 11px; -fx-text-fill: rgba(255,255,255,0.7);" text="Gestion Agricole">
-                        <font><Font name="System" size="11" /></font>
-                    </Label>
-                </VBox>
-            </HBox>
+            <StackPane prefWidth="100" prefHeight="100"  >
+                <ImageView fitWidth="200" fitHeight="150" preserveRatio="true">
+                    <image><Image url="/style/logo.png"/></image>
+                </ImageView>
+
+            </StackPane>
+            <padding>
+                <Insets bottom="20" top="20" />
+            </padding>
 
             <!-- Navigation Menu MODERNISÉE -->
             <VBox spacing="10">

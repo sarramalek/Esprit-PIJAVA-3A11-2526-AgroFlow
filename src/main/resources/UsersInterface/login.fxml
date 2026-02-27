@@ -38,27 +38,22 @@
         <padding><Insets top="60" bottom="60" left="100" right="80"/></padding>
 
         <!-- Logo -->
-        <StackPane prefWidth="160" prefHeight="160"
+        <StackPane prefWidth="300" prefHeight="350"
                    style="-fx-background-color: rgba(76,175,80,0.15);
                           -fx-background-radius: 40;
                           -fx-border-color: rgba(76,175,80,0.4);
                           -fx-border-radius: 40;
                           -fx-border-width: 2;
                           -fx-effect: dropshadow(gaussian, rgba(76,175,80,0.25), 20, 0, 0, 4);">
-            <ImageView fitWidth="110" fitHeight="110" preserveRatio="true">
+            <ImageView fitWidth="400" fitHeight="200" preserveRatio="true">
                 <image><Image url="/style/logo.png"/></image>
             </ImageView>
-            <Label text="🌱" style="-fx-font-size: 80px;"/>
+
         </StackPane>
 
         <!-- Nom de l'app -->
         <VBox alignment="CENTER_LEFT" spacing="8">
-            <Label text="AgroFlow"
-                   style="-fx-font-size: 52px; -fx-font-weight: bold;
-                          -fx-text-fill: #1B5E20;
-                          -fx-effect: dropshadow(gaussian, rgba(76,175,80,0.3), 12, 0, 0, 2);">
-                <font><Font name="System Bold" size="52"/></font>
-            </Label>
+
             <Label text="Gérez votre exploitation agricole intelligemment."
                    style="-fx-font-size: 16px; -fx-text-fill: #558B2F;">
                 <font><Font name="System" size="16"/></font>

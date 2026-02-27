@@ -1,8 +1,12 @@
 package controllers.Terrains;
 
 import controllers.User.AcceuilAgricole;
+import javafx.application.Platform;
 import javafx.scene.Node;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.shape.Circle;
 import models.Terrains.rotation;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -30,6 +34,7 @@ import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
+import utils.SessionManager;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -55,11 +60,14 @@ public class agricolerotationController implements Initializable {
     @FXML private VBox rotationsContainer;
     @FXML private Label userNameLabel;
     @FXML private Label userRoleLabel;
-    @FXML private Button logoutBtn;
+    @FXML private Button logoutBtn,gestionBtn;
     private  Personne currentUser;
     @FXML private VBox gestionSubmenu, gestionContainer;
     @FXML private Label welcomeNameLabel;
-
+    //image useer
+    @FXML private ImageView sidebarAvatarImageView;
+    @FXML private Label     sidebarAvatarDefault;
+    @FXML private Circle sidebarAvatarBg;
     private final RotationService rs = new RotationService();
     private List<rotation> toutesRotations;
 
@@ -75,7 +83,68 @@ public class agricolerotationController implements Initializable {
         configurerFiltre();
         configurerRecherche();
         chargerDonneesRotations();
+        this.currentUser = SessionManager.getCurrentUser();
+        if (this.currentUser != null) {
+            System.out.println("✓ currentUser chargé depuis SessionManager: " + currentUser.getNom());
+        } else {
+            System.err.println("✗ SessionManager.getCurrentUser() est NULL !");
+        }
+        chargerSidebarAvatar(SessionManager.getCurrentUser());
+
+        System.out.println("✓ AcceuilAgricole Controller initialisé");
+
+
+
+        if (gestionSubmenu != null) {
+            gestionSubmenu.setVisible(false);
+            gestionSubmenu.setManaged(false);
+        }
+
+        if (gestionBtn != null && gestionContainer != null) {
+            gestionBtn.setOnMouseEntered(e -> showGestionSubmenu());
+            gestionContainer.setOnMouseEntered(e -> showGestionSubmenu());
+            gestionContainer.setOnMouseExited(e -> hideGestionSubmenu());
+        }
     }
+
+    private void chargerSidebarAvatar(Personne user) {
+        if (user == null) return;
+
+        // Nom et rôle
+        if (userNameLabel != null)
+            userNameLabel.setText(user.getPrenom() + " " + user.getNom());
+
+        // Clip circulaire appliqué en Java (radius=35, centre=35,35 pour fitWidth/Height=70)
+        if (sidebarAvatarImageView != null) {
+            Circle clip = new Circle(35, 35, 35);
+            sidebarAvatarImageView.setClip(clip);
+        }
+
+        String photoUrl = user.getPhotoUrl();
+        if (photoUrl == null || photoUrl.isBlank()) return;
+
+        Thread thread = new Thread(() -> {
+            try {
+                Image image = new Image(photoUrl, 70, 70, false, true, true);
+                Platform.runLater(() -> {
+                    if (!image.isError()) {
+                        sidebarAvatarImageView.setImage(image);
+                        sidebarAvatarImageView.setVisible(true);
+                        sidebarAvatarImageView.setManaged(true);
+                        sidebarAvatarDefault.setVisible(false);
+                        if (sidebarAvatarBg != null) sidebarAvatarBg.setVisible(false);
+                    }
+                });
+            } catch (Exception e) {
+                System.err.println("⚠️ Avatar sidebar : " + e.getMessage());
+            }
+        });
+        thread.setDaemon(true);
+        thread.start();
+
+    }
+
+
 
     // ============================================================
     // FILTRE + RECHERCHE DYNAMIQUE
@@ -489,7 +558,7 @@ public class agricolerotationController implements Initializable {
         alert.setContentText(message);
         alert.showAndWait();
     }
-    @FXML private void handleDashboard(MouseEvent event)    { navigateTo(event,"/UsersInterface/AcceuilAgr.fxml","Dashboard"); }
+    @FXML private void handleDashboard(MouseEvent event)    { navigateTo(event,"/UsersInterface/AcceuillAgr.fxml","Dashboard"); }
     @FXML private void handleMesTerrains()  { System.out.println("🌾 Current Page "); }
     @FXML private void handleMesAnimaux()   { System.out.println("🐄 Animaux..."); }
     @FXML private void handleMesStocks()    { System.out.println("📦 Stocks..."); }

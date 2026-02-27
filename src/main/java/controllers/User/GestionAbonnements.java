@@ -1,5 +1,6 @@
 package controllers.User;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -11,14 +12,18 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Circle;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import models.User.Abonnements;
 import models.User.Personne;
 import services.User.AbonnementService;
+import utils.SessionManager;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -50,6 +55,10 @@ public class GestionAbonnements {
 
     // Recherche
     @FXML private TextField searchField;
+    // Image user
+    @FXML private ImageView avatarImageView;
+    @FXML private Label     avatarDefaultLabel;
+    @FXML private Circle avatarBg;
 
     // Table
     @FXML private TableView<Abonnements> abonnementsTable;
@@ -71,6 +80,13 @@ public class GestionAbonnements {
      */
     @FXML
     public void initialize() {
+        this.currentUser = SessionManager.getCurrentUser();
+        if (this.currentUser != null) {
+            System.out.println("✓ currentUser chargé depuis SessionManager: " + currentUser.getNom());
+        } else {
+            System.err.println("✗ SessionManager.getCurrentUser() est NULL !");
+        }
+          chargerAvatarTopBar(SessionManager.getCurrentUser());
 
             // Cacher submenu par défaut
             gestionSubmenu.setVisible(false);
@@ -100,7 +116,46 @@ public class GestionAbonnements {
             showError("Erreur d'initialisation", "Impossible de charger les abonnements");
         }
     }
+    private void chargerAvatarTopBar(Personne user) {
+        if (user == null) return;
 
+        // Afficher le nom
+        if (userNameLabel != null) {
+            userNameLabel.setText(user.getPrenom() + " " + user.getNom());
+        }
+
+        // Charger la photo depuis l'URL Cloudinary dans un thread background
+        String photoUrl = user.getPhotoUrl();
+        if (photoUrl == null || photoUrl.isBlank()) {
+            // Pas de photo → garder l'emoji par défaut, rien à faire
+            return;
+        }
+
+        // Appliquer le clip circulaire en Java (ne fonctionne pas correctement en FXML)
+        Circle clip = new Circle(24, 24, 24);
+        avatarImageView.setClip(clip);
+
+        Thread thread = new Thread(() -> {
+            try {
+                Image image = new Image(photoUrl, 48, 48, false, true, true);
+
+                Platform.runLater(() -> {
+                    if (!image.isError()) {
+                        avatarImageView.setImage(image);
+                        avatarImageView.setVisible(true);
+                        avatarImageView.setManaged(true);
+                        avatarDefaultLabel.setVisible(false);
+                        if (avatarBg != null) avatarBg.setVisible(false);
+                    }
+                });
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        thread.setDaemon(true);
+        thread.start();
+    }
     /**
      * Définir l'utilisateur connecté
      */

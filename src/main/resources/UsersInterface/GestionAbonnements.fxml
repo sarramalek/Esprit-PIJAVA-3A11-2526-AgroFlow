@@ -6,27 +6,28 @@
 <?import javafx.scene.text.*?>
 
 <?import org.controlsfx.control.HyperlinkLabel?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.image.Image?>
 <BorderPane style="-fx-background-color: #fcf8e6;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.User.GestionAbonnements">
 
     <!-- SIDEBAR MODERNISÉE -->
     <left>
-        <VBox prefWidth="250" style="-fx-background-color:  #2C3E50;">
+        <VBox prefWidth="250" style="-fx-background-color:  #617e9c;">
             <padding>
                 <Insets bottom="20" top="20" />
             </padding>
 
             <!-- Logo/Header MODERNE -->
-            <HBox alignment="CENTER" spacing="12" style="-fx-padding: 0 0 35 0;">
-                <Label style="-fx-font-size: 32px;" text="🌱" />
-                <VBox alignment="CENTER_LEFT" spacing="2">
-                    <Label style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: white; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 5, 0, 0, 2);" text="AgroFlow">
-                        <font><Font name="System Bold" size="26" /></font>
-                    </Label>
-                    <Label style="-fx-font-size: 11px; -fx-text-fill: rgba(255,255,255,0.7);" text="Gestion Agricole">
-                        <font><Font name="System" size="11" /></font>
-                    </Label>
-                </VBox>
-            </HBox>
+            <StackPane prefWidth="100" prefHeight="100"  >
+                <ImageView fitWidth="200" fitHeight="150" preserveRatio="true">
+                    <image><Image url="/style/logo.png"/></image>
+                </ImageView>
+
+            </StackPane>
+            <padding>
+                <Insets bottom="20" top="20" />
+            </padding>
 
             <!-- Navigation Menu MODERNISÉE -->
             <VBox spacing="10">
@@ -125,32 +126,61 @@
                 </padding>
 
                 <!-- Top Bar -->
-                <HBox alignment="CENTER_LEFT" spacing="20">
-                    <VBox spacing="5" HBox.hgrow="ALWAYS">
-                        <Label style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;" text="Gestion des Abonnements">
-                            <font><Font name="System Bold" size="28" /></font>
-                        </Label>
-                        <Label style="-fx-font-size: 14px; -fx-text-fill: #7F8C8D;" text="Gérez les souscriptions aux offres">
-                            <font><Font name="System" size="14" /></font>
+                <!-- Top Bar MODERNISÉE -->
+                <HBox alignment="CENTER_LEFT" spacing="25" style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 12, 0, 0, 2);">
+                    <VBox spacing="8" HBox.hgrow="ALWAYS">
+                        <HBox alignment="CENTER_LEFT" spacing="12">
+                            <Label style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #1a237e; -fx-effect: dropshadow(gaussian, rgba(26,35,126,0.2), 3, 0, 0, 1);" text="Gestion d ' Abonnement ">
+                                <font><Font name="System Bold" size="32" /></font>
+                            </Label>
+                            <Label style="-fx-background-color: #E8EAF6; -fx-text-fill: #3949ab; -fx-padding: 6 12; -fx-background-radius: 20; -fx-font-size: 12px; -fx-font-weight: bold;" text="ACTIF">
+                                <font><Font name="System Bold" size="12" /></font>
+                            </Label>
+                        </HBox>
+                        <Label style="-fx-font-size: 15px; -fx-text-fill: #7F8C8D;" text="Gérer et visualiser les Abonnements des Agricoles ">
+                            <font><Font name="System" size="15" /></font>
                         </Label>
                     </VBox>
 
-                    <!-- User Profile -->
-                    <HBox alignment="CENTER" spacing="15">
-                        <Button fx:id="addAbonnementBtn" onAction="#handleAddAbonnement"
-                                style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 14px;
-                                       -fx-padding: 10 20; -fx-background-radius: 8; -fx-cursor: hand;"
-                                text="➕ Nouvel abonnement">
-                            <font><Font name="System" size="14" /></font>
+                    <!-- User Profile MODERNISÉ -->
+                    <HBox alignment="CENTER" spacing="18">
+                        <Button fx:id="addAbonnementBtn" onMouseClicked="#handleAddAbonnement"
+                                style="-fx-background-color: linear-gradient(to right, #4CAF50, #45a049); -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 12 24; -fx-background-radius: 10; -fx-cursor: hand; -fx-font-weight: bold; -fx-effect: dropshadow(gaussian, rgba(76,175,80,0.4), 10, 0, 0, 3);"
+                                text="+ Ajouter un Abonnement ">
+                            <font><Font name="System Bold" size="14" /></font>
                         </Button>
-                        <HyperlinkLabel onMouseClicked="#handleMonProfil" text="Mon Profil"/>
 
-                        <Label fx:id="userNameLabel" style="-fx-font-size: 14px; -fx-text-fill: #2C3E50;" text="Admin">
-                            <font><Font name="System" size="14" /></font>
-                        </Label>
-                        <Label style="-fx-font-size: 24px; -fx-background-color: #ECF0F1; -fx-padding: 8; -fx-background-radius: 50%; -fx-cursor: hand;" text="👤" />
+                        <Separator orientation="VERTICAL" prefHeight="40" style="-fx-background-color: #E0E0E0;" />
+
+                        <HBox alignment="CENTER" spacing="12" style="-fx-cursor: hand;" onMouseClicked="#handleMonProfil">
+                            <VBox alignment="CENTER_RIGHT" spacing="2">
+                                <Label fx:id="userNameLabel" style="-fx-font-size: 15px; -fx-text-fill: #2C3E50; -fx-font-weight: bold;" text="Admin">
+                                    <font><Font name="System Bold" size="15" /></font>
+                                </Label>
+                                <Label style="-fx-font-size: 11px; -fx-text-fill: #95A5A6;" text="Administrateur">
+                                    <font><Font name="System" size="11" /></font>
+                                </Label>
+                            </VBox>
+
+                            <!-- Avatar circulaire : photo si disponible, sinon emoji 👤 -->
+                            <StackPane>
+                                <!-- Fond dégradé (visible si pas de photo) -->
+                                <Circle fx:id="avatarBg" radius="24"
+                                        fill="linear-gradient(to bottom right, #667eea, #764ba2)" />
+                                <!-- Emoji par défaut -->
+                                <Label fx:id="avatarDefaultLabel"
+                                       style="-fx-font-size: 22px; -fx-text-fill: white;"
+                                       text="👤" />
+                                <!-- Photo chargée depuis Cloudinary (clip appliqué en Java) -->
+                                <ImageView fx:id="avatarImageView"
+                                           fitWidth="48" fitHeight="48"
+                                           preserveRatio="false"
+                                           visible="false" managed="false" />
+                            </StackPane>
+                        </HBox>
                     </HBox>
                 </HBox>
+
 
                 <!-- Statistiques Cards -->
                 <HBox spacing="15" alignment="CENTER">

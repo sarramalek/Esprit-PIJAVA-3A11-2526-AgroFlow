@@ -5,14 +5,26 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
 <HBox prefHeight="650.0" prefWidth="1050.0" style="-fx-background-color: #fdfae7;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.Stocks.ajoutercategorieController">
     <children>
-        <VBox prefWidth="250.0" spacing="5.0" style="-fx-background-color: #34495e;">
-            <children>
-                <Label text="AGROFLOW" textFill="WHITE">
-                    <font><Font name="System Bold" size="24.0" /></font>
-                    <VBox.margin><Insets bottom="20.0" left="20.0" top="30.0" /></VBox.margin>
-                </Label>
+        <VBox prefWidth="250" style="-fx-background-color:  #617e9c;">
+            <padding>
+                <Insets bottom="20" top="20" />
+            </padding>
+
+            <!-- Logo/Header MODERNE -->
+            <StackPane prefWidth="100" prefHeight="100"  >
+                <ImageView fitWidth="200" fitHeight="150" preserveRatio="true">
+                    <image><Image url="/style/logo.png"/></image>
+                </ImageView>
+
+            </StackPane>
+            <padding>
+                <Insets bottom="20" top="20" />
+            </padding>            <children>
+
                 <Button alignment="BASELINE_LEFT" onAction="#retourListe" prefHeight="40.0" prefWidth="250.0" style="-fx-background-color: transparent; -fx-text-fill: white;" text="⬅ Retour à la liste">
                     <padding><Insets left="20.0" /></padding>
                 </Button>
