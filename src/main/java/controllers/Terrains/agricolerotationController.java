@@ -1,12 +1,14 @@
 package controllers.Terrains;
 
 import controllers.User.AcceuilAgricole;
+import controllers.User.ProfilEmploye;
 import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Circle;
+import javafx.stage.Modality;
 import models.Terrains.rotation;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -562,8 +564,18 @@ public class agricolerotationController implements Initializable {
     @FXML private void handleMesTerrains()  { System.out.println("🌾 Current Page "); }
     @FXML private void handleMesAnimaux(MouseEvent event)  { navigateTo(event,"/AnimalsInterface/acceuilagricoleanimaux.fxml","Dashboard"); }
     @FXML private void handleMesStocks()    { System.out.println("📦 Stocks..."); }
-    @FXML private void handleMonMateriel()  { System.out.println("🚜 Matériel..."); }
-    @FXML private void handleMonProfil(MouseEvent event )    {navigateTo(event,"/UsersInterface/ProfilEmplye.fxml","Mon Profil");  }
+    @FXML private void handleMonMateriel(MouseEvent mouseEvent)  {         navigateTo(mouseEvent,"/MaterielsInterface/AgricoleAffichageMachine.fxml","Materiels");
+    }
+    @FXML private void handleMonProfil(MouseEvent event )    { try {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/ProfilEmplye.fxml"));
+        Parent root = loader.load();
+        ProfilEmploye ctrl = loader.getController();
+        if (ctrl != null && currentUser != null) ctrl.setCurrentUser(currentUser);
+        Stage s = new Stage();
+        s.setTitle("Mon Profil"); s.setScene(new Scene(root));
+        s.setResizable(true); s.initModality(Modality.APPLICATION_MODAL);
+        s.centerOnScreen(); s.showAndWait();
+    } catch (IOException e) { showError("Erreur"+ e.getMessage()); }  }
 
     // ✓ CORRECT
     @FXML
@@ -692,14 +704,7 @@ public class agricolerotationController implements Initializable {
         if (e.getMessage() != null && e.getMessage().contains("Location is not set")) {
             showInfo("Module à venir",
                     "Le module \"" + title + "\" sera disponible prochainement.");
-        } else if (fxmlPath.contains("MesTerrains") ||
-                fxmlPath.contains("MesAnimaux") ||
-                fxmlPath.contains("MesStocks") ||
-                fxmlPath.contains("MonMateriel")) {
-            // Modules pas encore implémentés
-            showInfo("Fonctionnalité à venir",
-                    "Cette fonctionnalité est en cours de développement.");
-        } else {
+        }  else {
             // Erreur réelle
             showError("Erreur de chargement\n\n" +
                     "Impossible de charger " + title + ".\n" +

@@ -13,7 +13,7 @@ public class ServiceAnimal implements IService<animaux> {
     private Connection cnx;
 
     public ServiceAnimal() {
-        cnx = MyDatabase.getInstance().connection;
+        cnx = MyDatabase.getInstance().getConnection();
     }
 
     @Override

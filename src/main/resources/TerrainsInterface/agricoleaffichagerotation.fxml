@@ -97,7 +97,7 @@
                         <font><Font name="System Bold" size="14" /></font>
                     </Button>
                     <!-- Sous-menu Terrains -->
-                    <VBox fx:id="terrainsSubMenu" spacing="2" style="-fx-padding: 4 0 0 0;" visible="false" managed="false">
+                    <VBox fx:id="terrainsSubMenu" spacing="2" style="-fx-padding: 4 0 0 0;" visible="true" managed="true">
                         <Button onMouseClicked="#ouvrirTerrains" prefHeight="40" prefWidth="230"
                                 style="-fx-background-color: rgba(0,0,0,0.20); -fx-text-fill: white;
                                        -fx-font-size: 13px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 40;
@@ -136,7 +136,7 @@
                         text="📦  Mes Stocks">
                     <font><Font name="System Bold" size="14" /></font>
                 </Button>
-                <Button onAction="#handleMonMateriel" prefHeight="48" prefWidth="230"
+                <Button onMouseClicked="#handleMonMateriel" prefHeight="48" prefWidth="230"
                         style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
                                -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
                                -fx-background-radius: 12; -fx-cursor: hand;"

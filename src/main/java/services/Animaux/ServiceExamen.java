@@ -11,7 +11,7 @@ public class ServiceExamen implements IService<examens> {
     private Connection cnx;
     private ServiceAnimal serviceAn = new ServiceAnimal();
     public ServiceExamen() {
-        cnx = MyDatabase.getInstance().connection;
+        cnx = MyDatabase.getInstance().getConnection();
     }
 
     @Override

@@ -12,7 +12,7 @@ public class ArticleService implements IService<Article> {
     private Connection connection;
 
     public ArticleService() {
-        connection = MyDatabase.getInstance().connection;
+        connection = MyDatabase.getInstance().getConnection();
     }
 
     @Override

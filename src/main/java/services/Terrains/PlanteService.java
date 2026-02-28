@@ -13,7 +13,7 @@ public class PlanteService {
     private Connection connection;
 
     public PlanteService() {
-        connection = MyDatabase.getInstance().connection;
+        connection = MyDatabase.getInstance().getConnection();
     }
 
     // --- AJOUTER ---

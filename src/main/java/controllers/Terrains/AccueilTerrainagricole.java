@@ -1,6 +1,7 @@
 package controllers.Terrains;
 
 import controllers.User.AcceuilAgricole;
+import controllers.User.ProfilEmploye;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -13,6 +14,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import models.User.Personne;
 import services.User.AbonnementService;
@@ -136,8 +138,19 @@ public class AccueilTerrainagricole {
     @FXML private void handleMesTerrains(MouseEvent event)  {System.out.println("current Page !!!!"); }
     @FXML private void handleMesAnimaux(MouseEvent event)  { navigateTo(event,"/AnimalsInterface/acceuilagricoleanimaux.fxml","Dashboard"); }
     @FXML private void handleMesStocks()    { System.out.println("📦 Stocks..."); }
-    @FXML private void handleMonMateriel()  { System.out.println("🚜 Matériel..."); }
-    @FXML private void handleMonProfil(MouseEvent event )    {navigateTo(event,"/UsersInterface/ProfilEmplye.fxml","Mon Profil");  }
+    @FXML private void handleMonMateriel(MouseEvent mouseEvent)  {
+        navigateTo(mouseEvent,"/MaterielsInterface/AgricoleAffichageMachine.fxml","Materiels");
+    }
+    @FXML private void handleMonProfil(MouseEvent event )    { try {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/ProfilEmplye.fxml"));
+        Parent root = loader.load();
+        ProfilEmploye ctrl = loader.getController();
+        if (ctrl != null && currentUser != null) ctrl.setCurrentUser(currentUser);
+        Stage s = new Stage();
+        s.setTitle("Mon Profil"); s.setScene(new Scene(root));
+        s.setResizable(true); s.initModality(Modality.APPLICATION_MODAL);
+        s.centerOnScreen(); s.showAndWait();
+    } catch (IOException e) { showError("Erreur"+ e.getMessage()); }  }
 
     // ✓ CORRECT
     @FXML

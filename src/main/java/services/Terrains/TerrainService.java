@@ -13,7 +13,7 @@ public class TerrainService {
     private Connection connection;
 
     public TerrainService() {
-        connection = MyDatabase.getInstance().connection;
+        connection = MyDatabase.getInstance().getConnection();
     }
 
     // --- AJOUTER ---

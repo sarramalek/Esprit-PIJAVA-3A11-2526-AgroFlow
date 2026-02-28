@@ -250,9 +250,20 @@ public class AcceuilAgricole {
     @FXML private void handleMesTerrains(MouseEvent event )  { navigateTo(event,"/TerrainsInterface/acceuilagricoleterrain.fxml","Mes Terrains"); }
     @FXML private void handleMesAnimaux(MouseEvent event)  { navigateTo(event,"/AnimalsInterface/acceuilagricoleanimaux.fxml","Animaux"); }
     @FXML private void handleMesStocks()    { System.out.println("📦 Stocks..."); }
-    @FXML private void handleMonMateriel()  { System.out.println("🚜 Matériel..."); }
     @FXML private void handleMonProfil()    { System.out.println("👤 Profil..."); }
+    public void ouvrirMaintenance(MouseEvent mouseEvent) {
+        navigateTo(mouseEvent,"/MaterielsInterface/AgricoleAffichageMaintenance.fxml","Maintenance");
+    }
 
+    public void ouvrirAchat(MouseEvent mouseEvent) {
+        navigateTo(mouseEvent,"/MaterielsInterface/AgricoleAffichageAchat.fxml","Maintenance");
+
+    }
+
+    public void ouvrirMachine(MouseEvent mouseEvent) {
+        navigateTo(mouseEvent,"/MaterielsInterface/AgricoleAffichageMachine.fxml","Maintenance");
+
+    }
     // ✓ CORRECT
     @FXML
     private void handleMonAbonnement(MouseEvent event) {

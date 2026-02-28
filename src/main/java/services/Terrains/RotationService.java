@@ -13,7 +13,7 @@ public class RotationService {
     private Connection connection;
 
     public RotationService() {
-        connection = MyDatabase.getInstance().connection;
+        connection = MyDatabase.getInstance().getConnection();
     }
 
     // --- AJOUTER ---

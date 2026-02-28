@@ -5,6 +5,7 @@ import java.net.URL;
 import java.sql.SQLException;
 
 import controllers.User.AcceuilAgricole;
+import controllers.User.ProfilEmploye;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
@@ -528,8 +529,18 @@ void ouvrirStats(ActionEvent event) {
     @FXML private void handleMesAnimaux(MouseEvent mouseEvent)   {         this.changerScene(mouseEvent,"/AnimalsInterface/AfficherAnimaux.fxml");
     }
     @FXML private void handleMesStocks()    { System.out.println("📦 Stocks..."); }
-    @FXML private void handleMonMateriel()  { System.out.println("🚜 Matériel..."); }
-    @FXML private void handleMonProfil(MouseEvent event )    {navigateTo(event,"/UsersInterface/ProfilEmplye.fxml","Mon Profil");  }
+    @FXML private void handleMonMateriel(MouseEvent mouseEvent)  {         navigateTo(mouseEvent,"/MaterielsInterface/AgricoleAffichageMachine.fxml","Materiels");
+    }
+    @FXML private void handleMonProfil(MouseEvent event )    { try {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/ProfilEmplye.fxml"));
+        Parent root = loader.load();
+        ProfilEmploye ctrl = loader.getController();
+        if (ctrl != null && currentUser != null) ctrl.setCurrentUser(currentUser);
+        Stage s = new Stage();
+        s.setTitle("Mon Profil"); s.setScene(new Scene(root));
+        s.setResizable(true); s.initModality(Modality.APPLICATION_MODAL);
+        s.centerOnScreen(); s.showAndWait();
+    } catch (IOException e) { showError("Erreur"+ e.getMessage()); }  }
 
     // ✓ CORRECT
     @FXML

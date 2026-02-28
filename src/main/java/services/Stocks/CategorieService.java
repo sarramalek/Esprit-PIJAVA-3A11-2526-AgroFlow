@@ -12,7 +12,7 @@ public class CategorieService implements IService<Categorie> {
     private Connection connection;
 
     public CategorieService() {
-        connection = MyDatabase.getInstance().connection;
+        connection = MyDatabase.getInstance().getConnection();
     }
 
     @Override

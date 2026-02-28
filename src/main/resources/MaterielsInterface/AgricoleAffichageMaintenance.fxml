@@ -1,0 +1,510 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.image.ImageView?>
+<BorderPane prefHeight="805.0" prefWidth="1520.0"
+            style="-fx-background-color: #F8F9FA;"
+            xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controllers.Materiels.AgricoleMaintenanceController">
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- SIDEBAR AGRICOLE                               -->
+    <!-- ══════════════════════════════════════════════ -->
+    <left>
+        <VBox prefWidth="250" style="-fx-background-color: linear-gradient(to bottom, #2E7D32, #388E3C, #43A047);">
+            <padding><Insets bottom="20" top="20" /></padding>
+
+            <!-- Logo -->
+            <HBox alignment="CENTER" spacing="12" style="-fx-padding: 0 0 20 0;">
+                <Label style="-fx-font-size: 32px;" text="🌱" />
+                <VBox alignment="CENTER_LEFT" spacing="2">
+                    <Label style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: white;" text="AgroFlow">
+                        <font><Font name="System Bold" size="26" /></font>
+                    </Label>
+                    <Label style="-fx-font-size: 11px; -fx-text-fill: rgba(255,255,255,0.7);" text="Mon Exploitation">
+                        <font><Font name="System" size="11" /></font>
+                    </Label>
+                </VBox>
+            </HBox>
+            <!-- Info Utilisateur avec Hyperlink À Propos -->
+            <VBox alignment="CENTER" spacing="8"
+                  style="-fx-background-color: rgba(255,255,255,0.1); -fx-background-radius: 15; -fx-padding: 20; -fx-margin: 10;">
+
+                <!-- Avatar circulaire -->
+                <StackPane>
+                    <!-- Fond dégradé (visible par défaut) -->
+                    <Circle fx:id="sidebarAvatarBg" radius="35"
+                            fill="rgba(255,255,255,0.2)" />
+                    <!-- Emoji par défaut -->
+                    <Label fx:id="sidebarAvatarDefault"
+                           style="-fx-font-size: 30px;"
+                           text="👨‍🌾" />
+                    <!-- Photo Cloudinary (cachée par défaut, clip appliqué en Java) -->
+                    <ImageView fx:id="sidebarAvatarImageView"
+                               fitWidth="70" fitHeight="70"
+                               preserveRatio="false"
+                               visible="false" managed="false" />
+                </StackPane>
+
+                <Label fx:id="userNameLabel"
+                       style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;"
+                       text="Nom Agriculteur">
+                    <font><Font name="System Bold" size="16" /></font>
+                </Label>
+                <Label fx:id="userRoleLabel"
+                       style="-fx-font-size: 12px; -fx-text-fill: rgba(255,255,255,0.8);
+                  -fx-background-color: rgba(76,175,80,0.3); -fx-padding: 4 12;
+                  -fx-background-radius: 15;"
+                       text="🌾 AGRICULTEUR">
+                    <font><Font name="System Bold" size="12" /></font>
+                </Label>
+                <!-- Hyperlink À Propos -->
+                <Hyperlink fx:id="aproposLink" text="👤 À propos de moi"
+                           onMouseClicked="#handleMonProfil"
+                           style="-fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 13px;
+                      -fx-border-color: rgba(255,255,255,0.4); -fx-padding: 5 15;
+                      -fx-background-radius: 20; -fx-border-radius: 20;
+                      -fx-cursor: hand;">
+                    <font><Font name="System" size="13" /></font>
+                </Hyperlink>
+            </VBox>
+
+
+            <!-- Navigation Menu -->
+            <VBox spacing="8" style="-fx-padding: 20 0 0 0;">
+                <Button onMouseClicked="#handleDashboardAgricole" prefHeight="48" prefWidth="230"
+                        style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
+                               -fx-font-size: 14px; -fx-alignment: CENTER-LEFT;
+                               -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand;"
+                        text="📊  Acceuil ">
+                    <font><Font name="System Bold" size="14" /></font>
+                </Button>
+
+                <!-- Mes Terrains avec sous-menu (ouvert par défaut ici) -->
+                <VBox spacing="0">
+                    <Button onMouseClicked="#handleMesTerrains" prefHeight="48" prefWidth="230"
+                            style="-fx-background-color: linear-gradient(to right, #4CAF50, #45a049);
+                                   -fx-text-fill: white; -fx-font-size: 14px; -fx-alignment: CENTER-LEFT;
+                                   -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand;"
+                            text="🌾  Mes Terrains  ▾">
+                        <font><Font name="System Bold" size="14" /></font>
+                    </Button>
+
+                    <!-- Sous-menu Terrains -->
+                    <VBox fx:id="terrainsSubMenu" spacing="2" style="-fx-padding: 4 0 0 0;" visible="false" managed="false">
+                        <Button onMouseClicked="#ouvrirTerrains" prefHeight="40" prefWidth="230"
+                                style="-fx-background-color: rgba(0,0,0,0.20); -fx-text-fill: white;
+                                       -fx-font-size: 13px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 40;
+                                       -fx-background-radius: 10; -fx-cursor: hand;"
+                                text="🚜  Terrains">
+                            <font><Font name="System Bold" size="13" /></font>
+                        </Button>
+                        <Button onMouseClicked="#ouvrirPlantes" prefHeight="40" prefWidth="230"
+                                style="-fx-background-color: rgba(0,0,0,0.15); -fx-text-fill: rgba(255,255,255,0.9);
+                                       -fx-font-size: 13px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 40;
+                                       -fx-background-radius: 10; -fx-cursor: hand;"
+                                text="🌱  Plantes">
+                            <font><Font name="System" size="13" /></font>
+                        </Button>
+                        <Button onMouseClicked="#ouvrirRotations" prefHeight="40" prefWidth="230"
+                                style="-fx-background-color: rgba(0,0,0,0.15); -fx-text-fill: rgba(255,255,255,0.9);
+                                       -fx-font-size: 13px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 40;
+                                       -fx-background-radius: 10; -fx-cursor: hand;"
+                                text="📋  Rotations">
+                            <font><Font name="System" size="13" /></font>
+                        </Button>
+                    </VBox>
+                </VBox>
+
+                <Button onMouseClicked="#handleMesAnimaux" prefHeight="48" prefWidth="230"
+                        style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
+                               -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
+                               -fx-background-radius: 12; -fx-cursor: hand;"
+                        text="🐄  Mes Animaux">
+                    <font><Font name="System Bold" size="14" /></font>
+                </Button>
+                <Button onAction="#handleMesStocks" prefHeight="48" prefWidth="230"
+                        style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
+                               -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
+                               -fx-background-radius: 12; -fx-cursor: hand;"
+                        text="📦  Mes Stocks">
+                    <font><Font name="System Bold" size="14" /></font>
+                </Button>
+                <Button onAction="#handleMonMateriel" prefHeight="48" prefWidth="230"
+                        style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
+                               -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
+                               -fx-background-radius: 12; -fx-cursor: hand;"
+                        text="🚜  Mon Matériel">
+                    <font><Font name="System Bold" size="14" /></font>
+                </Button>
+                <!-- Sous-menu Terrains -->
+                <VBox fx:id="MaterielsSubMenu" spacing="2" style="-fx-padding: 4 0 0 0;" visible="true" managed="true">
+                    <Button onMouseClicked="#ouvrirAchat" prefHeight="40" prefWidth="230"
+                            style="-fx-background-color: rgba(0,0,0,0.20); -fx-text-fill: white;
+                                       -fx-font-size: 13px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 40;
+                                       -fx-background-radius: 10; -fx-cursor: hand;"
+                            text="🚜  Achat">
+                        <font><Font name="System Bold" size="13" /></font>
+                    </Button>
+                    <Button onMouseClicked="#ouvrirMachine" prefHeight="40" prefWidth="230"
+                            style="-fx-background-color: rgba(0,0,0,0.15); -fx-text-fill: rgba(255,255,255,0.9);
+                                       -fx-font-size: 13px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 40;
+                                       -fx-background-radius: 10; -fx-cursor: hand;"
+                            text="🌱  Machine">
+                        <font><Font name="System" size="13" /></font>
+                    </Button>
+                    <Button onMouseClicked="#ouvrirMaintenance" prefHeight="40" prefWidth="230"
+                            style="-fx-background-color: rgba(0,0,0,0.15); -fx-text-fill: rgba(255,255,255,0.9);
+                                       -fx-font-size: 13px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 40;
+                                       -fx-background-radius: 10; -fx-cursor: hand;"
+                            text="📋  Mainetenance">
+                        <font><Font name="System" size="13" /></font>
+                    </Button>
+                </VBox>
+                <Button onMouseClicked="#handleMonAbonnement" prefHeight="48" prefWidth="230"
+                        style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
+                               -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
+                               -fx-background-radius: 12; -fx-cursor: hand;"
+                        text="💳  Mes Abonnements">
+                    <font><Font name="System Bold" size="14" /></font>
+                </Button>
+            </VBox>
+
+            <Region VBox.vgrow="ALWAYS" />
+
+            <Button fx:id="logoutBtn" onAction="#handleLogout" prefHeight="50" prefWidth="230"
+                    style="-fx-background-color: #E74C3C; -fx-text-fill: white; -fx-font-size: 14px;
+                           -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22; -fx-background-radius: 12;
+                           -fx-cursor: hand;"
+                    text="🚪  Déconnexion">
+                <font><Font name="System Bold" size="14" /></font>
+            </Button>
+        </VBox>
+    </left>
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- CONTENU PRINCIPAL                              -->
+    <!-- ══════════════════════════════════════════════ -->
+    <center>
+        <ScrollPane fitToWidth="true"
+                    style="-fx-background-color: #F8F9FA; -fx-border-color: transparent;">
+            <VBox spacing="25" style="-fx-background-color: #F8F9FA;">
+                <padding><Insets bottom="35" left="35" right="35" top="35" /></padding>
+
+                <!-- ── TOP BAR ── -->
+                <HBox alignment="CENTER_LEFT" spacing="12"
+                      style="-fx-background-color: white; -fx-background-radius: 15;
+                             -fx-padding: 18;
+                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 12, 0, 0, 2);">
+
+                    <!-- Retour -->
+                    <Button onMouseClicked="#handleDashboardAgricole"
+                            style="-fx-background-color: #EAF5EA; -fx-text-fill: #2D5A27;
+                                   -fx-cursor: hand; -fx-background-radius: 20;
+                                   -fx-font-size: 12px; -fx-font-weight: bold; -fx-padding: 9 18;
+                                   -fx-border-color: #A8C69F; -fx-border-radius: 20;
+                                   -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 4, 0, 0, 1);"
+                            text="⬅  Retour Accueil">
+                        <font><Font name="System Bold" size="12" /></font>
+                    </Button>
+
+                    <Region HBox.hgrow="ALWAYS" />
+
+                    <!-- Titre centré -->
+                    <VBox spacing="4" alignment="CENTER">
+                        <Label style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2E7D32;"
+                               text="🔧  Mes Maintenances">
+                            <font><Font name="System Bold" size="24" /></font>
+                        </Label>
+                        <Label style="-fx-font-size: 13px; -fx-text-fill: #7F8C8D;"
+                               text="Consultez l'historique des maintenances de vos machines" />
+                    </VBox>
+
+                    <Region HBox.hgrow="ALWAYS" />
+
+                    <!-- ══ BOUTON EXPORT PDF PRINCIPAL ══ -->
+                    <Button onAction="#exporterMaintenancesPDF"
+                            style="-fx-background-color: linear-gradient(to right, #c0392b, #e74c3c);
+                                   -fx-text-fill: white; -fx-cursor: hand; -fx-background-radius: 20;
+                                   -fx-font-size: 12px; -fx-font-weight: bold; -fx-padding: 9 20;
+                                   -fx-effect: dropshadow(gaussian, rgba(192,57,43,0.45), 6, 0, 0, 2);"
+                            text="📄  Exporter PDF">
+                        <font><Font name="System Bold" size="12" /></font>
+                    </Button>
+
+                    <!-- Analyse coût -->
+                    <Button onAction="#ouvrirAnalyseCout"
+                            style="-fx-background-color: linear-gradient(to right, #1565C0, #1976D2);
+                                   -fx-text-fill: white; -fx-cursor: hand; -fx-background-radius: 20;
+                                   -fx-font-size: 12px; -fx-font-weight: bold; -fx-padding: 9 20;
+                                   -fx-effect: dropshadow(gaussian, rgba(21,101,192,0.4), 6, 0, 0, 2);"
+                            text="🏭  Analyse Coût Machine">
+                        <font><Font name="System Bold" size="12" /></font>
+                    </Button>
+
+                    <!-- Stats graphiques -->
+                    <Button onAction="#afficherStatistiques"
+                            style="-fx-background-color: linear-gradient(to right, #4A235A, #7D3C98);
+                                   -fx-text-fill: white; -fx-cursor: hand; -fx-background-radius: 20;
+                                   -fx-font-size: 12px; -fx-font-weight: bold; -fx-padding: 9 20;
+                                   -fx-effect: dropshadow(gaussian, rgba(74,35,90,0.4), 6, 0, 0, 2);"
+                            text="📊  Stats Graphiques">
+                        <font><Font name="System Bold" size="12" /></font>
+                    </Button>
+
+                    <!-- Icône déco -->
+                    <Label style="-fx-font-size: 26px;
+                                  -fx-background-color: linear-gradient(to bottom right, #4CAF50, #388E3C);
+                                  -fx-text-fill: white; -fx-padding: 14; -fx-background-radius: 50%;
+                                  -fx-min-width: 54; -fx-min-height: 54; -fx-alignment: center;"
+                           text="🔧" />
+                </HBox>
+
+                <!-- ── LISTE MAINTENANCES ── -->
+                <VBox spacing="15"
+                      style="-fx-background-color: white; -fx-background-radius: 15;
+                             -fx-padding: 25;
+                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 15, 0, 0, 3);">
+
+                    <HBox alignment="CENTER_LEFT" spacing="15">
+                        <Label style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;"
+                               text="🔧  Mes Maintenances">
+                            <font><Font name="System Bold" size="20" /></font>
+                        </Label>
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Label fx:id="lblSelectionInfo"
+                               style="-fx-font-size: 12px; -fx-text-fill: #7F8C8D;
+                                      -fx-font-style: italic;"
+                               text="Cliquez sur une ligne pour voir les détails" />
+                    </HBox>
+
+                    <!-- ── BARRE RECHERCHE + FILTRES ── -->
+                    <VBox spacing="10"
+                          style="-fx-background-color: #EAF5EA; -fx-padding: 14;
+                                 -fx-background-radius: 12; -fx-border-color: #A8C69F;
+                                 -fx-border-radius: 12; -fx-border-width: 1;">
+
+                        <!-- Ligne 1 : Recherche -->
+                        <HBox spacing="12" alignment="CENTER_LEFT">
+                            <Label style="-fx-font-size: 13px; -fx-font-weight: bold;
+                                          -fx-text-fill: #2D5A27;"
+                                   text="🔍 Recherche :">
+                                <font><Font name="System Bold" size="13" /></font>
+                            </Label>
+                            <TextField fx:id="champRecherche"
+                                       promptText="Machine, type de panne, description, coût..."
+                                       prefHeight="38" prefWidth="340"
+                                       onKeyReleased="#rechercher"
+                                       style="-fx-background-color: white;
+                                              -fx-border-color: #A8C69F;
+                                              -fx-border-radius: 20; -fx-background-radius: 20;
+                                              -fx-font-size: 13px; -fx-padding: 0 15;" />
+                            <Button onAction="#effacerRecherche" prefHeight="38"
+                                    style="-fx-background-color: white; -fx-text-fill: #2D5A27;
+                                           -fx-cursor: hand; -fx-background-radius: 20;
+                                           -fx-border-color: #A8C69F; -fx-border-radius: 20;
+                                           -fx-font-size: 12px; -fx-padding: 0 16;"
+                                    text="↺  Reset">
+                                <font><Font name="System" size="12" /></font>
+                            </Button>
+                        </HBox>
+
+                        <!-- Ligne 2 : Filtres + Tri -->
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+
+                            <Label style="-fx-font-size: 12px; -fx-font-weight: bold;
+                                          -fx-text-fill: #2D5A27;" text="🚜 Machine :">
+                                <font><Font name="System Bold" size="12" /></font>
+                            </Label>
+                            <ComboBox fx:id="comboMachine" promptText="Toutes les machines"
+                                      prefWidth="175" prefHeight="36"
+                                      onAction="#filtrer"
+                                      style="-fx-background-radius: 10; -fx-font-size: 12px;
+                                             -fx-background-color: white;
+                                             -fx-border-color: #A8C69F; -fx-border-radius: 10;" />
+
+                            <Label style="-fx-font-size: 12px; -fx-font-weight: bold;
+                                          -fx-text-fill: #2D5A27;" text="🔧 Type :">
+                                <font><Font name="System Bold" size="12" /></font>
+                            </Label>
+                            <ComboBox fx:id="comboTypePanne" promptText="Tous les types"
+                                      prefWidth="160" prefHeight="36"
+                                      onAction="#filtrer"
+                                      style="-fx-background-radius: 10; -fx-font-size: 12px;
+                                             -fx-background-color: white;
+                                             -fx-border-color: #A8C69F; -fx-border-radius: 10;" />
+
+                            <Button onAction="#reinitialiserFiltres" prefHeight="36"
+                                    style="-fx-background-color: #7F8C8D; -fx-text-fill: white;
+                                           -fx-font-size: 12px; -fx-font-weight: bold;
+                                           -fx-background-radius: 20; -fx-cursor: hand;
+                                           -fx-padding: 0 14;"
+                                    text="↺ Réinit.">
+                                <font><Font name="System Bold" size="12" /></font>
+                            </Button>
+
+                            <Region HBox.hgrow="ALWAYS" />
+
+                            <Label style="-fx-font-size: 12px; -fx-font-weight: bold;
+                                          -fx-text-fill: #2D5A27;" text="📅 Trier :">
+                                <font><Font name="System Bold" size="12" /></font>
+                            </Label>
+                            <Button onAction="#trierPlusRecent" prefHeight="36"
+                                    style="-fx-background-color: #2980b9; -fx-text-fill: white;
+                                           -fx-font-size: 11px; -fx-font-weight: bold;
+                                           -fx-background-radius: 20; -fx-cursor: hand;
+                                           -fx-padding: 0 12;"
+                                    text="🔼 Récent">
+                                <font><Font name="System Bold" size="11" /></font>
+                            </Button>
+                            <Button onAction="#trierPlusAncien" prefHeight="36"
+                                    style="-fx-background-color: #7F8C8D; -fx-text-fill: white;
+                                           -fx-font-size: 11px; -fx-font-weight: bold;
+                                           -fx-background-radius: 20; -fx-cursor: hand;
+                                           -fx-padding: 0 12;"
+                                    text="🔽 Ancien">
+                                <font><Font name="System Bold" size="11" /></font>
+                            </Button>
+                            <Button onAction="#trierCoutEleve" prefHeight="36"
+                                    style="-fx-background-color: #E74C3C; -fx-text-fill: white;
+                                           -fx-font-size: 11px; -fx-font-weight: bold;
+                                           -fx-background-radius: 20; -fx-cursor: hand;
+                                           -fx-padding: 0 12;"
+                                    text="💸 Coût ↑">
+                                <font><Font name="System Bold" size="11" /></font>
+                            </Button>
+                            <Button onAction="#trierCoutFaible" prefHeight="36"
+                                    style="-fx-background-color: #27AE60; -fx-text-fill: white;
+                                           -fx-font-size: 11px; -fx-font-weight: bold;
+                                           -fx-background-radius: 20; -fx-cursor: hand;
+                                           -fx-padding: 0 12;"
+                                    text="💰 Coût ↓">
+                                <font><Font name="System Bold" size="11" /></font>
+                            </Button>
+                            <Button onAction="#trierMachineAZ" prefHeight="36"
+                                    style="-fx-background-color: #8E44AD; -fx-text-fill: white;
+                                           -fx-font-size: 11px; -fx-font-weight: bold;
+                                           -fx-background-radius: 20; -fx-cursor: hand;
+                                           -fx-padding: 0 12;"
+                                    text="🔠 A→Z">
+                                <font><Font name="System Bold" size="11" /></font>
+                            </Button>
+                        </HBox>
+                    </VBox>
+
+                    <!-- ── TABLEAU LECTURE SEULE ── -->
+                    <TableView fx:id="tableMaintenances" VBox.vgrow="ALWAYS" prefHeight="340"
+                               style="-fx-background-color: white; -fx-border-color: #A8C69F;
+                                      -fx-border-width: 1; -fx-border-radius: 12;
+                                      -fx-background-radius: 12;">
+                        <columns>
+                            <TableColumn fx:id="colMachine"     text="Machine"     prefWidth="160" minWidth="120"/>
+                            <TableColumn fx:id="colTypePanne"   text="Type Panne"  prefWidth="150" minWidth="110"/>
+                            <TableColumn fx:id="colDate"        text="Date"        prefWidth="110" minWidth="90"/>
+                            <TableColumn fx:id="colCout"        text="Coût (DT)"   prefWidth="120" minWidth="90"/>
+                            <TableColumn fx:id="colDescription" text="Description" prefWidth="460" minWidth="200"/>
+                        </columns>
+                        <placeholder>
+                            <Label text="Aucune maintenance trouvée pour ces critères."
+                                   style="-fx-text-fill: #A8C69F; -fx-font-style: italic;
+                                          -fx-font-size: 14px; -fx-padding: 40;" />
+                        </placeholder>
+                    </TableView>
+
+                    <!-- ── CARTES STATISTIQUES BAS ── -->
+                    <HBox spacing="12" alignment="CENTER">
+
+                        <VBox alignment="CENTER" spacing="4" prefHeight="85"
+                              HBox.hgrow="ALWAYS" maxWidth="Infinity"
+                              style="-fx-background-color: white; -fx-padding: 12 10;
+                                     -fx-border-color: #3498db; -fx-border-width: 0 0 0 5;
+                                     -fx-background-radius: 12;
+                                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);">
+                            <Label style="-fx-font-size: 10px; -fx-text-fill: #7F8C8D;
+                                          -fx-font-weight: bold;" text="📋 Total" />
+                            <Label fx:id="lblTotalBas" text="0"
+                                   style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #3498db;">
+                                <font><Font name="System Bold" size="28" /></font>
+                            </Label>
+                            <Label fx:id="lblPctTotal" text="100%"
+                                   style="-fx-font-size: 11px; -fx-text-fill: #3498db;" />
+                        </VBox>
+
+                        <VBox alignment="CENTER" spacing="4" prefHeight="85"
+                              HBox.hgrow="ALWAYS" maxWidth="Infinity"
+                              style="-fx-background-color: white; -fx-padding: 12 10;
+                                     -fx-border-color: #27ae60; -fx-border-width: 0 0 0 5;
+                                     -fx-background-radius: 12;
+                                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);">
+                            <Label style="-fx-font-size: 10px; -fx-text-fill: #7F8C8D;
+                                          -fx-font-weight: bold;" text="💰 Coût Total" />
+                            <Label fx:id="lblCoutTotalBas" text="0.00 DT"
+                                   style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #27ae60;">
+                                <font><Font name="System Bold" size="18" /></font>
+                            </Label>
+                            <Label fx:id="lblPctCoutEleve" text="—"
+                                   style="-fx-font-size: 11px; -fx-text-fill: #27ae60;" />
+                        </VBox>
+
+                        <VBox alignment="CENTER" spacing="4" prefHeight="85"
+                              HBox.hgrow="ALWAYS" maxWidth="Infinity"
+                              style="-fx-background-color: white; -fx-padding: 12 10;
+                                     -fx-border-color: #f39c12; -fx-border-width: 0 0 0 5;
+                                     -fx-background-radius: 12;
+                                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);">
+                            <Label style="-fx-font-size: 10px; -fx-text-fill: #7F8C8D;
+                                          -fx-font-weight: bold;" text="📊 Coût Moyen" />
+                            <Label fx:id="lblCoutMoyenBas" text="0.00 DT"
+                                   style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #f39c12;">
+                                <font><Font name="System Bold" size="18" /></font>
+                            </Label>
+                            <Label fx:id="lblPctSousLaMoyenne" text="—"
+                                   style="-fx-font-size: 11px; -fx-text-fill: #f39c12;" />
+                        </VBox>
+
+                        <VBox alignment="CENTER" spacing="4" prefHeight="85"
+                              HBox.hgrow="ALWAYS" maxWidth="Infinity"
+                              style="-fx-background-color: white; -fx-padding: 12 10;
+                                     -fx-border-color: #e74c3c; -fx-border-width: 0 0 0 5;
+                                     -fx-background-radius: 12;
+                                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);">
+                            <Label style="-fx-font-size: 10px; -fx-text-fill: #7F8C8D;
+                                          -fx-font-weight: bold;" text="🏭 Machine Coûteuse" />
+                            <Label fx:id="lblMachineCouteuseBas" text="—"
+                                   style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #e74c3c;">
+                                <font><Font name="System Bold" size="14" /></font>
+                            </Label>
+                            <Label fx:id="lblPctMachine" text="—"
+                                   style="-fx-font-size: 11px; -fx-text-fill: #e74c3c;" />
+                        </VBox>
+
+                        <VBox alignment="CENTER" spacing="4" prefHeight="85"
+                              HBox.hgrow="ALWAYS" maxWidth="Infinity"
+                              style="-fx-background-color: white; -fx-padding: 12 10;
+                                     -fx-border-color: #9b59b6; -fx-border-width: 0 0 0 5;
+                                     -fx-background-radius: 12;
+                                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);">
+                            <Label style="-fx-font-size: 10px; -fx-text-fill: #7F8C8D;
+                                          -fx-font-weight: bold;" text="🔧 Type Dominant" />
+                            <Label fx:id="lblTypeDominant" text="—"
+                                   style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #9b59b6;">
+                                <font><Font name="System Bold" size="14" /></font>
+                            </Label>
+                            <Label fx:id="lblNbTypeDominant" text="—"
+                                   style="-fx-font-size: 11px; -fx-text-fill: #9b59b6;" />
+                        </VBox>
+
+                    </HBox>
+
+                </VBox>
+            </VBox>
+        </ScrollPane>
+    </center>
+
+</BorderPane>
