@@ -3,6 +3,7 @@ package controllers;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -12,6 +13,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
+import models.CategorieEvenement;
 import models.Evenement;
 import services.CategorieEvenementService;
 import services.EvenementService;
@@ -19,109 +21,128 @@ import services.EvenementService;
 import java.io.IOException;
 import java.sql.Date;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class AfficherEvenementsController {
 
-    @FXML
-    private TableView<Evenement> eventsTable;
+    @FXML private TableView<Evenement> eventsTable;
+    @FXML private TableColumn<Evenement, String> titreColumn;
+    @FXML private TableColumn<Evenement, String> typeColumn;
+    @FXML private TableColumn<Evenement, Date> dateDebutColumn;
+    @FXML private TableColumn<Evenement, Date> dateFinColumn;
+    @FXML private TableColumn<Evenement, String> lieuColumn;
+    @FXML private TableColumn<Evenement, String> categorieColumn;
+    @FXML private TableColumn<Evenement, String> statutColumn;
+    @FXML private TableColumn<Evenement, Void> actionsColumn;
 
-    @FXML
-    private TableColumn<Evenement, String> titreColumn;
-
-    @FXML
-    private TableColumn<Evenement, String> typeColumn;
-
-    @FXML
-    private TableColumn<Evenement, Date> dateDebutColumn;
-
-    @FXML
-    private TableColumn<Evenement, Date> dateFinColumn;
-
-    @FXML
-    private TableColumn<Evenement, String> lieuColumn;
-
-    @FXML
-    private TableColumn<Evenement, String> categorieColumn;
-
-    @FXML
-    private TableColumn<Evenement, String> statutColumn;
-
-    @FXML
-    private TableColumn<Evenement, Void> actionsColumn;
-
-    @FXML
-    private TextField searchField;
+    // Filtres
+    @FXML private TextField searchField;
+    @FXML private DatePicker filterDateDebut;
+    @FXML private DatePicker filterDateFin;
+    @FXML private TextField filterLieu;
+    @FXML private ComboBox<String> filterStatut;
+    @FXML private ComboBox<String> filterCategorie;
+    @FXML private Label resultsCountLabel;
 
     private final EvenementService evenementService = new EvenementService();
     private final CategorieEvenementService categorieService = new CategorieEvenementService();
+
     private ObservableList<Evenement> evenements;
+    private FilteredList<Evenement> filteredData;
+    private final Map<String, Integer> categoriesMap = new HashMap<>();
 
     // ================= INITIALIZATION =================
     @FXML
     public void initialize() {
         initColumns();
+        initFilters();
+
         try {
             loadEvenements();
+            setupReactiveSearch();
         } catch (SQLException e) {
             showError("Erreur", "Impossible de charger les événements : " + e.getMessage());
         }
     }
 
+    // ================= INITIALISATION DES FILTRES =================
+    private void initFilters() {
+        // Remplir ComboBox Statut
+        filterStatut.getItems().addAll("Tous les statuts", "Planifié", "Annulé", "Terminé");
+        filterStatut.setValue("Tous les statuts");
+
+        // Charger les catégories
+        try {
+            List<CategorieEvenement> categories = categorieService.recuperer();
+            filterCategorie.getItems().add("Toutes");
+            for (CategorieEvenement cat : categories) {
+                String nom = cat.getNom_categorie();
+                filterCategorie.getItems().add(nom);
+                categoriesMap.put(nom, cat.getId_categorie());
+            }
+            filterCategorie.setValue("Toutes");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        // Listeners pour filtrage automatique
+        filterStatut.setOnAction(e -> appliquerFiltres());
+        filterCategorie.setOnAction(e -> appliquerFiltres());
+        filterDateDebut.setOnAction(e -> appliquerFiltres());
+        filterDateFin.setOnAction(e -> appliquerFiltres());
+
+        // Listener pour le champ lieu (avec petit délai)
+        filterLieu.textProperty().addListener((obs, old, newVal) -> appliquerFiltres());
+    }
+
     // ================= TABLE COLUMNS =================
     private void initColumns() {
-        // Colonnes simples
         titreColumn.setCellValueFactory(new PropertyValueFactory<>("titre"));
         typeColumn.setCellValueFactory(new PropertyValueFactory<>("typeEvenement"));
         lieuColumn.setCellValueFactory(new PropertyValueFactory<>("lieu"));
         statutColumn.setCellValueFactory(new PropertyValueFactory<>("statut"));
 
-        // Formatage des dates
+        // Dates formatées
         dateDebutColumn.setCellValueFactory(new PropertyValueFactory<>("dateDebut"));
-        dateDebutColumn.setCellFactory(col -> new TableCell<Evenement, Date>() {
-            private final SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+        dateDebutColumn.setCellFactory(col -> new TableCell<>() {
+            private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
             @Override
             protected void updateItem(Date date, boolean empty) {
                 super.updateItem(date, empty);
-                if (empty || date == null) {
-                    setText(null);
-                } else {
-                    setText(format.format(date));
-                }
+                setText(empty || date == null ? null : formatter.format(date.toLocalDate()));
             }
         });
 
         dateFinColumn.setCellValueFactory(new PropertyValueFactory<>("dateFin"));
-        dateFinColumn.setCellFactory(col -> new TableCell<Evenement, Date>() {
-            private final SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+        dateFinColumn.setCellFactory(col -> new TableCell<>() {
+            private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
             @Override
             protected void updateItem(Date date, boolean empty) {
                 super.updateItem(date, empty);
-                if (empty || date == null) {
-                    setText(null);
-                } else {
-                    setText(format.format(date));
-                }
+                setText(empty || date == null ? null : formatter.format(date.toLocalDate()));
             }
         });
 
-        // Colonne catégorie : afficher le nom au lieu de l'ID
+        // Catégorie : afficher le nom
         categorieColumn.setCellValueFactory(cellData -> {
             try {
                 int idCategorie = cellData.getValue().getIdCategorie();
                 String nomCategorie = categorieService.getNomCategorieById(idCategorie);
                 return new SimpleStringProperty(nomCategorie);
             } catch (SQLException e) {
-                e.printStackTrace();
                 return new SimpleStringProperty("Erreur");
             }
         });
 
-        // Styliser la colonne statut avec des couleurs
-        statutColumn.setCellFactory(col -> new TableCell<Evenement, String>() {
+        // Statut avec couleurs
+        statutColumn.setCellFactory(col -> new TableCell<>() {
             @Override
             protected void updateItem(String statut, boolean empty) {
                 super.updateItem(statut, empty);
@@ -132,16 +153,14 @@ public class AfficherEvenementsController {
                     setText(statut);
                     switch (statut.toLowerCase()) {
                         case "planifié":
-                            setStyle("-fx-background-color: #E8F5E9; -fx-text-fill: #2E7D32; -fx-font-weight: bold;");
+                            setStyle("-fx-background-color: #E8F5E9; -fx-text-fill: #2E7D32; -fx-font-weight: bold; -fx-background-radius: 4;");
                             break;
                         case "terminé":
-                            setStyle("-fx-background-color: #E3F2FD; -fx-text-fill: #1976D2; -fx-font-weight: bold;");
+                            setStyle("-fx-background-color: #E3F2FD; -fx-text-fill: #1976D2; -fx-font-weight: bold; -fx-background-radius: 4;");
                             break;
                         case "annulé":
-                            setStyle("-fx-background-color: #FFEBEE; -fx-text-fill: #C62828; -fx-font-weight: bold;");
+                            setStyle("-fx-background-color: #FFEBEE; -fx-text-fill: #C62828; -fx-font-weight: bold; -fx-background-radius: 4;");
                             break;
-                        default:
-                            setStyle("");
                     }
                 }
             }
@@ -153,14 +172,107 @@ public class AfficherEvenementsController {
     // ================= LOAD DATA =================
     private void loadEvenements() throws SQLException {
         evenements = FXCollections.observableArrayList(evenementService.recuperer());
-        eventsTable.setItems(evenements);
-        System.out.println("✅ " + evenements.size() + " événements chargés");
+        filteredData = new FilteredList<>(evenements, e -> true);
+        eventsTable.setItems(filteredData);
+        updateResultsCount();
+    }
+
+    // ================= RECHERCHE RÉACTIVE =================
+    private void setupReactiveSearch() {
+        searchField.textProperty().addListener((obs, old, newVal) -> appliquerFiltres());
+    }
+
+    // ================= APPLIQUER TOUS LES FILTRES =================
+    private void appliquerFiltres() {
+        filteredData.setPredicate(evenement -> {
+            return matchesSearchText(evenement)
+                    && matchesDateDebutFilter(evenement)
+                    && matchesDateFinFilter(evenement)
+                    && matchesLieuFilter(evenement)
+                    && matchesStatutFilter(evenement)
+                    && matchesCategorieFilter(evenement);
+        });
+
+        updateResultsCount();
+    }
+
+    // ================= FILTRES INDIVIDUELS =================
+
+    private boolean matchesSearchText(Evenement evenement) {
+        String searchText = searchField.getText();
+        if (searchText == null || searchText.trim().isEmpty()) {
+            return true;
+        }
+        return evenement.getTitre().toLowerCase().contains(searchText.toLowerCase());
+    }
+
+    private boolean matchesDateDebutFilter(Evenement evenement) {
+        LocalDate dateFiltre = filterDateDebut.getValue();
+        if (dateFiltre == null) {
+            return true;
+        }
+        return evenement.getDateDebut().toLocalDate().equals(dateFiltre);
+    }
+
+    private boolean matchesDateFinFilter(Evenement evenement) {
+        LocalDate dateFiltre = filterDateFin.getValue();
+        if (dateFiltre == null) {
+            return true;
+        }
+        return evenement.getDateFin().toLocalDate().equals(dateFiltre);
+    }
+
+    private boolean matchesLieuFilter(Evenement evenement) {
+        String lieuFiltre = filterLieu.getText();
+        if (lieuFiltre == null || lieuFiltre.trim().isEmpty()) {
+            return true;
+        }
+        return evenement.getLieu().toLowerCase().contains(lieuFiltre.toLowerCase());
+    }
+
+    private boolean matchesStatutFilter(Evenement evenement) {
+        String statut = filterStatut.getValue();
+        if (statut == null || statut.equals("Tous les statuts")) {
+            return true;
+        }
+        return evenement.getStatut().equalsIgnoreCase(statut);
+    }
+
+    private boolean matchesCategorieFilter(Evenement evenement) {
+        String categorie = filterCategorie.getValue();
+        if (categorie == null || categorie.equals("Toutes")) {
+            return true;
+        }
+
+        try {
+            String nomCategorie = categorieService.getNomCategorieById(evenement.getIdCategorie());
+            return nomCategorie.equals(categorie);
+        } catch (SQLException e) {
+            return true;
+        }
+    }
+
+    // ================= RÉINITIALISER LES FILTRES =================
+    @FXML
+    private void handleResetFilters(ActionEvent event) {
+        searchField.clear();
+        filterDateDebut.setValue(null);
+        filterDateFin.setValue(null);
+        filterLieu.clear();
+        filterStatut.setValue("Tous les statuts");
+        filterCategorie.setValue("Toutes");
+        appliquerFiltres();
+    }
+
+    // ================= MISE À JOUR DU COMPTEUR =================
+    private void updateResultsCount() {
+        int count = filteredData.size();
+        resultsCountLabel.setText(count + " événement(s) trouvé(s)");
     }
 
     // ================= ACTION BUTTONS =================
     private void addActionButtons() {
         actionsColumn.setCellFactory(col -> new TableCell<>() {
-
             private final Button editBtn = new Button("✏ Modifier");
             private final Button deleteBtn = new Button("🗑 Supprimer");
             private final HBox box = new HBox(10, editBtn, deleteBtn);
@@ -169,29 +281,26 @@ public class AfficherEvenementsController {
                 editBtn.setStyle("-fx-background-color:#F39C12; -fx-text-fill:white; -fx-cursor: hand;");
                 deleteBtn.setStyle("-fx-background-color:#E74C3C; -fx-text-fill:white; -fx-cursor: hand;");
 
-                // ===== MODIFIER =====
                 editBtn.setOnAction(e -> {
                     Evenement evenement = getTableView().getItems().get(getIndex());
                     ouvrirPage("ModifierEvenement.fxml", evenement);
                 });
 
-                // ===== SUPPRIMER =====
                 deleteBtn.setOnAction(e -> {
                     Evenement evenement = getTableView().getItems().get(getIndex());
-
                     Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                     alert.setTitle("Confirmation");
                     alert.setHeaderText("Suppression d'événement");
-                    alert.setContentText("Voulez-vous vraiment supprimer l'événement \"" + evenement.getTitre() + "\" ?");
+                    alert.setContentText("Voulez-vous supprimer l'événement \"" + evenement.getTitre() + "\" ?");
 
                     Optional<ButtonType> result = alert.showAndWait();
                     if (result.isPresent() && result.get() == ButtonType.OK) {
                         try {
                             evenementService.supprimer(evenement);
-                            showSuccess("Succès", "Événement supprimé avec succès !");
+                            showSuccess("Succès", "Événement supprimé !");
                             loadEvenements();
                         } catch (SQLException ex) {
-                            showError("Erreur", "Impossible de supprimer l'événement : " + ex.getMessage());
+                            showError("Erreur", "Impossible de supprimer : " + ex.getMessage());
                         }
                     }
                 });
@@ -205,29 +314,29 @@ public class AfficherEvenementsController {
         });
     }
 
-    // ================= ADD EVENEMENT =================
+    // ================= HANDLERS =================
     @FXML
     private void handleAddEvenement(ActionEvent event) {
         ouvrirPage("AjouterEvenement.fxml", null);
     }
 
-    // ================= REFRESH =================
     @FXML
     private void handleRefresh(ActionEvent event) {
         try {
             loadEvenements();
-            showSuccess("Actualisation", "Liste actualisée avec succès !");
+            handleResetFilters(event);
+            showSuccess("Actualisation", "Liste actualisée !");
         } catch (SQLException e) {
             showError("Erreur", "Impossible d'actualiser : " + e.getMessage());
         }
     }
 
-    // ================= NAVIGATION =================
     @FXML
     private void goToAccueil(ActionEvent event) {
         ouvrirPageSimple("Accueil.fxml");
     }
 
+    // ================= NAVIGATION =================
     private void ouvrirPage(String fxml, Evenement evenement) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/G-Evenements/" + fxml));
@@ -242,7 +351,7 @@ public class AfficherEvenementsController {
             stage.setScene(new Scene(root));
         } catch (IOException e) {
             e.printStackTrace();
-            showError("Erreur", "Impossible de charger la page : " + e.getMessage());
+            showError("Erreur", "Impossible de charger : " + e.getMessage());
         }
     }
 
@@ -253,11 +362,11 @@ public class AfficherEvenementsController {
             stage.setScene(new Scene(root));
         } catch (IOException e) {
             e.printStackTrace();
-            showError("Erreur", "Impossible de charger la page : " + e.getMessage());
+            showError("Erreur", "Impossible de charger : " + e.getMessage());
         }
     }
 
-    // ================= ALERT METHODS =================
+    // ================= ALERTS =================
     private void showError(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);

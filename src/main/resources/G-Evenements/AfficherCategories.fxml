@@ -20,15 +20,10 @@
                 <Separator opacity="0.2" />
 
                 <Button maxWidth="Infinity" style="-fx-background-color: transparent; -fx-text-fill: white;" text="🐾 Gestion Animaux" />
-
                 <Button maxWidth="Infinity" style="-fx-background-color: transparent; -fx-text-fill: white;" text="⚙️ Gestion Matériels" />
-
                 <Button maxWidth="Infinity" style="-fx-background-color: transparent; -fx-text-fill: white;" text="📦 Gestion Stocks" />
-
                 <Button maxWidth="Infinity" style="-fx-background-color: transparent; -fx-text-fill: white;" text="🌱 Gestion Terrains" />
-
                 <Button maxWidth="Infinity" onAction="#goToAccueil" style="-fx-background-color: #2D5A27; -fx-text-fill: white;" text="📅 Événements" />
-
                 <Button maxWidth="Infinity" style="-fx-background-color: transparent; -fx-text-fill: white;" text="👥 Utilisateurs" />
 
                 <Region VBox.vgrow="ALWAYS" />
@@ -63,7 +58,9 @@
 
                 <!-- User Profile & Add Button -->
                 <HBox alignment="CENTER" spacing="15">
-                    <Button fx:id="addTaskBtn" onAction="#handleAddCategorie" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10 20; -fx-background-radius: 8; -fx-cursor: hand;" text="➕ Nouvelle catégorie">
+                    <Button fx:id="addTaskBtn" onAction="#handleAddCategorie"
+                            style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10 20; -fx-background-radius: 8; -fx-cursor: hand;"
+                            text="➕ Nouvelle catégorie">
                         <font>
                             <Font name="System" size="14" />
                         </font>
@@ -77,7 +74,51 @@
                 </HBox>
             </HBox>
 
-            <!-- Liste des Tâches -->
+            <!-- Barre de recherche -->
+            <VBox spacing="10" style="-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2); -fx-padding: 20;">
+                <HBox alignment="CENTER_LEFT" spacing="15">
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #7F8C8D;" text="RECHERCHER">
+                            <font>
+                                <Font name="System Bold" size="12" />
+                            </font>
+                        </Label>
+                        <TextField fx:id="searchField"
+                                   promptText="🔍 Rechercher par nom de catégorie..."
+                                   prefWidth="400"
+                                   style="-fx-background-color: #F8F9FA; -fx-background-radius: 8; -fx-border-color: #E0E0E0; -fx-border-radius: 8; -fx-padding: 10; -fx-font-size: 14px;">
+                            <font>
+                                <Font name="System" size="14" />
+                            </font>
+                        </TextField>
+                    </VBox>
+
+                    <Region HBox.hgrow="ALWAYS" />
+
+                    <VBox spacing="8" alignment="BOTTOM_CENTER">
+                        <Button onAction="#handleRefresh"
+                                style="-fx-background-color: #3498DB; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10 20; -fx-background-radius: 8; -fx-cursor: hand;"
+                                text="🔄 Actualiser">
+                            <font>
+                                <Font name="System" size="14" />
+                            </font>
+                        </Button>
+                    </VBox>
+                </HBox>
+
+                <!-- Compteur de résultats -->
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label fx:id="resultsCountLabel"
+                           style="-fx-font-size: 13px; -fx-text-fill: #7F8C8D; -fx-font-style: italic;"
+                           text="0 catégorie(s) trouvée(s)">
+                        <font>
+                            <Font name="System Italic" size="13" />
+                        </font>
+                    </Label>
+                </HBox>
+            </VBox>
+
+            <!-- Liste des Catégories -->
             <VBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);" VBox.vgrow="ALWAYS">
                 <padding>
                     <Insets bottom="25" left="25" right="25" top="25" />
@@ -94,7 +135,8 @@
                 </HBox>
 
                 <!-- Table -->
-                <TableView fx:id="tasksTable" minHeight="350.0" prefHeight="400.0" style="-fx-background-color: transparent; -fx-border-color: transparent;" VBox.vgrow="ALWAYS">
+                <TableView fx:id="tasksTable" minHeight="350.0" prefHeight="400.0"
+                           style="-fx-background-color: transparent; -fx-border-color: transparent;" VBox.vgrow="ALWAYS">
                     <columns>
                         <TableColumn fx:id="titleColumn" prefWidth="300" style="-fx-alignment: CENTER-LEFT;" text="Nom" />
                         <TableColumn fx:id="descriptionColumn" prefWidth="380" style="-fx-alignment: CENTER-LEFT;" text="Description" />
