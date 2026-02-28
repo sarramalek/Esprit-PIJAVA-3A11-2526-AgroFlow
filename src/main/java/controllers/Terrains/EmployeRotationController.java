@@ -506,10 +506,9 @@ public class EmployeRotationController implements Initializable {
         alert.showAndWait();
     }
 
-    public void ouvrirTerrains(MouseEvent mouseEvent) {
-    }
+    public void handleMateriel(MouseEvent mouseEvent) {
+        chargerPage(mouseEvent, "/MaterielsInterface/MaintenanceFront.fxml", "EmployeMaintenance");
 
-    public void ouvrirPlantes(MouseEvent mouseEvent) {
     }
 
     public void ouvrirRotations(MouseEvent mouseEvent) {

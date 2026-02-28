@@ -5,17 +5,17 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class MyDatabase {
+
+    private final String URL = "jdbc:mysql://localhost:3306/agrofolow";
     private final String USER = "root";
     private final String PASSWORD = "";
-    private final String URL = "jdbc:mysql://localhost:3306/agroflow";
-
-    public Connection connection;
+    private Connection connection;
     private static MyDatabase instance;
 
-    public MyDatabase (){
-        try{
-            connection = DriverManager.getConnection(URL, USER,PASSWORD);
-            System.out.println("Connected to database successfully");
+    private MyDatabase() {
+        try {
+            connection = DriverManager.getConnection(URL, USER, PASSWORD);
+            System.out.println("Connected");
         } catch (SQLException e) {
             System.err.println(e.getMessage());
         }

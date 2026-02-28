@@ -698,7 +698,7 @@ public class agricoleplanteController implements Initializable {
     }
     @FXML private void handleDashboard(MouseEvent event)    { navigateTo(event,"/UsersInterface/AcceuillAgr.fxml","Dashboard"); }
     @FXML private void handleMesTerrains()  { System.out.println("🌾 Current Page "); }
-    @FXML private void handleMesAnimaux(MouseEvent event)  { navigateTo(event,"/AnimalsInterface/acceuilagricoleanimaux.fxml","Dashboard"); }
+    @FXML private void handleMesAnimaux()   { System.out.println("🐄 Animaux..."); }
     @FXML private void handleMesStocks()    { System.out.println("📦 Stocks..."); }
     @FXML private void handleMonMateriel()  { System.out.println("🚜 Matériel..."); }
     @FXML private void handleMonProfil(MouseEvent event )    {navigateTo(event,"/UsersInterface/ProfilEmplye.fxml","Mon Profil");  }

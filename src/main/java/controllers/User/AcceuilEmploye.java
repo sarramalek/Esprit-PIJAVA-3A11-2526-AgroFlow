@@ -387,4 +387,9 @@ navigateTo(event,"/UsersInterface/login.fxml", "Login");
     public void ouvrirRotations(MouseEvent mouseEvent) {
         navigateTo(mouseEvent, "/TerrainsInterface/EmployeRotation.fxml", "EmployeRotation");
     }
+
+    public void handleMateriel(MouseEvent mouseEvent) {
+        navigateTo(mouseEvent, "/MaterielsInterface/MaintenanceFront.fxml", "EmployeMaintenance");
+
+    }
 }

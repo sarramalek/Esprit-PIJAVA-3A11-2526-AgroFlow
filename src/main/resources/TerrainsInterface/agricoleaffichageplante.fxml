@@ -66,7 +66,7 @@
                 </Label>
                 <!-- Hyperlink À Propos -->
                 <Hyperlink fx:id="aproposLink" text="👤 À propos de moi"
-                           onMouseClicked="#handleAPropos"
+                           onMouseClicked="#handleMonProfil"
                            style="-fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 13px;
                       -fx-border-color: rgba(255,255,255,0.4); -fx-padding: 5 15;
                       -fx-background-radius: 20; -fx-border-radius: 20;
@@ -95,7 +95,7 @@
                         <font><Font name="System Bold" size="14" /></font>
                     </Button>
                     <!-- Sous-menu Terrains -->
-                    <VBox fx:id="terrainsSubMenu" spacing="2" style="-fx-padding: 4 0 0 0;" visible="true" managed="true">
+                    <VBox fx:id="terrainsSubMenu" spacing="2" style="-fx-padding: 4 0 0 0;" visible="false" managed="false">
                         <Button onMouseClicked="#ouvrirTerrains" prefHeight="40" prefWidth="230"
                                 style="-fx-background-color: rgba(0,0,0,0.20); -fx-text-fill: white;
                                        -fx-font-size: 13px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 40;

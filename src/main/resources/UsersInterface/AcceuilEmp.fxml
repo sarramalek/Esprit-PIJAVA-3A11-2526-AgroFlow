@@ -64,13 +64,13 @@
                 </Button>
 
                 <!-- Mes Tâches -->
-                <Button onMouseClicked="#handleMesTaches" prefHeight="50" prefWidth="230"
-                        style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
+                <Button  prefHeight="50" prefWidth="230"
+                         style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
                                -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
                                -fx-background-radius: 12; -fx-cursor: hand;
                                -fx-border-color: rgba(255,255,255,0.2); -fx-border-width: 1;
                                -fx-border-radius: 12;"
-                        text="📋  Mes Tâches">
+                         text="📋  Mes Tâches">
                     <font><Font name="System Bold" size="14" /></font>
                 </Button>
 
@@ -86,38 +86,27 @@
                 </Button>
 
                 <VBox spacing="0">
-                    <Button onAction="#handleMesTerrains" prefHeight="48" prefWidth="230"
-                            style="-fx-background-color: linear-gradient(to right, #4CAF50, #45a049);
-                                   -fx-text-fill: white; -fx-font-size: 14px; -fx-alignment: CENTER-LEFT;
-                                   -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand;"
-                            text="🌾  Mes Terrains  ▾">
+                    <Button onMouseClicked="#ouvrirRotations" prefHeight="48" prefWidth="230"
+                            style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
+                               -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
+                               -fx-background-radius: 12; -fx-cursor: hand;
+                               -fx-border-color: rgba(255,255,255,0.2); -fx-border-width: 1;
+                               -fx-border-radius: 12;"
+                            text="🌾  Mes Rotations  ">
                         <font><Font name="System Bold" size="14" /></font>
                     </Button>
-                    <!-- Sous-menu Terrains -->
-                    <VBox fx:id="terrainsSubMenu" spacing="2" style="-fx-padding: 4 0 0 0;" visible="true" managed="true">
-                        <Button onMouseClicked="#ouvrirTerrains" prefHeight="40" prefWidth="230"
-                                style="-fx-background-color: rgba(0,0,0,0.20); -fx-text-fill: white;
-                                       -fx-font-size: 13px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 40;
-                                       -fx-background-radius: 10; -fx-cursor: hand;"
-                                text="🚜  Terrains">
-                            <font><Font name="System Bold" size="13" /></font>
-                        </Button>
-                        <Button onMouseClicked="#ouvrirPlantes" prefHeight="40" prefWidth="230"
-                                style="-fx-background-color: rgba(0,0,0,0.15); -fx-text-fill: rgba(255,255,255,0.9);
-                                       -fx-font-size: 13px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 40;
-                                       -fx-background-radius: 10; -fx-cursor: hand;"
-                                text="🌱  Plantes">
-                            <font><Font name="System" size="13" /></font>
-                        </Button>
-                        <Button onMouseClicked="#ouvrirRotations" prefHeight="40" prefWidth="230"
-                                style="-fx-background-color: rgba(0,0,0,0.15); -fx-text-fill: rgba(255,255,255,0.9);
-                                       -fx-font-size: 13px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 40;
-                                       -fx-background-radius: 10; -fx-cursor: hand;"
-                                text="📋  Rotations">
-                            <font><Font name="System" size="13" /></font>
-                        </Button>
-                    </VBox>
+
                 </VBox>
+                <VBox spacing="0">
+                <Button onMouseClicked="#handleMateriel" prefHeight="48" prefWidth="230"
+                        style="-fx-background-color: linear-gradient(to right, #4CAF50, #45a049);
+                                   -fx-text-fill: white; -fx-font-size: 14px; -fx-alignment: CENTER-LEFT;
+                                   -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand;"
+                        text="  Maintenances   ">
+                    <font><Font name="System Bold" size="14" /></font>
+                </Button>
+
+            </VBox>
 
             </VBox>
 
@@ -133,7 +122,6 @@
             </Button>
         </VBox>
     </left>
-
     <!-- CONTENU PRINCIPAL -->
     <center>
         <ScrollPane fitToWidth="true" style="-fx-background-color: #F8F9FA; -fx-border-color: transparent;">

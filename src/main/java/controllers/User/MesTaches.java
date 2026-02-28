@@ -676,15 +676,12 @@ public class MesTaches {
         a.setTitle(title); a.setHeaderText(null); a.setContentText(msg); a.showAndWait();
     }
 
-    public void handleMesTerrains(ActionEvent actionEvent) {
-    }
-
-    public void ouvrirTerrains(MouseEvent mouseEvent) {
-    }
-
-    public void ouvrirPlantes(MouseEvent mouseEvent) {
+    public void handleMateriel(MouseEvent mouseEvent) {
+        navigateTo(mouseEvent, "/MaterielsInterface/MaintenanceFront.fxml", "EmployeMaintenance");
 
     }
+
+
 
     public void ouvrirRotations(MouseEvent mouseEvent) {
         navigateTo(mouseEvent,"/TerrainsInterface/EmployeRotation.fxml","Rotations Employee ");

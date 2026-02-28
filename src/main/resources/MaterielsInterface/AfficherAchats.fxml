@@ -115,62 +115,90 @@
     </left>
     <!-- ================= CENTER ================= -->
     <center>
-        <VBox spacing="15" style="-fx-padding: 25; -fx-background-color: #f5f6fa;">
+        <VBox spacing="10" style="-fx-padding: 20; -fx-background-color: #fcf8e6;">
 
             <!-- En-tête -->
             <HBox alignment="CENTER_LEFT" spacing="15">
-                <Button text="Retour" onAction="#retourAccueil"
+                <Button text="← Retour" onAction="#retourAccueil"
                         style="-fx-background-color: #95a5a6; -fx-text-fill: white;
                                -fx-font-size: 13px; -fx-padding: 10 20;
                                -fx-background-radius: 6; -fx-cursor: hand; -fx-font-weight: bold;"/>
                 <Label text="Gestion des Achats"
-                       style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
-                <Region HBox.hgrow="ALWAYS"/>
-                <Button text="+ Nouvel Achat" onAction="#ouvrirAjout"
-                        style="-fx-background-color: #27ae60; -fx-text-fill: white;
-                               -fx-font-size: 13px; -fx-padding: 10 20;
-                               -fx-background-radius: 6; -fx-cursor: hand; -fx-font-weight: bold;"/>
+                       style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
             </HBox>
 
-            <Separator style="-fx-background-color: #dde1e7;"/>
+            <Separator/>
 
-            <!-- Barre de recherche et filtres -->
-            <HBox spacing="12" alignment="CENTER_LEFT"
-                  style="-fx-background-color: white; -fx-padding: 12 15;
-                         -fx-background-radius: 8; -fx-border-color: #e2e8f0;
-                         -fx-border-width: 1; -fx-border-radius: 8;">
+            <!-- ══ ZONE RECHERCHE/FILTRES ══ -->
+            <VBox spacing="8"
+                  style="-fx-background-color: #fcf8e6; -fx-padding: 12 16;
+                         -fx-background-radius: 10; -fx-border-color: #e0d9c0;
+                         -fx-border-width: 1; -fx-border-radius: 10;">
 
-                <Label text="Recherche :"
-                       style="-fx-font-size: 13px; -fx-text-fill: #2c3e50; -fx-font-weight: bold;"/>
-                <TextField fx:id="champRecherche" promptText="Machine, client, CIN..."
-                           prefWidth="300" onKeyReleased="#rechercher"
-                           style="-fx-padding: 8 12; -fx-background-radius: 6;
-                                  -fx-border-color: #cbd5e0; -fx-border-radius: 6; -fx-font-size: 13px;"/>
+                <!-- Ligne 1 : Recherche | Export -->
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="🔍 Recherche :"
+                           style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #1e3a5f;"/>
+                    <TextField fx:id="champRecherche"
+                               promptText="Machine, client, CIN, date, quantité..."
+                               prefWidth="360" prefHeight="36"
+                               style="-fx-background-color: white; -fx-border-color: #c8b99a;
+                                      -fx-border-width: 1.5; -fx-border-radius: 6;
+                                      -fx-background-radius: 6; -fx-padding: 6 10; -fx-font-size: 13px;"/>
+                    <Button text="✕  Effacer" onAction="#effacerRecherche" prefHeight="36"
+                            style="-fx-background-color: #e74c3c; -fx-text-fill: white;
+                                   -fx-font-size: 13px; -fx-font-weight: bold;
+                                   -fx-background-radius: 6; -fx-cursor: hand; -fx-padding: 0 16;"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button text="📄  Export PDF" onAction="#exporterPDF" prefHeight="36"
+                            style="-fx-background-color: #c0392b; -fx-text-fill: white;
+                                   -fx-font-size: 13px; -fx-font-weight: bold;
+                                   -fx-background-radius: 6; -fx-cursor: hand; -fx-padding: 0 18;"/>
+                    <Button text="📊  Export Excel" onAction="#exporterExcel" prefHeight="36"
+                            style="-fx-background-color: #27ae60; -fx-text-fill: white;
+                                   -fx-font-size: 13px; -fx-font-weight: bold;
+                                   -fx-background-radius: 6; -fx-cursor: hand; -fx-padding: 0 18;"/>
+                </HBox>
 
-                <Label text="Machine :"
-                       style="-fx-font-size: 13px; -fx-text-fill: #2c3e50; -fx-font-weight: bold;"/>
-                <ComboBox fx:id="comboMachine" promptText="Toutes les machines"
-                          prefWidth="190" onAction="#filtrer"
-                          style="-fx-background-radius: 6; -fx-font-size: 13px;"/>
+                <!-- Ligne 2 : Filtres machine + tri date -->
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="⚡ Filtrer par Machine :"
+                           style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #1e3a5f;"/>
+                    <ComboBox fx:id="comboMachine" prefWidth="200" prefHeight="34"
+                              onAction="#filtrer"
+                              style="-fx-background-radius: 6; -fx-font-size: 12px;"/>
+                    <Label text="📅 Trier par dat. :"
+                           style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #1e3a5f;"/>
+                    <Button text="▲  Plus récent" onAction="#trierPlusRecent" prefHeight="34"
+                            style="-fx-background-color: #8e44ad; -fx-text-fill: white;
+                                   -fx-font-size: 12px; -fx-font-weight: bold;
+                                   -fx-background-radius: 6; -fx-cursor: hand; -fx-padding: 0 14;"/>
+                    <Button text="▼  Plus ancien" onAction="#trierPlusAncien" prefHeight="34"
+                            style="-fx-background-color: #7f8c8d; -fx-text-fill: white;
+                                   -fx-font-size: 12px; -fx-font-weight: bold;
+                                   -fx-background-radius: 6; -fx-cursor: hand; -fx-padding: 0 14;"/>
+                    <Button text="↑  Actualiser" onAction="#actualiser" prefHeight="34"
+                            style="-fx-background-color: #2980b9; -fx-text-fill: white;
+                                   -fx-font-size: 12px; -fx-font-weight: bold;
+                                   -fx-background-radius: 6; -fx-cursor: hand; -fx-padding: 0 14;"/>
+                    <Button text="📊 Statistiques" onAction="#afficherStatistiques" prefHeight="34"
+                            style="-fx-background-color: #9b59b6; -fx-text-fill: white;
+                                   -fx-font-size: 12px; -fx-font-weight: bold;
+                                   -fx-background-radius: 6; -fx-cursor: hand; -fx-padding: 0 12;"/>
+                </HBox>
 
-                <Region HBox.hgrow="ALWAYS"/>
-                <Button text="Actualiser" onAction="#actualiser"
-                        style="-fx-background-color: #3498db; -fx-text-fill: white;
-                               -fx-padding: 8 18; -fx-background-radius: 6;
-                               -fx-cursor: hand; -fx-font-size: 13px; -fx-font-weight: bold;"/>
-            </HBox>
+            </VBox>
 
-            <!-- Tableau principal -->
-            <TableView fx:id="tableAchats" VBox.vgrow="ALWAYS" prefHeight="400"
+            <!-- ====== TABLEAU ====== -->
+            <TableView fx:id="tableAchats" VBox.vgrow="ALWAYS" prefHeight="380"
                        style="-fx-background-color: white; -fx-border-color: #e2e8f0;
                               -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8;">
                 <columns>
-                    <TableColumn fx:id="colDateAchat"  text="Date Achat"  prefWidth="130" minWidth="110"/>
-                    <TableColumn fx:id="colQuantite"   text="Quantite"    prefWidth="110" minWidth="90"/>
-                    <TableColumn fx:id="colMachine"    text="Machine"     prefWidth="200" minWidth="160"/>
-                    <TableColumn fx:id="colClient"     text="Client"      prefWidth="200" minWidth="160"/>
-                    <TableColumn fx:id="colCin"        text="CIN"         prefWidth="120" minWidth="100"/>
-                    <TableColumn fx:id="colActions"    text="Actions"     prefWidth="160" minWidth="140"/>
+                    <TableColumn fx:id="colDateAchat" text="Date Achat" prefWidth="130" minWidth="110"/>
+                    <TableColumn fx:id="colQuantite"  text="Quantite"   prefWidth="100" minWidth="80"/>
+                    <TableColumn fx:id="colMachine"   text="Machine"    prefWidth="230" minWidth="160"/>
+                    <TableColumn fx:id="colClient"    text="Client"     prefWidth="210" minWidth="150"/>
+                    <TableColumn fx:id="colCin"       text="CIN"        prefWidth="110" minWidth="90"/>
                 </columns>
                 <placeholder>
                     <Label text="Aucun achat enregistre"
@@ -179,40 +207,58 @@
                 </placeholder>
             </TableView>
 
-            <!-- Statistiques -->
+            <!-- ====== STATS ====== -->
             <HBox spacing="20" alignment="CENTER">
-
                 <HBox alignment="CENTER_LEFT" spacing="15"
-                      style="-fx-background-color: white; -fx-padding: 18 30;
+                      style="-fx-background-color: #fcf8e6; -fx-padding: 12 28;
                              -fx-border-color: #3498db; -fx-border-width: 0 0 0 5;
-                             -fx-border-radius: 2; -fx-background-radius: 8;
+                             -fx-background-radius: 8;
                              -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);"
                       HBox.hgrow="ALWAYS" maxWidth="Infinity">
-                    <VBox spacing="3">
+                    <VBox spacing="2">
                         <Label text="Total Achats"
                                style="-fx-font-size: 12px; -fx-text-fill: #7f8c8d; -fx-font-weight: bold;"/>
                         <Label fx:id="lblTotal" text="0"
-                               style="-fx-font-size: 38px; -fx-font-weight: bold; -fx-text-fill: #3498db;"/>
+                               style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #3498db;"/>
                     </VBox>
                 </HBox>
-
                 <HBox alignment="CENTER_LEFT" spacing="15"
-                      style="-fx-background-color: white; -fx-padding: 18 30;
+                      style="-fx-background-color: #fcf8e6; -fx-padding: 12 28;
                              -fx-border-color: #27ae60; -fx-border-width: 0 0 0 5;
-                             -fx-border-radius: 2; -fx-background-radius: 8;
+                             -fx-background-radius: 8;
                              -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);"
                       HBox.hgrow="ALWAYS" maxWidth="Infinity">
-                    <VBox spacing="3">
+                    <VBox spacing="2">
                         <Label text="Quantite Totale"
                                style="-fx-font-size: 12px; -fx-text-fill: #7f8c8d; -fx-font-weight: bold;"/>
                         <Label fx:id="lblQuantiteTotal" text="0"
-                               style="-fx-font-size: 38px; -fx-font-weight: bold; -fx-text-fill: #27ae60;"/>
+                               style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #27ae60;"/>
                     </VBox>
                 </HBox>
+            </HBox>
 
+            <!-- ====== BOUTONS CRUD EN BAS ====== -->
+            <HBox spacing="15" alignment="CENTER"
+                  style="-fx-background-color: #fcf8e6; -fx-padding: 14 20;
+                         -fx-background-radius: 8; -fx-border-color: #e0d9c0;
+                         -fx-border-width: 1; -fx-border-radius: 8;">
+                <Button text="➕  Ajouter" onAction="#ouvrirAjout"
+                        prefWidth="180" prefHeight="42"
+                        style="-fx-background-color: #27ae60; -fx-text-fill: white;
+                               -fx-font-size: 14px; -fx-font-weight: bold;
+                               -fx-background-radius: 8; -fx-cursor: hand;"/>
+                <Button text="✏️  Modifier" onAction="#modifierSelectionne"
+                        prefWidth="180" prefHeight="42"
+                        style="-fx-background-color: #3498db; -fx-text-fill: white;
+                               -fx-font-size: 14px; -fx-font-weight: bold;
+                               -fx-background-radius: 8; -fx-cursor: hand;"/>
+                <Button text="🗑️  Supprimer" onAction="#supprimerSelectionne"
+                        prefWidth="180" prefHeight="42"
+                        style="-fx-background-color: #e74c3c; -fx-text-fill: white;
+                               -fx-font-size: 14px; -fx-font-weight: bold;
+                               -fx-background-radius: 8; -fx-cursor: hand;"/>
             </HBox>
 
         </VBox>
     </center>
-
 </BorderPane>

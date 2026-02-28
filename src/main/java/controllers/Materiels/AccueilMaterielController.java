@@ -20,6 +20,38 @@ import java.util.Optional;
 public class AccueilMaterielController {
     @FXML private Button logoutBtn,gestionBtn;
     @FXML private VBox gestionSubmenu,gestionContainer;
+
+
+
+
+    private void naviguerDepuisNode(String fxmlPath, Node source) {
+        try {
+            Parent root  = FXMLLoader.load(getClass().getResource(fxmlPath));
+            Stage  stage = (Stage) source.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            afficherAlerte("Erreur",
+                    "Impossible de naviguer vers : " + fxmlPath + "\n" + e.getMessage(),
+                    Alert.AlertType.ERROR);
+        } catch (Exception e) {
+            afficherAlerte("Erreur",
+                    "Erreur lors de la navigation : " + e.getMessage(),
+                    Alert.AlertType.ERROR);
+        }
+    }
+    /**
+     * Retourne la première Stage affichée parmi les fenêtres JavaFX ouvertes.
+     */
+    private Stage getStageActive() {
+        for (javafx.stage.Window w : javafx.stage.Window.getWindows()) {
+            if (w instanceof Stage && w.isShowing()) {
+                return (Stage) w;
+            }
+        }
+        return null;
+    }
+
     public void initialize() {
         // Cacher submenu par défaut
         gestionSubmenu.setVisible(false);

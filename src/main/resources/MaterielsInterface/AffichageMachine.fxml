@@ -6,6 +6,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.image.Image?>
+<?import javafx.scene.chart.PieChart?>
 <BorderPane prefHeight="600.0" prefWidth="900.0" style="-fx-background-color: #fcf8e6;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.Materiels.AfficherMachinesController">
 
     <!-- SIDEBAR MODERNISÉE -->
@@ -110,57 +111,230 @@
 
     <!-- ================= CENTER ================= -->
     <center>
-        <VBox spacing="20.0" style="-fx-padding: 30;">
-            <children>
+        <VBox spacing="10" style="-fx-padding: 16; -fx-background-color: #fcf8e6;">
 
-                <!-- En-tête avec bouton retour et titre -->
-                <HBox alignment="CENTER_LEFT" spacing="15">
-                    <children>
-                        <Button text="← Retour"
-                                onAction="#retourAccueil"
-                                style="-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 8 15; -fx-cursor: hand;"/>
+            <!-- ─── En-tête avec retour ─── -->
+            <HBox alignment="CENTER_LEFT" spacing="12">
+                <Button text="← Retour" onAction="#retourAccueil"
+                        style="-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-font-size: 13px;
+                               -fx-padding: 9 16; -fx-background-radius: 7; -fx-cursor: hand; -fx-font-weight: bold;"/>
+                <Label text="⚙ Gestion des Machines"
+                       style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+            </HBox>
 
-                        <Region HBox.hgrow="ALWAYS" />
+            <Separator/>
 
-                        <Text fill="#2C3E50" text="Gestion des Machines">
-                            <font><Font name="System Bold" size="24.0" /></font>
-                        </Text>
+            <!-- ─── Panneau de recherche et filtres — FOND BEIGE, SANS BORDURE BLEUE ─── -->
+            <VBox spacing="10"
+                  style="-fx-background-color: #fcf8e6; -fx-padding: 14 16; -fx-background-radius: 10;
+                         -fx-border-color: #e0d9c0; -fx-border-width: 1; -fx-border-radius: 10;
+                         -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);">
 
-                        <Region HBox.hgrow="ALWAYS" />
-                    </children>
+                <!-- Ligne 1 : Recherche globale + Actions -->
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="🔍 Recherche :"
+                           style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #1a5276;"/>
+
+                    <TextField fx:id="champRecherche"
+                               promptText="Marque, Modèle, État, N° Série ou Nom..."
+                               prefWidth="340" prefHeight="36"
+                               onKeyReleased="#appliquerFiltres"
+                               style="-fx-padding: 0 12; -fx-background-radius: 6; -fx-border-color: #c8b99a;
+                                      -fx-border-radius: 6; -fx-border-width: 1.5; -fx-font-size: 13px;
+                                      -fx-background-color: white;"/>
+
+                    <Button text="✖ Effacer" onAction="#reinitialiserFiltres"
+                            prefWidth="90" prefHeight="36"
+                            style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 12px;
+                                   -fx-background-radius: 6; -fx-cursor: hand; -fx-font-weight: bold;"/>
+
+                    <Button text="🔄 Actualiser" onAction="#actualiser"
+                            prefWidth="110" prefHeight="36"
+                            style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 12px;
+                                   -fx-background-radius: 6; -fx-cursor: hand; -fx-font-weight: bold;"/>
+
+                    <Region HBox.hgrow="ALWAYS"/>
+
+                    <!-- Menu des exports PDF avancés -->
+                    <MenuButton text="📄 Rapport PDF ▾"
+                                prefWidth="140" prefHeight="36"
+                                style="-fx-background-color: #c0392b; -fx-text-fill: white; -fx-font-size: 12px;
+                                       -fx-background-radius: 6; -fx-cursor: hand; -fx-font-weight: bold;">
+                        <items>
+                            <MenuItem text="📋 Export liste machines" onAction="#exporterPDF"/>
+                            <MenuItem text="🧾 Générer Facture" onAction="#genererFacture"/>
+                            <MenuItem text="📅 Rapport mensuel" onAction="#genererRapportMensuel"/>
+                            <MenuItem text="📊 Rapport statistiques" onAction="#genererRapportStatistiques"/>
+                        </items>
+                    </MenuButton>
+
+                    <Button text="📊 Export Excel" onAction="#exporterExcel"
+                            prefWidth="125" prefHeight="36"
+                            style="-fx-background-color: #1e8449; -fx-text-fill: white; -fx-font-size: 12px;
+                                   -fx-background-radius: 6; -fx-cursor: hand; -fx-font-weight: bold;"/>
                 </HBox>
 
-                <!-- Table des machines -->
-                <TableView fx:id="tableMachines" prefHeight="380.0" VBox.vgrow="ALWAYS"
-                           style="-fx-background-color: white; -fx-border-color: #ddd; -fx-border-width: 1;">
-                    <columns>
-                        <TableColumn fx:id="colMarque" prefWidth="110.0" text="Marque" />
-                        <TableColumn fx:id="colModele" prefWidth="110.0" text="Modèle" />
-                        <TableColumn fx:id="colEtat" prefWidth="100.0" text="État" />
-                        <TableColumn fx:id="colNumeroSerie" prefWidth="120.0" text="N° Série" />
-                        <TableColumn fx:id="colDateAchat" prefWidth="100.0" text="Date Achat" />
-                        <TableColumn fx:id="colNom" prefWidth="110.0" text="Nom" />
-                    </columns>
-                </TableView>
+                <!-- Ligne 2 : Filtres spécifiques -->
+                <HBox spacing="10" alignment="CENTER_LEFT">
 
-                <!-- Boutons d'action -->
-                <HBox alignment="CENTER" spacing="20.0">
-                    <children>
-                        <Button onAction="#versAjout" prefHeight="40.0" prefWidth="140.0"
-                                style="-fx-background-color: #2D5A27; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-font-size: 14px;"
-                                text="+ AJOUTER" />
+                    <!-- Filtre Nom -->
+                    <Label text="👤 Nom :"
+                           style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #1a5276;"/>
+                    <ComboBox fx:id="comboNom" promptText="Tous les noms"
+                              prefWidth="175" prefHeight="36"
+                              onAction="#appliquerFiltres"
+                              style="-fx-background-radius: 6; -fx-font-size: 13px;"/>
 
-                        <Button onAction="#versModifier" prefHeight="40.0" prefWidth="140.0"
-                                style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-font-size: 14px;"
-                                text="✏️ MODIFIER" />
+                    <Separator orientation="VERTICAL" prefHeight="30"/>
 
-                        <Button onAction="#handleSupprimer" prefHeight="40.0" prefWidth="140.0"
-                                style="-fx-background-color: #E74C3C; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-font-size: 14px;"
-                                text="🗑️ SUPPRIMER" />
-                    </children>
+                    <!-- Filtre Modèle -->
+                    <Label text="🔧 Modèle :"
+                           style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #1a5276;"/>
+                    <ComboBox fx:id="comboModele" promptText="Tous les modèles"
+                              prefWidth="175" prefHeight="36"
+                              onAction="#appliquerFiltres"
+                              style="-fx-background-radius: 6; -fx-font-size: 13px;"/>
+
+                    <Separator orientation="VERTICAL" prefHeight="30"/>
+
+                    <!-- Tri par date -->
+                    <Label text="📅 Trier par date :"
+                           style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #1a5276;"/>
+                    <Button text="🔼 Plus récent" onAction="#trierDateDesc"
+                            prefWidth="118" prefHeight="36"
+                            style="-fx-background-color: #8e44ad; -fx-text-fill: white; -fx-font-size: 12px;
+                                   -fx-background-radius: 6; -fx-cursor: hand; -fx-font-weight: bold;"/>
+                    <Button text="🔽 Plus ancien" onAction="#trierDateAsc"
+                            prefWidth="118" prefHeight="36"
+                            style="-fx-background-color: #7f8c8d; -fx-text-fill: white; -fx-font-size: 12px;
+                                   -fx-background-radius: 6; -fx-cursor: hand; -fx-font-weight: bold;"/>
                 </HBox>
+            </VBox>
 
-            </children>
+            <!-- ─── Tableau des machines ─── -->
+            <TableView fx:id="tableMachines" VBox.vgrow="ALWAYS" prefHeight="290"
+                       style="-fx-background-color: white; -fx-border-color: #dfe6e9;
+                              -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8;">
+                <columns>
+                    <TableColumn fx:id="colMarque" text="Marque" prefWidth="160" minWidth="110"/>
+                    <TableColumn fx:id="colModele" text="Modèle" prefWidth="145" minWidth="100"/>
+                    <TableColumn fx:id="colEtat" text="État" prefWidth="145" minWidth="100"/>
+                    <TableColumn fx:id="colNumeroSerie" text="N° Série" prefWidth="175" minWidth="130"/>
+                    <TableColumn fx:id="colDateAchat" text="Date Achat" prefWidth="145" minWidth="110"/>
+                    <TableColumn fx:id="colNom" text="Nom" prefWidth="150" minWidth="110"/>
+                </columns>
+                <placeholder>
+                    <Label text="Aucune machine trouvée pour ces critères."
+                           style="-fx-text-fill: #95a5a6; -fx-font-style: italic; -fx-font-size: 14px; -fx-padding: 40;"/>
+                </placeholder>
+            </TableView>
+
+            <!-- ─── Cartes de statistiques et graphique ─── -->
+            <HBox spacing="12" alignment="CENTER">
+
+                <!-- Carte Total -->
+                <VBox alignment="CENTER" spacing="6" prefWidth="145" prefHeight="85"
+                      style="-fx-background-color: #fcf8e6; -fx-padding: 12 10; -fx-border-color: #3498db;
+                             -fx-border-width: 0 0 0 5; -fx-background-radius: 10;
+                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.09), 8, 0, 0, 2);"
+                      HBox.hgrow="ALWAYS" maxWidth="Infinity">
+                    <Label text="📋 Total Machines"
+                           style="-fx-font-size: 10px; -fx-text-fill: #7f8c8d; -fx-font-weight: bold;"/>
+                    <Label fx:id="lblTotal" text="0"
+                           style="-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: #3498db;"/>
+                </VBox>
+
+                <!-- Carte Neuves/Dispo -->
+                <VBox alignment="CENTER" spacing="6" prefWidth="145" prefHeight="85"
+                      style="-fx-background-color: #fcf8e6; -fx-padding: 12 10; -fx-border-color: #27ae60;
+                             -fx-border-width: 0 0 0 5; -fx-background-radius: 10;
+                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.09), 8, 0, 0, 2);"
+                      HBox.hgrow="ALWAYS" maxWidth="Infinity">
+                    <Label text="✅ Neuves / Dispo"
+                           style="-fx-font-size: 10px; -fx-text-fill: #7f8c8d; -fx-font-weight: bold;"/>
+                    <Label fx:id="lblNeuves" text="0"
+                           style="-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: #27ae60;"/>
+                </VBox>
+
+                <!-- Carte Occasion/Bon -->
+                <VBox alignment="CENTER" spacing="6" prefWidth="145" prefHeight="85"
+                      style="-fx-background-color: #fcf8e6; -fx-padding: 12 10; -fx-border-color: #e67e22;
+                             -fx-border-width: 0 0 0 5; -fx-background-radius: 10;
+                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.09), 8, 0, 0, 2);"
+                      HBox.hgrow="ALWAYS" maxWidth="Infinity">
+                    <Label text="🔧 Occasion / Bon"
+                           style="-fx-font-size: 10px; -fx-text-fill: #7f8c8d; -fx-font-weight: bold;"/>
+                    <Label fx:id="lblOccasion" text="0"
+                           style="-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: #e67e22;"/>
+                </VBox>
+
+                <!-- Carte En Panne -->
+                <VBox alignment="CENTER" spacing="6" prefWidth="145" prefHeight="85"
+                      style="-fx-background-color: #fcf8e6; -fx-padding: 12 10; -fx-border-color: #e74c3c;
+                             -fx-border-width: 0 0 0 5; -fx-background-radius: 10;
+                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.09), 8, 0, 0, 2);"
+                      HBox.hgrow="ALWAYS" maxWidth="Infinity">
+                    <Label text="🔴 En Panne"
+                           style="-fx-font-size: 10px; -fx-text-fill: #7f8c8d; -fx-font-weight: bold;"/>
+                    <Label fx:id="lblEnPanne" text="0"
+                           style="-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: #e74c3c;"/>
+                </VBox>
+
+                <!-- Carte Résultats filtrés -->
+                <VBox alignment="CENTER" spacing="6" prefWidth="145" prefHeight="85"
+                      style="-fx-background-color: #fcf8e6; -fx-padding: 12 10; -fx-border-color: #9b59b6;
+                             -fx-border-width: 0 0 0 5; -fx-background-radius: 10;
+                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.09), 8, 0, 0, 2);"
+                      HBox.hgrow="ALWAYS" maxWidth="Infinity">
+                    <Label text="🔎 Résultats affichés"
+                           style="-fx-font-size: 10px; -fx-text-fill: #7f8c8d; -fx-font-weight: bold;"/>
+                    <Label fx:id="lblFiltres" text="0"
+                           style="-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: #9b59b6;"/>
+                </VBox>
+
+                <!-- Graphique camembert -->
+                <StackPane HBox.hgrow="ALWAYS" maxWidth="200" prefHeight="85">
+                    <PieChart fx:id="pieStats" prefWidth="200" prefHeight="85"
+                              labelsVisible="false" legendVisible="false"
+                              style="-fx-background-color: #fcf8e6; -fx-background-radius: 10;
+                                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.09), 8, 0, 0, 2);"/>
+                </StackPane>
+            </HBox>
+
+            <!-- ─── Boutons d'actions CRUD et fonctionnalités avancées ─── -->
+            <HBox spacing="12" alignment="CENTER" style="-fx-padding: 4 0 0 0;">
+
+                <Button text="➕ AJOUTER" onAction="#versAjout"
+                        prefWidth="155" prefHeight="48"
+                        style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-size: 14px;
+                               -fx-font-weight: bold; -fx-background-radius: 10; -fx-cursor: hand;
+                               -fx-effect: dropshadow(gaussian, rgba(39,174,96,0.4), 10, 0, 0, 3);"/>
+
+                <Button text="✏️ MODIFIER" onAction="#versModifier"
+                        prefWidth="155" prefHeight="48"
+                        style="-fx-background-color: #2980b9; -fx-text-fill: white; -fx-font-size: 14px;
+                               -fx-font-weight: bold; -fx-background-radius: 10; -fx-cursor: hand;
+                               -fx-effect: dropshadow(gaussian, rgba(41,128,185,0.4), 10, 0, 0, 3);"/>
+
+                <Button text="🗑️ SUPPRIMER" onAction="#handleSupprimer"
+                        prefWidth="155" prefHeight="48"
+                        style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 14px;
+                               -fx-font-weight: bold; -fx-background-radius: 10; -fx-cursor: hand;
+                               -fx-effect: dropshadow(gaussian, rgba(231,76,60,0.4), 10, 0, 0, 3);"/>
+
+                <Button text="📊 STATISTIQUES" onAction="#afficherStatistiques"
+                        prefWidth="175" prefHeight="48"
+                        style="-fx-background-color: #8e44ad; -fx-text-fill: white; -fx-font-size: 14px;
+                               -fx-font-weight: bold; -fx-background-radius: 10; -fx-cursor: hand;
+                               -fx-effect: dropshadow(gaussian, rgba(142,68,173,0.4), 10, 0, 0, 3);"/>
+
+                <Button text="⚡ Historique" onAction="#ouvrirMindSpherePage"
+                        prefWidth="190" prefHeight="48"
+                        style="-fx-background-color: #1565C0; -fx-text-fill: white; -fx-font-size: 14px;
+                               -fx-font-weight: bold; -fx-background-radius: 10; -fx-cursor: hand;
+                               -fx-effect: dropshadow(gaussian, rgba(21,101,192,0.5), 10, 0, 0, 3);"/>
+            </HBox>
+
         </VBox>
     </center>
 

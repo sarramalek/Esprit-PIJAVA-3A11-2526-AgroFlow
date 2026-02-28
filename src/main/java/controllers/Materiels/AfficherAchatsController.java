@@ -1,8 +1,72 @@
 package controllers.Materiels;
+import com.itextpdf.kernel.colors.ColorConstants;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Cell;
+import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.properties.TextAlignment;
+import com.itextpdf.layout.properties.UnitValue;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.stage.FileChooser;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import org.apache.poi.ss.usermodel.Row; // Ensure it is from org.apache.poi
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import utils.MyDatabase;
+
+import com.itextpdf.kernel.colors.ColorConstants;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Cell;
+import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.properties.TextAlignment;
+import com.itextpdf.layout.properties.UnitValue;
+
+
+
+import java.io.*;
+import java.net.URL;
+import java.sql.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 import javafx.event.Event;
 import javafx.scene.Node;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.stage.FileChooser;
 import models.Materiels.Achat;
 import models.Materiels.Machine;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -24,26 +88,27 @@ import javafx.stage.Stage;
 import services.Materiels.AchatService;
 import services.Materiels.MachineService;
 import utils.MyDatabase;
+import utils.SessionManager;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.*;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-import java.util.ResourceBundle;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 public class AfficherAchatsController implements Initializable {
     @FXML private Button logoutBtn,gestionBtn;
     @FXML private VBox gestionSubmenu,gestionContainer;
     // ================= COMPOSANTS FXML =================
-    @FXML private TableView<AchatViewModel> tableAchats;
-    @FXML private TableColumn<AchatViewModel, String> colDateAchat;
-    @FXML private TableColumn<AchatViewModel, Integer> colQuantite;
-    @FXML private TableColumn<AchatViewModel, String> colMachine;
-    @FXML private TableColumn<AchatViewModel, String> colClient;
-    @FXML private TableColumn<AchatViewModel, Integer> colCin;
-    @FXML private TableColumn<AchatViewModel, Void> colActions;
+    @FXML private TableView<AchatVM> tableAchats;
+    @FXML private TableColumn<AchatVM, String> colDateAchat;
+    @FXML private TableColumn<AchatVM, Integer> colQuantite;
+    @FXML private TableColumn<AchatVM, String> colMachine;
+    @FXML private TableColumn<AchatVM, String> colClient;
+    @FXML private TableColumn<AchatVM, Integer> colCin;
+    @FXML private TableColumn<AchatVM, Void> colActions;
 
     // Champs pour recherche et filtres
     @FXML private TextField champRecherche;
@@ -57,620 +122,620 @@ public class AfficherAchatsController implements Initializable {
     private Connection connection;
 
     // ================= LISTES =================
-    private ObservableList<AchatViewModel> achatsObservableList;
-    private ObservableList<AchatViewModel> achatsFiltres;
-    private List<Machine> machines;
-    public void initialize() {
-        // Cacher submenu par défaut
-        gestionSubmenu.setVisible(false);
-        gestionSubmenu.setManaged(false);
+    private ObservableList<AchatVM> achatsObservableList;
+    private ObservableList<AchatVM> achatsFiltres;
 
-        // 1. Hover sur le bouton Gestion → Ouvre submenu
-        gestionBtn.setOnMouseEntered(e -> {
-            showGestionSubmenu();
-        });
 
-        // 2. Hover sur TOUT le container Gestion → Garde submenu ouvert
-        gestionContainer.setOnMouseEntered(e -> {
-            showGestionSubmenu();
-        });}
-    // ================= CLASSE INTERNE POUR LE TABLEAU =================
-    public static class AchatViewModel {
-        private final int idAchat;
+    // ── Listes ───────────────────────────────────────────────────────
+    private final ObservableList<AchatVM> masterList  = FXCollections.observableArrayList();
+    private final ObservableList<AchatVM> displayList = FXCollections.observableArrayList();
+    private List<Machine> machines = new ArrayList<>();
+
+    // ── Tri ──────────────────────────────────────────────────────────
+    private enum SortMode { DATE_DESC, DATE_ASC, NONE }
+    private SortMode currentSort = SortMode.DATE_DESC;
+
+    // ═══════════════════════════════════════════════════════════════
+    //  ViewModel
+    // ═══════════════════════════════════════════════════════════════
+    public static class AchatVM {
+        private final int idAchat, quantite, idM, cin;
         private final LocalDate dateAchat;
-        private final int quantite;
-        private final int idM;
-        private final int cin;
-        private final String machineInfo;
+        private final String machineNom;
         private final String nomClient;
 
-        public AchatViewModel(int idAchat, LocalDate dateAchat, int quantite,
-                              int idM, int cin, String machineInfo, String nomClient) {
-            this.idAchat = idAchat;
-            this.dateAchat = dateAchat;
-            this.quantite = quantite;
-            this.idM = idM;
-            this.cin = cin;
-            this.machineInfo = machineInfo;
-            this.nomClient = nomClient;
+        public AchatVM(int idAchat, LocalDate dateAchat, int quantite,
+                       int idM, int cin, String machineNom, String nomClient) {
+            this.idAchat    = idAchat;
+            this.dateAchat  = dateAchat;
+            this.quantite   = quantite;
+            this.idM        = idM;
+            this.cin        = cin;
+            this.machineNom = machineNom;
+            this.nomClient  = nomClient;
         }
 
-        public int getIdAchat() { return idAchat; }
-        public LocalDate getDateAchat() { return dateAchat; }
-        public int getQuantite() { return quantite; }
-        public int getIdM() { return idM; }
-        public int getCin() { return cin; }
-        public String getMachineInfo() { return machineInfo; }
-        public String getNomClient() { return nomClient; }
+        public int       getIdAchat()    { return idAchat;    }
+        public LocalDate getDateAchat()  { return dateAchat;  }
+        public int       getQuantite()   { return quantite;   }
+        public int       getIdM()        { return idM;        }
+        public int       getCin()        { return cin;        }
+        public String    getMachineNom() { return machineNom; }
+        public String    getNomClient()  { return nomClient;  }
     }
 
-    // ================= CLASSE INTERNE POUR USER INFO =================
+    // ── Helpers internes ─────────────────────────────────────────────
     private static class UserInfo {
-        int cin;
-        String nom;
-        String prenom;
-
+        final int cin;
+        final String nom, prenom;
         UserInfo(int cin, String nom, String prenom) {
-            this.cin = cin;
-            this.nom = nom;
-            this.prenom = prenom;
+            this.cin = cin; this.nom = nom; this.prenom = prenom;
         }
-
-        String getNomComplet() {
-            return prenom + " " + nom;
-        }
-
-        @Override
-        public String toString() {
-            return "CIN: " + cin + " - " + prenom + " " + nom;
-        }
+        @Override public String toString() { return "CIN: " + cin + " - " + prenom + " " + nom; }
     }
 
-    // ================= INITIALISATION =================
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
-        achatService = new AchatService();
-        machineService = new MachineService();
-        connection = MyDatabase.getInstance().getConnection();
+    private static class MachineItem {
+        final int    idM;
+        final String label;
+        MachineItem(int idM, String label) { this.idM = idM; this.label = label; }
+        @Override public String toString() { return label; }
+    }
 
-        achatsObservableList = FXCollections.observableArrayList();
-        achatsFiltres = FXCollections.observableArrayList();
+    // ═══════════════════════════════════════════════════════════════
+    //  INIT
+    // ═══════════════════════════════════════════════════════════════
+    @Override
+    public void initialize(URL url, ResourceBundle rb) {
+        achatService   = new AchatService();
+        machineService = new MachineService();
+        connection     = MyDatabase.getInstance().getConnection();
 
         configurerTableau();
         chargerDonnees();
         configurerRecherche();
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    //  TABLEAU
+    // ═══════════════════════════════════════════════════════════════
+    private void configurerTableau() {
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        colDateAchat.setCellValueFactory(d ->
+                new SimpleStringProperty(d.getValue().getDateAchat().format(fmt)));
+        colQuantite.setCellValueFactory(d ->
+                new SimpleIntegerProperty(d.getValue().getQuantite()).asObject());
+        colMachine.setCellValueFactory(d ->
+                new SimpleStringProperty(d.getValue().getMachineNom()));
+        colClient.setCellValueFactory(d ->
+                new SimpleStringProperty(d.getValue().getNomClient()));
+        colCin.setCellValueFactory(d ->
+                new SimpleIntegerProperty(d.getValue().getCin()).asObject());
+
+        tableAchats.setRowFactory(tv -> new TableRow<AchatVM>() {
+            @Override protected void updateItem(AchatVM item, boolean empty) {
+                super.updateItem(item, empty);
+                setStyle(!empty && getIndex() % 2 == 1 ? "-fx-background-color: #f0f4f8;" : "");
+            }
+        });
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    //  CHARGEMENT
+    // ═══════════════════════════════════════════════════════════════
+    private void chargerDonnees() {
+        try { machines = machineService.recuperer(); }
+        catch (SQLException e) { showErr("Erreur", "Chargement machines : " + e.getMessage()); }
+        chargerAchats();
         initialiserComboMachines();
     }
 
-    // ================= CONFIGURATION TABLEAU =================
-    private void configurerTableau() {
-        colDateAchat.setCellValueFactory(data ->
-                new SimpleStringProperty(data.getValue().getDateAchat().toString()));
-        colQuantite.setCellValueFactory(data ->
-                new SimpleIntegerProperty(data.getValue().getQuantite()).asObject());
-        colMachine.setCellValueFactory(data ->
-                new SimpleStringProperty(data.getValue().getMachineInfo()));
-        colClient.setCellValueFactory(data ->
-                new SimpleStringProperty(data.getValue().getNomClient()));
-        colCin.setCellValueFactory(data ->
-                new SimpleIntegerProperty(data.getValue().getCin()).asObject());
-
-        // ================= COLONNE ACTIONS =================
-        colActions.setCellFactory(param -> new TableCell<>() {
-            private final Button btnModifier = new Button("✏️");
-            private final Button btnSupprimer = new Button("🗑️");
-            private final HBox hBox = new HBox(8, btnModifier, btnSupprimer);
-
-            {
-                // Style bouton Modifier
-                btnModifier.setStyle(
-                        "-fx-background-color: #3498db; " +
-                                "-fx-text-fill: white; " +
-                                "-fx-font-size: 14px; " +
-                                "-fx-padding: 5 12; " +
-                                "-fx-cursor: hand; " +
-                                "-fx-background-radius: 5;"
-                );
-                btnModifier.setOnMouseEntered(e ->
-                        btnModifier.setStyle(btnModifier.getStyle() + "-fx-background-color: #2980b9;"));
-                btnModifier.setOnMouseExited(e ->
-                        btnModifier.setStyle(btnModifier.getStyle().replace("-fx-background-color: #2980b9;", "-fx-background-color: #3498db;")));
-
-                // Style bouton Supprimer
-                btnSupprimer.setStyle(
-                        "-fx-background-color: #e74c3c; " +
-                                "-fx-text-fill: white; " +
-                                "-fx-font-size: 14px; " +
-                                "-fx-padding: 5 12; " +
-                                "-fx-cursor: hand; " +
-                                "-fx-background-radius: 5;"
-                );
-                btnSupprimer.setOnMouseEntered(e ->
-                        btnSupprimer.setStyle(btnSupprimer.getStyle() + "-fx-background-color: #c0392b;"));
-                btnSupprimer.setOnMouseExited(e ->
-                        btnSupprimer.setStyle(btnSupprimer.getStyle().replace("-fx-background-color: #c0392b;", "-fx-background-color: #e74c3c;")));
-
-                hBox.setAlignment(Pos.CENTER);
-
-                // Actions
-                btnModifier.setOnAction(event -> {
-                    AchatViewModel achat = getTableView().getItems().get(getIndex());
-                    afficherDialogAchat(achat);
-                });
-
-                btnSupprimer.setOnAction(event -> {
-                    AchatViewModel achat = getTableView().getItems().get(getIndex());
-                    supprimerAchatDirect(achat);
-                });
-            }
-
-            @Override
-            protected void updateItem(Void item, boolean empty) {
-                super.updateItem(item, empty);
-                setGraphic(empty ? null : hBox);
-            }
-        });
-    }
-
-    // ================= CHARGER DONNÉES =================
-    private void chargerDonnees() {
-        try {
-            machines = machineService.recuperer();
-            chargerAchats();
-        } catch (SQLException e) {
-            afficherErreur("Erreur de chargement",
-                    "Impossible de charger les données: " + e.getMessage());
-        }
-    }
-
-    // ================= CHARGER ACHATS AVEC JOINTURE SQL =================
     private void chargerAchats() {
-        try {
-            achatsObservableList.clear();
-
-            String query = "SELECT a.idAchat, a.dateAchat, a.quantite, a.idM, a.cin, " +
-                    "u.nom, u.prenom, m.marque, m.modele " +
-                    "FROM achat a " +
-                    "LEFT JOIN users u ON a.cin = u.cin " +
-                    "LEFT JOIN machine m ON a.idM = m.idM " +
-                    "ORDER BY a.dateAchat DESC";
-
-            try (Statement st = connection.createStatement();
-                 ResultSet rs = st.executeQuery(query)) {
-
-                while (rs.next()) {
-                    int idAchat = rs.getInt("idAchat");
-                    LocalDate dateAchat = rs.getDate("dateAchat").toLocalDate();
-                    int quantite = rs.getInt("quantite");
-                    int idM = rs.getInt("idM");
-                    int cin = rs.getInt("cin");
-
-                    String marque = rs.getString("marque");
-                    String modele = rs.getString("modele");
-                    String machineInfo = (marque != null && modele != null)
-                            ? marque + " " + modele
-                            : "Machine #" + idM;
-
-                    String nom = rs.getString("nom");
-                    String prenom = rs.getString("prenom");
-                    String nomClient = (nom != null && prenom != null)
-                            ? prenom + " " + nom
-                            : "Client inconnu";
-
-                    achatsObservableList.add(new AchatViewModel(
-                            idAchat, dateAchat, quantite, idM, cin,
-                            machineInfo, nomClient
-                    ));
-                }
-            }
-
-            achatsFiltres.setAll(achatsObservableList);
-            tableAchats.setItems(achatsFiltres);
-            mettreAJourStatistiques();
-
-        } catch (SQLException e) {
-            afficherErreur("Erreur", "Impossible de charger les achats: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    // ================= RÉCUPÉRER LISTE DES USERS =================
-    private ObservableList<UserInfo> recupererListeUsers() {
-        ObservableList<UserInfo> users = FXCollections.observableArrayList();
-        String query = "SELECT cin, nom, prenom FROM users ORDER BY nom, prenom";
+        masterList.clear();
+        String sql =
+                "SELECT a.idAchat, a.dateAchat, a.quantite, a.idM, a.cin, " +
+                        "       u.nom, u.prenom, m.marque, m.modele " +
+                        "FROM achat a " +
+                        "LEFT JOIN users   u ON a.cin = u.cin " +
+                        "LEFT JOIN machine m ON a.idM = m.idM " +
+                        "ORDER BY a.dateAchat DESC";
 
         try (Statement st = connection.createStatement();
-             ResultSet rs = st.executeQuery(query)) {
-
+             ResultSet rs = st.executeQuery(sql)) {
             while (rs.next()) {
-                users.add(new UserInfo(
+                String marque  = rs.getString("marque");
+                String modele  = rs.getString("modele");
+                String machNom = (marque != null) ? marque + " " + modele : "Machine inconnue";
+
+                String nom    = rs.getString("nom");
+                String prenom = rs.getString("prenom");
+                String client = (nom != null) ? prenom + " " + nom : "Inconnu";
+
+                masterList.add(new AchatVM(
+                        rs.getInt("idAchat"),
+                        rs.getDate("dateAchat").toLocalDate(),
+                        rs.getInt("quantite"),
+                        rs.getInt("idM"),
                         rs.getInt("cin"),
-                        rs.getString("nom"),
-                        rs.getString("prenom")
+                        machNom,
+                        client
                 ));
             }
-        } catch (SQLException e) {
-            System.err.println("Erreur récupération users: " + e.getMessage());
-        }
+        } catch (SQLException e) { showErr("Erreur SQL", e.getMessage()); }
 
-        return users;
+        appliquerFiltres();
     }
 
-    // ================= CONFIGURATION RECHERCHE =================
-    private void configurerRecherche() {
-        if (champRecherche != null) {
-            champRecherche.textProperty().addListener((observable, oldValue, newValue) -> {
-                filtrerAchats();
-            });
-        }
-    }
-
-    // ================= INITIALISER COMBO MACHINES =================
     private void initialiserComboMachines() {
-        if (comboMachine != null) {
-            comboMachine.getItems().clear();
-            comboMachine.getItems().add("Toutes les machines");
-
-            for (Machine m : machines) {
-                comboMachine.getItems().add(m.getMarque() + " " + m.getModele());
-            }
-
-            comboMachine.getSelectionModel().selectFirst();
-        }
+        comboMachine.getItems().clear();
+        comboMachine.getItems().add("Toutes les machines");
+        for (Machine m : machines)
+            comboMachine.getItems().add(m.getMarque() + " " + m.getModele());
+        comboMachine.getSelectionModel().selectFirst();
     }
 
-    // ================= RECHERCHER =================
+    // ═══════════════════════════════════════════════════════════════
+    //  RECHERCHE DYNAMIQUE
+    // ═══════════════════════════════════════════════════════════════
+    private void configurerRecherche() {
+        // Recherche dynamique : chaque frappe déclenche le filtre
+        champRecherche.textProperty().addListener((obs, oldVal, newVal) -> {
+            appliquerFiltres();
+        });
+    }
+
+    @FXML private void rechercher() { appliquerFiltres(); }
+    @FXML private void filtrer()    { appliquerFiltres(); }
+
     @FXML
-    private void rechercher() {
-        filtrerAchats();
+    private void effacerRecherche() {
+        champRecherche.clear();
+        appliquerFiltres();
     }
 
-    // ================= FILTRER =================
+    @FXML private void trierPlusRecent() { currentSort = SortMode.DATE_DESC; appliquerFiltres(); }
+    @FXML private void trierPlusAncien() { currentSort = SortMode.DATE_ASC;  appliquerFiltres(); }
+
     @FXML
-    private void filtrer() {
-        filtrerAchats();
+    private void reinitialiser() {
+        champRecherche.clear();
+        comboMachine.getSelectionModel().selectFirst();
+        currentSort = SortMode.DATE_DESC;
+        appliquerFiltres();
     }
 
-    // ================= FILTRER ACHATS =================
-    private void filtrerAchats() {
-        String recherche = champRecherche != null ? champRecherche.getText().toLowerCase() : "";
-        String machineSelectionnee = comboMachine != null && comboMachine.getValue() != null
-                ? comboMachine.getValue() : "Toutes les machines";
-
-        achatsFiltres.clear();
-
-        for (AchatViewModel achat : achatsObservableList) {
-            boolean matchRecherche = recherche.isEmpty() ||
-                    achat.getMachineInfo().toLowerCase().contains(recherche) ||
-                    achat.getNomClient().toLowerCase().contains(recherche) ||
-                    String.valueOf(achat.getCin()).contains(recherche) ||
-                    achat.getDateAchat().toString().contains(recherche);
-
-            boolean matchMachine = machineSelectionnee.equals("Toutes les machines") ||
-                    achat.getMachineInfo().equals(machineSelectionnee);
-
-            if (matchRecherche && matchMachine) {
-                achatsFiltres.add(achat);
-            }
-        }
-
-        mettreAJourStatistiques();
-    }
-
-    // ================= ACTUALISER =================
     @FXML
     private void actualiser() {
+        reinitialiser();
         chargerDonnees();
-        if (champRecherche != null) champRecherche.clear();
-        if (comboMachine != null) comboMachine.getSelectionModel().selectFirst();
     }
 
-    // ================= METTRE À JOUR STATISTIQUES =================
-    private void mettreAJourStatistiques() {
-        if (lblTotal != null) {
-            lblTotal.setText(String.valueOf(achatsFiltres.size()));
+    // ═══════════════════════════════════════════════════════════════
+    //  FILTRES + TRI
+    // ═══════════════════════════════════════════════════════════════
+    private void appliquerFiltres() {
+        String recherche  = champRecherche.getText() == null ? "" : champRecherche.getText().toLowerCase().trim();
+        String machineSel = comboMachine.getValue() == null ? "Toutes les machines" : comboMachine.getValue();
+
+        List<AchatVM> filtered = new ArrayList<>();
+
+        for (AchatVM a : masterList) {
+
+            // Filtre texte dynamique (machine, client, CIN, date, quantité)
+            boolean matchR = recherche.isEmpty()
+                    || a.getMachineNom().toLowerCase().contains(recherche)
+                    || a.getNomClient().toLowerCase().contains(recherche)
+                    || String.valueOf(a.getCin()).contains(recherche)
+                    || a.getDateAchat().toString().contains(recherche)
+                    || String.valueOf(a.getQuantite()).contains(recherche);
+
+            // Filtre machine combo
+            boolean matchM = machineSel.equals("Toutes les machines")
+                    || a.getMachineNom().equals(machineSel);
+
+            if (matchR && matchM) filtered.add(a);
         }
 
-        if (lblQuantiteTotal != null) {
-            int total = achatsFiltres.stream()
-                    .mapToInt(AchatViewModel::getQuantite)
-                    .sum();
-            lblQuantiteTotal.setText(String.valueOf(total));
+        // Tri
+        switch (currentSort) {
+            case DATE_ASC  -> filtered.sort(Comparator.comparing(AchatVM::getDateAchat));
+            case DATE_DESC -> filtered.sort(Comparator.comparing(AchatVM::getDateAchat).reversed());
+            default        -> {}
         }
+
+        displayList.setAll(filtered);
+        tableAchats.setItems(displayList);
+        mettreAJourStats();
     }
 
-    // ================= AJOUTER ACHAT =================
+    // ═══════════════════════════════════════════════════════════════
+    //  STATISTIQUES
+    // ═══════════════════════════════════════════════════════════════
+    private void mettreAJourStats() {
+        lblTotal.setText(String.valueOf(displayList.size()));
+        int totalQ = displayList.stream().mapToInt(AchatVM::getQuantite).sum();
+        lblQuantiteTotal.setText(String.valueOf(totalQ));
+    }
+
     @FXML
-    private void ajouterAchat(ActionEvent event) {
-        afficherDialogAchat(null);
+    private void afficherStatistiques() {
+        Map<String, Integer> dataMap = new LinkedHashMap<>();
+        for (AchatVM a : displayList)
+            dataMap.merge(a.getMachineNom(), a.getQuantite(), Integer::sum);
+
+        if (dataMap.isEmpty()) { showInfo("Statistiques", "Aucune donnée à afficher."); return; }
+
+        Stage stage = new Stage();
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.setTitle("📊 Statistiques — Quantités par Machine");
+        stage.setResizable(true);
+
+        int barW = 60, gap = 30, padL = 70, padB = 60, padTop = 50, chartH = 320;
+        List<String>  keys = new ArrayList<>(dataMap.keySet());
+        List<Integer> vals = new ArrayList<>(dataMap.values());
+        int n       = keys.size();
+        int canvasW = padL + n * (barW + gap) + gap + 20;
+        int canvasH = chartH + padB + padTop;
+
+        Canvas canvas = new Canvas(canvasW, canvasH);
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+
+        gc.setFill(Color.WHITE);
+        gc.fillRect(0, 0, canvasW, canvasH);
+        gc.setFill(Color.web("#2c3e50"));
+        gc.setFont(Font.font("Arial", FontWeight.BOLD, 14));
+        gc.fillText("Quantité totale par machine", padL, 30);
+
+        int maxVal = vals.stream().mapToInt(v -> v).max().orElse(1);
+
+        gc.setFont(Font.font("Arial", 11));
+        for (int i = 0; i <= 5; i++) {
+            double y = padTop + chartH - (chartH * i / 5.0);
+            gc.setStroke(Color.LIGHTGRAY); gc.setLineWidth(1);
+            gc.strokeLine(padL, y, canvasW - 20, y);
+            gc.setFill(Color.GRAY);
+            gc.fillText(String.valueOf((int)(maxVal * i / 5.0)), 5, y + 4);
+        }
+
+        gc.setStroke(Color.web("#bdc3c7")); gc.setLineWidth(2);
+        gc.strokeLine(padL, padTop + chartH, canvasW - 20, padTop + chartH);
+
+        Color[] colors = {
+                Color.web("#3498db"), Color.web("#27ae60"), Color.web("#e74c3c"),
+                Color.web("#f39c12"), Color.web("#9b59b6"), Color.web("#1abc9c"),
+                Color.web("#e67e22"), Color.web("#e91e63")
+        };
+
+        for (int i = 0; i < n; i++) {
+            double barH = (vals.get(i) / (double) maxVal) * chartH;
+            double x    = padL + gap + i * (barW + gap);
+            double y    = padTop + chartH - barH;
+            Color c     = colors[i % colors.length];
+
+            gc.setFill(Color.rgb(0, 0, 0, 0.08));
+            gc.fillRoundRect(x + 3, y + 3, barW, barH, 6, 6);
+            gc.setFill(c);
+            gc.fillRoundRect(x, y, barW, barH, 6, 6);
+
+            gc.setFill(Color.web("#2c3e50"));
+            gc.setFont(Font.font("Arial", FontWeight.BOLD, 12));
+            String valStr = String.valueOf(vals.get(i));
+            gc.fillText(valStr, x + barW / 2.0 - (valStr.length() * 3.5), y - 6);
+
+            gc.setFont(Font.font("Arial", 10));
+            String lbl = keys.get(i).length() > 14 ? keys.get(i).substring(0, 14) + "…" : keys.get(i);
+            gc.setFill(Color.web("#2c3e50"));
+            gc.fillText(lbl, x + barW / 2.0 - (lbl.length() * 3), padTop + chartH + 16);
+        }
+
+        ScrollPane sp = new ScrollPane(canvas);
+        sp.setFitToHeight(true);
+        sp.setPrefSize(Math.min(canvasW + 20, 950), canvasH + 20);
+
+        VBox root = new VBox(10, sp);
+        root.setPadding(new Insets(15));
+        root.setStyle("-fx-background-color: white;");
+        stage.setScene(new Scene(root));
+        stage.show();
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    //  EXPORT PDF
+    // ═══════════════════════════════════════════════════════════════
+    @FXML
+    private void exporterPDF() {
+        if (displayList.isEmpty()) { showInfo("Export PDF", "Aucune donnée à exporter."); return; }
+
+        FileChooser fc = new FileChooser();
+        fc.setTitle("Enregistrer le PDF");
+        fc.setInitialFileName("achats_" + LocalDate.now() + ".pdf");
+        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF", "*.pdf"));
+        File file = fc.showSaveDialog(tableAchats.getScene().getWindow());
+        if (file == null) return;
+
+        try (PdfWriter writer = new PdfWriter(file.getAbsolutePath());
+             PdfDocument pdf  = new PdfDocument(writer);
+             Document    doc  = new Document(pdf)) {
+
+            doc.add(new Paragraph("Rapport — Gestion des Achats")
+                    .setFontSize(18).setBold().setTextAlignment(TextAlignment.CENTER));
+            doc.add(new Paragraph("Généré le : " + LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")))
+                    .setFontSize(10).setTextAlignment(TextAlignment.CENTER));
+            doc.add(new Paragraph("\n"));
+
+            float[] colW = {100f, 70f, 160f, 160f, 90f};
+            Table table  = new Table(UnitValue.createPointArray(colW));
+            table.setWidth(UnitValue.createPercentValue(100));
+
+            for (String h : new String[]{"Date", "Quantité", "Machine", "Client", "CIN"}) {
+                table.addHeaderCell(new Cell()
+                        .add(new Paragraph(h).setBold().setFontSize(11))
+                        .setBackgroundColor(ColorConstants.LIGHT_GRAY)
+                        .setTextAlignment(TextAlignment.CENTER));
+            }
+
+            DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            for (AchatVM a : displayList) {
+                table.addCell(new Cell().add(new Paragraph(a.getDateAchat().format(fmt)).setFontSize(10)));
+                table.addCell(new Cell().add(new Paragraph(String.valueOf(a.getQuantite())).setFontSize(10).setTextAlignment(TextAlignment.CENTER)));
+                table.addCell(new Cell().add(new Paragraph(a.getMachineNom()).setFontSize(10)));
+                table.addCell(new Cell().add(new Paragraph(a.getNomClient()).setFontSize(10)));
+                table.addCell(new Cell().add(new Paragraph(String.valueOf(a.getCin())).setFontSize(10)));
+            }
+
+            doc.add(table);
+            doc.add(new Paragraph("\nTotal Achats : " + displayList.size()).setFontSize(11).setBold());
+            int totalQ = displayList.stream().mapToInt(AchatVM::getQuantite).sum();
+            doc.add(new Paragraph("Quantité Totale : " + totalQ).setFontSize(11).setBold());
+
+        } catch (Exception e) { showErr("Erreur PDF", e.getMessage()); return; }
+
+        showInfo("✅ Export PDF", "Fichier enregistré :\n" + file.getAbsolutePath());
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    //  EXPORT EXCEL
+    // ═══════════════════════════════════════════════════════════════
+    @FXML
+    private void exporterExcel() {
+        if (displayList.isEmpty()) { showInfo("Export Excel", "Aucune donnée à exporter."); return; }
+
+        FileChooser fc = new FileChooser();
+        fc.setTitle("Enregistrer le fichier Excel");
+        fc.setInitialFileName("achats_" + LocalDate.now() + ".xlsx");
+        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("Excel", "*.xlsx"));
+        File file = fc.showSaveDialog(tableAchats.getScene().getWindow());
+        if (file == null) return;
+
+        try (XSSFWorkbook wb = new XSSFWorkbook()) {
+            Sheet sheet = wb.createSheet("Achats");
+
+            Row header = (Row) sheet.createRow(0);
+            String[] cols = {"Date Achat", "Quantité", "Machine", "Client", "CIN"};
+            CellStyle headerStyle = wb.createCellStyle();
+            org.apache.poi.ss.usermodel.Font hFont = wb.createFont();
+            hFont.setBold(true);
+            headerStyle.setFont(hFont);
+            headerStyle.setFillForegroundColor(IndexedColors.LIGHT_BLUE.getIndex());
+            headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            for (int i = 0; i < cols.length; i++) {
+                org.apache.poi.ss.usermodel.Cell c = header.createCell(i);
+                c.setCellValue(cols[i]);
+                c.setCellStyle(headerStyle);
+            }
+
+            DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            int rowIdx = 1;
+            for (AchatVM a : displayList) {
+                Row row = (Row) sheet.createRow(rowIdx++);
+                row.createCell(0).setCellValue(a.getDateAchat().format(fmt));
+                row.createCell(1).setCellValue(a.getQuantite());
+                row.createCell(2).setCellValue(a.getMachineNom());
+                row.createCell(3).setCellValue(a.getNomClient());
+                row.createCell(4).setCellValue(a.getCin());
+            }
+
+            Row total = sheet.createRow(rowIdx + 1);
+            total.createCell(0).setCellValue("TOTAL");
+            total.createCell(1).setCellValue(displayList.stream().mapToInt(AchatVM::getQuantite).sum());
+            for (int i = 0; i < cols.length; i++) sheet.autoSizeColumn(i);
+
+            try (FileOutputStream fos = new FileOutputStream(file)) { wb.write(fos); }
+
+        } catch (Exception e) { showErr("Erreur Excel", e.getMessage()); return; }
+
+        showInfo("✅ Export Excel", "Fichier enregistré :\n" + file.getAbsolutePath());
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    //  CRUD
+    // ═══════════════════════════════════════════════════════════════
+    @FXML private void ouvrirAjout() { afficherDialog(null); }
+
+    @FXML
+    private void modifierSelectionne() {
+        AchatVM sel = tableAchats.getSelectionModel().getSelectedItem();
+        if (sel == null) { showWarn("Aucune sélection", "Sélectionnez un achat à modifier."); return; }
+        afficherDialog(sel);
     }
 
     @FXML
-    private void ouvrirAjout() {
-        afficherDialogAchat(null);
-    }
+    private void supprimerSelectionne() {
+        AchatVM sel = tableAchats.getSelectionModel().getSelectedItem();
+        if (sel == null) { showWarn("Aucune sélection", "Sélectionnez un achat à supprimer."); return; }
 
-    // ================= SUPPRIMER ACHAT DIRECT =================
-    private void supprimerAchatDirect(AchatViewModel achat) {
-        Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmation.setTitle("⚠️ Confirmation");
-        confirmation.setHeaderText("Supprimer l'achat #" + achat.getIdAchat());
-        confirmation.setContentText("Client: " + achat.getNomClient() + "\nMachine: " + achat.getMachineInfo() + "\n\nCette action est irréversible!");
-
-        Optional<ButtonType> result = confirmation.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Confirmation");
+        confirm.setHeaderText("Supprimer l'achat #" + sel.getIdAchat() + " ?");
+        confirm.setContentText("Client : " + sel.getNomClient() +
+                "\nMachine : " + sel.getMachineNom() + "\n\nCette action est irréversible !");
+        Optional<ButtonType> r = confirm.showAndWait();
+        if (r.isPresent() && r.get() == ButtonType.OK) {
             try {
-                achatService.supprimer(achat.getIdAchat());
-                afficherSucces("✅ Succès", "Achat supprimé avec succès!");
+                achatService.supprimer(sel.getIdAchat());
+                showInfo("✅ Succès", "Achat supprimé.");
                 chargerAchats();
-            } catch (SQLException e) {
-                afficherErreur("❌ Erreur", "Impossible de supprimer: " + e.getMessage());
-            }
+            } catch (SQLException e) { showErr("Erreur", e.getMessage()); }
         }
     }
 
-    // ================= DIALOG ACHAT =================
-    private void afficherDialogAchat(AchatViewModel achatExistant) {
-        Stage dialogStage = new Stage();
-        dialogStage.initModality(Modality.APPLICATION_MODAL);
-        dialogStage.setTitle(achatExistant == null ? "➕ Nouvel Achat" : "✏️ Modifier l'Achat");
-        dialogStage.setResizable(false);
+    // ═══════════════════════════════════════════════════════════════
+    //  DIALOG AJOUTER / MODIFIER
+    // ═══════════════════════════════════════════════════════════════
+    private void afficherDialog(AchatVM existant) {
+        Stage dialog = new Stage();
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.setTitle(existant == null ? "➕ Nouvel Achat" : "✏️ Modifier l'Achat #" + existant.getIdAchat());
+        dialog.setResizable(false);
 
-        VBox dialogVBox = new VBox(20);
-        dialogVBox.setPadding(new Insets(30));
-        dialogVBox.setStyle("-fx-background-color: white;");
+        VBox root = new VBox(20);
+        root.setPadding(new Insets(30));
+        root.setStyle("-fx-background-color: white;");
 
-        Label titreLabel = new Label(achatExistant == null ? "📝 Formulaire d'Achat" : "✏️ Modifier l'Achat #" + achatExistant.getIdAchat());
-        titreLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;");
+        Label titre = new Label(existant == null ? "📝 Nouvel Achat" : "✏️ Modifier l'Achat");
+        titre.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;");
 
-        GridPane gridPane = new GridPane();
-        gridPane.setHgap(15);
-        gridPane.setVgap(15);
-        gridPane.setPadding(new Insets(20, 0, 0, 0));
+        GridPane grid = new GridPane();
+        grid.setHgap(15); grid.setVgap(15);
 
-        // Date Achat
-        Label lblDate = new Label("📅 Date d'Achat *");
-        lblDate.setStyle("-fx-font-weight: bold; -fx-text-fill: #34495e;");
-        DatePicker dateAchatPicker = new DatePicker();
-        dateAchatPicker.setPrefWidth(250);
-        dateAchatPicker.setPromptText("Sélectionner la date");
-        dateAchatPicker.setStyle("-fx-background-color: #f8f9fa; -fx-border-color: #cbd5e0; -fx-border-radius: 5;");
+        DatePicker datePicker = new DatePicker();
+        datePicker.setPrefWidth(260);
 
-        // Quantité
-        Label lblQuantite = new Label("📦 Quantité *");
-        lblQuantite.setStyle("-fx-font-weight: bold; -fx-text-fill: #34495e;");
-        TextField quantiteField = new TextField();
-        quantiteField.setPrefWidth(250);
-        quantiteField.setPromptText("Entrer la quantité");
-        quantiteField.setStyle("-fx-background-color: #f8f9fa; -fx-border-color: #cbd5e0; -fx-border-radius: 5; -fx-padding: 8;");
+        TextField qteField = new TextField();
+        qteField.setPrefWidth(260);
+        qteField.setPromptText("Ex : 5");
 
-        // Machine
-        Label lblMachine = new Label("⚙️ Machine *");
-        lblMachine.setStyle("-fx-font-weight: bold; -fx-text-fill: #34495e;");
-        ComboBox<String> machineCombo = new ComboBox<>();
-        machineCombo.setPrefWidth(250);
+        ComboBox<MachineItem> machineCombo = new ComboBox<>();
+        machineCombo.setPrefWidth(260);
         machineCombo.setPromptText("Sélectionner une machine");
-        machineCombo.setStyle("-fx-background-color: #f8f9fa; -fx-border-color: #cbd5e0; -fx-border-radius: 5;");
+        for (Machine m : machines)
+            machineCombo.getItems().add(new MachineItem(m.getIdM(), m.getMarque() + " " + m.getModele()));
 
-        for (Machine m : machines) {
-            machineCombo.getItems().add("ID: " + m.getIdM() + " - " + m.getMarque() + " " + m.getModele());
-        }
-
-        // Client
-        Label lblClient = new Label("👤 Client *");
-        lblClient.setStyle("-fx-font-weight: bold; -fx-text-fill: #34495e;");
         ComboBox<UserInfo> clientCombo = new ComboBox<>();
-        clientCombo.setPrefWidth(250);
+        clientCombo.setPrefWidth(260);
         clientCombo.setPromptText("Sélectionner un client");
-        clientCombo.setStyle("-fx-background-color: #f8f9fa; -fx-border-color: #cbd5e0; -fx-border-radius: 5;");
+        clientCombo.setItems(recupererUsers());
 
-        ObservableList<UserInfo> users = recupererListeUsers();
-        clientCombo.setItems(users);
-
-        // Remplir si modification
-        if (achatExistant != null) {
-            dateAchatPicker.setValue(achatExistant.getDateAchat());
-            quantiteField.setText(String.valueOf(achatExistant.getQuantite()));
-
-            for (int i = 0; i < machineCombo.getItems().size(); i++) {
-                if (machineCombo.getItems().get(i).startsWith("ID: " + achatExistant.getIdM())) {
-                    machineCombo.getSelectionModel().select(i);
-                    break;
-                }
-            }
-
-            for (UserInfo user : users) {
-                if (user.cin == achatExistant.getCin()) {
-                    clientCombo.getSelectionModel().select(user);
-                    break;
-                }
-            }
+        if (existant != null) {
+            datePicker.setValue(existant.getDateAchat());
+            qteField.setText(String.valueOf(existant.getQuantite()));
+            for (MachineItem mi : machineCombo.getItems())
+                if (mi.idM == existant.getIdM()) { machineCombo.getSelectionModel().select(mi); break; }
+            for (UserInfo u : clientCombo.getItems())
+                if (u.cin == existant.getCin()) { clientCombo.getSelectionModel().select(u); break; }
         }
 
-        gridPane.add(lblDate, 0, 0);
-        gridPane.add(dateAchatPicker, 1, 0);
-        gridPane.add(lblQuantite, 0, 1);
-        gridPane.add(quantiteField, 1, 1);
-        gridPane.add(lblMachine, 0, 2);
-        gridPane.add(machineCombo, 1, 2);
-        gridPane.add(lblClient, 0, 3);
-        gridPane.add(clientCombo, 1, 3);
+        grid.add(makeLabel("📅 Date d'Achat *"), 0, 0); grid.add(datePicker,   1, 0);
+        grid.add(makeLabel("📦 Quantité *"),     0, 1); grid.add(qteField,     1, 1);
+        grid.add(makeLabel("⚙️ Machine *"),       0, 2); grid.add(machineCombo, 1, 2);
+        grid.add(makeLabel("👤 Client *"),        0, 3); grid.add(clientCombo,  1, 3);
 
-        HBox boutonsBox = new HBox(15);
-        boutonsBox.setAlignment(Pos.CENTER);
-        boutonsBox.setPadding(new Insets(20, 0, 0, 0));
+        Button btnOK  = new Button(existant == null ? "✅ Ajouter" : "✅ Modifier");
+        btnOK.setPrefSize(150, 40);
+        btnOK.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-size: 14px; " +
+                "-fx-font-weight: bold; -fx-cursor: hand; -fx-background-radius: 6;");
 
-        Button btnValider = new Button(achatExistant == null ? "✅ Ajouter" : "✅ Modifier");
-        btnValider.setPrefWidth(150);
-        btnValider.setPrefHeight(40);
-        btnValider.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-cursor: hand;");
+        Button btnAnn = new Button("❌ Annuler");
+        btnAnn.setPrefSize(150, 40);
+        btnAnn.setStyle("-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-font-size: 14px; " +
+                "-fx-font-weight: bold; -fx-cursor: hand; -fx-background-radius: 6;");
 
-        Button btnAnnuler = new Button("❌ Annuler");
-        btnAnnuler.setPrefWidth(150);
-        btnAnnuler.setPrefHeight(40);
-        btnAnnuler.setStyle("-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-cursor: hand;");
+        btnOK.setOnAction(e -> {
+            if (!valider(datePicker, qteField, machineCombo, clientCombo)) return;
+            try {
+                Achat achat = new Achat();
+                if (existant != null) achat.setIdAchat(existant.getIdAchat());
+                achat.setDateAchat(datePicker.getValue());
+                achat.setQuantite(Integer.parseInt(qteField.getText().trim()));
+                achat.setIdM(machineCombo.getValue().idM);
+                achat.setCin(clientCombo.getValue().cin);
 
-        btnValider.setOnAction(e -> {
-            if (validerFormulaire(dateAchatPicker, quantiteField, machineCombo, clientCombo)) {
-                try {
-                    Achat achat = new Achat();
-                    if (achatExistant != null) {
-                        achat.setIdAchat(achatExistant.getIdAchat());
-                    }
-                    achat.setDateAchat(dateAchatPicker.getValue());
-                    achat.setQuantite(Integer.parseInt(quantiteField.getText().trim()));
-                    achat.setIdM(extraireIdMachine(machineCombo.getValue()));
-                    achat.setCin(clientCombo.getValue().cin);
+                if (existant == null) { achatService.ajouter(achat);  showInfo("✅", "Achat ajouté !"); }
+                else                  { achatService.modifier(achat); showInfo("✅", "Achat modifié !"); }
 
-                    if (achatExistant == null) {
-                        achatService.ajouter(achat);
-                        afficherSucces("✅ Succès", "Achat ajouté avec succès!");
-                    } else {
-                        achatService.modifier(achat);
-                        afficherSucces("✅ Succès", "Achat modifié avec succès!");
-                    }
-
-                    chargerAchats();
-                    dialogStage.close();
-
-                } catch (SQLException ex) {
-                    afficherErreur("❌ Erreur", "Opération impossible: " + ex.getMessage());
-                }
-            }
+                chargerAchats();
+                dialog.close();
+            } catch (SQLException ex) { showErr("Erreur", ex.getMessage()); }
         });
 
-        btnAnnuler.setOnAction(e -> dialogStage.close());
+        btnAnn.setOnAction(e -> dialog.close());
 
-        boutonsBox.getChildren().addAll(btnValider, btnAnnuler);
-        dialogVBox.getChildren().addAll(titreLabel, gridPane, boutonsBox);
+        HBox btns = new HBox(15, btnOK, btnAnn);
+        btns.setAlignment(Pos.CENTER);
+        btns.setPadding(new Insets(15, 0, 0, 0));
 
-        Scene dialogScene = new Scene(dialogVBox, 550, 450);
-        dialogStage.setScene(dialogScene);
-        dialogStage.showAndWait();
+        root.getChildren().addAll(titre, grid, btns);
+        dialog.setScene(new Scene(root, 540, 420));
+        dialog.showAndWait();
     }
 
-    // ================= VALIDATION FORMULAIRE =================
-    private boolean validerFormulaire(DatePicker datePicker, TextField quantiteField,
-                                      ComboBox<String> machineCombo, ComboBox<UserInfo> clientCombo) {
-        if (datePicker.getValue() == null) {
-            afficherAvertissement("❌ Champ requis", "Veuillez sélectionner une date.");
-            return false;
-        }
-
-        LocalDate dateAchat = datePicker.getValue();
-        if (dateAchat.isAfter(LocalDate.now())) {
-            afficherAvertissement("❌ Date invalide", "La date ne peut pas être dans le futur.");
-            return false;
-        }
-
-        if (dateAchat.isBefore(LocalDate.of(2000, 1, 1))) {
-            afficherAvertissement("❌ Date invalide", "La date ne peut pas être avant l'an 2000.");
-            return false;
-        }
-
-        if (quantiteField.getText().trim().isEmpty()) {
-            afficherAvertissement("❌ Champ requis", "Veuillez entrer une quantité.");
-            return false;
-        }
-
-        if (!quantiteField.getText().trim().matches("\\d+")) {
-            afficherAvertissement("❌ Format invalide", "La quantité doit être un nombre entier.");
-            return false;
-        }
-
-        int quantite = Integer.parseInt(quantiteField.getText().trim());
-        if (quantite < 1 || quantite > 10000) {
-            afficherAvertissement("❌ Valeur invalide", "La quantité doit être entre 1 et 10000.");
-            return false;
-        }
-
-        if (machineCombo.getValue() == null) {
-            afficherAvertissement("❌ Champ requis", "Veuillez sélectionner une machine.");
-            return false;
-        }
-
-        if (clientCombo.getValue() == null) {
-            afficherAvertissement("❌ Champ requis", "Veuillez sélectionner un client.");
-            return false;
-        }
-
+    // ═══════════════════════════════════════════════════════════════
+    //  VALIDATION
+    // ═══════════════════════════════════════════════════════════════
+    private boolean valider(DatePicker dp, TextField qte,
+                            ComboBox<MachineItem> machine, ComboBox<UserInfo> client) {
+        if (dp.getValue() == null)
+        { showWarn("Champ requis",   "Sélectionnez une date."); return false; }
+        if (dp.getValue().isAfter(LocalDate.now()))
+        { showWarn("Date invalide",  "La date ne peut pas être dans le futur."); return false; }
+        if (dp.getValue().isBefore(LocalDate.of(2000, 1, 1)))
+        { showWarn("Date invalide",  "Date trop ancienne (avant 2000)."); return false; }
+        if (qte.getText().trim().isEmpty())
+        { showWarn("Champ requis",   "Entrez une quantité."); return false; }
+        if (!qte.getText().trim().matches("\\d+"))
+        { showWarn("Format invalide","La quantité doit être un entier positif."); return false; }
+        int q = Integer.parseInt(qte.getText().trim());
+        if (q < 1 || q > 10000)
+        { showWarn("Valeur invalide","Quantité entre 1 et 10 000."); return false; }
+        if (machine.getValue() == null)
+        { showWarn("Champ requis",   "Sélectionnez une machine."); return false; }
+        if (client.getValue() == null)
+        { showWarn("Champ requis",   "Sélectionnez un client."); return false; }
         return true;
     }
 
-    // ================= EXTRAIRE ID MACHINE =================
-    private int extraireIdMachine(String texte) {
-        String[] parts = texte.split(" - ")[0].split(": ");
-        return Integer.parseInt(parts[1].trim());
+    // ═══════════════════════════════════════════════════════════════
+    //  HELPERS UI
+    // ═══════════════════════════════════════════════════════════════
+    private Label makeLabel(String text) {
+        Label l = new Label(text);
+        l.setStyle("-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #2c3e50;");
+        return l;
     }
 
-    // ================= NAVIGATION =================
-    @FXML private void naviguerAnimaux( Event event) { naviguerVers("/AnimalsInterface/AfficherAnimaux.fxml",event ); }
-    @FXML private void naviguerMateriels(Event event) { naviguerVers("/MaterielsInterface/AccueilMateriel.fxml",event); }
-    @FXML private void naviguerStocks(Event event) { naviguerVers("/StocksInterface/afficherarticle.fxml", event); }
-    @FXML private void naviguerTerrains(Event event) { naviguerVers("/TerrainsInterface/acceuilterrain.fxml", event ); }
-    @FXML private void naviguerEvenements(Event event) { naviguerVers("/EventsInterface/GestionEvenements.fxml" , event); }
-    @FXML private void naviguerUsers(Event event ) { naviguerVers("UsersInterface/Acceuil.fxml", event); }
-
-    // Retour vers Gestion Matériels
-    @FXML
-    private void retourAccueil(Event event) {
-        naviguerVers("/MaterielsInterface/AccueilMateriel.fxml",event);
+    private ObservableList<UserInfo> recupererUsers() {
+        ObservableList<UserInfo> list = FXCollections.observableArrayList();
+        String sql = "SELECT cin, nom, prenom FROM users ORDER BY nom, prenom";
+        try (Statement st = connection.createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
+            while (rs.next())
+                list.add(new UserInfo(rs.getInt("cin"), rs.getString("nom"), rs.getString("prenom")));
+        } catch (SQLException e) { showErr("Erreur", "Chargement utilisateurs : " + e.getMessage()); }
+        return list;
     }
 
-    @FXML
-    private void deconnexion(Event event) {
-        Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmation.setTitle("Déconnexion");
-        confirmation.setContentText("Voulez-vous vous déconnecter?");
-        Optional<ButtonType> result = confirmation.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
-            naviguerVers("/UsersInterface/Login.fxml",event);
-        }
-    }
 
-    private void naviguerVers(String fxmlPath,Event event ) {
+    @FXML private void retourAccueil()      { nav("/MaterielsInterface/AccueilMateriel.fxml"); }
+
+
+
+    private void nav(String path) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
-            Parent root = loader.load();
-
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-
-            boolean etaitMaximise = stage.isMaximized();  // ← SAUVEGARDER AVANT
-
+            Parent root = FXMLLoader.load(getClass().getResource(path));
+            Stage stage = (Stage) tableAchats.getScene().getWindow();
             stage.setScene(new Scene(root));
-
-            stage.setMaximized(etaitMaximise);  // ← RESTAURER APRÈS
-
-            stage.show();
-        } catch (IOException e) {
-            System.err.println("Erreur de chargement FXML : " + fxmlPath);
-            e.printStackTrace();
-        }
+        } catch (IOException e) { showErr("Navigation", "Impossible de charger : " + path); }
     }
 
-    // ================= ALERTES =================
-    private void afficherSucces(String titre, String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(titre);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
+    // ═══════════════════════════════════════════════════════════════
+    //  ALERTES UI
+    // ═══════════════════════════════════════════════════════════════
+    private void showErr (String t, String m) { alert(Alert.AlertType.ERROR,       t, m); }
+    private void showWarn(String t, String m) { alert(Alert.AlertType.WARNING,     t, m); }
 
-    private void afficherErreur(String titre, String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(titre);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-
-    private void afficherAvertissement(String titre, String message) {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle(titre);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+    private void alert(Alert.AlertType type, String titre, String msg) {
+        Alert a = new Alert(type);
+        a.setTitle(titre); a.setHeaderText(null); a.setContentText(msg); a.showAndWait();
     }
 
     //naviguer vers les autres modules
@@ -783,5 +848,23 @@ public class AfficherAchatsController implements Initializable {
         alert.setContentText(message);
         alert.showAndWait();
     }
+    private void naviguerVers(String fxmlPath,Event event ) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            Parent root = loader.load();
 
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+
+            boolean etaitMaximise = stage.isMaximized();  // ← SAUVEGARDER AVANT
+
+            stage.setScene(new Scene(root));
+
+            stage.setMaximized(etaitMaximise);  // ← RESTAURER APRÈS
+
+            stage.show();
+        } catch (IOException e) {
+            System.err.println("Erreur de chargement FXML : " + fxmlPath);
+            e.printStackTrace();
+        }
+    }
 }
