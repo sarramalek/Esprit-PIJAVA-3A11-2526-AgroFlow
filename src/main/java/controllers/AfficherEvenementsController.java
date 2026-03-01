@@ -12,13 +12,16 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import models.CategorieEvenement;
 import models.Evenement;
 import services.CategorieEvenementService;
 import services.EvenementService;
+import utils.CalendarViewService;
 
 import java.io.IOException;
+import java.net.URL;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -72,11 +75,9 @@ public class AfficherEvenementsController {
 
     // ================= INITIALISATION DES FILTRES =================
     private void initFilters() {
-        // Remplir ComboBox Statut
         filterStatut.getItems().addAll("Tous les statuts", "Planifié", "Annulé", "Terminé");
         filterStatut.setValue("Tous les statuts");
 
-        // Charger les catégories
         try {
             List<CategorieEvenement> categories = categorieService.recuperer();
             filterCategorie.getItems().add("Toutes");
@@ -90,13 +91,10 @@ public class AfficherEvenementsController {
             e.printStackTrace();
         }
 
-        // Listeners pour filtrage automatique
         filterStatut.setOnAction(e -> appliquerFiltres());
         filterCategorie.setOnAction(e -> appliquerFiltres());
         filterDateDebut.setOnAction(e -> appliquerFiltres());
         filterDateFin.setOnAction(e -> appliquerFiltres());
-
-        // Listener pour le champ lieu (avec petit délai)
         filterLieu.textProperty().addListener((obs, old, newVal) -> appliquerFiltres());
     }
 
@@ -107,11 +105,9 @@ public class AfficherEvenementsController {
         lieuColumn.setCellValueFactory(new PropertyValueFactory<>("lieu"));
         statutColumn.setCellValueFactory(new PropertyValueFactory<>("statut"));
 
-        // Dates formatées
         dateDebutColumn.setCellValueFactory(new PropertyValueFactory<>("dateDebut"));
         dateDebutColumn.setCellFactory(col -> new TableCell<>() {
             private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-
             @Override
             protected void updateItem(Date date, boolean empty) {
                 super.updateItem(date, empty);
@@ -122,7 +118,6 @@ public class AfficherEvenementsController {
         dateFinColumn.setCellValueFactory(new PropertyValueFactory<>("dateFin"));
         dateFinColumn.setCellFactory(col -> new TableCell<>() {
             private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-
             @Override
             protected void updateItem(Date date, boolean empty) {
                 super.updateItem(date, empty);
@@ -130,7 +125,6 @@ public class AfficherEvenementsController {
             }
         });
 
-        // Catégorie : afficher le nom
         categorieColumn.setCellValueFactory(cellData -> {
             try {
                 int idCategorie = cellData.getValue().getIdCategorie();
@@ -141,7 +135,6 @@ public class AfficherEvenementsController {
             }
         });
 
-        // Statut avec couleurs
         statutColumn.setCellFactory(col -> new TableCell<>() {
             @Override
             protected void updateItem(String statut, boolean empty) {
@@ -184,66 +177,50 @@ public class AfficherEvenementsController {
 
     // ================= APPLIQUER TOUS LES FILTRES =================
     private void appliquerFiltres() {
-        filteredData.setPredicate(evenement -> {
-            return matchesSearchText(evenement)
-                    && matchesDateDebutFilter(evenement)
-                    && matchesDateFinFilter(evenement)
-                    && matchesLieuFilter(evenement)
-                    && matchesStatutFilter(evenement)
-                    && matchesCategorieFilter(evenement);
-        });
-
+        filteredData.setPredicate(evenement ->
+                matchesSearchText(evenement)
+                        && matchesDateDebutFilter(evenement)
+                        && matchesDateFinFilter(evenement)
+                        && matchesLieuFilter(evenement)
+                        && matchesStatutFilter(evenement)
+                        && matchesCategorieFilter(evenement)
+        );
         updateResultsCount();
     }
 
-    // ================= FILTRES INDIVIDUELS =================
-
     private boolean matchesSearchText(Evenement evenement) {
         String searchText = searchField.getText();
-        if (searchText == null || searchText.trim().isEmpty()) {
-            return true;
-        }
+        if (searchText == null || searchText.trim().isEmpty()) return true;
         return evenement.getTitre().toLowerCase().contains(searchText.toLowerCase());
     }
 
     private boolean matchesDateDebutFilter(Evenement evenement) {
         LocalDate dateFiltre = filterDateDebut.getValue();
-        if (dateFiltre == null) {
-            return true;
-        }
+        if (dateFiltre == null) return true;
         return evenement.getDateDebut().toLocalDate().equals(dateFiltre);
     }
 
     private boolean matchesDateFinFilter(Evenement evenement) {
         LocalDate dateFiltre = filterDateFin.getValue();
-        if (dateFiltre == null) {
-            return true;
-        }
+        if (dateFiltre == null) return true;
         return evenement.getDateFin().toLocalDate().equals(dateFiltre);
     }
 
     private boolean matchesLieuFilter(Evenement evenement) {
         String lieuFiltre = filterLieu.getText();
-        if (lieuFiltre == null || lieuFiltre.trim().isEmpty()) {
-            return true;
-        }
+        if (lieuFiltre == null || lieuFiltre.trim().isEmpty()) return true;
         return evenement.getLieu().toLowerCase().contains(lieuFiltre.toLowerCase());
     }
 
     private boolean matchesStatutFilter(Evenement evenement) {
         String statut = filterStatut.getValue();
-        if (statut == null || statut.equals("Tous les statuts")) {
-            return true;
-        }
+        if (statut == null || statut.equals("Tous les statuts")) return true;
         return evenement.getStatut().equalsIgnoreCase(statut);
     }
 
     private boolean matchesCategorieFilter(Evenement evenement) {
         String categorie = filterCategorie.getValue();
-        if (categorie == null || categorie.equals("Toutes")) {
-            return true;
-        }
-
+        if (categorie == null || categorie.equals("Toutes")) return true;
         try {
             String nomCategorie = categorieService.getNomCategorieById(evenement.getIdCategorie());
             return nomCategorie.equals(categorie);
@@ -264,7 +241,6 @@ public class AfficherEvenementsController {
         appliquerFiltres();
     }
 
-    // ================= MISE À JOUR DU COMPTEUR =================
     private void updateResultsCount() {
         int count = filteredData.size();
         resultsCountLabel.setText(count + " événement(s) trouvé(s)");
@@ -292,7 +268,6 @@ public class AfficherEvenementsController {
                     alert.setTitle("Confirmation");
                     alert.setHeaderText("Suppression d'événement");
                     alert.setContentText("Voulez-vous supprimer l'événement \"" + evenement.getTitre() + "\" ?");
-
                     Optional<ButtonType> result = alert.showAndWait();
                     if (result.isPresent() && result.get() == ButtonType.OK) {
                         try {
@@ -321,6 +296,18 @@ public class AfficherEvenementsController {
     }
 
     @FXML
+    private void handleOpenGoogleCalendar(ActionEvent event) {
+        try {
+            CalendarViewService calendarService = new CalendarViewService();
+            Stage stage = (Stage) eventsTable.getScene().getWindow();
+            calendarService.afficherCalendrier(stage);
+        } catch (Exception e) {
+            e.printStackTrace();
+            showError("Erreur", "Impossible d'ouvrir le calendrier : " + e.getMessage());
+        }
+    }
+
+    @FXML
     private void handleRefresh(ActionEvent event) {
         try {
             loadEvenements();
@@ -334,6 +321,29 @@ public class AfficherEvenementsController {
     @FXML
     private void goToAccueil(ActionEvent event) {
         ouvrirPageSimple("Accueil.fxml");
+    }
+
+    @FXML
+    private void handleGenerateIdeas(ActionEvent event) {
+        try {
+            // Tentative avec plusieurs chemins possibles
+            URL fxmlUrl = getClass().getResource("/G-Evenements/GenerateurIdees.fxml");
+
+            FXMLLoader loader = new FXMLLoader(fxmlUrl);
+            Parent root = loader.load();
+
+            Stage popupStage = new Stage();
+            popupStage.setTitle("💡 Générateur d'idées d'événements IA");
+            popupStage.setScene(new Scene(root, 680, 620));
+            popupStage.initModality(Modality.WINDOW_MODAL);
+            popupStage.initOwner(eventsTable.getScene().getWindow());
+            popupStage.setResizable(true);
+            popupStage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            showError("Erreur", "Impossible d'ouvrir le générateur d'idées : " + e.getMessage());
+        }
     }
 
     // ================= NAVIGATION =================

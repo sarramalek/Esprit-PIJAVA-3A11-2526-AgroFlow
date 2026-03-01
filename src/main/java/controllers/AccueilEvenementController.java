@@ -11,6 +11,7 @@ import java.io.IOException;
 
 public class AccueilEvenementController {
 
+
     private void chargerPage(Event event, String fxml) {
         try {
             Parent root = FXMLLoader.load(getClass().getResource("/G-Evenements/" + fxml));
