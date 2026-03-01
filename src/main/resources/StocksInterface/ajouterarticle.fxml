@@ -4,163 +4,81 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.image.Image?>
-<HBox prefHeight="650.0" prefWidth="1050.0" style="-fx-background-color: #fdfae7;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.Stocks.ajouterarticleController">
-    <children>
-        <VBox prefWidth="250" style="-fx-background-color:  #617e9c;">
-            <padding>
-                <Insets bottom="20" top="20" />
-            </padding>
 
-            <!-- Logo/Header MODERNE -->
-            <StackPane prefWidth="100" prefHeight="100"  >
-                <ImageView fitWidth="200" fitHeight="150" preserveRatio="true">
-                    <image><Image url="/style/logo.png"/></image>
-                </ImageView>
+<BorderPane prefHeight="650.0" prefWidth="1050.0" style="-fx-background-color: #f4f7f6;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.Stocks.ajouterarticleController">
 
-            </StackPane>
-            <padding>
-                <Insets bottom="20" top="20" />
-            </padding>
-
-        <!-- Navigation Menu MODERNISÉE -->
-        <VBox spacing="10">
-            <!-- Dashboard -->
-            <Button fx:id="dashboardBtn" onAction="#handleDashboard" prefHeight="50" prefWidth="230"
-                    style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white; -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand; -fx-border-color: rgba(255,255,255,0.2); -fx-border-width: 1; -fx-border-radius: 12;"
-                    text="📊  Dashboard">
-                <font><Font name="System Bold" size="14" /></font>
-            </Button>
-
-            <!-- GESTION PRINCIPALE avec sous-menu -->
-            <VBox fx:id="gestionContainer" prefWidth="230" spacing="5" style="-fx-background-radius: 12;">
-                <Button fx:id="gestionBtn"  prefHeight="50" prefWidth="230"
-                        style="-fx-background-color: linear-gradient(to right, #4CAF50, #45a049); -fx-text-fill: white; -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0, 0, 2);"
-                        text="⚙️  Gestion Utilisateurs">
-                    <font><Font name="System Bold" size="14" /></font>
-                </Button>
-
-                <!-- Sous-menu MODERNE -->
-                <VBox fx:id="gestionSubmenu" spacing="3" style="-fx-padding: 5 0 5 15; -fx-background-color: rgba(0,0,0,0.15); -fx-background-radius: 0 0 12 12;">
-                    <Button fx:id="personnesBtn" onMouseClicked="#handlePersonnes" prefHeight="42" prefWidth="215"
-                            style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.95); -fx-font-size: 13px; -fx-alignment: CENTER_LEFT; -fx-padding: 0 0 0 15; -fx-background-radius: 8; -fx-cursor: hand; -fx-border-color: transparent;"
-                            text="👥  Personnes">
-                        <font><Font name="System" size="13" /></font>
-                    </Button>
-                    <Button fx:id="tachesBtn" onMouseClicked="#handleTaches" prefHeight="42" prefWidth="215"
-                            style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.95); -fx-font-size: 13px; -fx-alignment: CENTER_LEFT; -fx-padding: 0 0 0 15; -fx-background-radius: 8; -fx-cursor: hand;"
-                            text="✓  Tâches">
-                        <font><Font name="System" size="13" /></font>
-                    </Button>
-
-                    <Button fx:id="abonnementsBtn" onMouseClicked="#handleAbonnements" prefHeight="42" prefWidth="215"
-                            style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.95); -fx-font-size: 13px; -fx-alignment: CENTER_LEFT; -fx-padding: 0 0 0 15; -fx-background-radius: 8; -fx-cursor: hand;"
-                            text="💳  Abonnements">
-                        <font><Font name="System" size="13" /></font>
-                    </Button>
-                    <Button fx:id="offresBtn" onMouseClicked="#handleOffres" prefHeight="42" prefWidth="215"
-                            style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.95); -fx-font-size: 13px; -fx-alignment: CENTER_LEFT; -fx-padding: 0 0 0 15; -fx-background-radius: 8; -fx-cursor: hand;"
-                            text="🎁  Offres">
-                        <font><Font name="System" size="13" /></font>
-                    </Button>
-                </VBox>
-            </VBox>
-
-            <!-- Autres boutons MODERNISÉS -->
-            <VBox>
-                <Button alignment="BASELINE_LEFT" fx:id="stocksBtn" prefHeight="48" prefWidth="230" onMouseClicked="#handleStocks"
-                        style="-fx-background-color: rgba(255,255,255,0.1); -fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand;"
-                        text="📦  Stocks">
-                    <font><Font name="System" size="14" /></font>
-                </Button>
-                <Button alignment="BASELINE_LEFT" maxWidth="Infinity" prefHeight="35.0" style="-fx-background-color: #2d5a27; -fx-text-fill: white;" text="      • Gestion Articles">
-                    <padding><Insets left="20.0" /></padding>
-                </Button>
-                <Button alignment="BASELINE_LEFT" onAction="#allerVersCategories" maxWidth="Infinity" prefHeight="35.0" style="-fx-background-color: transparent; -fx-text-fill: #bdc3c7;" text="      • Gestion Catégories">
-                    <padding><Insets left="20.0" /></padding>
-                </Button>
-            </VBox>
-            <Button fx:id="terrainsBtn" prefHeight="48" prefWidth="230" onMouseClicked="#handleTerrains"
-                    style="-fx-background-color: rgba(255,255,255,0.1); -fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand;"
-                    text="🌾  Terrains">
-                <font><Font name="System" size="14" /></font>
-            </Button>
-            <Button fx:id="animauxBtn" prefHeight="48" prefWidth="230" onMouseClicked="#handleAnimals"
-                    style="-fx-background-color: rgba(255,255,255,0.1); -fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand;"
-                    text="🐄  Animaux">
-                <font><Font name="System" size="14" /></font>
-            </Button>
-            <Button fx:id="materielBtn" prefHeight="48" prefWidth="230 " onMouseClicked="#handleMateriels"
-                    style="-fx-background-color: rgba(255,255,255,0.1); -fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand;"
-                    text="🔧  Matériel">
-                <font><Font name="System" size="14" /></font>
-            </Button>
-            <Button fx:id="evenementsBtn" prefHeight="48" prefWidth="230" onMouseClicked="#handleEvents"
-                    style="-fx-background-color: rgba(255,255,255,0.1); -fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand;"
-                    text="🎉  Événements">
-                <font><Font name="System" size="14" /></font>
-            </Button>
-        </VBox>
-        </VBox>
-
-        <VBox HBox.hgrow="ALWAYS" spacing="25.0" style="-fx-padding: 40;">
+    <center>
+        <StackPane>
             <children>
-                <Label fx:id="lblTitre" text="Nouvel Article de Stock" textFill="#2c3e50">
-                    <font><Font name="System Bold" size="30.0" /></font>
-                </Label>
-
-                <GridPane vgap="15.0">
-                    <columnConstraints>
-                        <ColumnConstraints prefWidth="200.0" />
-                        <ColumnConstraints prefWidth="450.0" />
-                    </columnConstraints>
+                <VBox maxWidth="700.0" spacing="30.0" style="-fx-background-color: white; -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 5); -fx-padding: 40;">
                     <children>
-                        <Label text="Désignation :" GridPane.rowIndex="0"/>
-                        <VBox spacing="2.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                            <Label fx:id="msgNom" text="" style="-fx-font-size: 11px;" />
-                            <TextField fx:id="tfNom" prefHeight="35.0" promptText="Ex: Engrais NPK" />
+
+                        <VBox spacing="5.0">
+                            <children>
+                                <Label fx:id="lblTitre" text="📦 Nouvel Article de Stock" textFill="#2d5a27">
+                                    <font><Font name="System Bold" size="32.0" /></font>
+                                </Label>
+                                <Label text="Remplissez les informations pour mettre à jour votre inventaire." textFill="#7f8c8d">
+                                    <font><Font size="14.0" /></font>
+                                </Label>
+                                <Separator prefWidth="200.0" style="-fx-padding: 10 0 0 0;" />
+                            </children>
                         </VBox>
 
-                        <Label text="Quantité en Stock :" GridPane.rowIndex="1" />
-                        <VBox spacing="2.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                            <Label fx:id="msgQuantite" text="" style="-fx-font-size: 11px;" />
-                            <TextField fx:id="tfQuantite" prefHeight="35.0" />
-                        </VBox>
+                        <GridPane hgap="25.0" vgap="20.0">
+                            <columnConstraints>
+                                <ColumnConstraints halignment="RIGHT" minWidth="150.0" prefWidth="180.0" />
+                                <ColumnConstraints hgrow="ALWAYS" minWidth="300.0" />
+                            </columnConstraints>
+                            <children>
+                                <Label style="-fx-font-weight: bold;" text="Désignation :" GridPane.rowIndex="0" />
+                                <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                    <TextField fx:id="tfNom" prefHeight="40.0" promptText="Ex: Engrais NPK" style="-fx-background-radius: 8;" />
+                                    <Label fx:id="msgNom" text="" textFill="#e74c3c" style="-fx-font-size: 11px;" />
+                                </VBox>
 
-                        <Label text="Seuil d'Alerte :" GridPane.rowIndex="2" />
-                        <VBox spacing="2.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
-                            <Label fx:id="msgSeuil" text="" style="-fx-font-size: 11px;" />
-                            <TextField fx:id="tfSeuil" prefHeight="35.0" />
-                        </VBox>
+                                <Label style="-fx-font-weight: bold;" text="Quantité initiale :" GridPane.rowIndex="1" />
+                                <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                    <TextField fx:id="tfQuantite" prefHeight="40.0" promptText="0.0" style="-fx-background-radius: 8;" />
+                                    <Label fx:id="msgQuantite" text="" textFill="#e74c3c" style="-fx-font-size: 11px;" />
+                                </VBox>
 
-                        <Label text="Unité de mesure :" GridPane.rowIndex="3" />
-                        <VBox spacing="2.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
-                            <Label fx:id="msgUnite" text="" style="-fx-font-size: 11px;" />
-                            <TextField fx:id="tfUnite" prefHeight="35.0" />
-                        </VBox>
+                                <Label style="-fx-font-weight: bold;" text="Seuil d'Alerte (Min) :" GridPane.rowIndex="2" />
+                                <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                    <TextField fx:id="tfSeuil" prefHeight="40.0" promptText="Alerte si inférieur à..." style="-fx-background-radius: 8;" />
+                                    <Label fx:id="msgSeuil" text="" textFill="#e74c3c" style="-fx-font-size: 11px;" />
+                                </VBox>
 
-                        <Label text="Catégorie :" GridPane.rowIndex="4" />
-                        <VBox spacing="2.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
-                            <Label fx:id="msgCategorie" text="" style="-fx-font-size: 11px;" />
-                            <HBox spacing="10.0" alignment="CENTER_LEFT">
-                                <children>
-                                    <ComboBox fx:id="cbCategories" prefHeight="35.0" prefWidth="350.0" promptText="Choisir une catégorie" />
-                                    <Button onAction="#allerAjouterCategorie" prefHeight="35.0" prefWidth="40.0" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold;" text="+" />
-                                </children>
-                            </HBox>
-                        </VBox>
+                                <Label style="-fx-font-weight: bold;" text="Unité de mesure :" GridPane.rowIndex="3" />
+                                <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                    <TextField fx:id="tfUnite" prefHeight="40.0" promptText="Kg, Litres, Unités..." style="-fx-background-radius: 8;" />
+                                    <Label fx:id="msgUnite" text="" textFill="#e74c3c" style="-fx-font-size: 11px;" />
+                                </VBox>
+
+                                <Label style="-fx-font-weight: bold;" text="Catégorie :" GridPane.rowIndex="4" />
+                                <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
+                                    <HBox spacing="10.0">
+                                        <children>
+                                            <ComboBox fx:id="cbCategories" prefHeight="40.0" prefWidth="350.0" promptText="Sélectionner la catégorie" style="-fx-background-radius: 8;" />
+                                            <Button onAction="#allerAjouterCategorie" prefHeight="40.0" prefWidth="45.0" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-background-radius: 8; -fx-cursor: hand;" text="+" />
+                                        </children>
+                                    </HBox>
+                                    <Label fx:id="msgCategorie" text="" textFill="#e74c3c" style="-fx-font-size: 11px;" />
+                                </VBox>
+                            </children>
+                        </GridPane>
+
+                        <HBox alignment="CENTER_RIGHT" spacing="15.0" style="-fx-padding: 20 0 0 0;">
+                            <children>
+                                <Button onAction="#allerVersArticles" prefHeight="45.0" prefWidth="150.0" style="-fx-background-color: transparent; -fx-border-color: #bdc3c7; -fx-border-radius: 8; -fx-text-fill: #7f8c8d; -fx-cursor: hand;" text="ANNULER" />
+                                <Button onAction="#validerAjout" prefHeight="45.0" prefWidth="220.0" style="-fx-background-color: #2d5a27; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;" text="💾 ENREGISTRER L'ARTICLE" />
+                            </children>
+                        </HBox>
                     </children>
-                </GridPane>
-
-                <HBox spacing="20.0">
-                    <children>
-                        <Button onAction="#validerAjout" prefHeight="40.0" prefWidth="200.0" style="-fx-background-color: #2d5a27; -fx-text-fill: white; -fx-font-weight: bold;" text="CONFIRMER" />
-                        <Button onAction="#allerVersArticles" prefHeight="40.0" prefWidth="120.0" style="-fx-background-color: white; -fx-border-color: #34495e;" text="ANNULER" />
-                    </children>
-                </HBox>
+                </VBox>
             </children>
-        </VBox>
-    </children>
-</HBox>
+        </StackPane>
+    </center>
+</BorderPane>

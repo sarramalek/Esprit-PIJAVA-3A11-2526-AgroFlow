@@ -616,12 +616,9 @@ void ouvrirStats(ActionEvent event) {
             System.err.println("✗ setCurrentUser appelé avec user NULL !");
         }
     }
-
+    @FXML private void handleMesArticles(MouseEvent mouseEvent)   {         navigateTo(mouseEvent,"/StocksInterface/AfficherArticleAgr.fxml","Articles"); }
+    @FXML private void handleMesCatégories(MouseEvent mouseEvent)   {         navigateTo(mouseEvent,"/StocksInterface/AfficherCategorieAgr.fxml","Catégories "); }
     // Ajouter cette méthode handleAPropos()
-    @FXML
-    private void handleAPropos(MouseEvent event) {
-        navigateTo(event,"/UsersInterface/ProfilAgricole.fxml","ddd");
-    }
     private void navigateTo(MouseEvent event, String fxmlPath, String title) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));

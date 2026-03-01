@@ -173,7 +173,8 @@ public class AjoutAnimalController {
     private void handlePersonnes(MouseEvent event )  {
         this.changerScene(event,"/UsersInterface/DahboardPersonne.fxml");}
 
-
+    @FXML private void handleMesArticles(MouseEvent mouseEvent)   {         navigateTo(mouseEvent,"/StocksInterface/AfficherArticleAgr.fxml","Articles"); }
+    @FXML private void handleMesCatégories(MouseEvent mouseEvent)   {         navigateTo(mouseEvent,"/StocksInterface/AfficherCategorieAgr.fxml","Catégories "); }
     @FXML private void handleTaches(MouseEvent event ) { /* Charger vue Tâches */
         this.changerScene(event,"/UsersInterface/GestionTache.fxml");}
 

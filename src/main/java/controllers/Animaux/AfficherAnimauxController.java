@@ -535,8 +535,8 @@ public class AfficherAnimauxController {
     }
     @FXML private void handleMesAnimaux(MouseEvent mouseEvent)   {         this.changerScene(mouseEvent,"/AnimalsInterface/AfficherAnimaux.fxml");
     }
-    @FXML private void handleMesStocks()    { System.out.println("📦 Stocks..."); }
-    @FXML private void handleMonMateriel(MouseEvent mouseEvent)  {         navigateTo(mouseEvent,"/MaterielsInterface/AgricoleAffichageMachine.fxml","Materiels");
+    @FXML private void handleMesArticles(MouseEvent mouseEvent)   {         navigateTo(mouseEvent,"/StocksInterface/AfficherArticleAgr.fxml","Articles"); }
+    @FXML private void handleMesCatégories(MouseEvent mouseEvent)   {         navigateTo(mouseEvent,"/StocksInterface/AfficherCategorieAgr.fxml","Catégories "); }    @FXML private void handleMonMateriel(MouseEvent mouseEvent)  {         navigateTo(mouseEvent,"/MaterielsInterface/AgricoleAffichageMachine.fxml","Materiels");
         ; }
     @FXML private void handleMonProfil(MouseEvent event )    { try {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/ProfilEmplye.fxml"));

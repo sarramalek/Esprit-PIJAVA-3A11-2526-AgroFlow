@@ -550,13 +550,13 @@ public class AgricoleAffichageAchatController implements Initializable {
         }
     }
     // ── Navigation ────────────────────────────────────────────────────────────
-
+    @FXML private void handleMesArticles(MouseEvent mouseEvent)   {         navigateTo(mouseEvent,"/StocksInterface/AfficherArticleAgr.fxml","Articles"); }
+    @FXML private void handleMesCatégories(MouseEvent mouseEvent)   {         navigateTo(mouseEvent,"/StocksInterface/AfficherCategorieAgr.fxml","Catégories "); }
     @FXML private void handleDashboardAgricole(MouseEvent event)    { navigateTo(event,"/UsersInterface/AcceuillAgr.fxml","Dashboard"); }
     @FXML private void handleMesTerrains(MouseEvent mouseEvent)  {         navigateTo(mouseEvent,"/TerrainsInterface/acceuilagricoleterrain.fxml","Terrains");
     }
     @FXML private void handleMesAnimaux(MouseEvent mouseEvent)   {         navigateTo(mouseEvent,"/AnimalsInterface/acceuilagricoleanimaux.fxml","Animaux");
     }
-    @FXML private void handleMesStocks()    { System.out.println("📦 Stocks..."); }
     @FXML private void handleMonMateriel(MouseEvent event )    {navigateTo(event,"/MaterielsInterface/AgricoleAffichageMachine.fxml","Mon Profil"); }
     @FXML private void handleMonProfil(MouseEvent event )    { try {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/ProfilEmplye.fxml"));

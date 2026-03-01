@@ -1,18 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-<?import javafx.geometry.*?>
 
 <?import javafx.scene.shape.Circle?>
-<?import javafx.scene.image.ImageView?>
-<BorderPane prefHeight="805.0" prefWidth="1520.0"
-            style="-fx-background-color: #fcf8e6;"
-            xmlns="http://javafx.com/javafx/17"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="controllers.Animaux.AfficherAnimauxController">
-
+<BorderPane prefHeight="650.0" prefWidth="1050.0" style="-fx-background-color: #fdfae7;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.Stocks.afficherarticleController">
     <!-- SIDEBAR AGRICOLE -->
     <left>
         <VBox prefWidth="250" style="-fx-background-color: linear-gradient(to bottom, #2E7D32, #388E3C, #43A047);">
@@ -30,7 +26,6 @@
                     </Label>
                 </VBox>
             </HBox>
-
             <!-- Info Utilisateur avec Hyperlink À Propos -->
             <VBox alignment="CENTER" spacing="8"
                   style="-fx-background-color: rgba(255,255,255,0.1); -fx-background-radius: 15; -fx-padding: 20; -fx-margin: 10;">
@@ -73,6 +68,7 @@
                     <font><Font name="System" size="13" /></font>
                 </Hyperlink>
             </VBox>
+
 
             <!-- Navigation Menu -->
             <VBox spacing="8" style="-fx-padding: 20 0 0 0;">
@@ -126,13 +122,29 @@
                         text="🐄  Mes Animaux">
                     <font><Font name="System Bold" size="14" /></font>
                 </Button>
-                <Button onMouseClicked="#handleMesArticles" prefHeight="48" prefWidth="230"
+                <Button onAction="#handleMesStocks" prefHeight="48" prefWidth="230"
                         style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
                                -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
                                -fx-background-radius: 12; -fx-cursor: hand;"
                         text="📦  Mes Stocks">
                     <font><Font name="System Bold" size="14" /></font>
                 </Button>
+                <VBox fx:id="StocksSubMenu" spacing="2" style="-fx-padding: 4 0 0 0;" visible="true" managed="true">
+                    <Button onMouseClicked="#handleMesArticles" prefHeight="40" prefWidth="230"
+                            style="-fx-background-color: rgba(0,0,0,0.20); -fx-text-fill: white;
+                                       -fx-font-size: 13px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 40;
+                                       -fx-background-radius: 10; -fx-cursor: hand;"
+                            text="Articles ">
+                        <font><Font name="System Bold" size="13" /></font>
+                    </Button>
+                    <Button onMouseClicked="#handleMesCatégories" prefHeight="40" prefWidth="230"
+                            style="-fx-background-color: rgba(0,0,0,0.15); -fx-text-fill: rgba(255,255,255,0.9);
+                                       -fx-font-size: 13px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 40;
+                                       -fx-background-radius: 10; -fx-cursor: hand;"
+                            text="Catégories ">
+                        <font><Font name="System" size="13" /></font>
+                    </Button>
+                </VBox>
                 <Button onMouseClicked="#handleMonMateriel" prefHeight="48" prefWidth="230"
                         style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
                                -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
@@ -161,56 +173,65 @@
         </VBox>
     </left>
 
-    <!-- CONTENU PRINCIPAL -->
     <center>
-        <VBox spacing="20.0" style="-fx-padding: 30;">
+        <VBox spacing="20.0" style="-fx-padding: 25;">
             <children>
-                <HBox alignment="CENTER_LEFT" spacing="15.0">
+                <Label text="Liste des Stocks" textFill="#2d5a27">
+                    <font><Font name="System Bold" size="28.0" /></font>
+                </Label>
+
+                <HBox alignment="CENTER_LEFT" prefHeight="75.0" spacing="15.0" style="-fx-background-color: rgba(52, 73, 94, 0.08); -fx-background-radius: 12;">
+                    <padding><Insets left="15.0" right="15.0" /></padding>
                     <children>
-                        <Text fill="#2C3E50" text="Gestion des Animaux">
-                            <font><Font name="System Bold" size="26.0" /></font>
-                        </Text>
+                        <Button onAction="#ouvrirFormulaireAjout" prefHeight="35.0" style="-fx-background-color: #2d5a27; -fx-text-fill: white; -fx-font-weight: bold;" text="+ AJOUTER" />
+                        <Button onAction="#exporterAlertesPDF" prefHeight="35.0" style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold;" text="📄 RAPPORT ALERTES" />
                         <Region HBox.hgrow="ALWAYS" />
-                        <Button  text="Table Animaux" style="-fx-background-color: #A3C1AD; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 20;" />
-                        <Button onAction="#goToExamens" text="Table Examens" style="-fx-background-color: #A3C1AD; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 20;" />
-
-                        <MenuButton mnemonicParsing="false" style="-fx-background-color: #34495E; -fx-text-fill: white; -fx-font-weight: bold;" text="🚀 Actions Avancées" textFill="WHITE">
-                            <items>
-                                <MenuItem mnemonicParsing="false" onAction="#ouvrirSuggestions" text="💡 Suggestions Alimentaires" />
-                                <MenuItem mnemonicParsing="false" onAction="#handleGenererCouples" text="🤝 Trouver Partenaire" />
-                                <MenuItem mnemonicParsing="false" onAction="#handleGenererPDF" text="📄 Carnet Santé (PDF)" />
-                                <MenuItem mnemonicParsing="false" onAction="#ouvrirStats" text="📊 Voir Statistiques" />
-                            </items>
-                            <font>
-                                <Font name="System Bold" size="13.0" />
-                            </font>
-                        </MenuButton>
+                        <Label style="-fx-font-weight: bold;" text="Catégorie :" />
+                        <ComboBox fx:id="cbFiltreCategorie" prefHeight="35.0" prefWidth="150.0" promptText="Toutes" />
+                        <Label style="-fx-font-weight: bold;" text="Rechercher :" />
+                        <TextField fx:id="tfRecherche" prefHeight="35.0" prefWidth="200.0" promptText="Nom..." style="-fx-background-radius: 15;" />
                     </children>
                 </HBox>
 
-                <HBox alignment="CENTER_LEFT" spacing="10.0" style="-fx-background-color: white; -fx-padding: 10; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);">
+                <HBox spacing="15.0" VBox.vgrow="ALWAYS">
                     <children>
-                        <Label text="🔍 Rechercher :" style="-fx-font-weight: bold; -fx-text-fill: #2C3E50;" />
-                        <TextField fx:id="filterField" prefWidth="400.0" promptText="Tapez un nom ou une espèce..." style="-fx-background-radius: 15; -fx-border-color: #A8C69F; -fx-border-radius: 15;" />
+                        <TableView fx:id="tableArticles" HBox.hgrow="ALWAYS">
+                            <columns>
+                                <TableColumn fx:id="colNom" prefWidth="150" text="Nom" />
+                                <TableColumn fx:id="colCategorie" prefWidth="120" text="Catégorie" />
+                                <TableColumn fx:id="colQuantite" prefWidth="80" text="Quantité" />
+                                <TableColumn fx:id="colUnite" prefWidth="70" text="Unité" />
+                                <TableColumn fx:id="colSeuil" prefWidth="80" text="Seuil" />
+                                <TableColumn fx:id="colActions" prefWidth="160" text="Actions" />
+                            </columns>
+                        </TableView>
+
+                        <VBox alignment="TOP_CENTER" minWidth="220.0" spacing="10.0" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 0);">
+                            <children>
+                                <Label style="-fx-font-weight: bold;" text="QR CODE" />
+                                <ImageView fx:id="ivQRCode" fitHeight="150.0" fitWidth="150.0" />
+                                <Label fx:id="lblNomSelection" text="Aucune sélection" textAlignment="CENTER" wrapText="true" />
+                                <Button maxWidth="Infinity" onAction="#enregistrerQRCode" text="💾 Enregistrer" />
+                            </children>
+                        </VBox>
                     </children>
                 </HBox>
 
-                <TableView fx:id="tableAnimaux" VBox.vgrow="ALWAYS">
-                    <columns>
-                        <TableColumn fx:id="colNom" prefWidth="150.0" text="Nom" />
-                        <TableColumn fx:id="colEspece" prefWidth="150.0" text="Espèce" />
-                        <TableColumn fx:id="colPoids" prefWidth="120.0" text="Poids (kg)" />
-                        <TableColumn fx:id="colDate" prefWidth="180.0" text="Date Naissance" />
-                        <TableColumn fx:id="colSexe" prefWidth="120.0" text="Sexe" />
-                        <TableColumn fx:id="colAvatar" prefWidth="120.0" text="Photo Rèelle" />
-                    </columns>
-                </TableView>
-
-                <HBox alignment="CENTER" spacing="20.0">
+                <HBox alignment="CENTER_LEFT" spacing="20.0">
                     <children>
-                        <Button onMouseClicked="#versAjoutAgr" prefHeight="45.0" prefWidth="160.0" style="-fx-background-color: #2D5A27; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-cursor: hand;" text="+ AJOUTER" />
-                        <Button onAction="#versModifierAgr" prefHeight="45.0" prefWidth="160.0" style="-fx-background-color: #A8C69F; -fx-text-fill: #2C3E50; -fx-font-weight: bold; -fx-background-radius: 10; -fx-cursor: hand;" text="MODIFIER" />
-                        <Button onAction="#handleSupprimer" prefHeight="45.0" prefWidth="160.0" style="-fx-background-color: #E74C3C; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-cursor: hand;" text="SUPPRIMER" />
+                        <VBox style="-fx-background-color: white; -fx-padding: 10; -fx-background-radius: 5; -fx-border-color: #2d5a27; -fx-border-width: 0 0 0 5;">
+                            <children>
+                                <Label style="-fx-font-size: 10;" text="TOTAL ARTICLES" />
+                                <Label fx:id="lblTotalArticles" style="-fx-font-size: 20; -fx-font-weight: bold;" text="0" />
+                            </children>
+                        </VBox>
+                        <VBox style="-fx-background-color: white; -fx-padding: 10; -fx-background-radius: 5; -fx-border-color: #e74c3c; -fx-border-width: 0 0 0 5;">
+                            <children>
+                                <Label style="-fx-font-size: 10;" text="EN RUPTURE" />
+                                <Label fx:id="lblNbAlertes" style="-fx-font-size: 20; -fx-font-weight: bold;" text="0" textFill="#e74c3c" />
+                            </children>
+                        </VBox>
+                        <Label fx:id="lblWarning" style="-fx-font-weight: bold;" text="⚠️ RÉAPPROVISIONNEMENT NÉCESSAIRE !" textFill="#e74c3c" visible="false" />
                     </children>
                 </HBox>
             </children>
