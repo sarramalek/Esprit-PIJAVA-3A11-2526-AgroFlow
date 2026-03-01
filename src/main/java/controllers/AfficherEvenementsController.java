@@ -324,10 +324,54 @@ public class AfficherEvenementsController {
     }
 
     @FXML
+    private void handleOpenCarte(ActionEvent event) {
+        try {
+            URL fxmlUrl = getClass().getResource("/G-Evenements/CarteEvenements.fxml");
+            if (fxmlUrl == null) {
+                showError("Erreur", "Fichier CarteEvenements.fxml introuvable.\n"
+                        + "Vérifiez qu'il est dans : resources/G-Evenements/");
+                return;
+            }
+            FXMLLoader loader = new FXMLLoader(fxmlUrl);
+            Parent root = loader.load();
+
+            Stage popupStage = new Stage();
+            popupStage.setTitle("🗺️ Carte des événements — Tunisie");
+            popupStage.setScene(new Scene(root, 900, 580));
+            popupStage.initModality(Modality.WINDOW_MODAL);
+            popupStage.initOwner(eventsTable.getScene().getWindow());
+            popupStage.setResizable(true);
+            popupStage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showError("Erreur", "Impossible d'ouvrir la carte : " + e.getMessage());
+        }
+    }
+
+    @FXML
     private void handleGenerateIdeas(ActionEvent event) {
         try {
             // Tentative avec plusieurs chemins possibles
             URL fxmlUrl = getClass().getResource("/G-Evenements/GenerateurIdees.fxml");
+
+            if (fxmlUrl == null) {
+                fxmlUrl = getClass().getResource("GenerateurIdees.fxml");
+            }
+            if (fxmlUrl == null) {
+                fxmlUrl = getClass().getClassLoader().getResource("G-Evenements/GenerateurIdees.fxml");
+            }
+            if (fxmlUrl == null) {
+                fxmlUrl = getClass().getClassLoader().getResource("GenerateurIdees.fxml");
+            }
+
+            if (fxmlUrl == null) {
+                showError("Erreur - Fichier introuvable",
+                        "GenerateurIdees.fxml est introuvable.\n\n"
+                                + "Vérifiez que le fichier est bien dans :\n"
+                                + "  src/main/resources/G-Evenements/GenerateurIdees.fxml\n\n"
+                                + "Et que Maven/IntelliJ a bien copié les resources dans target.");
+                return;
+            }
 
             FXMLLoader loader = new FXMLLoader(fxmlUrl);
             Parent root = loader.load();
