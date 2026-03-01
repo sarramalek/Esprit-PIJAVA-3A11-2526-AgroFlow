@@ -533,7 +533,7 @@ public class AfficherAnimauxController {
     @FXML private void handleDashboardAgricole(MouseEvent event)    { navigateTo(event,"/UsersInterface/AcceuillAgr.fxml","Dashboard"); }
     @FXML private void handleMesTerrains(MouseEvent mouseEvent)  {         this.changerScene(mouseEvent,"/TerrainsInterface/acceuilagricoleterrain.fxml");
     }
-    @FXML private void handleMesAnimaux(MouseEvent mouseEvent)   {         this.changerScene(mouseEvent,"/AnimalsInterface/AfficherAnimaux.fxml");
+    @FXML private void handleMesAnimaux(MouseEvent mouseEvent)   {         this.changerScene(mouseEvent,"/AnimalsInterface/acceuilagricoleanimaux.fxml");
     }
     @FXML private void handleMesArticles(MouseEvent mouseEvent)   {         navigateTo(mouseEvent,"/StocksInterface/AfficherArticleAgr.fxml","Articles"); }
     @FXML private void handleMesCatégories(MouseEvent mouseEvent)   {         navigateTo(mouseEvent,"/StocksInterface/AfficherCategorieAgr.fxml","Catégories "); }    @FXML private void handleMonMateriel(MouseEvent mouseEvent)  {         navigateTo(mouseEvent,"/MaterielsInterface/AgricoleAffichageMachine.fxml","Materiels");
