@@ -25,6 +25,7 @@ import models.User.Personne;
 import services.Stocks.CategorieService;
 import utils.SessionManager;
 
+import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Optional;
@@ -96,11 +97,28 @@ public class affichercategorieController {
                     super.updateItem(url, empty);
                     if (empty || url == null || url.isBlank()) {
                         setGraphic(null);
-                    } else {
-                        // Chargement asynchrone pour ne pas figer l'UI
-                        Image img = new Image(url, 50, 50, true, true, true);
+                        return;
+                    }
+
+                    try {
+                        // Validate URL format before passing to Image
+                        String validUrl = url.startsWith("http") || url.startsWith("file:")
+                                ? url
+                                : new File(url).toURI().toString(); // convert local path to file URI
+
+                        Image img = new Image(validUrl, 50, 50, true, true, true);
+
+                        img.errorProperty().addListener((obs, wasError, isError) -> {
+                            if (isError) {
+                                Platform.runLater(() -> setGraphic(null)); // hide cell if image fails to load
+                            }
+                        });
+
                         imageView.setImage(img);
                         setGraphic(imageView);
+
+                    } catch (IllegalArgumentException e) {
+                        setGraphic(null); // bad URL — show nothing, don't crash
                     }
                 }
             });

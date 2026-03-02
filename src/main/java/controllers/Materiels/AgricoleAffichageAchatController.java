@@ -420,7 +420,7 @@ public class AgricoleAffichageAchatController implements Initializable {
     // ═══════════════════════════════════════════════════════════════
     //  NAVIGATION (sidebar agricole)
     // ═══════════════════════════════════════════════════════════════
-    @FXML private void naviguerDashboard()  { nav("/AcceuilAgricole.fxml"); }
+    @FXML private void naviguerDashboard()  { nav("/UsersInterface/AcceuilAgr.fxml"); }
     @FXML private void naviguerTerrains()   { showInfo("À venir", "Module Terrains en cours de développement."); }
     @FXML private void naviguerPlantes()    { nav("/agricoleplante.fxml"); }
     @FXML private void naviguerAnimaux()    { showInfo("À venir", "Module Animaux en cours de développement."); }

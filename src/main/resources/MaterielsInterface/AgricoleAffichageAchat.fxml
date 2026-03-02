@@ -195,7 +195,7 @@
                   style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 20;
                          -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 12, 0, 0, 2);">
 
-                <Button onAction="#retourAccueil"
+                <Button onMouseClicked="#handleDashboardAgricole"
                         style="-fx-background-color: #EAF5EA; -fx-text-fill: #2D5A27;
                                -fx-cursor: hand; -fx-background-radius: 20; -fx-font-size: 12px;
                                -fx-font-weight: bold; -fx-padding: 9 20;
