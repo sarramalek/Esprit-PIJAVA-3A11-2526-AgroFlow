@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<BorderPane prefHeight="900" prefWidth="1400"
+            style="-fx-background-color: #F0F4F8;"
+            xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controllers.AfficherParticipationsUserController">
+
+    <left>
+        <VBox prefWidth="220" spacing="8" style="-fx-background-color: #1A2B3C; -fx-padding: 20;">
+            <VBox spacing="2" style="-fx-padding: 0 0 10 0;">
+                <Text fill="#4FC3F7" text="AGROFLOW">
+                    <font><Font name="System Bold" size="22"/></font>
+                </Text>
+                <Text fill="#78909C" text="Espace Utilisateur">
+                    <font><Font name="System" size="11"/></font>
+                </Text>
+            </VBox>
+            <Separator opacity="0.15"/>
+            <HBox spacing="10" alignment="CENTER_LEFT"
+                  style="-fx-background-color: #243447; -fx-padding: 12; -fx-background-radius: 8;">
+                <Label style="-fx-font-size: 22px;" text="&#128100;"/>
+                <VBox spacing="2">
+                    <Label fx:id="userNameLabel"
+                           style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: white;"
+                           text="Mon Compte">
+                        <font><Font name="System Bold" size="13"/></font>
+                    </Label>
+                    <Label style="-fx-font-size: 11px; -fx-text-fill: #4FC3F7;" text="Utilisateur"/>
+                </VBox>
+            </HBox>
+            <Separator opacity="0.1"/>
+            <Button maxWidth="Infinity" onAction="#goToEvenements"
+                    style="-fx-background-color: transparent; -fx-text-fill: #B0BEC5; -fx-alignment: CENTER-LEFT; -fx-padding: 12 15; -fx-background-radius: 8; -fx-cursor: hand;"
+                    text="Evenements">
+                <font><Font name="System" size="13"/></font>
+            </Button>
+            <Button maxWidth="Infinity" onAction="#goToMesParticipations"
+                    style="-fx-background-color: #1565C0; -fx-text-fill: white; -fx-alignment: CENTER-LEFT; -fx-padding: 12 15; -fx-background-radius: 8; -fx-cursor: hand;"
+                    text="Mes Participations">
+                <font><Font name="System Bold" size="13"/></font>
+            </Button>
+            <Region VBox.vgrow="ALWAYS"/>
+            <Separator opacity="0.1"/>
+            <Button maxWidth="Infinity"
+                    style="-fx-background-color: #C62828; -fx-text-fill: white; -fx-padding: 10; -fx-background-radius: 8; -fx-cursor: hand;"
+                    text="Deconnexion">
+                <font><Font name="System" size="12"/></font>
+            </Button>
+        </VBox>
+    </left>
+
+    <center>
+        <VBox spacing="20" style="-fx-padding: 30;">
+            <HBox alignment="CENTER_LEFT" spacing="15">
+                <VBox spacing="4" HBox.hgrow="ALWAYS">
+                    <Label style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #1A2B3C;"
+                           text="Mes Participations">
+                        <font><Font name="System Bold" size="26"/></font>
+                    </Label>
+                    <Label style="-fx-font-size: 13px; -fx-text-fill: #607D8B;"
+                           text="Gerez vos inscriptions aux evenements"/>
+                </VBox>
+            </HBox>
+
+            <!-- Stats rapides -->
+            <HBox spacing="15">
+                <VBox spacing="4" alignment="CENTER" prefWidth="200"
+                      style="-fx-background-color: #E3F2FD; -fx-background-radius: 10; -fx-padding: 15;">
+                    <Label fx:id="totalLabel" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #1565C0;" text="0">
+                        <font><Font name="System Bold" size="28"/></font>
+                    </Label>
+                    <Label style="-fx-font-size: 12px; -fx-text-fill: #1565C0;" text="Total inscriptions"/>
+                </VBox>
+                <VBox spacing="4" alignment="CENTER" prefWidth="200"
+                      style="-fx-background-color: #E8F5E9; -fx-background-radius: 10; -fx-padding: 15;">
+                    <Label fx:id="confirmeLabel" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #2E7D32;" text="0">
+                        <font><Font name="System Bold" size="28"/></font>
+                    </Label>
+                    <Label style="-fx-font-size: 12px; -fx-text-fill: #2E7D32;" text="Confirmees"/>
+                </VBox>
+                <VBox spacing="4" alignment="CENTER" prefWidth="200"
+                      style="-fx-background-color: #FFF9C4; -fx-background-radius: 10; -fx-padding: 15;">
+                    <Label fx:id="inscritLabel" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #F57F17;" text="0">
+                        <font><Font name="System Bold" size="28"/></font>
+                    </Label>
+                    <Label style="-fx-font-size: 12px; -fx-text-fill: #F57F17;" text="En attente"/>
+                </VBox>
+                <VBox spacing="4" alignment="CENTER" prefWidth="200"
+                      style="-fx-background-color: #FFEBEE; -fx-background-radius: 10; -fx-padding: 15;">
+                    <Label fx:id="annuleLabel" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #C62828;" text="0">
+                        <font><Font name="System Bold" size="28"/></font>
+                    </Label>
+                    <Label style="-fx-font-size: 12px; -fx-text-fill: #C62828;" text="Annulees"/>
+                </VBox>
+            </HBox>
+
+            <!-- Filtres -->
+            <VBox spacing="12" style="-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.07), 8, 0, 0, 2); -fx-padding: 18;">
+                <HBox alignment="CENTER_LEFT" spacing="15">
+                    <VBox spacing="4" HBox.hgrow="ALWAYS">
+                        <Label style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #90A4AE;" text="RECHERCHER">
+                            <font><Font name="System Bold" size="11"/></font>
+                        </Label>
+                        <TextField fx:id="searchField" prefWidth="350" prefHeight="38"
+                                   promptText="Rechercher par nom d'evenement..."
+                                   style="-fx-background-color: #F5F7FA; -fx-background-radius: 8; -fx-border-color: #E0E0E0; -fx-border-radius: 8; -fx-padding: 0 12; -fx-font-size: 13px;"/>
+                    </VBox>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <VBox spacing="4" alignment="BOTTOM_CENTER">
+                        <Button onAction="#handleRefresh"
+                                style="-fx-background-color: #546E7A; -fx-text-fill: white; -fx-font-size: 13px; -fx-padding: 10 18; -fx-background-radius: 8; -fx-cursor: hand;"
+                                text="Actualiser"/>
+                    </VBox>
+                </HBox>
+                <Separator/>
+                <HBox alignment="CENTER_LEFT" spacing="15">
+                    <Label style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #90A4AE;" text="FILTRES :">
+                        <font><Font name="System Bold" size="11"/></font>
+                    </Label>
+                    <VBox spacing="4">
+                        <Label style="-fx-font-size: 11px; -fx-text-fill: #90A4AE;" text="Date inscription"/>
+                        <DatePicker fx:id="filterDate" prefWidth="160" prefHeight="35" promptText="Selectionner..." style="-fx-background-color: #F5F7FA; -fx-border-color: #E0E0E0; -fx-font-size: 12px;"/>
+                    </VBox>
+                    <VBox spacing="4">
+                        <Label style="-fx-font-size: 11px; -fx-text-fill: #90A4AE;" text="Statut"/>
+                        <ComboBox fx:id="filterStatut" prefWidth="160" prefHeight="35" style="-fx-background-color: #F5F7FA; -fx-border-color: #E0E0E0; -fx-font-size: 12px;"/>
+                    </VBox>
+                    <VBox spacing="4">
+                        <Label style="-fx-font-size: 11px; -fx-text-fill: #90A4AE;" text="Presence"/>
+                        <ComboBox fx:id="filterPresence" prefWidth="130" prefHeight="35" style="-fx-background-color: #F5F7FA; -fx-border-color: #E0E0E0; -fx-font-size: 12px;"/>
+                    </VBox>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <VBox spacing="4" alignment="BOTTOM_CENTER">
+                        <Button onAction="#handleResetFilters"
+                                style="-fx-background-color: #ECEFF1; -fx-text-fill: #546E7A; -fx-font-size: 12px; -fx-padding: 8 14; -fx-background-radius: 6; -fx-cursor: hand;"
+                                text="Reinitialiser"/>
+                    </VBox>
+                </HBox>
+                <Label fx:id="resultsCountLabel" style="-fx-font-size: 12px; -fx-text-fill: #90A4AE; -fx-font-style: italic;" text="0 participation(s) trouvee(s)"/>
+            </VBox>
+
+            <!-- Table -->
+            <VBox spacing="10" style="-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.07), 8, 0, 0, 2);" VBox.vgrow="ALWAYS">
+                <padding><Insets bottom="20" left="20" right="20" top="20"/></padding>
+                <Label style="-fx-font-size: 17px; -fx-font-weight: bold; -fx-text-fill: #1A2B3C;" text="Mes inscriptions">
+                    <font><Font name="System Bold" size="17"/></font>
+                </Label>
+                <TableView fx:id="participationsTable" minHeight="280" prefHeight="350"
+                           style="-fx-background-color: transparent; -fx-border-color: transparent;"
+                           VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="evenementColumn"       prefWidth="320" minWidth="200" style="-fx-alignment: CENTER-LEFT;" text="Evenement"/>
+                        <TableColumn fx:id="dateInscriptionColumn" prefWidth="170" minWidth="130" style="-fx-alignment: CENTER;"      text="Date inscription"/>
+                        <TableColumn fx:id="statutColumn"          prefWidth="150" minWidth="110" style="-fx-alignment: CENTER;"      text="Statut"/>
+                        <TableColumn fx:id="presenceColumn"        prefWidth="130" minWidth="100" style="-fx-alignment: CENTER;"      text="Presence"/>
+                        <TableColumn fx:id="actionsColumn"         prefWidth="250" minWidth="200" style="-fx-alignment: CENTER;"      text="Actions"/>
+                    </columns>
+                </TableView>
+            </VBox>
+        </VBox>
+    </center>
+
+</BorderPane>
