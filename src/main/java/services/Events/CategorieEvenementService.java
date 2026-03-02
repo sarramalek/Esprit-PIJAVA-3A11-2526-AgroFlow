@@ -42,10 +42,15 @@ public class CategorieEvenementService implements IService<CategorieEvenement> {
     }
 
     @Override
-    public void supprimer(int id ) throws SQLException {
+    public void supprimer(int id) throws SQLException {
+
+    }
+
+
+    public void supprimer(CategorieEvenement categorie) throws SQLException {
         String sql = "DELETE FROM categorieevenement WHERE id_categorie = ?";
         PreparedStatement ps = connection.prepareStatement(sql);
-        ps.setInt(1, id);
+        ps.setInt(1, categorie.getId_categorie());
         ps.executeUpdate();
     }
 

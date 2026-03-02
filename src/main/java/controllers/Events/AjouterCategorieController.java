@@ -1,58 +1,39 @@
 package controllers.Events;
 
 import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import models.Events.CategorieEvenement;
 import services.Events.CategorieEvenementService;
 
-import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Optional;
 
 public class AjouterCategorieController {
-    @FXML private Button logoutBtn,gestionBtn;
-    @FXML private VBox gestionSubmenu,gestionContainer;
-    @FXML
-    private TextField tfNom;
 
-    @FXML
-    private TextArea taDescription;
-
-    @FXML
-    private Label errorLabel;
+    @FXML private TextField tfNom;
+    @FXML private TextArea taDescription;
+    @FXML private Label errorLabel;
 
     private final CategorieEvenementService service = new CategorieEvenementService();
+
+    // Callback pour rafraîchir la liste parente après ajout réussi
+    private Runnable onSuccessCallback;
+
+    public void setOnSuccessCallback(Runnable callback) {
+        this.onSuccessCallback = callback;
+    }
 
     // ================= INITIALIZATION =================
     @FXML
     public void initialize() {
-
-            // Cacher submenu par défaut
-            gestionSubmenu.setVisible(false);
-            gestionSubmenu.setManaged(false);
-
-            // 1. Hover sur le bouton Gestion → Ouvre submenu
-            gestionBtn.setOnMouseEntered(e -> {
-                showGestionSubmenu();
-            });
-
-            // 2. Hover sur TOUT le container Gestion → Garde submenu ouvert
-            gestionContainer.setOnMouseEntered(e -> {
-                showGestionSubmenu();
-            });
         setupRealtimeValidation();
     }
 
-    // ================= VALIDATION EN TEMPS RÉEL =================
+    // ================= VALIDATION EN TEMPS RÉEL (identique à l'original) =================
     private void setupRealtimeValidation() {
         tfNom.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
             if (!isNowFocused && tfNom.getText().trim().isEmpty()) {
@@ -75,7 +56,7 @@ public class AjouterCategorieController {
         });
     }
 
-    // ================= AJOUTER CATÉGORIE =================
+    // ================= AJOUTER CATÉGORIE (identique à l'original) =================
     @FXML
     void ajouterCategorie(ActionEvent event) {
         System.out.println("=== Bouton Enregistrer cliqué ===");
@@ -95,7 +76,10 @@ public class AjouterCategorieController {
 
             showSuccess("Succès", "La catégorie \"" + c.getNom_categorie() + "\" a été ajoutée avec succès !");
 
-            retourCategories(event);
+            // Rafraîchir la liste parente
+            if (onSuccessCallback != null) onSuccessCallback.run();
+
+            fermerPopup();
 
         } catch (SQLException e) {
             System.err.println("❌ Erreur lors de l'ajout : " + e.getMessage());
@@ -104,7 +88,7 @@ public class AjouterCategorieController {
         }
     }
 
-    // ================= VALIDATION =================
+    // ================= VALIDATION STRICTE (identique à l'original) =================
     private boolean validerChamps() {
         cacherErreur();
 
@@ -158,6 +142,7 @@ public class AjouterCategorieController {
         return true;
     }
 
+    // ================= AFFICHER/CACHER ERREUR (identique à l'original) =================
     private void afficherErreur(String message) {
         if (errorLabel != null) {
             errorLabel.setText("⚠️ " + message);
@@ -174,51 +159,24 @@ public class AjouterCategorieController {
         taDescription.setStyle("-fx-background-color: #F8F9FA; -fx-background-radius: 8; -fx-border-color: #E0E0E0; -fx-border-radius: 8; -fx-padding: 10; -fx-font-size: 14px;");
     }
 
-    // ================= NAVIGATION =================
+    // ================= NAVIGATION → fermer le pop-up =================
     @FXML
     void retourCategories(ActionEvent event) {
-        System.out.println("=== Navigation vers AfficherCategories ===");
-        naviguerVers("AfficherCategories.fxml",event);
+        fermerPopup();
     }
 
+    // Conservé pour compatibilité si référencé ailleurs
     @FXML
     void retourAccueil(ActionEvent event) {
-        System.out.println("=== Navigation vers Accueil ===");
-        naviguerVers("Accueil.fxml",event);
+        fermerPopup();
     }
 
-    // ================= MÉTHODE DE NAVIGATION AMÉLIORÉE =================
-    private void naviguerVers(String nomFichierFxml, Event event) {
-        try {
-            System.out.println("Chargement de : /G-Evenements/" + nomFichierFxml);
-
-            // Charger le FXML
-            Parent root = FXMLLoader.load(getClass().getResource("/G-Evenements/" + nomFichierFxml));
-
-
-
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-
-            boolean etaitMaximise = stage.isMaximized();  // ← SAUVEGARDER AVANT
-
-            stage.setScene(new Scene(root));
-
-            stage.setMaximized(etaitMaximise);
-
-            System.out.println("✅ Navigation réussie vers " + nomFichierFxml);
-
-        } catch (IOException e) {
-            System.err.println("❌ Erreur de navigation : " + e.getMessage());
-            e.printStackTrace();
-            showError("Erreur de navigation", "Impossible de charger la page : " + nomFichierFxml + "\n" + e.getMessage());
-        } catch (Exception e) {
-            System.err.println("❌ Erreur inattendue : " + e.getMessage());
-            e.printStackTrace();
-            showError("Erreur", "Une erreur inattendue s'est produite : " + e.getMessage());
-        }
+    private void fermerPopup() {
+        Stage stage = (Stage) tfNom.getScene().getWindow();
+        stage.close();
     }
 
-    // ================= ALERT METHODS =================
+    // ================= ALERT METHODS (identiques à l'original) =================
     private void showError(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);
@@ -242,107 +200,4 @@ public class AjouterCategorieController {
         alert.setContentText(message);
         alert.showAndWait();
     }
-
-    @FXML
-    private void handlePersonnes(Event event )  {
-        this.naviguerVers("/UsersInterface/DahboardPersonne.fxml",event);}
-
-
-    @FXML private void handleTaches(Event event ) { /* Charger vue Tâches */
-        this.naviguerVers("/UsersInterface/GestionTache.fxml",event);}
-
-
-
-    @FXML
-    private void handleAbonnements(Event event) { /* Charger vue Abonnements */
-        this.naviguerVers("/UsersInterface/GestionAbonnements.fxml",event);}
-    @FXML private void handleOffres(Event event) { /* Charger vue Offres */
-        this.naviguerVers("/UsersInterface/GestionOffre.fxml",event);}
-
-
-    private void showGestionSubmenu() {
-        gestionSubmenu.setVisible(true);
-        gestionSubmenu.setManaged(true);
-    }
-
-    private void hideGestionSubmenu() {
-        gestionSubmenu.setVisible(false);
-        gestionSubmenu.setManaged(false);
-    }
-
-    public void handleDashboard(MouseEvent actionEvent) {
-        this.naviguerVers("/UsersInterface/Acceuil.fxml",actionEvent);
-
-    }
-    public void handleAnimals(Event mouseEvent) {
-        this.naviguerVers("/AnimalsInterface/AfficherAnimaux.fxml",mouseEvent);
-
-    }
-
-
-
-
-    public void handleStocks(Event mouseEvent) {
-        this.naviguerVers("/StocksInterface/afficherarticle.fxml",mouseEvent);
-    }
-
-
-
-    public void handleTerrains(Event mouseEvent) {
-        this.naviguerVers("/TerrainsInterface/acceuilterrain.fxml",mouseEvent);
-    }
-
-
-    //
-    public void handleEvents(Event mouseEvent) {
-        this.naviguerVers("/G-Evenements/Accueil.fxml",mouseEvent);
-    }
-
-
-    public void handleMateriels(Event mouseEvent) {
-        this.naviguerVers("/MaterielsInterface/AccueilMateriel.fxml",mouseEvent);
-    }
-    @FXML
-    private void handleLogout() {
-        System.out.println("🚪 Déconnexion...");
-
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Confirmation");
-        alert.setHeaderText("Déconnexion");
-        alert.setContentText("Voulez-vous vraiment vous déconnecter ?");
-
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/login.fxml"));
-                Parent root = loader.load();
-
-                Stage stage = (Stage) logoutBtn.getScene().getWindow();
-                Scene scene = new Scene(root, 900, 600);
-                stage.setScene(scene);
-                stage.setTitle("AgroFlow - Connexion");
-                stage.setMaximized(true);
-
-                System.out.println("✓ Déconnexion réussie");
-
-            } catch (IOException e) {
-                e.printStackTrace();
-                showError("Erreur", "Impossible de retourner à la page de connexion");
-            }
-        }
-    }
-
-
-    /**
-     * Afficher une information
-     */
-    private static void showInfo(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-
-
 }

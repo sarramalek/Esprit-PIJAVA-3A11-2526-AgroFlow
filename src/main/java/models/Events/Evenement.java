@@ -15,10 +15,9 @@ public class Evenement {
     private String statut;
     private int id_categorie;
 
-    public Evenement() {
+    public Evenement() {    }
 
-    }
-    // 🔹 Constructeur
+    // 🔹 Constructeur avec id
     public Evenement(int id_evenement, String titre, String description, String typeEvenement, Date dateDebut, Date dateFin, String lieu, String statut, int id_categorie) {
         this.id_evenement = id_evenement;
         this.titre = titre;
@@ -31,20 +30,19 @@ public class Evenement {
         this.id_categorie = id_categorie;
     }
 
-    // 🔹 Constructeur avec paramètres
+    // 🔹 Constructeur sans id
     public Evenement(String titre, String description, String typeEvenement, Date dateDebut, Date dateFin, String lieu, String statut, int id_categorie) {
-            this.titre = titre;
-            this.description = description;
-            this.typeEvenement = typeEvenement;
-            this.dateDebut = dateDebut;
-            this.dateFin = dateFin;
-            this.lieu = lieu;
-            this.statut = statut;
-            this.id_categorie = id_categorie;
+        this.titre = titre;
+        this.description = description;
+        this.typeEvenement = typeEvenement;
+        this.dateDebut = dateDebut;
+        this.dateFin = dateFin;
+        this.lieu = lieu;
+        this.statut = statut;
+        this.id_categorie = id_categorie;
     }
 
     // 🔹 Getters & Setters
-
     public int getIdEvenement() {
         return id_evenement;
     }

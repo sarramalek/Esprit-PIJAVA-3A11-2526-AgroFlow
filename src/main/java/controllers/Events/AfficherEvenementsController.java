@@ -3,6 +3,7 @@ package controllers.Events;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
@@ -15,82 +16,105 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import models.Events.Evenement;
 import services.Events.CategorieEvenementService;
 import services.Events.EvenementService;
+import services.Events.CalendarViewService;
 
 import java.io.IOException;
+import java.net.URL;
 import java.sql.Date;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 public class AfficherEvenementsController {
-    @FXML private Button logoutBtn,gestionBtn;
-    @FXML private VBox gestionSubmenu,gestionContainer;
-    @FXML
-    private TableView<Evenement> eventsTable;
 
-    @FXML
-    private TableColumn<Evenement, String> titreColumn;
+    @FXML private Button logoutBtn, gestionBtn;
+    @FXML private VBox gestionSubmenu, gestionContainer;
 
-    @FXML
-    private TableColumn<Evenement, String> typeColumn;
+    @FXML private TableView<Evenement> eventsTable;
+    @FXML private TableColumn<Evenement, String> titreColumn;
+    @FXML private TableColumn<Evenement, String> typeColumn;
+    @FXML private TableColumn<Evenement, Date> dateDebutColumn;
+    @FXML private TableColumn<Evenement, Date> dateFinColumn;
+    @FXML private TableColumn<Evenement, String> lieuColumn;
+    @FXML private TableColumn<Evenement, String> categorieColumn;
+    @FXML private TableColumn<Evenement, String> statutColumn;
+    @FXML private TableColumn<Evenement, Void> actionsColumn;
 
-    @FXML
-    private TableColumn<Evenement, Date> dateDebutColumn;
-
-    @FXML
-    private TableColumn<Evenement, Date> dateFinColumn;
-
-    @FXML
-    private TableColumn<Evenement, String> lieuColumn;
-
-    @FXML
-    private TableColumn<Evenement, String> categorieColumn;
-
-    @FXML
-    private TableColumn<Evenement, String> statutColumn;
-
-    @FXML
-    private TableColumn<Evenement, Void> actionsColumn;
-
-    @FXML
-    private TextField searchField;
+    // Filtres ← issus de la v1 améliorée
+    @FXML private TextField searchField;
+    @FXML private DatePicker filterDateDebut;
+    @FXML private DatePicker filterDateFin;
+    @FXML private TextField filterLieu;
+    @FXML private ComboBox<String> filterStatut;
+    @FXML private ComboBox<String> filterCategorie;
+    @FXML private Label resultsCountLabel;
 
     private final EvenementService evenementService = new EvenementService();
     private final CategorieEvenementService categorieService = new CategorieEvenementService();
+
     private ObservableList<Evenement> evenements;
+    private FilteredList<Evenement> filteredData;
+    private final Map<String, Integer> categoriesMap = new HashMap<>();
 
     // ================= INITIALIZATION =================
     @FXML
-    public void initialize(Event event) {
+    public void initialize() {
 
-            // Cacher submenu par défaut
-            gestionSubmenu.setVisible(false);
-            gestionSubmenu.setManaged(false);
+        // Cacher submenu par défaut
+        gestionSubmenu.setVisible(false);
+        gestionSubmenu.setManaged(false);
 
-            // 1. Hover sur le bouton Gestion → Ouvre submenu
-            gestionBtn.setOnMouseEntered(e -> {
-                showGestionSubmenu();
-            });
+        // Hover sur le bouton Gestion → Ouvre submenu
+        gestionBtn.setOnMouseEntered(e -> showGestionSubmenu());
 
-            // 2. Hover sur TOUT le container Gestion → Garde submenu ouvert
-            gestionContainer.setOnMouseEntered(e -> {
-                showGestionSubmenu();
-            });
-        initColumns(event);
+        // Hover sur TOUT le container Gestion → Garde submenu ouvert
+        gestionContainer.setOnMouseEntered(e -> showGestionSubmenu());
+
+        initColumns();
+        initFilters();
+
         try {
             loadEvenements();
+            setupReactiveSearch();
         } catch (SQLException e) {
             showError("Erreur", "Impossible de charger les événements : " + e.getMessage());
         }
     }
 
+    // ================= INITIALISATION DES FILTRES =================
+    private void initFilters() {
+        filterStatut.getItems().addAll("Tous les statuts", "Planifié", "Annulé", "Terminé");
+        filterStatut.setValue("Tous les statuts");
+
+        try {
+            filterCategorie.getItems().add("Toutes");
+            categorieService.recuperer().forEach(cat -> {
+                String nom = cat.getNom_categorie();
+                filterCategorie.getItems().add(nom);
+                categoriesMap.put(nom, cat.getId_categorie());
+            });
+            filterCategorie.setValue("Toutes");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        filterStatut.setOnAction(e -> appliquerFiltres());
+        filterCategorie.setOnAction(e -> appliquerFiltres());
+        filterDateDebut.setOnAction(e -> appliquerFiltres());
+        filterDateFin.setOnAction(e -> appliquerFiltres());
+        filterLieu.textProperty().addListener((obs, old, newVal) -> appliquerFiltres());
+    }
+
     // ================= TABLE COLUMNS =================
-    private void initColumns(Event event) {
-        // Colonnes simples
+    private void initColumns() {
         titreColumn.setCellValueFactory(new PropertyValueFactory<>("titre"));
         typeColumn.setCellValueFactory(new PropertyValueFactory<>("typeEvenement"));
         lieuColumn.setCellValueFactory(new PropertyValueFactory<>("lieu"));
@@ -98,32 +122,22 @@ public class AfficherEvenementsController {
 
         // Formatage des dates
         dateDebutColumn.setCellValueFactory(new PropertyValueFactory<>("dateDebut"));
-        dateDebutColumn.setCellFactory(col -> new TableCell<Evenement, Date>() {
-            private final SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
-
+        dateDebutColumn.setCellFactory(col -> new TableCell<>() {
+            private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
             @Override
             protected void updateItem(Date date, boolean empty) {
                 super.updateItem(date, empty);
-                if (empty || date == null) {
-                    setText(null);
-                } else {
-                    setText(format.format(date));
-                }
+                setText(empty || date == null ? null : formatter.format(date.toLocalDate()));
             }
         });
 
         dateFinColumn.setCellValueFactory(new PropertyValueFactory<>("dateFin"));
-        dateFinColumn.setCellFactory(col -> new TableCell<Evenement, Date>() {
-            private final SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
-
+        dateFinColumn.setCellFactory(col -> new TableCell<>() {
+            private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
             @Override
             protected void updateItem(Date date, boolean empty) {
                 super.updateItem(date, empty);
-                if (empty || date == null) {
-                    setText(null);
-                } else {
-                    setText(format.format(date));
-                }
+                setText(empty || date == null ? null : formatter.format(date.toLocalDate()));
             }
         });
 
@@ -140,7 +154,7 @@ public class AfficherEvenementsController {
         });
 
         // Styliser la colonne statut avec des couleurs
-        statutColumn.setCellFactory(col -> new TableCell<Evenement, String>() {
+        statutColumn.setCellFactory(col -> new TableCell<>() {
             @Override
             protected void updateItem(String statut, boolean empty) {
                 super.updateItem(statut, empty);
@@ -151,13 +165,13 @@ public class AfficherEvenementsController {
                     setText(statut);
                     switch (statut.toLowerCase()) {
                         case "planifié":
-                            setStyle("-fx-background-color: #E8F5E9; -fx-text-fill: #2E7D32; -fx-font-weight: bold;");
+                            setStyle("-fx-background-color: #E8F5E9; -fx-text-fill: #2E7D32; -fx-font-weight: bold; -fx-background-radius: 4;");
                             break;
                         case "terminé":
-                            setStyle("-fx-background-color: #E3F2FD; -fx-text-fill: #1976D2; -fx-font-weight: bold;");
+                            setStyle("-fx-background-color: #E3F2FD; -fx-text-fill: #1976D2; -fx-font-weight: bold; -fx-background-radius: 4;");
                             break;
                         case "annulé":
-                            setStyle("-fx-background-color: #FFEBEE; -fx-text-fill: #C62828; -fx-font-weight: bold;");
+                            setStyle("-fx-background-color: #FFEBEE; -fx-text-fill: #C62828; -fx-font-weight: bold; -fx-background-radius: 4;");
                             break;
                         default:
                             setStyle("");
@@ -166,32 +180,111 @@ public class AfficherEvenementsController {
             }
         });
 
-        addActionButtons(event);
+        addActionButtons();
     }
 
     // ================= LOAD DATA =================
     private void loadEvenements() throws SQLException {
         evenements = FXCollections.observableArrayList(evenementService.recuperer());
-        eventsTable.setItems(evenements);
+        filteredData = new FilteredList<>(evenements, e -> true);
+        eventsTable.setItems(filteredData);
+        updateResultsCount();
         System.out.println("✅ " + evenements.size() + " événements chargés");
     }
 
+    // ================= RECHERCHE RÉACTIVE =================
+    private void setupReactiveSearch() {
+        searchField.textProperty().addListener((obs, old, newVal) -> appliquerFiltres());
+    }
+
+    // ================= APPLIQUER TOUS LES FILTRES =================
+    private void appliquerFiltres() {
+        filteredData.setPredicate(evenement ->
+                matchesSearchText(evenement)
+                        && matchesDateDebutFilter(evenement)
+                        && matchesDateFinFilter(evenement)
+                        && matchesLieuFilter(evenement)
+                        && matchesStatutFilter(evenement)
+                        && matchesCategorieFilter(evenement)
+        );
+        updateResultsCount();
+    }
+
+    private boolean matchesSearchText(Evenement evenement) {
+        String searchText = searchField.getText();
+        if (searchText == null || searchText.trim().isEmpty()) return true;
+        return evenement.getTitre().toLowerCase().contains(searchText.toLowerCase());
+    }
+
+    private boolean matchesDateDebutFilter(Evenement evenement) {
+        LocalDate dateFiltre = filterDateDebut.getValue();
+        if (dateFiltre == null) return true;
+        return evenement.getDateDebut().toLocalDate().equals(dateFiltre);
+    }
+
+    private boolean matchesDateFinFilter(Evenement evenement) {
+        LocalDate dateFiltre = filterDateFin.getValue();
+        if (dateFiltre == null) return true;
+        return evenement.getDateFin().toLocalDate().equals(dateFiltre);
+    }
+
+    private boolean matchesLieuFilter(Evenement evenement) {
+        String lieuFiltre = filterLieu.getText();
+        if (lieuFiltre == null || lieuFiltre.trim().isEmpty()) return true;
+        return evenement.getLieu().toLowerCase().contains(lieuFiltre.toLowerCase());
+    }
+
+    private boolean matchesStatutFilter(Evenement evenement) {
+        String statut = filterStatut.getValue();
+        if (statut == null || statut.equals("Tous les statuts")) return true;
+        return evenement.getStatut().equalsIgnoreCase(statut);
+    }
+
+    private boolean matchesCategorieFilter(Evenement evenement) {
+        String categorie = filterCategorie.getValue();
+        if (categorie == null || categorie.equals("Toutes")) return true;
+        try {
+            String nomCategorie = categorieService.getNomCategorieById(evenement.getIdCategorie());
+            return nomCategorie.equals(categorie);
+        } catch (SQLException e) {
+            return true;
+        }
+    }
+
+    // ================= RÉINITIALISER LES FILTRES =================
+    @FXML
+    private void handleResetFilters(ActionEvent event) {
+        searchField.clear();
+        filterDateDebut.setValue(null);
+        filterDateFin.setValue(null);
+        filterLieu.clear();
+        filterStatut.setValue("Tous les statuts");
+        filterCategorie.setValue("Toutes");
+        appliquerFiltres();
+    }
+
+    private void updateResultsCount() {
+        if (resultsCountLabel != null) {
+            resultsCountLabel.setText(filteredData.size() + " événement(s) trouvé(s)");
+        }
+    }
+
     // ================= ACTION BUTTONS =================
-    private void addActionButtons(Event event) {
+    private void addActionButtons() {
         actionsColumn.setCellFactory(col -> new TableCell<>() {
 
-            private final Button editBtn = new Button("✏ Modifier");
+            private final Button editBtn   = new Button("✏ Modifier");
             private final Button deleteBtn = new Button("🗑 Supprimer");
-            private final HBox box = new HBox(10, editBtn, deleteBtn);
+            private final HBox   box       = new HBox(10, editBtn, deleteBtn);
 
             {
                 editBtn.setStyle("-fx-background-color:#F39C12; -fx-text-fill:white; -fx-cursor: hand;");
                 deleteBtn.setStyle("-fx-background-color:#E74C3C; -fx-text-fill:white; -fx-cursor: hand;");
 
-                // ===== MODIFIER =====
+                // ===== MODIFIER → ouvre un pop-up modal =====
                 editBtn.setOnAction(e -> {
                     Evenement evenement = getTableView().getItems().get(getIndex());
-                    ouvrirPage(event,"ModifierEvenement.fxml");
+                    ouvrirPopup("/G-Evenements/ModifierEvenement.fxml", evenement);
                 });
 
                 // ===== SUPPRIMER =====
@@ -209,6 +302,7 @@ public class AfficherEvenementsController {
                             evenementService.supprimer(evenement.getIdEvenement());
                             showSuccess("Succès", "Événement supprimé avec succès !");
                             loadEvenements();
+                            appliquerFiltres();
                         } catch (SQLException ex) {
                             showError("Erreur", "Impossible de supprimer l'événement : " + ex.getMessage());
                         }
@@ -224,10 +318,10 @@ public class AfficherEvenementsController {
         });
     }
 
-    // ================= ADD EVENEMENT =================
+    // ================= ADD EVENEMENT → ouvre un pop-up modal =================
     @FXML
     private void handleAddEvenement(ActionEvent event) {
-        ouvrirPage(event,"AjouterEvenement.fxml");
+        ouvrirPopup("/G-Evenements/AjouterEvenement.fxml", null);
     }
 
     // ================= REFRESH =================
@@ -235,16 +329,120 @@ public class AfficherEvenementsController {
     private void handleRefresh(ActionEvent event) {
         try {
             loadEvenements();
+            handleResetFilters(event);
             showSuccess("Actualisation", "Liste actualisée avec succès !");
         } catch (SQLException e) {
             showError("Erreur", "Impossible d'actualiser : " + e.getMessage());
         }
     }
 
+    // ================= CALENDRIER =================
+    @FXML
+    private void handleOpenGoogleCalendar(ActionEvent event) {
+        try {
+            CalendarViewService calendarService = new CalendarViewService();
+            Stage stage = (Stage) eventsTable.getScene().getWindow();
+            calendarService.afficherCalendrier(stage);
+        } catch (Exception e) {
+            e.printStackTrace();
+            showError("Erreur", "Impossible d'ouvrir le calendrier : " + e.getMessage());
+        }
+    }
+
+    // ================= CARTE =================
+    @FXML
+    private void handleOpenCarte(ActionEvent event) {
+        try {
+            URL fxmlUrl = getClass().getResource("/G-Evenements/CarteEvenements.fxml");
+            if (fxmlUrl == null) {
+                showError("Erreur", "Fichier CarteEvenements.fxml introuvable.\nVérifiez qu'il est dans : resources/G-Evenements/");
+                return;
+            }
+            FXMLLoader loader = new FXMLLoader(fxmlUrl);
+            Parent root = loader.load();
+
+            Stage popupStage = new Stage();
+            popupStage.setTitle("🗺️ Carte des événements — Tunisie");
+            popupStage.setScene(new Scene(root, 600, 580));
+            popupStage.initModality(Modality.WINDOW_MODAL);
+            popupStage.initOwner(eventsTable.getScene().getWindow());
+            popupStage.setResizable(true);
+            popupStage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showError("Erreur", "Impossible d'ouvrir la carte : " + e.getMessage());
+        }
+    }
+
+    // ================= GÉNÉRATEUR D'IDÉES =================
+    @FXML
+    private void handleGenerateIdeas(ActionEvent event) {
+        try {
+            URL fxmlUrl = getClass().getResource("/G-Evenements/GenerateurIdees.fxml");
+            if (fxmlUrl == null) fxmlUrl = getClass().getResource("GenerateurIdees.fxml");
+            if (fxmlUrl == null) fxmlUrl = getClass().getClassLoader().getResource("G-Evenements/GenerateurIdees.fxml");
+            if (fxmlUrl == null) fxmlUrl = getClass().getClassLoader().getResource("GenerateurIdees.fxml");
+
+            if (fxmlUrl == null) {
+                showError("Erreur - Fichier introuvable",
+                        "GenerateurIdees.fxml est introuvable.\n\n"
+                                + "Vérifiez que le fichier est bien dans :\n"
+                                + "  src/main/resources/G-Evenements/GenerateurIdees.fxml\n\n"
+                                + "Et que Maven/IntelliJ a bien copié les resources dans target.");
+                return;
+            }
+
+            FXMLLoader loader = new FXMLLoader(fxmlUrl);
+            Parent root = loader.load();
+
+            Stage popupStage = new Stage();
+            popupStage.setTitle("💡 Générateur d'idées d'événements IA");
+            popupStage.setScene(new Scene(root, 680, 620));
+            popupStage.initModality(Modality.WINDOW_MODAL);
+            popupStage.initOwner(eventsTable.getScene().getWindow());
+            popupStage.setResizable(true);
+            popupStage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showError("Erreur", "Impossible d'ouvrir le générateur d'idées : " + e.getMessage());
+        }
+    }
+
+    // ================= POPUP MODAL =================
+    private void ouvrirPopup(String fxml, Evenement evenement) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource( fxml));
+            Parent root = loader.load();
+
+            Stage popupStage = new Stage();
+            popupStage.initModality(Modality.WINDOW_MODAL);
+            popupStage.initOwner(eventsTable.getScene().getWindow());
+            popupStage.setResizable(true);
+            popupStage.setTitle(evenement == null ? "Nouvel Événement" : "Modifier l'Événement");
+            popupStage.setScene(new Scene(root));
+
+            if (evenement != null) {
+                ModifierEvenementController controller = loader.getController();
+                controller.setEvenement(evenement);
+            }
+
+            popupStage.showAndWait(); // BLOQUANT : on reprend ici après fermeture du pop-up
+
+            loadEvenements();
+            appliquerFiltres();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            showError("Erreur", "Impossible de charger la page : " + e.getMessage());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     // ================= NAVIGATION =================
     @FXML
     private void goToAccueil(ActionEvent event) {
-        ouvrirPageSimple("Accueil.fxml");
+        ouvrirPage(event, "/G-Evenements/Accueil.fxml");
     }
 
     private void ouvrirPage(Event event, String fxml) {
@@ -253,12 +451,10 @@ public class AfficherEvenementsController {
             Parent root = loader.load();
 
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            Scene scene = stage.getScene();
 
-            boolean etaitMaximise = stage.isMaximized();  // ← SAUVEGARDER AVANT
-
-            stage.setScene(new Scene(root));
-
-            stage.setMaximized(etaitMaximise);  // ← RESTAURER APRÈS
+            // On change la racine, pas la scène → la fenêtre ne bouge pas d'un pixel
+            scene.setRoot(root);
 
             stage.show();
         } catch (IOException e) {
@@ -271,10 +467,103 @@ public class AfficherEvenementsController {
         try {
             Parent root = FXMLLoader.load(getClass().getResource("/G-Evenements/" + fxml));
             Stage stage = (Stage) eventsTable.getScene().getWindow();
-            stage.setScene(new Scene(root));
+            Scene scene = stage.getScene();
+
+            // On change la racine, pas la scène → la fenêtre ne bouge pas d'un pixel
+            scene.setRoot(root);
+
+            stage.show();
         } catch (IOException e) {
             e.printStackTrace();
             showError("Erreur", "Impossible de charger la page : " + e.getMessage());
+        }
+    }
+
+    // ================= SIDEBAR HANDLERS =================
+    @FXML
+    private void handlePersonnes(Event event) {
+        ouvrirPage(event, "/UsersInterface/DahboardPersonne.fxml");
+    }
+
+    @FXML
+    private void handleTaches(Event event) {
+        ouvrirPage(event, "/UsersInterface/GestionTache.fxml");
+    }
+
+    @FXML
+    private void handleAbonnements(Event event) {
+        ouvrirPage(event, "/UsersInterface/GestionAbonnements.fxml");
+    }
+
+    @FXML
+    private void handleOffres(Event event) {
+        ouvrirPage(event, "/UsersInterface/GestionOffre.fxml");
+    }
+
+    public void handleDashboard(MouseEvent actionEvent) {
+        ouvrirPage(actionEvent, "/UsersInterface/Acceuil.fxml");
+    }
+
+    public void handleAnimals(Event mouseEvent) {
+        ouvrirPage(mouseEvent, "/AnimalsInterface/AfficherAnimaux.fxml");
+    }
+
+    public void handleStocks(Event mouseEvent) {
+        ouvrirPage(mouseEvent, "/StocksInterface/afficherarticle.fxml");
+    }
+
+    public void handleTerrains(Event mouseEvent) {
+        ouvrirPage(mouseEvent, "/TerrainsInterface/acceuilterrain.fxml");
+    }
+
+    public void handleEvents(Event mouseEvent) {
+        ouvrirPage(mouseEvent, "/G-Evenements/Accueil.fxml");
+    }
+
+    public void handleMateriels(Event mouseEvent) {
+        ouvrirPage(mouseEvent, "/MaterielsInterface/AccueilMateriel.fxml");
+    }
+
+    // ================= SUBMENU HELPERS =================
+    private void showGestionSubmenu() {
+        gestionSubmenu.setVisible(true);
+        gestionSubmenu.setManaged(true);
+    }
+
+    private void hideGestionSubmenu() {
+        gestionSubmenu.setVisible(false);
+        gestionSubmenu.setManaged(false);
+    }
+
+    // ================= LOGOUT =================
+    @FXML
+    private void handleLogout() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirmation");
+        alert.setHeaderText("Déconnexion");
+        alert.setContentText("Voulez-vous vraiment vous déconnecter ?");
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/login.fxml"));
+                Parent root = loader.load();
+
+                Stage stage = (Stage) logoutBtn.getScene().getWindow();
+                Scene scene = stage.getScene();
+
+                // SOLUTION MIRACLE : On change la racine, pas la scène !
+                scene.setRoot(root);
+
+                // Plus besoin de gérer "etaitMaximise", la fenêtre ne bougera pas d'un pixel
+                stage.show();
+
+
+                System.out.println("✓ Déconnexion réussie");
+            } catch (IOException e) {
+                e.printStackTrace();
+                showError("Erreur", "Impossible de retourner à la page de connexion");
+            }
         }
     }
 
@@ -294,109 +583,4 @@ public class AfficherEvenementsController {
         alert.setContentText(message);
         alert.showAndWait();
     }
-
-    @FXML
-    private void handlePersonnes(Event event )  {
-        this.ouvrirPage(event,"/UsersInterface/DahboardPersonne.fxml");}
-
-
-    @FXML private void handleTaches(Event event ) { /* Charger vue Tâches */
-        this.ouvrirPage(event,"/UsersInterface/GestionTache.fxml");}
-
-
-
-    @FXML
-    private void handleAbonnements(Event event) { /* Charger vue Abonnements */
-        this.ouvrirPage(event,"/UsersInterface/GestionAbonnements.fxml");}
-    @FXML private void handleOffres(Event event) { /* Charger vue Offres */
-        this.ouvrirPage(event,"/UsersInterface/GestionOffre.fxml");}
-
-
-    private void showGestionSubmenu() {
-        gestionSubmenu.setVisible(true);
-        gestionSubmenu.setManaged(true);
-    }
-
-    private void hideGestionSubmenu() {
-        gestionSubmenu.setVisible(false);
-        gestionSubmenu.setManaged(false);
-    }
-
-    public void handleDashboard(MouseEvent actionEvent) {
-        this.ouvrirPage(actionEvent,"/UsersInterface/Acceuil.fxml");
-
-    }
-    public void handleAnimals(Event mouseEvent) {
-        this.ouvrirPage(mouseEvent,"/AnimalsInterface/AfficherAnimaux.fxml");
-
-    }
-
-
-
-
-    public void handleStocks(Event mouseEvent) {
-        this.ouvrirPage(mouseEvent,"/StocksInterface/afficherarticle.fxml");
-    }
-
-
-
-    public void handleTerrains(Event mouseEvent) {
-        this.ouvrirPage(mouseEvent,"/TerrainsInterface/acceuilterrain.fxml");
-    }
-
-
-    //
-    public void handleEvents(Event mouseEvent) {
-        this.ouvrirPage(mouseEvent,"/G-Evenements/Accueil.fxml");
-    }
-
-
-    public void handleMateriels(Event mouseEvent) {
-        this.ouvrirPage(mouseEvent,"/MaterielsInterface/AccueilMateriel.fxml");
-    }
-    @FXML
-    private void handleLogout() {
-        System.out.println("🚪 Déconnexion...");
-
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Confirmation");
-        alert.setHeaderText("Déconnexion");
-        alert.setContentText("Voulez-vous vraiment vous déconnecter ?");
-
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/login.fxml"));
-                Parent root = loader.load();
-
-                Stage stage = (Stage) logoutBtn.getScene().getWindow();
-                Scene scene = new Scene(root, 900, 600);
-                stage.setScene(scene);
-                stage.setTitle("AgroFlow - Connexion");
-                stage.setMaximized(true);
-
-                System.out.println("✓ Déconnexion réussie");
-
-            } catch (IOException e) {
-                e.printStackTrace();
-                showError("Erreur", "Impossible de retourner à la page de connexion");
-            }
-        }
-    }
-
-
-    /**
-     * Afficher une information
-     */
-    private static void showInfo(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-
-
-
-
 }

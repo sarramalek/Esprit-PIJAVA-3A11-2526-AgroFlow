@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox spacing="20" prefWidth="750" prefHeight="900"
+      style="-fx-background-color: #f8f4ff; -fx-padding: 30;"
+      xmlns="http://javafx.com/javafx/17.0.12"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="controllers.Events.GenerateurIdeesController">
+
+    <!-- En-tête -->
+    <HBox alignment="CENTER_LEFT" spacing="15">
+        <Label text="💡" style="-fx-font-size: 36px;" />
+        <VBox spacing="3">
+            <Label text="Générateur d'idées IA"
+                   style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #6C3483;">
+                <font><Font name="System Bold" size="24"/></font>
+            </Label>
+            <Label text="Générez des idées d'événements agricoles personnalisées grâce à l'IA"
+                   style="-fx-font-size: 13px; -fx-text-fill: #8E44AD;" />
+        </VBox>
+    </HBox>
+
+    <Separator />
+
+    <!-- Paramètres -->
+    <VBox spacing="12" style="-fx-background-color: white; -fx-background-radius: 10;
+                               -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);
+                               -fx-padding: 20;">
+        <Label text="⚙️ Paramètres de génération"
+               style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;">
+            <font><Font name="System Bold" size="15"/></font>
+        </Label>
+
+        <HBox spacing="20" alignment="CENTER_LEFT">
+            <!-- Saison -->
+            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                <Label text="Saison" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #7F8C8D;" />
+                <ComboBox fx:id="saisonCombo" maxWidth="Infinity"
+                          style="-fx-background-color: #F8F9FA; -fx-border-color: #E0E0E0;
+                                 -fx-border-radius: 6; -fx-background-radius: 6; -fx-font-size: 13px;" />
+            </VBox>
+
+            <!-- Type d'exploitation -->
+            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                <Label text="Type d'exploitation" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #7F8C8D;" />
+                <ComboBox fx:id="typeExploitCombo" maxWidth="Infinity"
+                          style="-fx-background-color: #F8F9FA; -fx-border-color: #E0E0E0;
+                                 -fx-border-radius: 6; -fx-background-radius: 6; -fx-font-size: 13px;" />
+            </VBox>
+
+            <!-- Nombre d'idées -->
+            <VBox spacing="5">
+                <Label text="Nombre d'idées" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #7F8C8D;" />
+                <Spinner fx:id="nbIdeesSpinner" prefWidth="90"
+                         style="-fx-background-color: #F8F9FA; -fx-border-color: #E0E0E0;
+                                -fx-border-radius: 6; -fx-font-size: 13px;" />
+            </VBox>
+        </HBox>
+
+        <!-- Bouton Générer -->
+        <Button onAction="#handleGenerer" fx:id="genererBtn"
+                text="🚀 Générer les idées"
+                maxWidth="Infinity"
+                style="-fx-background-color: #8E44AD; -fx-text-fill: white; -fx-font-size: 15px;
+                       -fx-font-weight: bold; -fx-padding: 12 20; -fx-background-radius: 8; -fx-cursor: hand;">
+            <font><Font name="System Bold" size="15"/></font>
+        </Button>
+    </VBox>
+
+    <!-- Chargement  (fx:id="loadingBox" → HBox, cohérent avec le contrôleur) -->
+    <HBox fx:id="loadingBox" alignment="CENTER" spacing="15"
+          style="-fx-background-color: #EDE7F6; -fx-background-radius: 8; -fx-padding: 12;">
+        <ProgressIndicator prefWidth="30" prefHeight="30" />
+        <Label text="🤖 L'IA génère vos idées, veuillez patienter..."
+               style="-fx-font-size: 14px; -fx-text-fill: #6C3483;" />
+    </HBox>
+
+    <!-- Zone de résultats -->
+    <VBox spacing="8" VBox.vgrow="ALWAYS"
+          style="-fx-background-color: white; -fx-background-radius: 10;
+                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2); -fx-padding: 15;">
+        <HBox alignment="CENTER_LEFT" spacing="10">
+            <Label text="📋 Idées générées"
+                   style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;">
+                <font><Font name="System Bold" size="14"/></font>
+            </Label>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button onAction="#handleCopier" text="📋 Copier tout"
+                    style="-fx-background-color: #27AE60; -fx-text-fill: white; -fx-font-size: 12px;
+                           -fx-padding: 6 12; -fx-background-radius: 6; -fx-cursor: hand;" />
+        </HBox>
+
+        <TextArea fx:id="resultArea"
+                  promptText="Les idées générées par l'IA s'afficheront ici..."
+                  VBox.vgrow="ALWAYS"
+                  prefRowCount="12"
+                  style="-fx-font-family: 'Segoe UI'; -fx-font-size: 13px;
+                         -fx-background-color: #FAFAFA;
+                         -fx-border-color: #E0E0E0; -fx-border-radius: 6;
+                         -fx-background-radius: 6; -fx-padding: 10;" />
+    </VBox>
+
+    <!-- Barre de statut + Fermer -->
+    <HBox alignment="CENTER_LEFT" spacing="15">
+        <Label fx:id="statusLabel" text=""
+               style="-fx-font-size: 13px; -fx-text-fill: #6C3483; -fx-font-style: italic;"
+               HBox.hgrow="ALWAYS" />
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button fx:id="fermerBtn" onAction="#handleFermer" text="✕ Fermer"
+                style="-fx-background-color: #95A5A6; -fx-text-fill: white; -fx-font-size: 13px;
+                       -fx-padding: 8 18; -fx-background-radius: 6; -fx-cursor: hand;" />
+    </HBox>
+
+</VBox>

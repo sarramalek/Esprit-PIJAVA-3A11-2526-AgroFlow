@@ -9,22 +9,25 @@ public class Participation {
     private LocalDate date_inscription;
     private boolean presence;
     private int id_evenement;
+    private int id_user;
 
     public Participation() {}
 
-    public Participation(int id_participation, String statut_participation, LocalDate date_inscription, boolean presence, int id_evenement) {
+    public Participation(int id_participation, String statut_participation, LocalDate date_inscription, boolean presence, int id_evenement, int id_user) {
         this.id_participation = id_participation;
         this.statut_participation = statut_participation;
         this.date_inscription = date_inscription;
         this.presence = presence;
         this.id_evenement = id_evenement;
+        this.id_user = id_user;
     }
 
-    public Participation(String statut_participation, LocalDate date_inscription, boolean presence, int id_evenement) {
+    public Participation(String statut_participation, LocalDate date_inscription, boolean presence, int id_evenement, int id_user) {
         this.statut_participation = statut_participation;
         this.date_inscription = date_inscription;
         this.presence = presence;
         this.id_evenement = id_evenement;
+        this.id_user = id_user;
     }
 
     public int getId_participation() {
@@ -67,16 +70,20 @@ public class Participation {
         this.id_evenement = id_evenement;
     }
 
+    public int getId_user() { return id_user; }
+
+    public void setId_user(int id_user) { this.id_user = id_user; }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Participation that = (Participation) o;
-        return id_participation == that.id_participation && presence == that.presence && id_evenement == that.id_evenement && Objects.equals(statut_participation, that.statut_participation) && Objects.equals(date_inscription, that.date_inscription);
+        return id_participation == that.id_participation && presence == that.presence && id_evenement == that.id_evenement && id_user == that.id_user && Objects.equals(statut_participation, that.statut_participation) && Objects.equals(date_inscription, that.date_inscription);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id_participation, statut_participation, date_inscription, presence, id_evenement);
+        return Objects.hash(id_participation, statut_participation, date_inscription, presence, id_evenement, id_user);
     }
 
     @Override
@@ -87,6 +94,7 @@ public class Participation {
                 ", date_inscription=" + date_inscription +
                 ", presence=" + presence +
                 ", id_evenement=" + id_evenement +
+                ", id_user=" + id_user +
                 '}';
     }
 }

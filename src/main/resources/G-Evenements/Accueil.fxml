@@ -112,58 +112,48 @@
             </Button>
         </VBox>
     </left>
-    <!-- ================= CENTER ================= -->
+    <!-- CENTER -->
     <center>
-        <VBox spacing="40" alignment="CENTER" style="-fx-padding: 40;">
-            <children>
+        <VBox spacing="40" alignment="CENTER" style="-fx-padding: 60;">
+            <Text text="Module Événements" fill="#2C3E50">
+                <font><Font name="System Bold" size="36"/></font>
+            </Text>
+            <HBox spacing="60" alignment="CENTER">
 
-                <Text text="Module Événements"
-                      fill="#2C3E50">
-                    <font>
-                        <Font name="System Bold" size="28"/>
-                    </font>
-                </Text>
+                <VBox spacing="20" alignment="CENTER"
+                      onMouseClicked="#ouvrirEvenements"
+                      prefWidth="200" prefHeight="160"
+                      style="-fx-background-color: white; -fx-padding: 30;
+                             -fx-border-radius: 12; -fx-background-radius: 12;
+                             -fx-cursor: hand;
+                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);">
+                    <Text text="📅" style="-fx-font-size: 56px;"/>
+                    <Text text="Événements" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+                </VBox>
 
-                <HBox spacing="40" alignment="CENTER">
+                <VBox spacing="20" alignment="CENTER"
+                      onMouseClicked="#ouvrirCategories"
+                      prefWidth="200" prefHeight="160"
+                      style="-fx-background-color: white; -fx-padding: 30;
+                             -fx-border-radius: 12; -fx-background-radius: 12;
+                             -fx-cursor: hand;
+                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);">
+                    <Text text="🏷️" style="-fx-font-size: 56px;"/>
+                    <Text text="Catégories" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+                </VBox>
 
-                    <!-- EVENEMENTS -->
-                    <VBox spacing="15" alignment="CENTER"
-                          onMouseClicked="#ouvrirEvenements"
-                          style="-fx-background-color: white; -fx-padding: 25;
-                                 -fx-border-radius: 10; -fx-background-radius: 10;
-                                 -fx-cursor: hand;">
-                        <children>
-                            <Text text="📅" style="-fx-font-size: 48px;"/>
-                            <Text text="Événements" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
-                        </children>
-                    </VBox>
+                <VBox spacing="20" alignment="CENTER"
+                      onMouseClicked="#ouvrirParticipations"
+                      prefWidth="200" prefHeight="160"
+                      style="-fx-background-color: white; -fx-padding: 30;
+                             -fx-border-radius: 12; -fx-background-radius: 12;
+                             -fx-cursor: hand;
+                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);">
+                    <Text text="👥" style="-fx-font-size: 56px;"/>
+                    <Text text="Participations" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+                </VBox>
 
-                    <!-- CATEGORIES -->
-                    <VBox spacing="15" alignment="CENTER"
-                          onMouseClicked="#ouvrirCategories"
-                          style="-fx-background-color: white; -fx-padding: 25;
-                                 -fx-border-radius: 10; -fx-background-radius: 10;
-                                 -fx-cursor: hand;">
-                        <children>
-                            <Text text="🏷️" style="-fx-font-size: 48px;"/>
-                            <Text text="Catégories" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
-                        </children>
-                    </VBox>
-
-                    <!-- PARTICIPATIONS -->
-                    <VBox spacing="15" alignment="CENTER"
-                          onMouseClicked="#ouvrirParticipations"
-                          style="-fx-background-color: white; -fx-padding: 25;
-                                 -fx-border-radius: 10; -fx-background-radius: 10;
-                                 -fx-cursor: hand;">
-                        <children>
-                            <Text text="👥" style="-fx-font-size: 48px;"/>
-                            <Text text="Participations" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
-                        </children>
-                    </VBox>
-
-                </HBox>
-            </children>
+            </HBox>
         </VBox>
     </center>
 

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox spacing="0" style="-fx-background-color: #F0F4F8;" prefWidth="480"
+      xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="controllers.Events.ModifierParticipationUserController">
+
+    <HBox alignment="CENTER_LEFT" style="-fx-background-color: #546E7A; -fx-padding: 20 25;">
+        <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;" text="Modifier ma participation">
+            <font><Font name="System Bold" size="18"/></font>
+        </Label>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Label style="-fx-font-size: 12px; -fx-text-fill: #CFD8DC;" text="Seule la presence est modifiable"/>
+    </HBox>
+
+    <VBox spacing="18" style="-fx-padding: 25; -fx-background-color: white;">
+
+        <TextField fx:id="tfId" visible="false" managed="false"/>
+
+        <VBox spacing="6">
+            <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;" text="Evenement">
+                <font><Font name="System Bold" size="13"/></font>
+            </Label>
+            <Label fx:id="evenementInfoLabel"
+                   style="-fx-font-size: 13px; -fx-text-fill: #546E7A; -fx-background-color: #F5F7FA; -fx-padding: 10 14; -fx-background-radius: 8; -fx-border-color: #ECEFF1; -fx-border-radius: 8;"
+                   text="---"/>
+        </VBox>
+
+        <VBox spacing="6">
+            <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;" text="Date d'inscription">
+                <font><Font name="System Bold" size="13"/></font>
+            </Label>
+            <Label fx:id="dateInscriptionInfoLabel"
+                   style="-fx-font-size: 13px; -fx-text-fill: #546E7A; -fx-background-color: #F5F7FA; -fx-padding: 10 14; -fx-background-radius: 8; -fx-border-color: #ECEFF1; -fx-border-radius: 8;"
+                   text="---"/>
+        </VBox>
+
+        <VBox spacing="6">
+            <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;" text="Statut">
+                <font><Font name="System Bold" size="13"/></font>
+            </Label>
+            <Label fx:id="statutInfoLabel"
+                   style="-fx-font-size: 13px; -fx-text-fill: #546E7A; -fx-background-color: #F5F7FA; -fx-padding: 10 14; -fx-background-radius: 8; -fx-border-color: #ECEFF1; -fx-border-radius: 8;"
+                   text="---"/>
+        </VBox>
+
+        <VBox spacing="6">
+            <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #1565C0;" text="Presence * (modifiable)">
+                <font><Font name="System Bold" size="13"/></font>
+            </Label>
+            <ComboBox fx:id="cbPresence" prefWidth="Infinity" prefHeight="38"
+                      style="-fx-background-color: #E3F2FD; -fx-background-radius: 8; -fx-border-color: #1565C0; -fx-border-radius: 8; -fx-font-size: 13px;"/>
+        </VBox>
+
+        <Label fx:id="errorLabel"
+               style="-fx-text-fill: #C62828; -fx-font-size: 12px; -fx-background-color: #FFEBEE; -fx-padding: 8 12; -fx-background-radius: 6;"
+               visible="false" managed="false" wrapText="true"/>
+
+        <Separator/>
+
+        <HBox spacing="12" alignment="CENTER_RIGHT">
+            <Button text="Annuler" onAction="#annuler" prefWidth="130" prefHeight="38"
+                    style="-fx-background-color: #ECEFF1; -fx-text-fill: #546E7A; -fx-font-size: 13px; -fx-background-radius: 8; -fx-cursor: hand; -fx-border-color: #CFD8DC; -fx-border-radius: 8;">
+                <font><Font name="System" size="13"/></font>
+            </Button>
+            <Button text="Enregistrer" onAction="#modifierParticipation" prefWidth="150" prefHeight="38"
+                    style="-fx-background-color: #546E7A; -fx-text-fill: white; -fx-font-size: 13px; -fx-background-radius: 8; -fx-cursor: hand; -fx-font-weight: bold;">
+                <font><Font name="System Bold" size="13"/></font>
+            </Button>
+        </HBox>
+
+    </VBox>
+</VBox>

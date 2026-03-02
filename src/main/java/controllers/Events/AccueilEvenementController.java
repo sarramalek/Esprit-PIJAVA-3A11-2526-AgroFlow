@@ -19,35 +19,32 @@ import java.util.Optional;
 
 public class AccueilEvenementController {
 
-    @FXML private Button logoutBtn,gestionBtn;
-    @FXML private VBox gestionSubmenu,gestionContainer;
+    @FXML private Button logoutBtn, gestionBtn;
+    @FXML private VBox gestionSubmenu, gestionContainer;
+
     public void initialize() {
         // Cacher submenu par défaut
         gestionSubmenu.setVisible(false);
         gestionSubmenu.setManaged(false);
 
-        // 1. Hover sur le bouton Gestion → Ouvre submenu
-        gestionBtn.setOnMouseEntered(e -> {
-            showGestionSubmenu();
-        });
+        // Hover sur le bouton Gestion → Ouvre submenu
+        gestionBtn.setOnMouseEntered(e -> showGestionSubmenu());
 
-        // 2. Hover sur TOUT le container Gestion → Garde submenu ouvert
-        gestionContainer.setOnMouseEntered(e -> {
-            showGestionSubmenu();
-        });}
+        // Hover sur TOUT le container Gestion → Garde submenu ouvert
+        gestionContainer.setOnMouseEntered(e -> showGestionSubmenu());
+    }
 
+    // ================= NAVIGATION =================
     private void chargerPage(Event event, String fxml) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxml));
             Parent root = loader.load();
 
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            Scene scene = stage.getScene();
 
-            boolean etaitMaximise = stage.isMaximized();  // ← SAUVEGARDER AVANT
-
-            stage.setScene(new Scene(root));
-
-            stage.setMaximized(etaitMaximise);  // ← RESTAURER APRÈS
+            // On change la racine, pas la scène → la fenêtre ne bouge pas d'un pixel
+            scene.setRoot(root);
 
             stage.show();
         } catch (IOException e) {
@@ -68,23 +65,52 @@ public class AccueilEvenementController {
         chargerPage(event, "/G-Evenements/AfficherParticipations.fxml");
     }
 
+    // ================= SIDEBAR HANDLERS =================
     @FXML
-    private void handlePersonnes(Event event )  {
-        this.chargerPage(event,"/UsersInterface/DahboardPersonne.fxml");}
-
-
-    @FXML private void handleTaches(Event event ) { /* Charger vue Tâches */
-        this.chargerPage(event,"/UsersInterface/GestionTache.fxml");}
-
-
+    private void handlePersonnes(Event event) {
+        chargerPage(event, "/UsersInterface/DahboardPersonne.fxml");
+    }
 
     @FXML
-    private void handleAbonnements(Event event) { /* Charger vue Abonnements */
-        this.chargerPage(event,"/UsersInterface/GestionAbonnements.fxml");}
-    @FXML private void handleOffres(Event event) { /* Charger vue Offres */
-        this.chargerPage(event,"/UsersInterface/GestionOffre.fxml");}
+    private void handleTaches(Event event) {
+        chargerPage(event, "/UsersInterface/GestionTache.fxml");
+    }
 
+    @FXML
+    private void handleAbonnements(Event event) {
+        chargerPage(event, "/UsersInterface/GestionAbonnements.fxml");
+    }
 
+    @FXML
+    private void handleOffres(Event event) {
+        chargerPage(event, "/UsersInterface/GestionOffre.fxml");
+    }
+
+    public void handleDashboard(MouseEvent actionEvent) {
+        chargerPage(actionEvent, "/UsersInterface/Acceuil.fxml");
+    }
+
+    public void handleAnimals(MouseEvent mouseEvent) {
+        chargerPage(mouseEvent, "/AnimalsInterface/AfficherAnimaux.fxml");
+    }
+
+    public void handleStocks(MouseEvent mouseEvent) {
+        chargerPage(mouseEvent, "/StocksInterface/afficherarticle.fxml");
+    }
+
+    public void handleTerrains(MouseEvent mouseEvent) {
+        chargerPage(mouseEvent, "/TerrainsInterface/acceuilterrain.fxml");
+    }
+
+    public void handleEvents(MouseEvent mouseEvent) {
+        chargerPage(mouseEvent, "/G-Evenements/Accueil.fxml");
+    }
+
+    public void handleMateriels(MouseEvent mouseEvent) {
+        chargerPage(mouseEvent, "/MaterielsInterface/AccueilMateriel.fxml");
+    }
+
+    // ================= SUBMENU HELPERS =================
     private void showGestionSubmenu() {
         gestionSubmenu.setVisible(true);
         gestionSubmenu.setManaged(true);
@@ -95,43 +121,9 @@ public class AccueilEvenementController {
         gestionSubmenu.setManaged(false);
     }
 
-    public void handleDashboard(MouseEvent actionEvent) {
-        this.chargerPage(actionEvent,"/UsersInterface/Acceuil.fxml");
-
-    }
-
-    public void handleAnimals(MouseEvent mouseEvent) {
-        this.chargerPage(mouseEvent,"/AnimalsInterface/AfficherAnimaux.fxml");
-
-    }
-
-
-
-
-    public void handleStocks(MouseEvent mouseEvent) {
-        this.chargerPage(mouseEvent,"/StocksInterface/afficherarticle.fxml");
-    }
-
-
-
-    public void handleTerrains(MouseEvent mouseEvent) {
-        this.chargerPage(mouseEvent,"/TerrainsInterface/acceuilterrain.fxml");
-    }
-
-
-    //
-    public void handleEvents(MouseEvent mouseEvent) {
-        this.chargerPage(mouseEvent,"/G-Evenements/Accueil.fxml");
-    }
-
-
-    public void handleMateriels(MouseEvent mouseEvent) {
-        this.chargerPage(mouseEvent,"/MaterielsInterface/AccueilMateriel.fxml");
-    }
+    // ================= LOGOUT =================
     @FXML
     private void handleLogout() {
-        System.out.println("🚪 Déconnexion...");
-
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Confirmation");
         alert.setHeaderText("Déconnexion");
@@ -150,7 +142,6 @@ public class AccueilEvenementController {
                 stage.setMaximized(true);
 
                 System.out.println("✓ Déconnexion réussie");
-
             } catch (IOException e) {
                 e.printStackTrace();
                 showError("Erreur", "Impossible de retourner à la page de connexion");
@@ -158,9 +149,7 @@ public class AccueilEvenementController {
         }
     }
 
-    /**
-     * Afficher une erreur
-     */
+    // ================= ALERT METHODS =================
     private static void showError(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);
@@ -169,9 +158,6 @@ public class AccueilEvenementController {
         alert.showAndWait();
     }
 
-    /**
-     * Afficher une information
-     */
     private static void showInfo(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
@@ -179,10 +165,4 @@ public class AccueilEvenementController {
         alert.setContentText(message);
         alert.showAndWait();
     }
-
-
-
-
-
 }
-
