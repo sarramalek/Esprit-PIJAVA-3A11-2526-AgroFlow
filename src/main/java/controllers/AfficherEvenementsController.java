@@ -73,7 +73,7 @@ public class AfficherEvenementsController {
         }
     }
 
-    // ================= INITIALISATION DES FILTRES =================
+    // ================= INITIALISATION DES FILTRES (identique à l'original) =================
     private void initFilters() {
         filterStatut.getItems().addAll("Tous les statuts", "Planifié", "Annulé", "Terminé");
         filterStatut.setValue("Tous les statuts");
@@ -98,7 +98,7 @@ public class AfficherEvenementsController {
         filterLieu.textProperty().addListener((obs, old, newVal) -> appliquerFiltres());
     }
 
-    // ================= TABLE COLUMNS =================
+    // ================= TABLE COLUMNS (identique à l'original) =================
     private void initColumns() {
         titreColumn.setCellValueFactory(new PropertyValueFactory<>("titre"));
         typeColumn.setCellValueFactory(new PropertyValueFactory<>("typeEvenement"));
@@ -175,7 +175,7 @@ public class AfficherEvenementsController {
         searchField.textProperty().addListener((obs, old, newVal) -> appliquerFiltres());
     }
 
-    // ================= APPLIQUER TOUS LES FILTRES =================
+    // ================= APPLIQUER TOUS LES FILTRES (identique à l'original) =================
     private void appliquerFiltres() {
         filteredData.setPredicate(evenement ->
                 matchesSearchText(evenement)
@@ -229,7 +229,7 @@ public class AfficherEvenementsController {
         }
     }
 
-    // ================= RÉINITIALISER LES FILTRES =================
+    // ================= RÉINITIALISER LES FILTRES (identique à l'original) =================
     @FXML
     private void handleResetFilters(ActionEvent event) {
         searchField.clear();
@@ -257,11 +257,13 @@ public class AfficherEvenementsController {
                 editBtn.setStyle("-fx-background-color:#F39C12; -fx-text-fill:white; -fx-cursor: hand;");
                 deleteBtn.setStyle("-fx-background-color:#E74C3C; -fx-text-fill:white; -fx-cursor: hand;");
 
+                // ===== MODIFIER → ouvre un pop-up =====
                 editBtn.setOnAction(e -> {
                     Evenement evenement = getTableView().getItems().get(getIndex());
-                    ouvrirPage("ModifierEvenement.fxml", evenement);
+                    ouvrirPopup("ModifierEvenement.fxml", evenement);
                 });
 
+                // ===== SUPPRIMER (identique à l'original) =====
                 deleteBtn.setOnAction(e -> {
                     Evenement evenement = getTableView().getItems().get(getIndex());
                     Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -290,11 +292,14 @@ public class AfficherEvenementsController {
     }
 
     // ================= HANDLERS =================
+
+    // Ajouter → ouvre un pop-up
     @FXML
     private void handleAddEvenement(ActionEvent event) {
-        ouvrirPage("AjouterEvenement.fxml", null);
+        ouvrirPopup("AjouterEvenement.fxml", null);
     }
 
+    // Calendrier, Carte, Générateur d'idées → identiques à l'original
     @FXML
     private void handleOpenGoogleCalendar(ActionEvent event) {
         try {
@@ -351,18 +356,10 @@ public class AfficherEvenementsController {
     @FXML
     private void handleGenerateIdeas(ActionEvent event) {
         try {
-            // Tentative avec plusieurs chemins possibles
             URL fxmlUrl = getClass().getResource("/G-Evenements/GenerateurIdees.fxml");
-
-            if (fxmlUrl == null) {
-                fxmlUrl = getClass().getResource("GenerateurIdees.fxml");
-            }
-            if (fxmlUrl == null) {
-                fxmlUrl = getClass().getClassLoader().getResource("G-Evenements/GenerateurIdees.fxml");
-            }
-            if (fxmlUrl == null) {
-                fxmlUrl = getClass().getClassLoader().getResource("GenerateurIdees.fxml");
-            }
+            if (fxmlUrl == null) fxmlUrl = getClass().getResource("GenerateurIdees.fxml");
+            if (fxmlUrl == null) fxmlUrl = getClass().getClassLoader().getResource("G-Evenements/GenerateurIdees.fxml");
+            if (fxmlUrl == null) fxmlUrl = getClass().getClassLoader().getResource("GenerateurIdees.fxml");
 
             if (fxmlUrl == null) {
                 showError("Erreur - Fichier introuvable",
@@ -390,25 +387,40 @@ public class AfficherEvenementsController {
         }
     }
 
-    // ================= NAVIGATION =================
-    private void ouvrirPage(String fxml, Evenement evenement) {
+    // ================= POPUP MODAL =================
+    private void ouvrirPopup(String fxml, Evenement evenement) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/G-Evenements/" + fxml));
             Parent root = loader.load();
 
+            Stage popupStage = new Stage();
+            popupStage.initModality(Modality.WINDOW_MODAL);
+            popupStage.initOwner(eventsTable.getScene().getWindow());
+            popupStage.setResizable(false);
+            popupStage.setTitle(evenement == null ? "Nouvel Événement" : "Modifier l'Événement");
+            popupStage.setScene(new Scene(root));
+
             if (evenement != null) {
                 ModifierEvenementController controller = loader.getController();
                 controller.setEvenement(evenement);
+            } else {
+                AjouterEvenementController controller = loader.getController();
             }
 
-            Stage stage = (Stage) eventsTable.getScene().getWindow();
-            stage.setScene(new Scene(root));
+            popupStage.showAndWait(); // BLOQUANT : on reprend ici après fermeture du pop-up
+
+            loadEvenements();
+            appliquerFiltres();
+
         } catch (IOException e) {
             e.printStackTrace();
-            showError("Erreur", "Impossible de charger : " + e.getMessage());
+            showError("Erreur", "Impossible de charger la page : " + e.getMessage());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
+    // ================= NAVIGATION SIMPLE =================
     private void ouvrirPageSimple(String fxml) {
         try {
             Parent root = FXMLLoader.load(getClass().getResource("/G-Evenements/" + fxml));

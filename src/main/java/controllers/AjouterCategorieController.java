@@ -2,9 +2,6 @@ package controllers;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
@@ -13,21 +10,22 @@ import javafx.stage.Stage;
 import models.CategorieEvenement;
 import services.CategorieEvenementService;
 
-import java.io.IOException;
 import java.sql.SQLException;
 
 public class AjouterCategorieController {
 
-    @FXML
-    private TextField tfNom;
-
-    @FXML
-    private TextArea taDescription;
-
-    @FXML
-    private Label errorLabel;
+    @FXML private TextField tfNom;
+    @FXML private TextArea taDescription;
+    @FXML private Label errorLabel;
 
     private final CategorieEvenementService service = new CategorieEvenementService();
+
+    // Callback pour rafraîchir la liste parente après ajout réussi
+    private Runnable onSuccessCallback;
+
+    public void setOnSuccessCallback(Runnable callback) {
+        this.onSuccessCallback = callback;
+    }
 
     // ================= INITIALIZATION =================
     @FXML
@@ -35,7 +33,7 @@ public class AjouterCategorieController {
         setupRealtimeValidation();
     }
 
-    // ================= VALIDATION EN TEMPS RÉEL =================
+    // ================= VALIDATION EN TEMPS RÉEL (identique à l'original) =================
     private void setupRealtimeValidation() {
         tfNom.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
             if (!isNowFocused && tfNom.getText().trim().isEmpty()) {
@@ -58,7 +56,7 @@ public class AjouterCategorieController {
         });
     }
 
-    // ================= AJOUTER CATÉGORIE =================
+    // ================= AJOUTER CATÉGORIE (identique à l'original) =================
     @FXML
     void ajouterCategorie(ActionEvent event) {
         System.out.println("=== Bouton Enregistrer cliqué ===");
@@ -78,7 +76,10 @@ public class AjouterCategorieController {
 
             showSuccess("Succès", "La catégorie \"" + c.getNom_categorie() + "\" a été ajoutée avec succès !");
 
-            retourCategories(event);
+            // Rafraîchir la liste parente
+            if (onSuccessCallback != null) onSuccessCallback.run();
+
+            fermerPopup();
 
         } catch (SQLException e) {
             System.err.println("❌ Erreur lors de l'ajout : " + e.getMessage());
@@ -87,7 +88,7 @@ public class AjouterCategorieController {
         }
     }
 
-    // ================= VALIDATION =================
+    // ================= VALIDATION STRICTE (identique à l'original) =================
     private boolean validerChamps() {
         cacherErreur();
 
@@ -141,6 +142,7 @@ public class AjouterCategorieController {
         return true;
     }
 
+    // ================= AFFICHER/CACHER ERREUR (identique à l'original) =================
     private void afficherErreur(String message) {
         if (errorLabel != null) {
             errorLabel.setText("⚠️ " + message);
@@ -157,49 +159,24 @@ public class AjouterCategorieController {
         taDescription.setStyle("-fx-background-color: #F8F9FA; -fx-background-radius: 8; -fx-border-color: #E0E0E0; -fx-border-radius: 8; -fx-padding: 10; -fx-font-size: 14px;");
     }
 
-    // ================= NAVIGATION =================
+    // ================= NAVIGATION → fermer le pop-up =================
     @FXML
     void retourCategories(ActionEvent event) {
-        System.out.println("=== Navigation vers AfficherCategories ===");
-        naviguerVers("AfficherCategories.fxml");
+        fermerPopup();
     }
 
+    // Conservé pour compatibilité si référencé ailleurs
     @FXML
     void retourAccueil(ActionEvent event) {
-        System.out.println("=== Navigation vers Accueil ===");
-        naviguerVers("Accueil.fxml");
+        fermerPopup();
     }
 
-    // ================= MÉTHODE DE NAVIGATION AMÉLIORÉE =================
-    private void naviguerVers(String nomFichierFxml) {
-        try {
-            System.out.println("Chargement de : /G-Evenements/" + nomFichierFxml);
-
-            // Charger le FXML
-            Parent root = FXMLLoader.load(getClass().getResource("/G-Evenements/" + nomFichierFxml));
-
-            // Récupérer la fenêtre actuelle
-            Stage stage = (Stage) tfNom.getScene().getWindow();
-
-            // Créer et afficher la nouvelle scène
-            Scene scene = new Scene(root);
-            stage.setScene(scene);
-            stage.show();
-
-            System.out.println("✅ Navigation réussie vers " + nomFichierFxml);
-
-        } catch (IOException e) {
-            System.err.println("❌ Erreur de navigation : " + e.getMessage());
-            e.printStackTrace();
-            showError("Erreur de navigation", "Impossible de charger la page : " + nomFichierFxml + "\n" + e.getMessage());
-        } catch (Exception e) {
-            System.err.println("❌ Erreur inattendue : " + e.getMessage());
-            e.printStackTrace();
-            showError("Erreur", "Une erreur inattendue s'est produite : " + e.getMessage());
-        }
+    private void fermerPopup() {
+        Stage stage = (Stage) tfNom.getScene().getWindow();
+        stage.close();
     }
 
-    // ================= ALERT METHODS =================
+    // ================= ALERT METHODS (identiques à l'original) =================
     private void showError(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);

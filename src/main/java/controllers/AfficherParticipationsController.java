@@ -12,6 +12,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import models.Participation;
 import services.EvenementService;
@@ -22,29 +23,28 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
-import java.util.function.Predicate;
 
 public class AfficherParticipationsController {
 
     @FXML private TableView<Participation> participationsTable;
-    @FXML private TableColumn<Participation, String> evenementColumn;
+    @FXML private TableColumn<Participation, String>    evenementColumn;
     @FXML private TableColumn<Participation, LocalDate> dateInscriptionColumn;
-    @FXML private TableColumn<Participation, String> statutColumn;
-    @FXML private TableColumn<Participation, Boolean> presenceColumn;
-    @FXML private TableColumn<Participation, Void> actionsColumn;
+    @FXML private TableColumn<Participation, String>    statutColumn;
+    @FXML private TableColumn<Participation, Boolean>   presenceColumn;
+    @FXML private TableColumn<Participation, Void>      actionsColumn;
 
     // Filtres
-    @FXML private TextField searchField;
-    @FXML private DatePicker filterDate;
-    @FXML private ComboBox<String> filterStatut;
-    @FXML private ComboBox<String> filterPresence;
-    @FXML private Label resultsCountLabel;
+    @FXML private TextField          searchField;
+    @FXML private DatePicker         filterDate;
+    @FXML private ComboBox<String>   filterStatut;
+    @FXML private ComboBox<String>   filterPresence;
+    @FXML private Label              resultsCountLabel;
 
     private final ParticipationService participationService = new ParticipationService();
-    private final EvenementService evenementService = new EvenementService();
+    private final EvenementService     evenementService     = new EvenementService();
 
     private ObservableList<Participation> participations;
-    private FilteredList<Participation> filteredData;
+    private FilteredList<Participation>   filteredData;
 
     // ================= INITIALIZATION =================
     @FXML
@@ -62,22 +62,20 @@ public class AfficherParticipationsController {
 
     // ================= INITIALISATION DES FILTRES =================
     private void initFilters() {
-        // Remplir le ComboBox Statut
         filterStatut.getItems().addAll("Tous les statuts", "Inscrit", "Confirmé", "Annulé");
         filterStatut.setValue("Tous les statuts");
 
-        // Remplir le ComboBox Présence
         filterPresence.getItems().addAll("Toutes", "Oui", "Non");
         filterPresence.setValue("Toutes");
 
-        // Ajouter des listeners pour filtrage automatique
-        filterStatut.setOnAction(e -> appliquerFiltres());
+        filterStatut.setOnAction(e  -> appliquerFiltres());
         filterPresence.setOnAction(e -> appliquerFiltres());
-        filterDate.setOnAction(e -> appliquerFiltres());
+        filterDate.setOnAction(e    -> appliquerFiltres());
     }
 
     // ================= TABLE COLUMNS =================
     private void initColumns() {
+
         // Colonne Événement
         evenementColumn.setCellValueFactory(cellData -> {
             try {
@@ -123,6 +121,8 @@ public class AfficherParticipationsController {
                         case "annulé":
                             setStyle("-fx-background-color: #FFEBEE; -fx-text-fill: #C62828; -fx-font-weight: bold; -fx-background-radius: 4;");
                             break;
+                        default:
+                            setStyle("");
                     }
                 }
             }
@@ -152,86 +152,57 @@ public class AfficherParticipationsController {
     // ================= LOAD DATA =================
     private void loadParticipations() throws SQLException {
         participations = FXCollections.observableArrayList(participationService.recuperer());
-
-        // Créer une FilteredList wrappant les données
-        filteredData = new FilteredList<>(participations, p -> true);
-
+        filteredData   = new FilteredList<>(participations, p -> true);
         participationsTable.setItems(filteredData);
         updateResultsCount();
-
         System.out.println("✅ " + participations.size() + " participations chargées");
     }
 
     // ================= RECHERCHE RÉACTIVE =================
     private void setupReactiveSearch() {
-        // Recherche en temps réel à chaque frappe
-        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
-            appliquerFiltres();
-        });
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> appliquerFiltres());
     }
 
     // ================= APPLIQUER TOUS LES FILTRES =================
     private void appliquerFiltres() {
-        filteredData.setPredicate(participation -> {
-            // Combinaison de tous les filtres
-            return matchesSearchText(participation)
-                    && matchesStatutFilter(participation)
-                    && matchesPresenceFilter(participation)
-                    && matchesDateFilter(participation);
-        });
-
+        filteredData.setPredicate(participation ->
+                matchesSearchText(participation)
+                        && matchesStatutFilter(participation)
+                        && matchesPresenceFilter(participation)
+                        && matchesDateFilter(participation)
+        );
         updateResultsCount();
     }
 
     // ================= FILTRES INDIVIDUELS =================
 
-    // Filtre par texte de recherche (événement)
     private boolean matchesSearchText(Participation participation) {
         String searchText = searchField.getText();
-        if (searchText == null || searchText.trim().isEmpty()) {
-            return true;
-        }
-
+        if (searchText == null || searchText.trim().isEmpty()) return true;
         try {
             String nomEvenement = evenementService.getNomEvenementById(participation.getId_evenement());
-            String lowerCaseFilter = searchText.toLowerCase();
-            return nomEvenement.toLowerCase().contains(lowerCaseFilter);
+            return nomEvenement.toLowerCase().contains(searchText.toLowerCase());
         } catch (SQLException e) {
             return true;
         }
     }
 
-    // Filtre par statut
     private boolean matchesStatutFilter(Participation participation) {
         String statut = filterStatut.getValue();
-        if (statut == null || statut.equals("Tous les statuts")) {
-            return true;
-        }
+        if (statut == null || statut.equals("Tous les statuts")) return true;
         return participation.getStatut_participation().equalsIgnoreCase(statut);
     }
 
-    // Filtre par présence
     private boolean matchesPresenceFilter(Participation participation) {
         String presence = filterPresence.getValue();
-        if (presence == null || presence.equals("Toutes")) {
-            return true;
-        }
-        boolean isPresent = presence.equals("Oui");
-        return participation.isPresence() == isPresent;
+        if (presence == null || presence.equals("Toutes")) return true;
+        return participation.isPresence() == presence.equals("Oui");
     }
 
-    // Filtre par date d'inscription exacte
     private boolean matchesDateFilter(Participation participation) {
-        LocalDate dateInscription = participation.getDate_inscription();
         LocalDate dateFiltre = filterDate.getValue();
-
-        // Si aucune date sélectionnée, pas de filtre
-        if (dateFiltre == null) {
-            return true;
-        }
-
-        // Vérifier si la date d'inscription correspond exactement à la date filtrée
-        return dateInscription.equals(dateFiltre);
+        if (dateFiltre == null) return true;
+        return participation.getDate_inscription().equals(dateFiltre);
     }
 
     // ================= RÉINITIALISER LES FILTRES =================
@@ -246,24 +217,23 @@ public class AfficherParticipationsController {
 
     // ================= MISE À JOUR DU COMPTEUR =================
     private void updateResultsCount() {
-        int count = filteredData.size();
-        resultsCountLabel.setText(count + " participation(s) trouvée(s)");
+        resultsCountLabel.setText(filteredData.size() + " participation(s) trouvée(s)");
     }
 
     // ================= ACTION BUTTONS =================
     private void addActionButtons() {
         actionsColumn.setCellFactory(col -> new TableCell<>() {
-            private final Button editBtn = new Button("✏ Modifier");
+            private final Button editBtn   = new Button("✏ Modifier");
             private final Button deleteBtn = new Button("🗑 Supprimer");
-            private final HBox box = new HBox(10, editBtn, deleteBtn);
+            private final HBox   box       = new HBox(10, editBtn, deleteBtn);
 
             {
-                editBtn.setStyle("-fx-background-color:#F39C12; -fx-text-fill:white; -fx-cursor: hand;");
-                deleteBtn.setStyle("-fx-background-color:#E74C3C; -fx-text-fill:white; -fx-cursor: hand;");
+                editBtn.setStyle("-fx-background-color: #F39C12; -fx-text-fill: white; -fx-cursor: hand; -fx-background-radius: 5;");
+                deleteBtn.setStyle("-fx-background-color: #E74C3C; -fx-text-fill: white; -fx-cursor: hand; -fx-background-radius: 5;");
 
                 editBtn.setOnAction(e -> {
                     Participation participation = getTableView().getItems().get(getIndex());
-                    ouvrirPage("ModifierParticipation.fxml", participation);
+                    ouvrirPopup("ModifierParticipation.fxml", participation);
                 });
 
                 deleteBtn.setOnAction(e -> {
@@ -297,7 +267,7 @@ public class AfficherParticipationsController {
     // ================= HANDLERS =================
     @FXML
     private void handleAddParticipation(ActionEvent event) {
-        ouvrirPage("AjouterParticipation.fxml", null);
+        ouvrirPopup("AjouterParticipation.fxml", null);
     }
 
     @FXML
@@ -313,20 +283,8 @@ public class AfficherParticipationsController {
 
     @FXML
     private void goToAccueil(ActionEvent event) {
-        ouvrirPageSimple("Accueil.fxml");
-    }
-
-    // ================= NAVIGATION =================
-    private void ouvrirPage(String fxml, Participation participation) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/G-Evenements/" + fxml));
-            Parent root = loader.load();
-
-            if (participation != null) {
-                ModifierParticipationController controller = loader.getController();
-                controller.setParticipation(participation);
-            }
-
+            Parent root = FXMLLoader.load(getClass().getResource("/G-Evenements/Accueil.fxml"));
             Stage stage = (Stage) participationsTable.getScene().getWindow();
             stage.setScene(new Scene(root));
         } catch (IOException e) {
@@ -335,12 +293,30 @@ public class AfficherParticipationsController {
         }
     }
 
-    private void ouvrirPageSimple(String fxml) {
+    // ================= NAVIGATION — POP-UP MODAL =================
+    private void ouvrirPopup(String fxml, Participation participation) {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("/G-Evenements/" + fxml));
-            Stage stage = (Stage) participationsTable.getScene().getWindow();
-            stage.setScene(new Scene(root));
-        } catch (IOException e) {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/G-Evenements/" + fxml));
+            Parent root = loader.load();
+
+            Stage popupStage = new Stage();
+            popupStage.initModality(Modality.WINDOW_MODAL);
+            popupStage.initOwner(participationsTable.getScene().getWindow());
+            popupStage.setResizable(false);
+            popupStage.setTitle(participation == null ? "Nouvelle Participation" : "Modifier la Participation");
+            popupStage.setScene(new Scene(root));
+
+            if (participation != null) {
+                ModifierParticipationController controller = loader.getController();
+                controller.setParticipation(participation);
+            }
+
+            popupStage.showAndWait(); // BLOQUANT : on reprend ici après fermeture du pop-up
+
+            loadParticipations();
+            appliquerFiltres();
+
+        } catch (IOException | SQLException e) {
             e.printStackTrace();
             showError("Erreur", "Impossible de charger la page : " + e.getMessage());
         }

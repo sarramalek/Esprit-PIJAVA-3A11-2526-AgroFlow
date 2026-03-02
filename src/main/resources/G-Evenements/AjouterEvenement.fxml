@@ -1,248 +1,117 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<BorderPane prefHeight="800.0" prefWidth="1200.0"
-            style="-fx-background-color: #fcf8e6;"
-            xmlns="http://javafx.com/javafx/17"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="controllers.AjouterEvenementController">
+<VBox prefWidth="620" spacing="0" style="-fx-background-color: #fcf8e6;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.AjouterEvenementController">
 
-    <!-- Sidebar Navigation -->
-    <left>
-        <VBox prefWidth="230.0" spacing="10.0" style="-fx-background-color: #2C3E50; -fx-padding: 15;">
-            <children>
-                <Text fill="WHITE" text="AGROFLOW">
-                    <font>
-                        <Font name="System Bold" size="24.0" />
-                    </font>
-                </Text>
+    <!-- Header -->
+    <HBox alignment="CENTER_LEFT" style="-fx-background-color: #2C3E50; -fx-padding: 20 25;">
+        <Label style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: white;" text="➕ Nouvel Événement">
+            <font><Font name="System Bold" size="20" /></font>
+        </Label>
+        <Region HBox.hgrow="ALWAYS" />
+        <Label style="-fx-font-size: 13px; -fx-text-fill: #BDC3C7;" text="Créez un nouvel événement agricole" />
+    </HBox>
 
-                <Separator opacity="0.2" />
+    <!-- Scrollable Form Body -->
+    <ScrollPane fitToWidth="true" style="-fx-background-color: white; -fx-border-color: transparent;" VBox.vgrow="ALWAYS">
+        <content>
+            <VBox spacing="18" style="-fx-padding: 30; -fx-background-color: white;">
 
-                <Button maxWidth="Infinity" style="-fx-background-color: transparent; -fx-text-fill: white;" text="🐾 Gestion Animaux" />
-                <Button maxWidth="Infinity" style="-fx-background-color: transparent; -fx-text-fill: white;" text="⚙️ Gestion Matériels" />
-                <Button maxWidth="Infinity" style="-fx-background-color: transparent; -fx-text-fill: white;" text="📦 Gestion Stocks" />
-                <Button maxWidth="Infinity" style="-fx-background-color: transparent; -fx-text-fill: white;" text="🌱 Gestion Terrains" />
-                <Button maxWidth="Infinity" style="-fx-background-color: #2D5A27; -fx-text-fill: white;" text="📅 Événements" onAction="#goToAccueil" />
-                <Button maxWidth="Infinity" style="-fx-background-color: transparent; -fx-text-fill: white;" text="👥 Utilisateurs" />
-
-                <Region VBox.vgrow="ALWAYS" />
-
-                <Separator opacity="0.1" />
-                <Button maxWidth="Infinity" style="-fx-background-color: #E74C3C; -fx-text-fill: white;" text="Déconnexion" />
-            </children>
-        </VBox>
-    </left>
-
-    <!-- Main Content Area -->
-    <center>
-        <ScrollPane fitToWidth="true">
-            <content>
-                <VBox spacing="30" style="-fx-background-color: #F5F7FA;" alignment="TOP_CENTER">
-                    <padding>
-                        <Insets bottom="40" left="40" right="40" top="40" />
-                    </padding>
-
-                    <!-- Header -->
-                    <VBox spacing="8" alignment="CENTER">
-                        <Label style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;"
-                               text="Ajouter un Événement">
-                            <font>
-                                <Font name="System Bold" size="32" />
-                            </font>
-                        </Label>
-                        <Label style="-fx-font-size: 14px; -fx-text-fill: #7F8C8D;"
-                               text="Créez un nouvel événement agricole">
-                            <font>
-                                <Font name="System" size="14" />
-                            </font>
-                        </Label>
-                    </VBox>
-
-                    <!-- Form Card -->
-                    <VBox spacing="25"
-                          style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 40; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);"
-                          maxWidth="700" alignment="TOP_LEFT">
-
-                        <!-- Titre -->
-                        <VBox spacing="8">
-                            <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;"
-                                   text="Titre de l'événement *">
-                                <font>
-                                    <Font name="System Bold" size="14" />
-                                </font>
-                            </Label>
-                            <TextField fx:id="tfTitre"
-                                       promptText="Ex: Formation sur l'irrigation"
-                                       prefHeight="40"
-                                       style="-fx-background-color: #F8F9FA; -fx-background-radius: 8; -fx-border-color: #E0E0E0; -fx-border-radius: 8; -fx-padding: 10; -fx-font-size: 14px;">
-                                <font>
-                                    <Font name="System" size="14" />
-                                </font>
-                            </TextField>
-                        </VBox>
-
-                        <!-- Description -->
-                        <VBox spacing="8">
-                            <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;"
-                                   text="Description *">
-                                <font>
-                                    <Font name="System Bold" size="14" />
-                                </font>
-                            </Label>
-                            <TextArea fx:id="taDescription"
-                                      promptText="Décrivez l'événement en détail..."
-                                      prefHeight="100"
-                                      wrapText="true"
-                                      style="-fx-background-color: #F8F9FA; -fx-background-radius: 8; -fx-border-color: #E0E0E0; -fx-border-radius: 8; -fx-padding: 10; -fx-font-size: 14px;">
-                                <font>
-                                    <Font name="System" size="14" />
-                                </font>
-                            </TextArea>
-                        </VBox>
-
-                        <!-- Type d'événement -->
-                        <VBox spacing="8">
-                            <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;"
-                                   text="Type d'événement *">
-                                <font>
-                                    <Font name="System Bold" size="14" />
-                                </font>
-                            </Label>
-                            <ComboBox fx:id="cbTypeEvenement"
-                                      promptText="Sélectionnez un type..."
-                                      prefWidth="Infinity"
-                                      prefHeight="40"
-                                      style="-fx-background-color: #F8F9FA; -fx-background-radius: 8; -fx-border-color: #E0E0E0; -fx-border-radius: 8;" />
-                        </VBox>
-
-                        <!-- Dates -->
-                        <HBox spacing="20">
-                            <VBox spacing="8" HBox.hgrow="ALWAYS">
-                                <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;"
-                                       text="Date de début *">
-                                    <font>
-                                        <Font name="System Bold" size="14" />
-                                    </font>
-                                </Label>
-                                <DatePicker fx:id="dpDateDebut"
-                                            promptText="JJ/MM/AAAA"
-                                            prefHeight="40"
-                                            style="-fx-background-color: #F8F9FA; -fx-background-radius: 8; -fx-border-color: #E0E0E0; -fx-border-radius: 8;" />
-                            </VBox>
-
-                            <VBox spacing="8" HBox.hgrow="ALWAYS">
-                                <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;"
-                                       text="Date de fin *">
-                                    <font>
-                                        <Font name="System Bold" size="14" />
-                                    </font>
-                                </Label>
-                                <DatePicker fx:id="dpDateFin"
-                                            promptText="JJ/MM/AAAA"
-                                            prefHeight="40"
-                                            style="-fx-background-color: #F8F9FA; -fx-background-radius: 8; -fx-border-color: #E0E0E0; -fx-border-radius: 8;" />
-                            </VBox>
-                        </HBox>
-
-                        <!-- Lieu -->
-                        <VBox spacing="8">
-                            <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;"
-                                   text="Lieu *">
-                                <font>
-                                    <Font name="System Bold" size="14" />
-                                </font>
-                            </Label>
-                            <TextField fx:id="tfLieu"
-                                       promptText="Ex: Ferme principale, Salle de réunion..."
-                                       prefHeight="40"
-                                       style="-fx-background-color: #F8F9FA; -fx-background-radius: 8; -fx-border-color: #E0E0E0; -fx-border-radius: 8; -fx-padding: 10; -fx-font-size: 14px;">
-                                <font>
-                                    <Font name="System" size="14" />
-                                </font>
-                            </TextField>
-                        </VBox>
-
-                        <!-- Statut -->
-                        <VBox spacing="8">
-                            <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;"
-                                   text="Statut *">
-                                <font>
-                                    <Font name="System Bold" size="14" />
-                                </font>
-                            </Label>
-                            <ComboBox fx:id="cbStatut"
-                                      promptText="Sélectionnez un statut..."
-                                      prefWidth="Infinity"
-                                      prefHeight="40"
-                                      style="-fx-background-color: #F8F9FA; -fx-background-radius: 8; -fx-border-color: #E0E0E0; -fx-border-radius: 8;" />
-                        </VBox>
-
-                        <!-- Catégorie -->
-                        <VBox spacing="8">
-                            <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;"
-                                   text="Catégorie *">
-                                <font>
-                                    <Font name="System Bold" size="14" />
-                                </font>
-                            </Label>
-                            <ComboBox fx:id="cbCategorie"
-                                      promptText="Sélectionnez une catégorie..."
-                                      prefWidth="Infinity"
-                                      prefHeight="40"
-                                      style="-fx-background-color: #F8F9FA; -fx-background-radius: 8; -fx-border-color: #E0E0E0; -fx-border-radius: 8;" />
-                        </VBox>
-
-                        <!-- Message d'erreur -->
-                        <Label fx:id="errorLabel"
-                               style="-fx-text-fill: #E74C3C; -fx-font-size: 13px; -fx-background-color: #FADBD8; -fx-padding: 10; -fx-background-radius: 6;"
-                               visible="false"
-                               wrapText="true">
-                            <font>
-                                <Font name="System" size="13" />
-                            </font>
-                        </Label>
-
-                        <!-- Buttons -->
-                        <HBox spacing="15" alignment="CENTER">
-                            <Button text="✓ Enregistrer"
-                                    onAction="#ajouterEvenement"
-                                    prefWidth="180"
-                                    prefHeight="40"
-                                    style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 14px; -fx-background-radius: 8; -fx-cursor: hand; -fx-font-weight: bold;">
-                                <font>
-                                    <Font name="System Bold" size="14" />
-                                </font>
-                            </Button>
-
-                            <Button text="✕ Annuler"
-                                    onAction="#retourEvenements"
-                                    prefWidth="180"
-                                    prefHeight="40"
-                                    style="-fx-background-color: #95A5A6; -fx-text-fill: white; -fx-font-size: 14px; -fx-background-radius: 8; -fx-cursor: hand;">
-                                <font>
-                                    <Font name="System" size="14" />
-                                </font>
-                            </Button>
-                        </HBox>
-
-                        <!-- Info text -->
-                        <Label style="-fx-font-size: 12px; -fx-text-fill: #95A5A6; -fx-alignment: center;"
-                               text="* Champs obligatoires"
-                               alignment="CENTER">
-                            <font>
-                                <Font name="System Italic" size="12" />
-                            </font>
-                        </Label>
-                    </VBox>
-
+                <!-- Titre -->
+                <VBox spacing="7">
+                    <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;" text="Titre de l'événement *">
+                        <font><Font name="System Bold" size="13" /></font>
+                    </Label>
+                    <TextField fx:id="tfTitre" prefHeight="38" promptText="Ex: Formation sur l'irrigation" style="-fx-background-color: #F8F9FA; -fx-background-radius: 8; -fx-border-color: #E0E0E0; -fx-border-radius: 8; -fx-padding: 10; -fx-font-size: 13px;">
+                        <font><Font name="System" size="13" /></font>
+                    </TextField>
                 </VBox>
-            </content>
-        </ScrollPane>
-    </center>
 
-</BorderPane>
+                <!-- Description -->
+                <VBox spacing="7">
+                    <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;" text="Description *">
+                        <font><Font name="System Bold" size="13" /></font>
+                    </Label>
+                    <TextArea fx:id="taDescription" prefHeight="90" promptText="Décrivez l'événement en détail..." style="-fx-background-color: #F8F9FA; -fx-background-radius: 8; -fx-border-color: #E0E0E0; -fx-border-radius: 8; -fx-padding: 10; -fx-font-size: 13px;" wrapText="true">
+                        <font><Font name="System" size="13" /></font>
+                    </TextArea>
+                </VBox>
+
+                <!-- Type d'événement -->
+                <VBox spacing="7">
+                    <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;" text="Type d'événement *">
+                        <font><Font name="System Bold" size="13" /></font>
+                    </Label>
+                    <ComboBox fx:id="cbTypeEvenement" prefHeight="38" prefWidth="Infinity" promptText="Sélectionnez un type..." style="-fx-background-color: #F8F9FA; -fx-background-radius: 8; -fx-border-color: #E0E0E0; -fx-border-radius: 8; -fx-font-size: 13px;" />
+                </VBox>
+
+                <!-- Dates côte à côte -->
+                <HBox spacing="15">
+                    <VBox prefHeight="64.0" prefWidth="260.0" spacing="7" HBox.hgrow="ALWAYS">
+                        <Label prefHeight="19.0" prefWidth="129.0" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;" text="Date de début *">
+                            <font><Font name="System Bold" size="13" /></font>
+                        </Label>
+                        <DatePicker fx:id="dpDateDebut" prefHeight="38" prefWidth="Infinity" promptText="JJ/MM/AAAA" style="-fx-background-color: #F8F9FA; -fx-background-radius: 8; -fx-border-color: #E0E0E0; -fx-border-radius: 8; -fx-font-size: 13px;" />
+                    </VBox>
+                    <VBox prefHeight="64.0" prefWidth="260.0" spacing="7" HBox.hgrow="ALWAYS">
+                        <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;" text="Date de fin *">
+                            <font><Font name="System Bold" size="13" /></font>
+                        </Label>
+                        <DatePicker fx:id="dpDateFin" prefHeight="38" prefWidth="Infinity" promptText="JJ/MM/AAAA" style="-fx-background-color: #F8F9FA; -fx-background-radius: 8; -fx-border-color: #E0E0E0; -fx-border-radius: 8; -fx-font-size: 13px;" />
+                    </VBox>
+                </HBox>
+
+                <!-- Lieu -->
+                <VBox spacing="7">
+                    <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;" text="Lieu *">
+                        <font><Font name="System Bold" size="13" /></font>
+                    </Label>
+                    <TextField fx:id="tfLieu" prefHeight="38" promptText="Ex: Ferme principale, Salle de réunion..." style="-fx-background-color: #F8F9FA; -fx-background-radius: 8; -fx-border-color: #E0E0E0; -fx-border-radius: 8; -fx-padding: 10; -fx-font-size: 13px;">
+                        <font><Font name="System" size="13" /></font>
+                    </TextField>
+                </VBox>
+
+                <!-- Statut -->
+                <VBox spacing="7">
+                    <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;" text="Statut *">
+                        <font><Font name="System Bold" size="13" /></font>
+                    </Label>
+                    <ComboBox fx:id="cbStatut" prefHeight="38" prefWidth="Infinity" promptText="Sélectionnez un statut..." style="-fx-background-color: #F8F9FA; -fx-background-radius: 8; -fx-border-color: #E0E0E0; -fx-border-radius: 8; -fx-font-size: 13px;" />
+                </VBox>
+
+                <!-- Catégorie -->
+                <VBox spacing="7">
+                    <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;" text="Catégorie *">
+                        <font><Font name="System Bold" size="13" /></font>
+                    </Label>
+                    <ComboBox fx:id="cbCategorie" prefHeight="38" prefWidth="Infinity" promptText="Sélectionnez une catégorie..." style="-fx-background-color: #F8F9FA; -fx-background-radius: 8; -fx-border-color: #E0E0E0; -fx-border-radius: 8; -fx-font-size: 13px;" />
+                </VBox>
+
+                <!-- Message d'erreur -->
+                <Label fx:id="errorLabel" managed="false" style="-fx-text-fill: #E74C3C; -fx-font-size: 12px; -fx-background-color: #FADBD8; -fx-padding: 8 12; -fx-background-radius: 6;" visible="false" wrapText="true">
+                    <font><Font name="System" size="12" /></font>
+                </Label>
+
+                <Separator />
+
+                <!-- Buttons -->
+                <HBox alignment="CENTER_RIGHT" spacing="12">
+                    <Label style="-fx-font-size: 11px; -fx-text-fill: #95A5A6; -fx-font-style: italic;" text="* Champs obligatoires" HBox.hgrow="ALWAYS">
+                        <font><Font name="System Italic" size="11" /></font>
+                    </Label>
+                    <Button onAction="#retourEvenements" prefHeight="38" prefWidth="130" style="-fx-background-color: #95A5A6; -fx-text-fill: white; -fx-font-size: 13px; -fx-background-radius: 8; -fx-cursor: hand;" text="✕ Annuler">
+                        <font><Font name="System" size="13" /></font>
+                    </Button>
+                    <Button onAction="#ajouterEvenement" prefHeight="38" prefWidth="150" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 13px; -fx-background-radius: 8; -fx-cursor: hand; -fx-font-weight: bold;" text="✓ Enregistrer">
+                        <font><Font name="System Bold" size="13" /></font>
+                    </Button>
+                </HBox>
+
+            </VBox>
+        </content>
+    </ScrollPane>
+
+</VBox>

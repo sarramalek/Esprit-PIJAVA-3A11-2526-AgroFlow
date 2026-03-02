@@ -5,131 +5,104 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<BorderPane prefHeight="700.0" prefWidth="1200.0"
-            style="-fx-background-color: #fcf8e6;"
-            xmlns="http://javafx.com/javafx/17"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="controllers.ModifierParticipationController">
+<VBox spacing="0"
+      style="-fx-background-color: #fcf8e6;"
+      prefWidth="520"
+      xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="controllers.ModifierParticipationController">
 
-    <!-- Sidebar Navigation -->
-    <left>
-        <VBox prefWidth="230.0" spacing="10.0" style="-fx-background-color: #2C3E50; -fx-padding: 15;">
-            <children>
-                <Text fill="WHITE" text="AGROFLOW">
-                    <font>
-                        <Font name="System Bold" size="24.0" />
-                    </font>
-                </Text>
+    <!-- Header -->
+    <HBox alignment="CENTER_LEFT"
+          style="-fx-background-color: #2980B9; -fx-padding: 20 25;">
+        <Label style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: white;"
+               text="✏ Modifier la Participation">
+            <font><Font name="System Bold" size="20"/></font>
+        </Label>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Label style="-fx-font-size: 13px; -fx-text-fill: #D6EAF8;"
+               text="Modifiez les informations"/>
+    </HBox>
 
-                <Separator opacity="0.2" />
+    <!-- Form Body -->
+    <VBox spacing="18" style="-fx-padding: 30;">
 
-                <Button maxWidth="Infinity" style="-fx-background-color: transparent; -fx-text-fill: white;" text="📅 Événements" onAction="#goToAccueil" />
-                <Region VBox.vgrow="ALWAYS" />
-            </children>
+        <TextField fx:id="tfId" visible="false" managed="false"/>
+
+        <!-- Événement -->
+        <VBox spacing="6">
+            <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;"
+                   text="Événement *">
+                <font><Font name="System Bold" size="13"/></font>
+            </Label>
+            <ComboBox fx:id="cbEvenement"
+                      prefWidth="Infinity"
+                      prefHeight="38"
+                      style="-fx-background-color: white; -fx-background-radius: 7; -fx-border-color: #D5D8DC; -fx-border-radius: 7; -fx-font-size: 13px;"/>
         </VBox>
-    </left>
 
-    <!-- Main Content Area -->
-    <center>
-        <VBox spacing="30" alignment="TOP_CENTER">
-            <padding>
-                <Insets bottom="40" left="40" right="40" top="40" />
-            </padding>
-
-            <!-- Header -->
-            <VBox spacing="8" alignment="CENTER">
-                <Label style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;"
-                       text="Modifier la Participation">
-                    <font>
-                        <Font name="System Bold" size="32" />
-                    </font>
-                </Label>
-            </VBox>
-
-            <!-- Form Card -->
-            <VBox spacing="25"
-                  style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 40; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);"
-                  maxWidth="600" alignment="TOP_LEFT">
-
-                <TextField fx:id="tfId" visible="false" managed="false" />
-
-                <!-- Événement -->
-                <VBox spacing="8">
-                    <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;"
-                           text="Événement *">
-                        <font>
-                            <Font name="System Bold" size="14" />
-                        </font>
-                    </Label>
-                    <ComboBox fx:id="cbEvenement"
-                              prefWidth="Infinity"
-                              prefHeight="40"
-                              style="-fx-background-color: #F8F9FA; -fx-background-radius: 8; -fx-border-color: #E0E0E0; -fx-border-radius: 8;" />
-                </VBox>
-
-                <!-- Date d'inscription -->
-                <VBox spacing="8">
-                    <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;"
-                           text="Date d'inscription *">
-                        <font>
-                            <Font name="System Bold" size="14" />
-                        </font>
-                    </Label>
-                    <DatePicker fx:id="dpDateInscription"
-                                prefHeight="40"
-                                style="-fx-background-color: #F8F9FA; -fx-background-radius: 8; -fx-border-color: #E0E0E0; -fx-border-radius: 8;" />
-                </VBox>
-
-                <!-- Statut -->
-                <VBox spacing="8">
-                    <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;"
-                           text="Statut *">
-                        <font>
-                            <Font name="System Bold" size="14" />
-                        </font>
-                    </Label>
-                    <ComboBox fx:id="cbStatut"
-                              prefWidth="Infinity"
-                              prefHeight="40"
-                              style="-fx-background-color: #F8F9FA; -fx-background-radius: 8; -fx-border-color: #E0E0E0; -fx-border-radius: 8;" />
-                </VBox>
-
-                <!-- Présence -->
-                <VBox spacing="8">
-                    <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;"
-                           text="Présence *">
-                        <font>
-                            <Font name="System Bold" size="14" />
-                        </font>
-                    </Label>
-                    <ComboBox fx:id="cbPresence"
-                              prefWidth="Infinity"
-                              prefHeight="40"
-                              style="-fx-background-color: #F8F9FA; -fx-background-radius: 8; -fx-border-color: #E0E0E0; -fx-border-radius: 8;" />
-                </VBox>
-
-                <!-- Message d'erreur -->
-                <Label fx:id="errorLabel"
-                       style="-fx-text-fill: #E74C3C; -fx-font-size: 13px; -fx-background-color: #FADBD8; -fx-padding: 10; -fx-background-radius: 6;"
-                       visible="false"
-                       wrapText="true" />
-
-                <!-- Buttons -->
-                <HBox spacing="15" alignment="CENTER">
-                    <Button text="💾 Enregistrer"
-                            onAction="#modifierParticipation"
-                            prefWidth="180"
-                            prefHeight="40"
-                            style="-fx-background-color: #3498DB; -fx-text-fill: white; -fx-font-size: 14px; -fx-background-radius: 8; -fx-cursor: hand; -fx-font-weight: bold;" />
-
-                    <Button text="✕ Annuler"
-                            onAction="#retourParticipations"
-                            prefWidth="180"
-                            prefHeight="40"
-                            style="-fx-background-color: #95A5A6; -fx-text-fill: white; -fx-font-size: 14px; -fx-background-radius: 8; -fx-cursor: hand;" />
-                </HBox>
-            </VBox>
+        <!-- Date d'inscription -->
+        <VBox spacing="6">
+            <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;"
+                   text="Date d'inscription *">
+                <font><Font name="System Bold" size="13"/></font>
+            </Label>
+            <DatePicker fx:id="dpDateInscription"
+                        prefHeight="38"
+                        prefWidth="Infinity"
+                        style="-fx-background-color: white; -fx-background-radius: 7; -fx-border-color: #D5D8DC; -fx-border-radius: 7; -fx-font-size: 13px;"/>
         </VBox>
-    </center>
 
-</BorderPane>
+        <!-- Statut -->
+        <VBox spacing="6">
+            <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;"
+                   text="Statut *">
+                <font><Font name="System Bold" size="13"/></font>
+            </Label>
+            <ComboBox fx:id="cbStatut"
+                      prefWidth="Infinity"
+                      prefHeight="38"
+                      style="-fx-background-color: white; -fx-background-radius: 7; -fx-border-color: #D5D8DC; -fx-border-radius: 7; -fx-font-size: 13px;"/>
+        </VBox>
+
+        <!-- Présence -->
+        <VBox spacing="6">
+            <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;"
+                   text="Présence *">
+                <font><Font name="System Bold" size="13"/></font>
+            </Label>
+            <ComboBox fx:id="cbPresence"
+                      prefWidth="Infinity"
+                      prefHeight="38"
+                      style="-fx-background-color: white; -fx-background-radius: 7; -fx-border-color: #D5D8DC; -fx-border-radius: 7; -fx-font-size: 13px;"/>
+        </VBox>
+
+        <!-- Message d'erreur -->
+        <Label fx:id="errorLabel"
+               style="-fx-text-fill: #C0392B; -fx-font-size: 12px; -fx-background-color: #FADBD8; -fx-padding: 8 12; -fx-background-radius: 6;"
+               visible="false"
+               managed="false"
+               wrapText="true"/>
+
+        <Separator/>
+
+        <!-- Buttons -->
+        <HBox spacing="12" alignment="CENTER_RIGHT">
+            <Button text="✕ Annuler"
+                    onAction="#retourParticipations"
+                    prefWidth="120"
+                    prefHeight="36"
+                    style="-fx-background-color: #ECF0F1; -fx-text-fill: #555; -fx-font-size: 13px; -fx-background-radius: 7; -fx-cursor: hand; -fx-border-color: #BDC3C7; -fx-border-radius: 7;">
+                <font><Font name="System" size="13"/></font>
+            </Button>
+            <Button text="💾 Enregistrer"
+                    onAction="#modifierParticipation"
+                    prefWidth="140"
+                    prefHeight="36"
+                    style="-fx-background-color: #2980B9; -fx-text-fill: white; -fx-font-size: 13px; -fx-background-radius: 7; -fx-cursor: hand; -fx-font-weight: bold;">
+                <font><Font name="System Bold" size="13"/></font>
+            </Button>
+        </HBox>
+
+    </VBox>
+</VBox>
