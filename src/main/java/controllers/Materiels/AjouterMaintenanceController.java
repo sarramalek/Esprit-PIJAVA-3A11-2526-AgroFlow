@@ -16,14 +16,17 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import models.Materiels.Machine;
 import models.Materiels.Maintenance;
+import models.User.Personne;
 import services.Materiels.MachineService;
 import services.Materiels.MaintenanceService;
+import utils.SessionManager;
 
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
@@ -133,7 +136,7 @@ public class AjouterMaintenanceController implements Initializable {
     //  ENREGISTRER
     // ============================================================
     @FXML
-    private void enregistrer() {
+    private void enregistrer(ActionEvent event) {
         // 1. Réinitialiser les erreurs
         effacerErreurs();
 
@@ -163,7 +166,7 @@ public class AjouterMaintenanceController implements Initializable {
             afficherAlerte("Succes",
                     "Maintenance ajoutee avec succes pour la machine : " + machineSelectionnee.getNom(),
                     Alert.AlertType.INFORMATION);
-            fermerFenetre();
+            fermerFenetre(event);
         } catch (SQLException e) {
             afficherAlerte("Erreur", "Erreur lors de l'enregistrement : " + e.getMessage(),
                     Alert.AlertType.ERROR);
@@ -249,17 +252,28 @@ public class AjouterMaintenanceController implements Initializable {
     //  ANNULER
     // ============================================================
     @FXML
-    private void annuler() {
-        fermerFenetre();
+    private void annuler(ActionEvent event) {
+        fermerFenetre(event);
     }
 
     // ============================================================
     //  UTILITAIRES
     // ============================================================
-    private void fermerFenetre() {
-        Stage stage = (Stage) comboMachine.getScene().getWindow();
-        stage.close();
+    private void fermerFenetre(ActionEvent event) {
+        try {
+            Personne currentUser = SessionManager.getCurrentUser();
+            String fxml = (currentUser != null && currentUser.getRole() == 1)
+                    ? "/MaterielsInterface/AgricoleAffichageMaintenance.fxml"
+                    : "/MaterielsInterface/AfficherMaintenancesExamens.fxml";
+
+            Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource(fxml)));
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
+
 
     private void afficherAlerte(String titre, String message, Alert.AlertType type) {
         Alert alert = new Alert(type);

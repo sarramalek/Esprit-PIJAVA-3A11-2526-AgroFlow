@@ -304,7 +304,7 @@ public class ajouterarticleController {
         try {
             Personne currentUser = SessionManager.getCurrentUser();
             String fxml = (currentUser != null && currentUser.getRole() == 1)
-                    ? "/StocksInterfaeInterface/AfficherArticleAgr.fxml"
+                    ? "/StocksInterface/AfficherArticleAgr.fxml"
                     : "/StocksInterface/afficherarticle.fxml";
 
             Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource(fxml)));

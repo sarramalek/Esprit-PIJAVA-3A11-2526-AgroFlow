@@ -228,8 +228,8 @@ public class ajoutercategorieController {
         try {
             Personne currentUser = SessionManager.getCurrentUser();
             String fxml = (currentUser != null && currentUser.getRole() == 1)
-                    ? "/StocksInterfaeInterface/AfficherArticleAgr.fxml"
-                    : "/StocksInterface/afficherarticle.fxml";
+                    ? "/StocksInterface/AfficherCategorieAgr.fxml"
+                    : "/StocksInterface/affichercategorie.fxml";
 
             Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource(fxml)));
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();

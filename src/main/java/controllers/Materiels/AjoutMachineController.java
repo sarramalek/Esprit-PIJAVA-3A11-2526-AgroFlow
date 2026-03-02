@@ -12,12 +12,15 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import models.User.Personne;
 import services.Materiels.MachineService;
+import utils.SessionManager;
 
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 public class AjoutMachineController {
@@ -49,25 +52,26 @@ public class AjoutMachineController {
     );
     public void initialize() {
         // Cacher submenu par défaut
-        gestionSubmenu.setVisible(false);
-        gestionSubmenu.setManaged(false);
+        if (gestionSubmenu != null) {
+            gestionSubmenu.setVisible(false);
+            gestionSubmenu.setManaged(false);
+        }
 
-        // 1. Hover sur le bouton Gestion → Ouvre submenu
-        gestionBtn.setOnMouseEntered(e -> {
-            showGestionSubmenu();
-        });
-
-        // 2. Hover sur TOUT le container Gestion → Garde submenu ouvert
-        gestionContainer.setOnMouseEntered(e -> {
-            showGestionSubmenu();
-        });}
+        // ✅
+        if (gestionBtn != null) {
+            gestionBtn.setOnMouseEntered(e -> showGestionSubmenu());
+        }
+        if (gestionContainer != null) {
+            gestionContainer.setOnMouseEntered(e -> showGestionSubmenu());
+            gestionContainer.setOnMouseExited(e -> hideGestionSubmenu());
+        }}
 
     public AjoutMachineController() {
         machineService = new MachineService();
     }
 
     @FXML
-    private void handleAjouter() {
+    private void handleAjouter(ActionEvent event) {
         // Récupérer les valeurs
         String marque = tfMarque.getText().trim();
         String modele = tfModele.getText().trim();
@@ -106,7 +110,7 @@ public class AjoutMachineController {
             afficherAlerte("Succès", "Machine ajoutée avec succès !", Alert.AlertType.INFORMATION);
 
             // Retourner à la liste
-            retourListeMachines();
+            retourListeMachines(event);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -356,12 +360,25 @@ public class AjoutMachineController {
     }
 
     @FXML
-    private void handleAnnuler() {
-        retourListeMachines();
+    private void handleAnnuler(ActionEvent event) {
+        retourListeMachines(event);
     }
 
-    private void retourListeMachines() {
-        naviguerVers("/AffichageMachine.fxml");
+    private void retourListeMachines(ActionEvent event) {
+        try {
+            Personne currentUser = SessionManager.getCurrentUser();
+            String fxml = (currentUser != null && currentUser.getRole() == 1)
+                    ? "/MaterielsInterface/AgricoleAffichageMachine.fxml"
+                    : "/MaterielsInterface/AffichageMachine.fxml";
+
+            Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource(fxml)));
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
     }
 
     // ================= NAVIGATION =================

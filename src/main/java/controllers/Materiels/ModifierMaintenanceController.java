@@ -16,14 +16,17 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import models.Materiels.Machine;
 import models.Materiels.Maintenance;
+import models.User.Personne;
 import services.Materiels.MachineService;
 import services.Materiels.MaintenanceService;
+import utils.SessionManager;
 
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
@@ -389,8 +392,18 @@ public class ModifierMaintenanceController implements Initializable {
     //  UTILITAIRES
     // ============================================================
     private void fermerFenetre() {
-        Stage stage = (Stage) txtTypePanne.getScene().getWindow();
-        stage.close();
+        try {
+            Personne currentUser = SessionManager.getCurrentUser();
+            String fxml = (currentUser != null && currentUser.getRole() == 1)
+                    ? "/MaterielsInterface/AfficherMaintenances.fxml"
+                    : "/MaterielsInterface/AgricoleAffichageMaintenance.fxml";
+
+            Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource(fxml)));
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void afficherAlerte(String titre, String message, Alert.AlertType type) {

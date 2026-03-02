@@ -97,6 +97,8 @@ public class AfficherExamensController {
             gestionSubmenu.setVisible(false);
             gestionSubmenu.setManaged(false);
         }
+
+        // ✅
         if (gestionBtn != null) {
             gestionBtn.setOnMouseEntered(e -> showGestionSubmenu());
         }
