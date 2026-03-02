@@ -28,19 +28,19 @@ import java.util.stream.Collectors;
 
 public class AfficherParticipationsUserController {
 
-    @FXML private TableView<Participation> participationsTable;
-    @FXML private TableColumn<Participation, String> evenementColumn;
+    @FXML private TableView<Participation>              participationsTable;
+    @FXML private TableColumn<Participation, String>    evenementColumn;
     @FXML private TableColumn<Participation, LocalDate> dateInscriptionColumn;
-    @FXML private TableColumn<Participation, String> statutColumn;
-    @FXML private TableColumn<Participation, Boolean> presenceColumn;
-    @FXML private TableColumn<Participation, Void> actionsColumn;
+    @FXML private TableColumn<Participation, String>    statutColumn;
+    @FXML private TableColumn<Participation, Boolean>   presenceColumn;
+    @FXML private TableColumn<Participation, Void>      actionsColumn;
 
-    @FXML private TextField searchField;
-    @FXML private DatePicker filterDate;
+    @FXML private TextField        searchField;
+    @FXML private DatePicker       filterDate;
     @FXML private ComboBox<String> filterStatut;
     @FXML private ComboBox<String> filterPresence;
-    @FXML private Label resultsCountLabel;
-    @FXML private Label userNameLabel;
+    @FXML private Label            resultsCountLabel;
+    @FXML private Label            userNameLabel;
 
     // Stats
     @FXML private Label totalLabel;
@@ -49,15 +49,22 @@ public class AfficherParticipationsUserController {
     @FXML private Label annuleLabel;
 
     private final ParticipationService participationService = new ParticipationService();
-    private final EvenementService evenementService = new EvenementService();
+    private final EvenementService     evenementService     = new EvenementService();
 
     private ObservableList<Participation> participations;
-    private FilteredList<Participation> filteredData;
-    private int idUtilisateur = 1; // a injecter depuis la session
+    private FilteredList<Participation>   filteredData;
 
+    private int idUtilisateur = -1; // injecté depuis la page de connexion
+
+    // ================= SETTERS SESSION =================
     public void setIdUtilisateur(int id) {
         this.idUtilisateur = id;
-        try { loadParticipations(); } catch (SQLException e) { e.printStackTrace(); }
+        try {
+            loadParticipations();
+            appliquerFiltres();
+        } catch (SQLException e) {
+            showError("Erreur", "Impossible de charger les participations : " + e.getMessage());
+        }
     }
 
     public void setUserName(String name) {
@@ -77,19 +84,21 @@ public class AfficherParticipationsUserController {
         }
     }
 
+    // ================= FILTRES =================
     private void initFilters() {
         filterStatut.getItems().addAll("Tous les statuts", "Inscrit", "Confirme", "Annule");
         filterStatut.setValue("Tous les statuts");
         filterPresence.getItems().addAll("Toutes", "Oui", "Non");
         filterPresence.setValue("Toutes");
 
-        filterStatut.setOnAction(e -> appliquerFiltres());
+        filterStatut.setOnAction(e  -> appliquerFiltres());
         filterPresence.setOnAction(e -> appliquerFiltres());
-        filterDate.setOnAction(e -> appliquerFiltres());
+        filterDate.setOnAction(e    -> appliquerFiltres());
     }
 
     // ================= COLONNES =================
     private void initColumns() {
+
         evenementColumn.setCellValueFactory(cellData -> {
             try {
                 return new SimpleStringProperty(
@@ -102,7 +111,8 @@ public class AfficherParticipationsUserController {
         dateInscriptionColumn.setCellValueFactory(new PropertyValueFactory<>("date_inscription"));
         dateInscriptionColumn.setCellFactory(col -> new TableCell<>() {
             private final DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-            @Override protected void updateItem(LocalDate d, boolean empty) {
+            @Override
+            protected void updateItem(LocalDate d, boolean empty) {
                 super.updateItem(d, empty);
                 setText(empty || d == null ? null : fmt.format(d));
             }
@@ -110,14 +120,15 @@ public class AfficherParticipationsUserController {
 
         statutColumn.setCellValueFactory(new PropertyValueFactory<>("statut_participation"));
         statutColumn.setCellFactory(col -> new TableCell<>() {
-            @Override protected void updateItem(String statut, boolean empty) {
+            @Override
+            protected void updateItem(String statut, boolean empty) {
                 super.updateItem(statut, empty);
                 if (empty || statut == null) { setText(null); setStyle(""); return; }
                 setText(statut);
                 switch (statut.toLowerCase()) {
                     case "inscrit":
                         setStyle("-fx-background-color: #FFF9C4; -fx-text-fill: #F57F17; -fx-font-weight: bold; -fx-background-radius: 4;"); break;
-                    case "confirme":
+                    case "confirme": case "confirmé":
                         setStyle("-fx-background-color: #E8F5E9; -fx-text-fill: #2E7D32; -fx-font-weight: bold; -fx-background-radius: 4;"); break;
                     case "annule": case "annulé":
                         setStyle("-fx-background-color: #FFEBEE; -fx-text-fill: #C62828; -fx-font-weight: bold; -fx-background-radius: 4;"); break;
@@ -128,11 +139,13 @@ public class AfficherParticipationsUserController {
 
         presenceColumn.setCellValueFactory(new PropertyValueFactory<>("presence"));
         presenceColumn.setCellFactory(col -> new TableCell<>() {
-            @Override protected void updateItem(Boolean presence, boolean empty) {
+            @Override
+            protected void updateItem(Boolean presence, boolean empty) {
                 super.updateItem(presence, empty);
                 if (empty || presence == null) { setText(null); setStyle(""); return; }
                 setText(presence ? "Oui" : "Non");
-                setStyle(presence ? "-fx-text-fill: #2E7D32; -fx-font-weight: bold;"
+                setStyle(presence
+                        ? "-fx-text-fill: #2E7D32; -fx-font-weight: bold;"
                         : "-fx-text-fill: #C62828; -fx-font-weight: bold;");
             }
         });
@@ -143,30 +156,25 @@ public class AfficherParticipationsUserController {
     private void addActionButtons() {
         actionsColumn.setCellFactory(col -> new TableCell<>() {
             private final Button modifierBtn = new Button("Modifier");
-            private final Button annulerBtn = new Button("Annuler");
-            private final HBox box = new HBox(8, modifierBtn, annulerBtn);
+            private final Button annulerBtn  = new Button("Annuler");
+            private final HBox   box         = new HBox(8, modifierBtn, annulerBtn);
 
             {
                 modifierBtn.setStyle("-fx-background-color: #546E7A; -fx-text-fill: white; -fx-cursor: hand; -fx-background-radius: 5;");
                 annulerBtn.setStyle("-fx-background-color: #C62828; -fx-text-fill: white; -fx-cursor: hand; -fx-background-radius: 5;");
 
-                // ===== MODIFIER (seule la presence) =====
                 modifierBtn.setOnAction(e -> {
                     Participation p = getTableView().getItems().get(getIndex());
-                    // Interdire modification si deja annulee
-                    if ("annule".equalsIgnoreCase(p.getStatut_participation()) ||
-                            "annulé".equalsIgnoreCase(p.getStatut_participation())) {
+                    if (estAnnulee(p)) {
                         showWarning("Action impossible", "Vous ne pouvez pas modifier une participation annulee.");
                         return;
                     }
                     ouvrirModification(p);
                 });
 
-                // ===== ANNULER LA PARTICIPATION =====
                 annulerBtn.setOnAction(e -> {
                     Participation p = getTableView().getItems().get(getIndex());
-                    if ("annule".equalsIgnoreCase(p.getStatut_participation()) ||
-                            "annulé".equalsIgnoreCase(p.getStatut_participation())) {
+                    if (estAnnulee(p)) {
                         showWarning("Deja annulee", "Cette participation est deja annulee.");
                         return;
                     }
@@ -191,13 +199,12 @@ public class AfficherParticipationsUserController {
                 });
             }
 
-            @Override protected void updateItem(Void item, boolean empty) {
+            @Override
+            protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
                 if (empty) { setGraphic(null); return; }
                 Participation p = getTableView().getItems().get(getIndex());
-                // Griser les boutons si annulee
-                boolean annulee = "annule".equalsIgnoreCase(p.getStatut_participation()) ||
-                        "annulé".equalsIgnoreCase(p.getStatut_participation());
+                boolean annulee = estAnnulee(p);
                 modifierBtn.setDisable(annulee);
                 annulerBtn.setDisable(annulee);
                 setGraphic(box);
@@ -205,19 +212,17 @@ public class AfficherParticipationsUserController {
         });
     }
 
-    // ================= CHARGEMENT =================
+    // ================= CHARGEMENT — filtré par id_user =================
     private void loadParticipations() throws SQLException {
-        // Charger uniquement les participations de cet utilisateur
-        // Si votre service a une methode par utilisateur, utilisez-la.
-        // Sinon on filtre cote client (a adapter selon votre modele) :
         List<Participation> toutes = participationService.recuperer();
-        // Filtrage par idUtilisateur si le modele le supporte :
-        // List<Participation> miennes = toutes.stream()
-        //     .filter(p -> p.getId_utilisateur() == idUtilisateur)
-        //     .collect(Collectors.toList());
-        // Pour l'instant, on affiche toutes (a adapter) :
-        participations = FXCollections.observableArrayList(toutes);
-        filteredData = new FilteredList<>(participations, p -> true);
+
+        // ✅ Filtrer uniquement les participations de l'utilisateur connecté
+        List<Participation> miennes = toutes.stream()
+                .filter(p -> p.getId_user() == idUtilisateur)
+                .collect(Collectors.toList());
+
+        participations = FXCollections.observableArrayList(miennes);
+        filteredData   = new FilteredList<>(participations, p -> true);
         participationsTable.setItems(filteredData);
         updateStats();
         updateResultsCount();
@@ -243,15 +248,19 @@ public class AfficherParticipationsUserController {
                     .toLowerCase().contains(t.toLowerCase());
         } catch (SQLException e) { return true; }
     }
+
     private boolean matchesStatut(Participation p) {
         String s = filterStatut.getValue();
-        return s == null || s.equals("Tous les statuts") || p.getStatut_participation().equalsIgnoreCase(s);
+        return s == null || s.equals("Tous les statuts")
+                || p.getStatut_participation().equalsIgnoreCase(s);
     }
+
     private boolean matchesPresence(Participation p) {
         String pres = filterPresence.getValue();
         if (pres == null || pres.equals("Toutes")) return true;
         return p.isPresence() == pres.equals("Oui");
     }
+
     private boolean matchesDate(Participation p) {
         LocalDate f = filterDate.getValue();
         return f == null || p.getDate_inscription().equals(f);
@@ -269,15 +278,16 @@ public class AfficherParticipationsUserController {
     // ================= STATS =================
     private void updateStats() {
         if (totalLabel == null) return;
-        long total = participations.size();
+
+        long total    = participations.size();
         long confirme = participations.stream()
-                .filter(p -> "confirme".equalsIgnoreCase(p.getStatut_participation()) ||
-                        "confirme".equalsIgnoreCase(p.getStatut_participation())).count();
-        long inscrit = participations.stream()
+                .filter(p -> "confirme".equalsIgnoreCase(p.getStatut_participation())
+                        || "confirmé".equalsIgnoreCase(p.getStatut_participation())).count();
+        long inscrit  = participations.stream()
                 .filter(p -> "inscrit".equalsIgnoreCase(p.getStatut_participation())).count();
-        long annule = participations.stream()
-                .filter(p -> "annule".equalsIgnoreCase(p.getStatut_participation()) ||
-                        "annulé".equalsIgnoreCase(p.getStatut_participation())).count();
+        long annule   = participations.stream()
+                .filter(p -> "annule".equalsIgnoreCase(p.getStatut_participation())
+                        || "annulé".equalsIgnoreCase(p.getStatut_participation())).count();
 
         totalLabel.setText(String.valueOf(total));
         confirmeLabel.setText(String.valueOf(confirme));
@@ -292,7 +302,8 @@ public class AfficherParticipationsUserController {
     // ================= POP-UP MODIFICATION =================
     private void ouvrirModification(Participation participation) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/G-Evenements/ModifierParticipationUser.fxml"));
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/G-Evenements/user/ModifierParticipationUser.fxml"));
             Parent root = loader.load();
 
             ModifierParticipationUserController controller = loader.getController();
@@ -304,9 +315,8 @@ public class AfficherParticipationsUserController {
             popup.setResizable(false);
             popup.setTitle("Modifier ma participation");
             popup.setScene(new Scene(root));
-            popup.showAndWait();
+            popup.showAndWait(); // BLOQUANT — reprend ici après fermeture
 
-            // Recharger apres fermeture
             loadParticipations();
             appliquerFiltres();
 
@@ -329,7 +339,8 @@ public class AfficherParticipationsUserController {
     @FXML
     private void goToEvenements(ActionEvent event) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/G-Evenements/AfficherEvenementsUser.fxml"));
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/G-Evenements/AfficherEvenementsUser.fxml"));
             Parent root = loader.load();
             AfficherEvenementsUserController controller = loader.getController();
             controller.setIdUtilisateur(idUtilisateur);
@@ -342,7 +353,13 @@ public class AfficherParticipationsUserController {
 
     @FXML
     private void goToMesParticipations(ActionEvent event) {
-        // Deja sur cette page
+        // Déjà sur cette page
+    }
+
+    // ================= UTILITAIRES =================
+    private boolean estAnnulee(Participation p) {
+        return "annule".equalsIgnoreCase(p.getStatut_participation())
+                || "annulé".equalsIgnoreCase(p.getStatut_participation());
     }
 
     // ================= ALERTS =================
@@ -350,10 +367,12 @@ public class AfficherParticipationsUserController {
         Alert a = new Alert(Alert.AlertType.ERROR);
         a.setTitle(title); a.setHeaderText(null); a.setContentText(message); a.showAndWait();
     }
+
     private void showSuccess(String title, String message) {
         Alert a = new Alert(Alert.AlertType.INFORMATION);
         a.setTitle(title); a.setHeaderText(null); a.setContentText(message); a.showAndWait();
     }
+
     private void showWarning(String title, String message) {
         Alert a = new Alert(Alert.AlertType.WARNING);
         a.setTitle(title); a.setHeaderText(null); a.setContentText(message); a.showAndWait();

@@ -16,21 +16,22 @@ public class ParticipationService implements IService<Participation> {
 
     @Override
     public void ajouter(Participation p) throws SQLException {
-        String sql = "INSERT INTO participation (statut_participation, date_inscription, presence, id_evenement) " +
-                "VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO participation (statut_participation, date_inscription, presence, id_evenement, id_user) " +
+                "VALUES (?, ?, ?, ?, ?)";
 
         PreparedStatement ps = connection.prepareStatement(sql);
         ps.setString(1, p.getStatut_participation());
         ps.setDate(2, Date.valueOf(p.getDate_inscription())); // LocalDate → SQL Date
         ps.setBoolean(3, p.isPresence());
         ps.setInt(4, p.getId_evenement());
+        ps.setInt(5, p.getId_user());
 
         ps.executeUpdate();
     }
 
     @Override
     public void modifier(Participation p) throws SQLException {
-        String sql = "UPDATE participation SET statut_participation = ?, date_inscription = ?, presence = ?, id_evenement = ? " +
+        String sql = "UPDATE participation SET statut_participation = ?, date_inscription = ?, presence = ?, id_evenement = ?, id_user = ? " +
                 "WHERE id_participation = ?";
 
         PreparedStatement ps = connection.prepareStatement(sql);
@@ -38,7 +39,8 @@ public class ParticipationService implements IService<Participation> {
         ps.setDate(2, Date.valueOf(p.getDate_inscription()));
         ps.setBoolean(3, p.isPresence());
         ps.setInt(4, p.getId_evenement());
-        ps.setInt(5, p.getId_participation());
+        ps.setInt(5, p.getId_user());
+        ps.setInt(6, p.getId_participation());
 
         ps.executeUpdate();
     }
@@ -66,6 +68,7 @@ public class ParticipationService implements IService<Participation> {
             p.setDate_inscription(rs.getDate("date_inscription").toLocalDate());
             p.setPresence(rs.getBoolean("presence"));
             p.setId_evenement(rs.getInt("id_evenement"));
+            p.setId_user(rs.getInt("id_user"));
 
             participations.add(p);
         }

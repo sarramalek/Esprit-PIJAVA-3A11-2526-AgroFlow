@@ -29,7 +29,8 @@ class ParticipationServiceTest {
                 "INSCRIT",
                 LocalDate.now(),
                 false,
-                1 // id_evenement existant
+                1, // id_evenement existant
+                1
         );
 
         service.ajouter(p);

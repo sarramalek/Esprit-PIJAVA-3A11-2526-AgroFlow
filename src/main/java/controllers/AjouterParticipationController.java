@@ -6,8 +6,10 @@ import javafx.scene.control.*;
 import javafx.stage.Stage;
 import models.Evenement;
 import models.Participation;
+import models.User;
 import services.EvenementService;
 import services.ParticipationService;
+import services.UserService;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -16,13 +18,16 @@ import java.util.List;
 public class AjouterParticipationController {
 
     @FXML private ComboBox<String> cbEvenement;
-    @FXML private DatePicker dpDateInscription;
+    @FXML private ComboBox<User>   cbUser;
+    @FXML private DatePicker       dpDateInscription;
     @FXML private ComboBox<String> cbStatut;
     @FXML private ComboBox<String> cbPresence;
-    @FXML private Label errorLabel;
+    @FXML private Label            errorLabel;
 
     private final ParticipationService participationService = new ParticipationService();
-    private final EvenementService evenementService = new EvenementService();
+    private final EvenementService     evenementService     = new EvenementService();
+    private final UserService          userService          = new UserService();
+
     private List<Evenement> evenements;
 
     // Callback appelé après ajout réussi (pour rafraîchir la liste parente)
@@ -37,6 +42,7 @@ public class AjouterParticipationController {
     public void initialize() {
         remplirComboBoxes();
         chargerEvenements();
+        chargerUtilisateurs();
 
         // Valeurs par défaut
         dpDateInscription.setValue(LocalDate.now());
@@ -63,6 +69,40 @@ public class AjouterParticipationController {
         }
     }
 
+    // ================= CHARGER LES UTILISATEURS =================
+    private void chargerUtilisateurs() {
+        try {
+            List<User> users = userService.recuperer();
+            cbUser.getItems().setAll(users);
+
+            // Afficher "Nom  (ID: X)" dans la liste déroulante
+            cbUser.setCellFactory(lv -> new ListCell<>() {
+                @Override
+                protected void updateItem(User user, boolean empty) {
+                    super.updateItem(user, empty);
+                    setText(empty || user == null
+                            ? null
+                            : user.getNom() + "  (ID: " + user.getId_user() + ")");
+                }
+            });
+
+            // Afficher la même chose dans le bouton de sélection
+            cbUser.setButtonCell(new ListCell<>() {
+                @Override
+                protected void updateItem(User user, boolean empty) {
+                    super.updateItem(user, empty);
+                    setText(empty || user == null
+                            ? null
+                            : user.getNom() + "  (ID: " + user.getId_user() + ")");
+                }
+            });
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            afficherErreur("Impossible de charger les utilisateurs : " + e.getMessage());
+        }
+    }
+
     // ================= AJOUTER PARTICIPATION =================
     @FXML
     void ajouterParticipation(ActionEvent event) {
@@ -75,15 +115,15 @@ public class AjouterParticipationController {
         }
 
         Participation participation = new Participation();
-        participation.setStatut_participation(cbStatut.getValue());
-        participation.setDate_inscription(dpDateInscription.getValue());
-        participation.setPresence(cbPresence.getValue().equals("Oui"));
         participation.setId_evenement(idEvenement);
+        participation.setId_user(cbUser.getValue().getId_user());
+        participation.setDate_inscription(dpDateInscription.getValue());
+        participation.setStatut_participation(cbStatut.getValue());
+        participation.setPresence(cbPresence.getValue().equals("Oui"));
 
         try {
             participationService.ajouter(participation);
 
-            // Notifier la page parente de rafraîchir
             if (onSuccessCallback != null) onSuccessCallback.run();
 
             showSuccess("Succès", "La participation a été ajoutée avec succès !");
@@ -102,6 +142,12 @@ public class AjouterParticipationController {
         if (cbEvenement.getValue() == null || cbEvenement.getValue().isEmpty()) {
             afficherErreur("Veuillez sélectionner un événement !");
             cbEvenement.setStyle("-fx-border-color: #E74C3C; -fx-border-width: 2;");
+            return false;
+        }
+
+        if (cbUser.getValue() == null) {
+            afficherErreur("Veuillez sélectionner un utilisateur !");
+            cbUser.setStyle("-fx-border-color: #E74C3C; -fx-border-width: 2;");
             return false;
         }
 
@@ -154,18 +200,18 @@ public class AjouterParticipationController {
             errorLabel.setManaged(false);
         }
         cbEvenement.setStyle("");
+        cbUser.setStyle("");
         cbStatut.setStyle("");
         cbPresence.setStyle("");
         dpDateInscription.setStyle("");
     }
 
-    // ================= NAVIGATION (fermer le pop-up) =================
+    // ================= NAVIGATION =================
     @FXML
     void retourParticipations(ActionEvent event) {
         fermerPopup();
     }
 
-    // Méthode goToAccueil conservée pour compatibilité FXML si présente ailleurs
     @FXML
     void goToAccueil(ActionEvent event) {
         fermerPopup();

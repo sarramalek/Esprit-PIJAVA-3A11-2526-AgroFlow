@@ -6,23 +6,28 @@ import javafx.scene.control.*;
 import javafx.stage.Stage;
 import models.Evenement;
 import models.Participation;
+import models.User;
 import services.EvenementService;
 import services.ParticipationService;
+import services.UserService;
 
 import java.sql.SQLException;
 import java.util.List;
 
 public class ModifierParticipationController {
 
-    @FXML private TextField tfId;
+    @FXML private TextField        tfId;
     @FXML private ComboBox<String> cbEvenement;
-    @FXML private DatePicker dpDateInscription;
+    @FXML private ComboBox<User>   cbUser;
+    @FXML private DatePicker       dpDateInscription;
     @FXML private ComboBox<String> cbStatut;
     @FXML private ComboBox<String> cbPresence;
-    @FXML private Label errorLabel;
+    @FXML private Label            errorLabel;
 
     private final ParticipationService participationService = new ParticipationService();
-    private final EvenementService evenementService = new EvenementService();
+    private final EvenementService     evenementService     = new EvenementService();
+    private final UserService          userService          = new UserService();
+
     private Participation participationActuelle;
     private List<Evenement> evenements;
 
@@ -38,6 +43,7 @@ public class ModifierParticipationController {
     public void initialize() {
         remplirComboBoxes();
         chargerEvenements();
+        chargerUtilisateurs();
     }
 
     // ================= SETTER POUR RECEVOIR LA PARTICIPATION =================
@@ -49,12 +55,19 @@ public class ModifierParticipationController {
         cbStatut.setValue(participation.getStatut_participation());
         cbPresence.setValue(participation.isPresence() ? "Oui" : "Non");
 
+        // Pré-sélectionner l'événement
         try {
             String titre = evenementService.getNomEvenementById(participation.getId_evenement());
             cbEvenement.setValue(titre);
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
+        // Pré-sélectionner l'utilisateur — attend que cbUser soit chargé
+        cbUser.getItems().stream()
+                .filter(u -> u.getId_user() == participation.getId_user())
+                .findFirst()
+                .ifPresent(cbUser::setValue);
     }
 
     // ================= REMPLIR LES COMBOBOXES =================
@@ -76,6 +89,40 @@ public class ModifierParticipationController {
         }
     }
 
+    // ================= CHARGER LES UTILISATEURS =================
+    private void chargerUtilisateurs() {
+        try {
+            List<User> users = userService.recuperer();
+            cbUser.getItems().setAll(users);
+
+            // Afficher "Nom  (ID: X)" dans la liste déroulante
+            cbUser.setCellFactory(lv -> new ListCell<>() {
+                @Override
+                protected void updateItem(User user, boolean empty) {
+                    super.updateItem(user, empty);
+                    setText(empty || user == null
+                            ? null
+                            : user.getNom() + "  (ID: " + user.getId_user() + ")");
+                }
+            });
+
+            // Afficher la même chose dans le bouton de sélection
+            cbUser.setButtonCell(new ListCell<>() {
+                @Override
+                protected void updateItem(User user, boolean empty) {
+                    super.updateItem(user, empty);
+                    setText(empty || user == null
+                            ? null
+                            : user.getNom() + "  (ID: " + user.getId_user() + ")");
+                }
+            });
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            afficherErreur("Impossible de charger les utilisateurs : " + e.getMessage());
+        }
+    }
+
     // ================= MODIFIER PARTICIPATION =================
     @FXML
     void modifierParticipation(ActionEvent event) {
@@ -92,15 +139,15 @@ public class ModifierParticipationController {
             return;
         }
 
-        participationActuelle.setStatut_participation(cbStatut.getValue());
-        participationActuelle.setDate_inscription(dpDateInscription.getValue());
-        participationActuelle.setPresence(cbPresence.getValue().equals("Oui"));
         participationActuelle.setId_evenement(idEvenement);
+        participationActuelle.setId_user(cbUser.getValue().getId_user());
+        participationActuelle.setDate_inscription(dpDateInscription.getValue());
+        participationActuelle.setStatut_participation(cbStatut.getValue());
+        participationActuelle.setPresence(cbPresence.getValue().equals("Oui"));
 
         try {
             participationService.modifier(participationActuelle);
 
-            // Notifier la page parente de rafraîchir
             if (onSuccessCallback != null) onSuccessCallback.run();
 
             showSuccess("Succès", "La participation a été modifiée avec succès !");
@@ -119,6 +166,12 @@ public class ModifierParticipationController {
         if (cbEvenement.getValue() == null || cbEvenement.getValue().isEmpty()) {
             afficherErreur("Veuillez sélectionner un événement !");
             cbEvenement.setStyle("-fx-border-color: #E74C3C; -fx-border-width: 2;");
+            return false;
+        }
+
+        if (cbUser.getValue() == null) {
+            afficherErreur("Veuillez sélectionner un utilisateur !");
+            cbUser.setStyle("-fx-border-color: #E74C3C; -fx-border-width: 2;");
             return false;
         }
 
@@ -165,12 +218,13 @@ public class ModifierParticipationController {
             errorLabel.setManaged(false);
         }
         cbEvenement.setStyle("");
+        cbUser.setStyle("");
         cbStatut.setStyle("");
         cbPresence.setStyle("");
         dpDateInscription.setStyle("");
     }
 
-    // ================= NAVIGATION (fermer le pop-up) =================
+    // ================= NAVIGATION =================
     @FXML
     void retourParticipations(ActionEvent event) {
         fermerPopup();

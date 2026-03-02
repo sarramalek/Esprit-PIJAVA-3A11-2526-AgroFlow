@@ -13,15 +13,15 @@ import java.time.format.DateTimeFormatter;
 
 public class ModifierParticipationUserController {
 
-    @FXML private TextField tfId;
-    @FXML private Label evenementInfoLabel;
-    @FXML private Label dateInscriptionInfoLabel;
-    @FXML private Label statutInfoLabel;
+    @FXML private TextField        tfId;
+    @FXML private Label            evenementInfoLabel;
+    @FXML private Label            dateInscriptionInfoLabel;
+    @FXML private Label            statutInfoLabel;
     @FXML private ComboBox<String> cbPresence;
-    @FXML private Label errorLabel;
+    @FXML private Label            errorLabel;
 
     private final ParticipationService participationService = new ParticipationService();
-    private final EvenementService evenementService = new EvenementService();
+    private final EvenementService     evenementService     = new EvenementService();
     private Participation participationActuelle;
 
     // ================= INITIALIZATION =================
@@ -36,14 +36,15 @@ public class ModifierParticipationUserController {
 
         tfId.setText(String.valueOf(participation.getId_participation()));
 
-        // Infos en lecture seule
+        // Nom de l'événement (lecture seule)
         try {
-            String nomEvenement = evenementService.getNomEvenementById(participation.getId_evenement());
-            evenementInfoLabel.setText(nomEvenement);
+            evenementInfoLabel.setText(
+                    evenementService.getNomEvenementById(participation.getId_evenement()));
         } catch (SQLException e) {
             evenementInfoLabel.setText("Evenement introuvable");
         }
 
+        // Date inscription (lecture seule)
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         dateInscriptionInfoLabel.setText(
                 participation.getDate_inscription() != null
@@ -51,27 +52,33 @@ public class ModifierParticipationUserController {
                         : "---"
         );
 
-        // Statut avec couleur
+        // Statut avec couleur (lecture seule)
         String statut = participation.getStatut_participation();
         statutInfoLabel.setText(statut != null ? statut : "---");
         if (statut != null) {
             switch (statut.toLowerCase()) {
                 case "inscrit":
-                    statutInfoLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #F57F17; -fx-background-color: #FFF9C4; -fx-padding: 8 14; -fx-background-radius: 8; -fx-border-color: #ECEFF1; -fx-border-radius: 8;");
+                    statutInfoLabel.setStyle(
+                            "-fx-font-size: 13px; -fx-text-fill: #F57F17; -fx-background-color: #FFF9C4; " +
+                                    "-fx-padding: 8 14; -fx-background-radius: 8; -fx-border-color: #ECEFF1; -fx-border-radius: 8;");
                     break;
-                case "confirme":
-                    statutInfoLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #2E7D32; -fx-background-color: #E8F5E9; -fx-padding: 8 14; -fx-background-radius: 8; -fx-border-color: #ECEFF1; -fx-border-radius: 8;");
+                case "confirme": case "confirmé":
+                    statutInfoLabel.setStyle(
+                            "-fx-font-size: 13px; -fx-text-fill: #2E7D32; -fx-background-color: #E8F5E9; " +
+                                    "-fx-padding: 8 14; -fx-background-radius: 8; -fx-border-color: #ECEFF1; -fx-border-radius: 8;");
                     break;
                 default:
-                    statutInfoLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #546E7A; -fx-background-color: #F5F7FA; -fx-padding: 8 14; -fx-background-radius: 8; -fx-border-color: #ECEFF1; -fx-border-radius: 8;");
+                    statutInfoLabel.setStyle(
+                            "-fx-font-size: 13px; -fx-text-fill: #546E7A; -fx-background-color: #F5F7FA; " +
+                                    "-fx-padding: 8 14; -fx-background-radius: 8; -fx-border-color: #ECEFF1; -fx-border-radius: 8;");
             }
         }
 
-        // Presence modifiable
+        // Présence — seul champ modifiable
         cbPresence.setValue(participation.isPresence() ? "Oui" : "Non");
     }
 
-    // ================= MODIFIER (presence seulement) =================
+    // ================= MODIFIER (présence seulement) =================
     @FXML
     void modifierParticipation(ActionEvent event) {
         cacherErreur();
@@ -87,7 +94,7 @@ public class ModifierParticipationUserController {
             return;
         }
 
-        // Seule la presence est modifiable par le user
+        // Seule la présence est modifiable par le user
         participationActuelle.setPresence(cbPresence.getValue().equals("Oui"));
 
         try {
@@ -114,7 +121,10 @@ public class ModifierParticipationUserController {
             errorLabel.setVisible(false);
             errorLabel.setManaged(false);
         }
-        cbPresence.setStyle("-fx-background-color: #E3F2FD; -fx-background-radius: 8; -fx-border-color: #1565C0; -fx-border-radius: 8; -fx-font-size: 13px;");
+        // Rétablir le style normal de cbPresence
+        cbPresence.setStyle(
+                "-fx-background-color: #E3F2FD; -fx-background-radius: 8; " +
+                        "-fx-border-color: #1565C0; -fx-border-radius: 8; -fx-font-size: 13px;");
     }
 
     // ================= NAVIGATION =================
