@@ -559,11 +559,17 @@ public class MesTaches {
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/login.fxml"));
                 Parent root = loader.load();
-                Stage stage = getStage();
+                Stage stage = (Stage) dashboardBtn.getScene().getWindow();
                 if (stage != null) {
-                    stage.setScene(new Scene(root, 900, 600));
-                    stage.setTitle("AgroFlow - Connexion");
-                    stage.setMaximized(true);
+                    // On récupère le Stage et la Scene ACTUELLE
+
+                    Scene scene = stage.getScene();
+
+                    // SOLUTION MIRACLE : On change la racine, pas la scène !
+                    scene.setRoot(root);
+
+                    // Plus besoin de gérer "etaitMaximise", la fenêtre ne bougera pas d'un pixel
+                    stage.show();
                 }
             } catch (IOException e) { e.printStackTrace(); }
             return;

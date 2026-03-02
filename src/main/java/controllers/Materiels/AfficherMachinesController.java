@@ -381,8 +381,13 @@ public class AfficherMachinesController {
                 throw new IOException("Fichier MindSpherePage.fxml introuvable.");
             Parent root = FXMLLoader.load(fxmlUrl);
             Stage stage = (Stage) tableMachines.getScene().getWindow();
-            stage.setScene(new Scene(root, 1300, 820));
-            stage.setTitle("MindSphere IoT - API Avancee | AGROFLOW");
+            // On récupère le Stage et la Scene ACTUELLE
+            Scene scene = stage.getScene();
+
+            // SOLUTION MIRACLE : On change la racine, pas la scène !
+            scene.setRoot(root);
+
+            // Plus besoin de gérer "etaitMaximise", la fenêtre ne bougera pas d'un pixel
             stage.show();
         } catch (IOException e) {
             alerte("Erreur MindSphere",
@@ -629,7 +634,13 @@ public class AfficherMachinesController {
             if (url == null) throw new IOException("FXML introuvable : " + path);
             Parent root = FXMLLoader.load(url);
             Stage stage = (Stage) tableMachines.getScene().getWindow();
-            stage.setScene(new Scene(root));
+            // On récupère le Stage et la Scene ACTUELLE
+            Scene scene = stage.getScene();
+
+            // SOLUTION MIRACLE : On change la racine, pas la scène !
+            scene.setRoot(root);
+
+            // Plus besoin de gérer "etaitMaximise", la fenêtre ne bougera pas d'un pixel
             stage.show();
         } catch (IOException e) {
             alerte("Navigation", "Impossible d'ouvrir : " + path + "\n" + e.getMessage(),
@@ -1431,7 +1442,13 @@ public class AfficherMachinesController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/MaterielsInterface/AjoutMachine.fxml"));
             Parent root = loader.load();
             Stage stage = (Stage) tableMachines.getScene().getWindow();
-            stage.setScene(new Scene(root));
+            // On récupère le Stage et la Scene ACTUELLE
+            Scene scene = stage.getScene();
+
+            // SOLUTION MIRACLE : On change la racine, pas la scène !
+            scene.setRoot(root);
+
+            // Plus besoin de gérer "etaitMaximise", la fenêtre ne bougera pas d'un pixel
             stage.show();
         } catch (IOException e) {
             afficherAlerte("Erreur", "Impossible d'ouvrir la page d'ajout", Alert.AlertType.ERROR);
@@ -1457,7 +1474,13 @@ public class AfficherMachinesController {
             controller.setMachine(machineSelectionnee);
 
             Stage stage = (Stage) tableMachines.getScene().getWindow();
-            stage.setScene(new Scene(root));
+            // On récupère le Stage et la Scene ACTUELLE
+            Scene scene = stage.getScene();
+
+            // SOLUTION MIRACLE : On change la racine, pas la scène !
+            scene.setRoot(root);
+
+            // Plus besoin de gérer "etaitMaximise", la fenêtre ne bougera pas d'un pixel
             stage.show();
         } catch (IOException e) {
             afficherAlerte("Erreur", "Impossible d'ouvrir la page de modification", Alert.AlertType.ERROR);
@@ -1521,15 +1544,14 @@ public class AfficherMachinesController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
-
+            // On récupère le Stage et la Scene ACTUELLE
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            Scene scene = stage.getScene();
 
-            boolean etaitMaximise = stage.isMaximized();  // ← SAUVEGARDER AVANT
+            // SOLUTION MIRACLE : On change la racine, pas la scène !
+            scene.setRoot(root);
 
-            stage.setScene(new Scene(root));
-
-            stage.setMaximized(etaitMaximise);  // ← RESTAURER APRÈS
-
+            // Plus besoin de gérer "etaitMaximise", la fenêtre ne bougera pas d'un pixel
             stage.show();
         } catch (IOException e) {
             System.err.println("Erreur de chargement FXML : " + fxmlPath);
@@ -1622,10 +1644,14 @@ public class AfficherMachinesController {
                 Parent root = loader.load();
 
                 Stage stage = (Stage) logoutBtn.getScene().getWindow();
-                Scene scene = new Scene(root, 900, 600);
-                stage.setScene(scene);
-                stage.setTitle("AgroFlow - Connexion");
-                stage.setMaximized(true);
+                // On récupère le Stage et la Scene ACTUELLE
+                Scene scene = stage.getScene();
+
+                // SOLUTION MIRACLE : On change la racine, pas la scène !
+                scene.setRoot(root);
+
+                // Plus besoin de gérer "etaitMaximise", la fenêtre ne bougera pas d'un pixel
+                stage.show();
 
                 System.out.println("✓ Déconnexion réussie");
 

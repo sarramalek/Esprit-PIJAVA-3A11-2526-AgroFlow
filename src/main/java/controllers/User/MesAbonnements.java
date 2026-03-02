@@ -832,9 +832,15 @@ public class MesAbonnements {
                     try {
                         FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/login.fxml"));
                         Parent root = loader.load();
-                        Stage s = getStage();
-                        if (s != null) { s.setScene(new Scene(root, 1500, 700)); s.setTitle("AgroFlow - Connexion"); s.setMaximized(true); }
-                    } catch (IOException e) { showError("Erreur", e.getMessage()); }
+                        // On récupère le Stage et la Scene ACTUELLE
+                        Stage stage = (Stage) logoutBtn.getScene().getWindow();
+                        Scene scene = stage.getScene();
+
+                        // SOLUTION MIRACLE : On change la racine, pas la scène !
+                        scene.setRoot(root);
+
+                        // Plus besoin de gérer "etaitMaximise", la fenêtre ne bougera pas d'un pixel
+                        stage.show();                    } catch (IOException e) { showError("Erreur", e.getMessage()); }
                 });
     }
 
@@ -846,9 +852,15 @@ public class MesAbonnements {
                 loader.getController().getClass().getMethod("setCurrentUser", Personne.class)
                         .invoke(loader.getController(), this.currentUser);
             } catch (NoSuchMethodException ignored) { } catch (Exception ex) { ex.printStackTrace(); }
-            Stage s = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            boolean max = s.isMaximized();
-            s.setScene(new Scene(root)); s.setTitle(title); s.setMaximized(max); s.show();
+            // On récupère le Stage et la Scene ACTUELLE
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            Scene scene = stage.getScene();
+
+            // SOLUTION MIRACLE : On change la racine, pas la scène !
+            scene.setRoot(root);
+
+            // Plus besoin de gérer "etaitMaximise", la fenêtre ne bougera pas d'un pixel
+            stage.show();
         } catch (IOException e) { System.err.println("Erreur navigation: " + fxmlPath); }
     }
 

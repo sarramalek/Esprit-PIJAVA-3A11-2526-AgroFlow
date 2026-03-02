@@ -88,8 +88,15 @@ public class AjoutExamenController {
                         : "/AnimalsInterface/AfficherExamens.fxml";
 
                 Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource(fxml)));
+                // On récupère le Stage et la Scene ACTUELLE
                 Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-                stage.setScene(new Scene(root));
+                Scene scene = stage.getScene();
+
+                // SOLUTION MIRACLE : On change la racine, pas la scène !
+                scene.setRoot(root);
+
+                // Plus besoin de gérer "etaitMaximise", la fenêtre ne bougera pas d'un pixel
+                stage.show();
             } catch (IOException e) {
                 e.printStackTrace();
             }

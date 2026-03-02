@@ -832,7 +832,14 @@ public class AfficherMaintenancesController implements Initializable {
         try {
             Parent root = FXMLLoader.load(getClass().getResource(path));
             Stage stage = (Stage) tableMaintenances.getScene().getWindow();
-            stage.setScene(new Scene(root));
+            // On récupère le Stage et la Scene ACTUELLE
+            Scene scene = stage.getScene();
+
+            // SOLUTION MIRACLE : On change la racine, pas la scène !
+            scene.setRoot(root);
+
+            // Plus besoin de gérer "etaitMaximise", la fenêtre ne bougera pas d'un pixel
+            stage.show();
         } catch (IOException e) {
             showErr("Navigation", "Impossible de naviguer vers : " + path + "\n" + e.getMessage());
         }
@@ -894,14 +901,14 @@ public class AfficherMaintenancesController implements Initializable {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
 
+            // On récupère le Stage et la Scene ACTUELLE
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            Scene scene = stage.getScene();
 
-            boolean etaitMaximise = stage.isMaximized();  // ← SAUVEGARDER AVANT
+            // SOLUTION MIRACLE : On change la racine, pas la scène !
+            scene.setRoot(root);
 
-            stage.setScene(new Scene(root));
-
-            stage.setMaximized(etaitMaximise);  // ← RESTAURER APRÈS
-
+            // Plus besoin de gérer "etaitMaximise", la fenêtre ne bougera pas d'un pixel
             stage.show();
         } catch (IOException e) {
             System.err.println("Erreur de chargement FXML : " + fxmlPath);
@@ -975,10 +982,14 @@ public class AfficherMaintenancesController implements Initializable {
                 Parent root = loader.load();
 
                 Stage stage = (Stage) logoutBtn.getScene().getWindow();
-                Scene scene = new Scene(root, 900, 600);
-                stage.setScene(scene);
-                stage.setTitle("AgroFlow - Connexion");
-                stage.setMaximized(true);
+                // On récupère le Stage et la Scene ACTUELLE
+                Scene scene = stage.getScene();
+
+                // SOLUTION MIRACLE : On change la racine, pas la scène !
+                scene.setRoot(root);
+
+                // Plus besoin de gérer "etaitMaximise", la fenêtre ne bougera pas d'un pixel
+                stage.show();
 
                 System.out.println("✓ Déconnexion réussie");
 

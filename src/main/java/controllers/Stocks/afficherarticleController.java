@@ -473,9 +473,14 @@ public class afficherarticleController {
                         getClass().getResource("/UsersInterface/login.fxml"));
                 Parent root = loader.load();
                 Stage stage = (Stage) logoutBtn.getScene().getWindow();
-                stage.setScene(new Scene(root, 900, 600));
-                stage.setTitle("AgroFlow - Connexion");
-                stage.setMaximized(true);
+                // On récupère le Stage et la Scene ACTUELLE
+                Scene scene = stage.getScene();
+
+                // SOLUTION MIRACLE : On change la racine, pas la scène !
+                scene.setRoot(root);
+
+                // Plus besoin de gérer "etaitMaximise", la fenêtre ne bougera pas d'un pixel
+                stage.show();
             } catch (IOException e) {
                 e.printStackTrace();
                 showError("Erreur", "Impossible de retourner à la page de connexion");
@@ -507,10 +512,14 @@ public class afficherarticleController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxml));
             Parent root = loader.load();
+            // On récupère le Stage et la Scene ACTUELLE
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            boolean etaitMaximise = stage.isMaximized();
-            stage.setScene(new Scene(root));
-            stage.setMaximized(etaitMaximise);
+            Scene scene = stage.getScene();
+
+            // SOLUTION MIRACLE : On change la racine, pas la scène !
+            scene.setRoot(root);
+
+            // Plus besoin de gérer "etaitMaximise", la fenêtre ne bougera pas d'un pixel
             stage.show();
         } catch (IOException e) {
             System.err.println("Erreur de chargement FXML : " + fxml);
@@ -604,14 +613,14 @@ public class afficherarticleController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
 
+            // On récupère le Stage et la Scene ACTUELLE
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            Scene scene = stage.getScene();
 
-            boolean etaitMaximise = stage.isMaximized();  // ← SAUVEGARDER AVANT
+            // SOLUTION MIRACLE : On change la racine, pas la scène !
+            scene.setRoot(root);
 
-            stage.setScene(new Scene(root));
-            stage.setTitle(titre);
-            stage.setMaximized(etaitMaximise);  // ← RESTAURER APRÈS
-
+            // Plus besoin de gérer "etaitMaximise", la fenêtre ne bougera pas d'un pixel
             stage.show();
         } catch (IOException e) {
             System.err.println("Erreur de chargement FXML : " + fxmlPath);
@@ -726,14 +735,14 @@ public class afficherarticleController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
 
+            // On récupère le Stage et la Scene ACTUELLE
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            Scene scene = stage.getScene();
 
-            boolean etaitMaximise = stage.isMaximized();  // ← SAUVEGARDER AVANT
+            // SOLUTION MIRACLE : On change la racine, pas la scène !
+            scene.setRoot(root);
 
-            stage.setScene(new Scene(root));
-            stage.setTitle(title);
-            stage.setMaximized(etaitMaximise);  // ← RESTAURER APRÈS
-
+            // Plus besoin de gérer "etaitMaximise", la fenêtre ne bougera pas d'un pixel
             stage.show();
         } catch (IOException e) {
             System.err.println("Erreur de chargement FXML : " + fxmlPath);

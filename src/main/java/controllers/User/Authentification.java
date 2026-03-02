@@ -2,6 +2,7 @@ package controllers.User;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -416,8 +417,13 @@ public class Authentification {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/SignUp.fxml"));
             Parent root = loader.load();
             Stage stage = (Stage) signupLink.getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.setTitle("AgroFlow - Créer un compte");
+            // On récupère le Stage et la Scene ACTUELLE
+            Scene scene = stage.getScene();
+
+            // SOLUTION MIRACLE : On change la racine, pas la scène !
+            scene.setRoot(root);
+
+            // Plus besoin de gérer "etaitMaximise", la fenêtre ne bougera pas d'un pixel
             stage.show();
         } catch (Exception e) {
             System.err.println("❌ Impossible de charger la page d'inscription");
@@ -448,11 +454,14 @@ public class Authentification {
             else if (controller instanceof Acceuil)         ((Acceuil)         controller).setCurrentUser(personne);
 
             Stage stage = (Stage) loginButton.getScene().getWindow();
-            stage.setScene(new Scene(root, 1500, 700));
-            stage.setTitle(title);
-            stage.centerOnScreen();
-            stage.show();
+            // On récupère le Stage et la Scene ACTUELLE
+            Scene scene = stage.getScene();
 
+            // SOLUTION MIRACLE : On change la racine, pas la scène !
+            scene.setRoot(root);
+
+            // Plus besoin de gérer "etaitMaximise", la fenêtre ne bougera pas d'un pixel
+            stage.show();
         } catch (Exception e) {
             showError("Erreur lors de la redirection");
             e.printStackTrace();

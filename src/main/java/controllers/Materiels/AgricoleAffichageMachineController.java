@@ -695,9 +695,13 @@ public class AgricoleAffichageMachineController implements Initializable {
             if (url == null) throw new IOException("FXML introuvable : " + path);
             Parent root = FXMLLoader.load(url);
             Stage stage = (Stage) tableMachines.getScene().getWindow();
-            boolean wasMax = stage.isMaximized();
-            stage.setScene(new Scene(root));
-            stage.setMaximized(wasMax);
+            // On récupère le Stage et la Scene ACTUELLE
+            Scene scene = stage.getScene();
+
+            // SOLUTION MIRACLE : On change la racine, pas la scène !
+            scene.setRoot(root);
+
+            // Plus besoin de gérer "etaitMaximise", la fenêtre ne bougera pas d'un pixel
             stage.show();
         } catch (IOException e) {
             showErr("Navigation", "Impossible d'ouvrir : " + path + "\n" + e.getMessage());
@@ -719,8 +723,13 @@ public class AgricoleAffichageMachineController implements Initializable {
                 try {
                     Parent root = FXMLLoader.load(getClass().getResource("/UsersInterface/Login.fxml"));
                     Stage stage = (Stage) logoutBtn.getScene().getWindow();
-                    stage.setScene(new Scene(root));
-                    stage.setTitle("AgroFlow — Connexion");
+                    // On récupère le Stage et la Scene ACTUELLE
+                    Scene scene = stage.getScene();
+
+                    // SOLUTION MIRACLE : On change la racine, pas la scène !
+                    scene.setRoot(root);
+
+                    // Plus besoin de gérer "etaitMaximise", la fenêtre ne bougera pas d'un pixel
                     stage.show();
                 } catch (IOException e) {
                     showErr("Erreur", "Erreur déconnexion : " + e.getMessage());
@@ -832,14 +841,14 @@ public class AgricoleAffichageMachineController implements Initializable {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
 
+            // On récupère le Stage et la Scene ACTUELLE
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            Scene scene = stage.getScene();
 
-            boolean etaitMaximise = stage.isMaximized();  // ← SAUVEGARDER AVANT
+            // SOLUTION MIRACLE : On change la racine, pas la scène !
+            scene.setRoot(root);
 
-            stage.setScene(new Scene(root));
-            stage.setTitle(titre);
-            stage.setMaximized(etaitMaximise);  // ← RESTAURER APRÈS
-
+            // Plus besoin de gérer "etaitMaximise", la fenêtre ne bougera pas d'un pixel
             stage.show();
         } catch (IOException e) {
             System.err.println("Erreur de chargement FXML : " + fxmlPath);
@@ -925,14 +934,14 @@ public class AgricoleAffichageMachineController implements Initializable {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
 
+            // On récupère le Stage et la Scene ACTUELLE
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            Scene scene = stage.getScene();
 
-            boolean etaitMaximise = stage.isMaximized();  // ← SAUVEGARDER AVANT
+            // SOLUTION MIRACLE : On change la racine, pas la scène !
+            scene.setRoot(root);
 
-            stage.setScene(new Scene(root));
-            stage.setTitle(title);
-            stage.setMaximized(etaitMaximise);  // ← RESTAURER APRÈS
-
+            // Plus besoin de gérer "etaitMaximise", la fenêtre ne bougera pas d'un pixel
             stage.show();
         } catch (IOException e) {
             System.err.println("Erreur de chargement FXML : " + fxmlPath);

@@ -515,7 +515,7 @@ public class GestionTache {
             controller.setParentController(this);
             Stage stage = new Stage();
             stage.setTitle("Ajouter une Tâche");
-            stage.setScene(new Scene(root, 1500, 520));
+            stage.setScene(new Scene(root, 700, 520));
             stage.setResizable(true);
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.centerOnScreen();
@@ -586,8 +586,14 @@ public class GestionTache {
             Acceuil controller = loader.getController();
             if (currentUser != null) controller.setCurrentUser(currentUser);
             Stage stage = (Stage) dashboardBtn.getScene().getWindow();
-            stage.setScene(new Scene(root, 1500, 700)); stage.setTitle("AgroFlow - Dashboard"); stage.setMaximized(true);
-        } catch (IOException e) { showError("Erreur", "Impossible de charger le dashboard"); }
+            // On récupère le Stage et la Scene ACTUELLE
+            Scene scene = stage.getScene();
+
+            // SOLUTION MIRACLE : On change la racine, pas la scène !
+            scene.setRoot(root);
+
+            // Plus besoin de gérer "etaitMaximise", la fenêtre ne bougera pas d'un pixel
+            stage.show();        } catch (IOException e) { showError("Erreur", "Impossible de charger le dashboard"); }
     }
 
     @FXML
@@ -598,8 +604,14 @@ public class GestionTache {
                         FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/login.fxml"));
                         Parent root = loader.load();
                         Stage stage = (Stage) logoutBtn.getScene().getWindow();
-                        stage.setScene(new Scene(root, 1500, 700)); stage.setTitle("AgroFlow - Connexion"); stage.setMaximized(true);
-                    } catch (IOException e) { showError("Erreur", "Impossible de se déconnecter"); }
+                        // On récupère le Stage et la Scene ACTUELLE
+                        Scene scene = stage.getScene();
+
+                        // SOLUTION MIRACLE : On change la racine, pas la scène !
+                        scene.setRoot(root);
+
+                        // Plus besoin de gérer "etaitMaximise", la fenêtre ne bougera pas d'un pixel
+                        stage.show();                    } catch (IOException e) { showError("Erreur", "Impossible de se déconnecter"); }
                 });
     }
 
@@ -642,12 +654,14 @@ public class GestionTache {
                 dp.setCurrentUser(this.currentUser);
             }
             // Ajoutez d'autres types si nécessaire
-
+            // On récupère le Stage et la Scene ACTUELLE
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            boolean maximise = stage.isMaximized();
-            stage.setScene(new Scene(root));
-            stage.setTitle(title);
-            stage.setMaximized(maximise);
+            Scene scene = stage.getScene();
+
+            // SOLUTION MIRACLE : On change la racine, pas la scène !
+            scene.setRoot(root);
+
+            // Plus besoin de gérer "etaitMaximise", la fenêtre ne bougera pas d'un pixel
             stage.show();
         } catch (IOException e) {
             System.err.println("Erreur navigation : " + fxmlPath);
@@ -675,7 +689,7 @@ public class GestionTache {
 
             Stage stage = new Stage();
             stage.setTitle("Mon Profil - Employé");
-            stage.setScene(new Scene(root, 1500, 700));
+            stage.setScene(new Scene(root, 800, 700));
             stage.setResizable(false);
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.centerOnScreen();

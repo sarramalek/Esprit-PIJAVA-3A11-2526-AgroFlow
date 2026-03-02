@@ -349,10 +349,13 @@ public class MaintenanceFrontController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
             Stage stage = (Stage) tableMaintenances.getScene().getWindow();
-            boolean wasMaximized = stage.isMaximized();
-            stage.setScene(new Scene(root));
-            stage.setTitle("AgroFlow — " + titre);
-            stage.setMaximized(wasMaximized);
+            // On récupère le Stage et la Scene ACTUELLE
+            Scene scene = stage.getScene();
+
+            // SOLUTION MIRACLE : On change la racine, pas la scène !
+            scene.setRoot(root);
+
+            // Plus besoin de gérer "etaitMaximise", la fenêtre ne bougera pas d'un pixel
             stage.show();
         } catch (IOException e) {
             System.err.println("⚠ Impossible de charger : " + fxmlPath);
@@ -417,14 +420,14 @@ public class MaintenanceFrontController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
 
+            // On récupère le Stage et la Scene ACTUELLE
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            Scene scene = stage.getScene();
 
-            boolean etaitMaximise = stage.isMaximized();  // ← SAUVEGARDER AVANT
+            // SOLUTION MIRACLE : On change la racine, pas la scène !
+            scene.setRoot(root);
 
-            stage.setScene(new Scene(root));
-            stage.setTitle(titre);
-            stage.setMaximized(etaitMaximise);  // ← RESTAURER APRÈS
-
+            // Plus besoin de gérer "etaitMaximise", la fenêtre ne bougera pas d'un pixel
             stage.show();
         } catch (IOException e) {
             System.err.println("Erreur de chargement FXML : " + fxmlPath);
@@ -488,14 +491,14 @@ public class MaintenanceFrontController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
 
+            // On récupère le Stage et la Scene ACTUELLE
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            Scene scene = stage.getScene();
 
-            boolean etaitMaximise = stage.isMaximized();  // ← SAUVEGARDER AVANT
+            // SOLUTION MIRACLE : On change la racine, pas la scène !
+            scene.setRoot(root);
 
-            stage.setScene(new Scene(root));
-            stage.setTitle(title);
-            stage.setMaximized(etaitMaximise);  // ← RESTAURER APRÈS
-
+            // Plus besoin de gérer "etaitMaximise", la fenêtre ne bougera pas d'un pixel
             stage.show();
         } catch (IOException e) {
             System.err.println("Erreur de chargement FXML : " + fxmlPath);
@@ -557,10 +560,15 @@ public class MaintenanceFrontController {
 
                 MesTaches ctrl = loader.getController();
                 ctrl.setCurrentUser(currentUser); // ← c'est ce qui manque !
+                // On récupère le Stage et la Scene ACTUELLE
+                Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                Scene scene = stage.getScene();
 
-                Stage stage = (Stage)((Node) event.getSource()).getScene().getWindow();
-                stage.setScene(new Scene(root));
-                stage.setTitle("AgroFlow - Mes Tâches");
+                // SOLUTION MIRACLE : On change la racine, pas la scène !
+                scene.setRoot(root);
+
+                // Plus besoin de gérer "etaitMaximise", la fenêtre ne bougera pas d'un pixel
+                stage.show();
             } catch (IOException e) {
                 e.printStackTrace();
             }    }
@@ -586,8 +594,8 @@ public class MaintenanceFrontController {
 
                 Stage stage = new Stage();
                 stage.setTitle("Mon Profil - Employé");
-                stage.setScene(new Scene(root, 1500, 700));
-                stage.setResizable(false);
+                stage.setScene(new Scene(root, 900, 700));
+                stage.setResizable(true);
                 stage.initModality(Modality.APPLICATION_MODAL);
                 stage.centerOnScreen();
                 stage.showAndWait();

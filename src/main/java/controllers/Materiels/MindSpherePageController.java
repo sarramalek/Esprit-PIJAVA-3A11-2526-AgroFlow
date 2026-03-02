@@ -8,6 +8,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -1016,7 +1017,13 @@ public class MindSpherePageController {
             if (url == null) throw new IOException("AffichageMachine.fxml introuvable.");
             Parent root = FXMLLoader.load(url);
             Stage stage = (Stage) btnRetour.getScene().getWindow();
-            stage.setScene(new Scene(root));
+            // On récupère le Stage et la Scene ACTUELLE
+            Scene scene = stage.getScene();
+
+            // SOLUTION MIRACLE : On change la racine, pas la scène !
+            scene.setRoot(root);
+
+            // Plus besoin de gérer "etaitMaximise", la fenêtre ne bougera pas d'un pixel
             stage.show();
         } catch (IOException e) {
             afficherAlerteClair("Erreur", "Retour impossible : " + e.getMessage(), Alert.AlertType.ERROR);
