@@ -57,6 +57,7 @@ public class SInscrireEvenementController {
         if (!validerChamps()) return;
 
         Participation participation = new Participation();
+        participation.setId_user(idUtilisateur); // ← ADD THIS
         participation.setId_evenement(evenement.getIdEvenement());
         participation.setDate_inscription(dpDateInscription.getValue());
         participation.setStatut_participation("Inscrit"); // statut auto pour user

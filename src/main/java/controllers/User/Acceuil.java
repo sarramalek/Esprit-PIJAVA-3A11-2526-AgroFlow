@@ -500,4 +500,5 @@ private void mettreAJourBarOffres(List<offres> offres,
         public int     getNbAbonnes() { return nbAbonnes; }
     }
 
+
 }

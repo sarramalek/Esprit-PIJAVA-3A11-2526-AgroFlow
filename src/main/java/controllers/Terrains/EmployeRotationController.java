@@ -516,7 +516,9 @@ public class EmployeRotationController implements Initializable {
         chargerPage(mouseEvent, "/MaterielsInterface/MaintenanceFront.fxml", "EmployeMaintenance");
 
     }
-
+    public void handleEvenements(MouseEvent mouseEvent) {
+        chargerPage(mouseEvent,"/G-Evenements/AfficherEvenementsEmp.fxml", "EvenementsAfficher");
+    }
     public void ouvrirRotations(MouseEvent mouseEvent) {
     }
 

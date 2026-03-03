@@ -738,4 +738,11 @@ public class agricolerotationController implements Initializable {
     void ouvrirRotations(MouseEvent event) {
         navigateTo(event, "/TerrainsInterface/agricoleaffichagerotation.fxml", "Gestion des Rotations");
     }
+    public void handleMesEvenements(MouseEvent mouseEvent) {
+        navigateTo(mouseEvent,"/G-Evenements/AfficherEvenementsUser.fxml","Evenements");
+    }
+
+    public void ouvrirParticipations(MouseEvent mouseEvent) {
+        navigateTo(mouseEvent,"/G-Evenements/AfficherParticipationsUser.fxml","Participations");
+    }
 }

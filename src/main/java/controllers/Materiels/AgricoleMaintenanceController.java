@@ -1284,5 +1284,11 @@ public class AgricoleMaintenanceController implements Initializable {
         navigateTo(mouseEvent,"/MaterielsInterface/AgricoleAffichageMachine.fxml","Maintenance");
 
     }
+    public void handleMesEvenements(MouseEvent mouseEvent) {
+        navigateTo(mouseEvent,"/G-Evenements/AfficherEvenementsUser.fxml","Evenements");
+    }
 
+    public void ouvrirParticipations(MouseEvent mouseEvent) {
+        navigateTo(mouseEvent,"/G-Evenements/AfficherParticipationsUser.fxml","Participations");
+    }
 }

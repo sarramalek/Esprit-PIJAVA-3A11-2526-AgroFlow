@@ -693,5 +693,11 @@ public class AgricoleAffichageAchatController implements Initializable {
                     "Détails: " + e.getMessage());
         }
     }
+    public void handleMesEvenements(MouseEvent mouseEvent) {
+        navigateTo(mouseEvent,"/G-Evenements/AfficherEvenementsUser.fxml","Evenements");
+    }
 
+    public void ouvrirParticipations(MouseEvent mouseEvent) {
+        navigateTo(mouseEvent,"/G-Evenements/AfficherParticipationsUser.fxml","Participations");
+    }
 }

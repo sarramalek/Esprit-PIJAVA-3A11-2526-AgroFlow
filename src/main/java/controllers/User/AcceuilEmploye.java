@@ -233,7 +233,7 @@ public class AcceuilEmploye {
     // ══════════════════════════════════════════════════════════════
 
     @FXML
-    private void handleDashboard() {
+    private void handleDashboardEmp() {
         System.out.println("📊 Dashboard Employé (page actuelle)");
     }
 
@@ -398,5 +398,9 @@ navigateTo(event,"/UsersInterface/login.fxml", "Login");
     public void handleMateriel(MouseEvent mouseEvent) {
         navigateTo(mouseEvent, "/MaterielsInterface/MaintenanceFront.fxml", "EmployeMaintenance");
 
+    }
+
+    public void handleEvenements(MouseEvent mouseEvent) {
+        navigateTo(mouseEvent,"/G-Evenements/AfficherEvenementsEmp.fxml", "EvenementsAfficher");
     }
 }

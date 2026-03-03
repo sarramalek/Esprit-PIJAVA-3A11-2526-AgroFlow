@@ -682,8 +682,10 @@ public class MaintenanceFrontController {
         void ouvrirRotations(MouseEvent mouseEvent) {
             navigateTo(mouseEvent, "/TerrainsInterface/EmployeRotation.fxml", "EmployeRotation");
         }
-
-
+@FXML
+    public void handleEvenements(MouseEvent mouseEvent) {
+        navigateTo(mouseEvent,"/G-Evenements/AfficherEvenementsEmp.fxml", "EvenementsAfficher");
+    }
 @FXML
     public void handleMateriel(MouseEvent mouseEvent) {
         navigateTo(mouseEvent, "/MaterielsInterface/MMaintenanceFront.fxml", "EmployeMaintenance");

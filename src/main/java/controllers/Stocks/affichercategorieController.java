@@ -544,5 +544,13 @@ public class affichercategorieController {
 
 
     @FXML private void handleMonMateriel(MouseEvent mouseEvent)   {         navigateTo(mouseEvent,"/MaterielsInterface/AgricoleAffichageMachine.fxml","Animaux"); }
+    public void handleMesEvenements(MouseEvent mouseEvent) {
+        navigateTo(mouseEvent,"/G-Evenements/AfficherEvenementsUser.fxml","Evenements");
+    }
+
+    public void ouvrirParticipations(MouseEvent mouseEvent) {
+        navigateTo(mouseEvent,"/G-Evenements/AfficherParticipationsUser.fxml","Participations");
+    }
+
 }
 

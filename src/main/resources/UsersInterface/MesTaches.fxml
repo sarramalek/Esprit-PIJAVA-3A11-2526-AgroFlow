@@ -108,6 +108,15 @@
                     </Button>
 
                 </VBox>
+                <VBox spacing="0">
+                    <Button onMouseClicked="#handleEvenements" prefHeight="48" prefWidth="230"
+                            style="-fx-background-color: linear-gradient(to right, #4CAF50, #45a049);
+                                   -fx-text-fill: white; -fx-font-size: 14px; -fx-alignment: CENTER-LEFT;
+                                   -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand;"
+                            text="  Evenements et Articipations    ">
+                        <font><Font name="System Bold" size="14" /></font>
+                    </Button>
+                </VBox>
 
             </VBox>
 

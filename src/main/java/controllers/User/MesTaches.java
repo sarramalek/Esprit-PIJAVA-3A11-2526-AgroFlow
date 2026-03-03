@@ -686,7 +686,9 @@ public class MesTaches {
         navigateTo(mouseEvent, "/MaterielsInterface/MaintenanceFront.fxml", "EmployeMaintenance");
 
     }
-
+    public void handleEvenements(MouseEvent mouseEvent) {
+        navigateTo(mouseEvent,"/G-Evenements/AfficherEvenementsEmp.fxml", "EvenementsAfficher");
+    }
 
 
     public void ouvrirRotations(MouseEvent mouseEvent) {

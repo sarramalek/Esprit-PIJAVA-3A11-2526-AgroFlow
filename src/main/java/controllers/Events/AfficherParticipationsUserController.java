@@ -76,11 +76,11 @@ public class AfficherParticipationsUserController {
     private ObservableList<Participation> participations;
     private FilteredList<Participation>   filteredData;
 
-    private int idUtilisateur = -1; // injecté depuis la page de connexion
+    private int idUtilisateur ; // injecté depuis la page de connexion
 
     // ================= SETTERS SESSION =================
     public void setIdUtilisateur(int id) {
-        this.idUtilisateur = SessionManager.getCurrentUser().getCin();
+        id = SessionManager.getCurrentUser().getCin();
     }
 
     public void setUserName(String name) {
@@ -94,6 +94,8 @@ public class AfficherParticipationsUserController {
         this.currentUser = SessionManager.getCurrentUser();
         if (this.currentUser != null) {
             System.out.println("✓ currentUser chargé depuis SessionManager: " + currentUser.getNom());
+            this.idUtilisateur = SessionManager.getCurrentUser().getCin(); // ← this.idUtilisateur
+
         } else {
             System.err.println("✗ SessionManager.getCurrentUser() est NULL !");
         }
@@ -529,7 +531,7 @@ public class AfficherParticipationsUserController {
     private void ouvrirModification(Participation participation) {
         try {
             FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/G-Evenements/user/ModifierParticipationUser.fxml"));
+                    getClass().getResource("/G-Evenements/ModifierParticipationUser.fxml"));
             Parent root = loader.load();
 
             ModifierParticipationUserController controller = loader.getController();
@@ -602,5 +604,45 @@ public class AfficherParticipationsUserController {
     private void showWarning(String title, String message) {
         Alert a = new Alert(Alert.AlertType.WARNING);
         a.setTitle(title); a.setHeaderText(null); a.setContentText(message); a.showAndWait();
+    }
+
+    public void handleMesEvenements(MouseEvent mouseEvent) {
+        navigateTo(mouseEvent,"/G-Evenements/AfficherEvenementsUser.fxml","Evenements");
+    }
+
+    public void ouvrirParticipations(MouseEvent mouseEvent) {
+        navigateTo(mouseEvent,"/G-Evenements/AfficherParticipationsUser.fxml","Participations");
+    }
+
+    public void handleLogout(ActionEvent actionEvent) {
+        System.out.println("🚪 Déconnexion...");
+
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirmation");
+        alert.setHeaderText("Déconnexion");
+        alert.setContentText("Voulez-vous vraiment vous déconnecter ?");
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/login.fxml"));
+                Parent root = loader.load();
+
+                Stage stage = (Stage) logoutBtn.getScene().getWindow();
+                // On récupère le Stage et la Scene ACTUELLE
+                Scene scene = stage.getScene();
+
+                // SOLUTION MIRACLE : On change la racine, pas la scène !
+                scene.setRoot(root);
+
+                // Plus besoin de gérer "etaitMaximise", la fenêtre ne bougera pas d'un pixel
+                stage.show();
+
+                System.out.println("✓ Déconnexion réussie");
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                showError("Erreur", "Impossible de retourner à la page de connexion");
+            }}
     }
 }

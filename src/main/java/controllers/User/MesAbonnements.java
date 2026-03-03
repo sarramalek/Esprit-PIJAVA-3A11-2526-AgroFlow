@@ -907,4 +907,11 @@ public class MesAbonnements {
     @FXML private void handleMesArticles(MouseEvent mouseEvent)   {         nav(mouseEvent,"/StocksInterface/AfficherArticleAgr.fxml","Articles"); }
     @FXML private void handleMesCatégories(MouseEvent mouseEvent)   {         nav(mouseEvent,"/StocksInterface/AfficherCategorieAgr.fxml","Catégories "); }
     @FXML private void handleMonMateriel(MouseEvent mouseEvent)   {         nav(mouseEvent,"/MaterielsInterface/AgricoleAffichageMachine.fxml","Animaux"); }
+    public void handleMesEvenements(MouseEvent mouseEvent) {
+        nav(mouseEvent,"/G-Evenements/AfficherEvenementsUser.fxml","Evenements");
+    }
+
+    public void ouvrirParticipations(MouseEvent mouseEvent) {
+        nav(mouseEvent,"/G-Evenements/AfficherParticipationsUser.fxml","Participations");
+    }
 }
