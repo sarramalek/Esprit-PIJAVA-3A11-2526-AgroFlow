@@ -41,6 +41,10 @@ public class MaintenanceFrontController {
     @FXML private VBox gestionSubmenu;
     @FXML private VBox gestionContainer;
     @FXML private Button gestionBtn;
+
+    @FXML private ImageView avatarImageView;
+    @FXML private Label     avatarDefaultLabel;
+    @FXML private Circle    avatarBg;
     // Recherche unique
     @FXML private TextField            champRecherche;
 
@@ -97,8 +101,43 @@ public class MaintenanceFrontController {
         configurerColonnes();
         chargerDonnees();
         configurerRechercheDynamique();
+        chargerAvatarSidebar(SessionManager.getCurrentUser());
     }
+    private void chargerAvatarSidebar(Personne user) {
+        if (user == null) return;
 
+        String photoUrl = user.getPhotoUrl();
+
+        if (photoUrl == null || photoUrl.isBlank()
+                || photoUrl.equals("0") || photoUrl.equals("null")) {
+            // Pas de photo → emoji par défaut, rien à faire
+            return;
+        }
+
+        // Clip circulaire appliqué en Java (pas possible en FXML)
+        Circle clip = new Circle(32, 32, 32);
+        avatarImageView.setClip(clip);
+
+        Thread thread = new Thread(() -> {
+            try {
+                Image image = new Image(photoUrl, 64, 64, false, true, true);
+                Platform.runLater(() -> {
+                    if (!image.isError()) {
+                        avatarImageView.setImage(image);
+                        avatarImageView.setVisible(true);
+                        avatarImageView.setManaged(true);
+                        avatarDefaultLabel.setVisible(false);
+                        avatarDefaultLabel.setManaged(false);
+                        if (avatarBg != null) avatarBg.setVisible(false);
+                    }
+                });
+            } catch (Exception e) {
+                System.err.println("⚠️ Erreur chargement avatar : " + e.getMessage());
+            }
+        });
+        thread.setDaemon(true);
+        thread.start();
+    }
     // ──────────────────────────────────────────────────────
     //  Charger la map idM → nom  (connexion partagée)
     // ──────────────────────────────────────────────────────

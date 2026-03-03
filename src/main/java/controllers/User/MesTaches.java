@@ -1,5 +1,6 @@
 package controllers.User;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -12,9 +13,12 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
@@ -22,6 +26,7 @@ import javafx.stage.Stage;
 import models.User.Personne;
 import models.User.Tache;
 import services.User.TacheService;
+import utils.SessionManager;
 
 import java.io.*;
 import java.sql.SQLException;
@@ -83,13 +88,17 @@ public class MesTaches {
     private TacheService tacheService;
     private ObservableList<Tache> allTachesList = FXCollections.observableArrayList();
     private Personne currentUser;
-
+    @FXML private ImageView avatarImageView;
+    @FXML private Label     avatarDefaultLabel;
+    @FXML private Circle avatarBg;
     // ══════════════════════════════════════════════════════════════
     // Initialization
     // ══════════════════════════════════════════════════════════════
 
     @FXML
     public void initialize() {
+        chargerAvatarSidebar(SessionManager.getCurrentUser());
+
         try {
             tacheService = new TacheService();
             System.out.println("✓ MesTaches Controller initialisé");
@@ -109,7 +118,41 @@ public class MesTaches {
                     "Impossible de charger le module Mes Tâches: " + e.getMessage());
         }
     }
+    private void chargerAvatarSidebar(Personne user) {
+        if (user == null) return;
 
+        String photoUrl = user.getPhotoUrl();
+
+        if (photoUrl == null || photoUrl.isBlank()
+                || photoUrl.equals("0") || photoUrl.equals("null")) {
+            // Pas de photo → emoji par défaut, rien à faire
+            return;
+        }
+
+        // Clip circulaire appliqué en Java (pas possible en FXML)
+        Circle clip = new Circle(32, 32, 32);
+        avatarImageView.setClip(clip);
+
+        Thread thread = new Thread(() -> {
+            try {
+                Image image = new Image(photoUrl, 64, 64, false, true, true);
+                Platform.runLater(() -> {
+                    if (!image.isError()) {
+                        avatarImageView.setImage(image);
+                        avatarImageView.setVisible(true);
+                        avatarImageView.setManaged(true);
+                        avatarDefaultLabel.setVisible(false);
+                        avatarDefaultLabel.setManaged(false);
+                        if (avatarBg != null) avatarBg.setVisible(false);
+                    }
+                });
+            } catch (Exception e) {
+                System.err.println("⚠️ Erreur chargement avatar : " + e.getMessage());
+            }
+        });
+        thread.setDaemon(true);
+        thread.start();
+    }
     // ══════════════════════════════════════════════════════════════
     // User Management
     // ══════════════════════════════════════════════════════════════

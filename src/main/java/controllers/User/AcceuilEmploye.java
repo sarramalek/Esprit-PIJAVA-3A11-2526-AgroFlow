@@ -1,5 +1,6 @@
 package controllers.User;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -7,13 +8,17 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Circle;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import models.User.Personne;
 import models.User.Tache;
 import services.User.TacheService;
+import utils.SessionManager;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -27,7 +32,9 @@ public class AcceuilEmploye {
     // ══════════════════════════════════════════════════════════════
     // FXML Components
     // ══════════════════════════════════════════════════════════════
-
+    @FXML private ImageView avatarImageView;
+    @FXML private Label     avatarDefaultLabel;
+    @FXML private Circle avatarBg;
     @FXML private VBox gestionSubmenu;
     @FXML private VBox gestionContainer;
     @FXML private Button gestionBtn;
@@ -58,6 +65,7 @@ public class AcceuilEmploye {
     @FXML
     public void initialize() {
         System.out.println("✓ AcceuilEmploye Controller initialisé");
+        chargerAvatarSidebar(SessionManager.getCurrentUser());
 
         try {
             tacheService = new TacheService();
@@ -79,7 +87,41 @@ public class AcceuilEmploye {
             gestionContainer.setOnMouseExited(e -> hideGestionSubmenu());
         }
     }
+    private void chargerAvatarSidebar(Personne user) {
+        if (user == null) return;
 
+        String photoUrl = user.getPhotoUrl();
+
+        if (photoUrl == null || photoUrl.isBlank()
+                || photoUrl.equals("0") || photoUrl.equals("null")) {
+            // Pas de photo → emoji par défaut, rien à faire
+            return;
+        }
+
+        // Clip circulaire appliqué en Java (pas possible en FXML)
+        Circle clip = new Circle(32, 32, 32);
+        avatarImageView.setClip(clip);
+
+        Thread thread = new Thread(() -> {
+            try {
+                Image image = new Image(photoUrl, 64, 64, false, true, true);
+                Platform.runLater(() -> {
+                    if (!image.isError()) {
+                        avatarImageView.setImage(image);
+                        avatarImageView.setVisible(true);
+                        avatarImageView.setManaged(true);
+                        avatarDefaultLabel.setVisible(false);
+                        avatarDefaultLabel.setManaged(false);
+                        if (avatarBg != null) avatarBg.setVisible(false);
+                    }
+                });
+            } catch (Exception e) {
+                System.err.println("⚠️ Erreur chargement avatar : " + e.getMessage());
+            }
+        });
+        thread.setDaemon(true);
+        thread.start();
+    }
     // ══════════════════════════════════════════════════════════════
     // User Management
     // ══════════════════════════════════════════════════════════════
@@ -88,6 +130,7 @@ public class AcceuilEmploye {
         this.currentUser = user;
         if (user != null) {
             System.out.println("✓ setCurrentUser appelé pour: " + user.getNom());
+
 
             if (userNameLabel != null)
                 userNameLabel.setText(user.getPrenom() + " " + user.getNom());

@@ -1,8 +1,12 @@
 package controllers.Terrains;
 
 import controllers.User.ProfilEmploye;
+import javafx.application.Platform;
 import javafx.scene.Node;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.shape.Circle;
 import javafx.stage.Modality;
 import models.Terrains.rotation;
 import javafx.collections.FXCollections;
@@ -58,6 +62,9 @@ public class EmployeRotationController implements Initializable {
     @FXML private Label userRoleLabel;
     @FXML private Button logoutBtn;
 
+    @FXML private ImageView avatarImageView;
+    @FXML private Label     avatarDefaultLabel;
+    @FXML private Circle avatarBg;
     private final RotationService rs = new RotationService();
     private List<rotation> toutesRotations;
 
@@ -73,8 +80,43 @@ public class EmployeRotationController implements Initializable {
         configurerFiltre();
         configurerRecherche();
         chargerDonneesRotations();
+        chargerAvatarSidebar(SessionManager.getCurrentUser());
     }
+    private void chargerAvatarSidebar(Personne user) {
+        if (user == null) return;
 
+        String photoUrl = user.getPhotoUrl();
+
+        if (photoUrl == null || photoUrl.isBlank()
+                || photoUrl.equals("0") || photoUrl.equals("null")) {
+            // Pas de photo → emoji par défaut, rien à faire
+            return;
+        }
+
+        // Clip circulaire appliqué en Java (pas possible en FXML)
+        Circle clip = new Circle(32, 32, 32);
+        avatarImageView.setClip(clip);
+
+        Thread thread = new Thread(() -> {
+            try {
+                Image image = new Image(photoUrl, 64, 64, false, true, true);
+                Platform.runLater(() -> {
+                    if (!image.isError()) {
+                        avatarImageView.setImage(image);
+                        avatarImageView.setVisible(true);
+                        avatarImageView.setManaged(true);
+                        avatarDefaultLabel.setVisible(false);
+                        avatarDefaultLabel.setManaged(false);
+                        if (avatarBg != null) avatarBg.setVisible(false);
+                    }
+                });
+            } catch (Exception e) {
+                System.err.println("⚠️ Erreur chargement avatar : " + e.getMessage());
+            }
+        });
+        thread.setDaemon(true);
+        thread.start();
+    }
     // ============================================================
     // FILTRE + RECHERCHE DYNAMIQUE
     // ============================================================

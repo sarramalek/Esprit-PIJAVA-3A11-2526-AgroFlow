@@ -42,7 +42,9 @@ public class MesEvenementsParticipations {
     // ══════════════════════════════════════════════════════════════
     // FXML Components
     // ══════════════════════════════════════════════════════════════
-
+    @FXML private ImageView avatarImageView;
+    @FXML private Label     avatarDefaultLabel;
+    @FXML private Circle    avatarBg;
     @FXML private AnchorPane rootPane;
     @FXML private Label      userNameLabel, userNameLabel1, welcomeNameLabel, userRoleLabel;
     @FXML private Button     logoutBtn;
@@ -107,6 +109,7 @@ public class MesEvenementsParticipations {
             System.out.println("✓ MesEvenementsParticipations — user: " + currentUser.getNom()
                     + " | role: " + currentUser.getRole());
             updateUserLabels(currentUser);
+            chargerAvatarSidebar(SessionManager.getCurrentUser());
         } else {
             System.err.println("✗ SessionManager.getCurrentUser() est NULL !");
         }
@@ -123,7 +126,41 @@ public class MesEvenementsParticipations {
             loadParticipations();
         }
     }
+    private void chargerAvatarSidebar(Personne user) {
+        if (user == null) return;
 
+        String photoUrl = user.getPhotoUrl();
+
+        if (photoUrl == null || photoUrl.isBlank()
+                || photoUrl.equals("0") || photoUrl.equals("null")) {
+            // Pas de photo → emoji par défaut, rien à faire
+            return;
+        }
+
+        // Clip circulaire appliqué en Java (pas possible en FXML)
+        Circle clip = new Circle(32, 32, 32);
+        avatarImageView.setClip(clip);
+
+        Thread thread = new Thread(() -> {
+            try {
+                Image image = new Image(photoUrl, 64, 64, false, true, true);
+                Platform.runLater(() -> {
+                    if (!image.isError()) {
+                        avatarImageView.setImage(image);
+                        avatarImageView.setVisible(true);
+                        avatarImageView.setManaged(true);
+                        avatarDefaultLabel.setVisible(false);
+                        avatarDefaultLabel.setManaged(false);
+                        if (avatarBg != null) avatarBg.setVisible(false);
+                    }
+                });
+            } catch (Exception e) {
+                System.err.println("⚠️ Erreur chargement avatar : " + e.getMessage());
+            }
+        });
+        thread.setDaemon(true);
+        thread.start();
+    }
     // ══════════════════════════════════════════════════════════════
     // SETUP FILTRES
     // ══════════════════════════════════════════════════════════════
