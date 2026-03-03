@@ -88,13 +88,15 @@ public class AjoutPlanteController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/TerrainsInterface/AffichagePlante.fxml"));
             Parent root = loader.load();
 
+
+            // On récupère le Stage et la Scene ACTUELLE
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root));  // ← LIGNE 1 : Sauvegarder
+            Scene scene = stage.getScene();
 
+            // SOLUTION MIRACLE : On change la racine, pas la scène !
+            scene.setRoot(root);
 
-
-
-            stage.setTitle("Gestion des Plantes");
+            // Plus besoin de gérer "etaitMaximise", la fenêtre ne bougera pas d'un pixel
             stage.show();
 
         } catch (IOException e) {

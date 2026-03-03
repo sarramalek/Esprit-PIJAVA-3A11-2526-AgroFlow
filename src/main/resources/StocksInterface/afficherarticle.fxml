@@ -7,6 +7,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
+<?import javafx.scene.shape.Circle?>
 <BorderPane prefHeight="650.0" prefWidth="1050.0" style="-fx-background-color: #fdfae7;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.Stocks.afficherarticleController">
     <left>
         <VBox prefWidth="250" spacing="10" style="-fx-background-color: #617e9c;">
@@ -61,6 +62,32 @@
 
     <center>
         <VBox spacing="20.0" style="-fx-padding: 25;">
+            <HBox alignment="CENTER" spacing="12" style="-fx-cursor: hand;" onMouseClicked="#handleMonProfil">
+                <VBox alignment="CENTER_RIGHT" spacing="2">
+                    <Label fx:id="userNameLabel" style="-fx-font-size: 15px; -fx-text-fill: #2C3E50; -fx-font-weight: bold;" text="Admin">
+                        <font><Font name="System Bold" size="15" /></font>
+                    </Label>
+                    <Label style="-fx-font-size: 11px; -fx-text-fill: #95A5A6;" text="Administrateur">
+                        <font><Font name="System" size="11" /></font>
+                    </Label>
+                </VBox>
+
+                <!-- Avatar circulaire : photo si disponible, sinon emoji 👤 -->
+                <StackPane>
+                    <!-- Fond dégradé (visible si pas de photo) -->
+                    <Circle fx:id="avatarBg" radius="24"
+                            fill="linear-gradient(to bottom right, #667eea, #764ba2)" />
+                    <!-- Emoji par défaut -->
+                    <Label fx:id="avatarDefaultLabel"
+                           style="-fx-font-size: 22px; -fx-text-fill: white;"
+                           text="👤" />
+                    <!-- Photo chargée depuis Cloudinary (clip appliqué en Java) -->
+                    <ImageView fx:id="avatarImageView"
+                               fitWidth="48" fitHeight="48"
+                               preserveRatio="false"
+                               visible="false" managed="false" />
+                </StackPane>
+            </HBox>
             <children>
                 <Label text="Liste des Stocks" textFill="#2d5a27">
                     <font><Font name="System Bold" size="28.0" /></font>

@@ -351,16 +351,25 @@ public class Authentification {
                 Personne user = personneService.rechercherParEmail(email);
                 if (user != null) {
                     String resetCode = personneService.generateResetCode(email);
-                    if (emailService.sendPasswordResetCode(email, user.getPrenom() + " " + user.getNom(), resetCode)) {
+                    System.out.println("🔑 Reset code generated: " + resetCode); // ← ADD
+                    boolean sent = emailService.sendPasswordResetCode(
+                            email, user.getPrenom() + " " + user.getNom(), resetCode);
+                    System.out.println("📧 Email sent: " + sent); // ← ADD
+                    if (sent) {
                         showResetCodeDialog(email);
                     } else {
-                        showError("Erreur d'envoi d'email");
+                        // Use Alert instead of showError — we're outside the main scene
+                        new Alert(Alert.AlertType.ERROR, "Erreur d'envoi d'email").showAndWait();
                     }
                 } else {
-                    showError("Email non trouvé");
+                    new Alert(Alert.AlertType.ERROR, "Email non trouvé").showAndWait();
                 }
             } catch (SQLException e) {
-                showError("Erreur de base de données");
+                new Alert(Alert.AlertType.ERROR, "Erreur de base de données: " + e.getMessage()).showAndWait();
+                e.printStackTrace();
+            } catch (Exception e) {
+                // ← This catches the silent crash
+                new Alert(Alert.AlertType.ERROR, "Erreur inattendue: " + e.getMessage()).showAndWait();
                 e.printStackTrace();
             }
         });
@@ -387,20 +396,17 @@ public class Authentification {
         codeDialog.showAndWait().ifPresent(result -> {
             if (result == ButtonType.OK) {
                 if (!newPasswordField.getText().equals(confirmPasswordField.getText())) {
-                    showError("Les mots de passe ne correspondent pas");
+                    new Alert(Alert.AlertType.ERROR, "Les mots de passe ne correspondent pas").showAndWait(); // ← not showError()
                     return;
                 }
                 try {
                     if (personneService.resetPassword(email, codeField.getText(), newPasswordField.getText())) {
-                        Alert s = new Alert(Alert.AlertType.INFORMATION);
-                        s.setTitle("Succès");
-                        s.setContentText("Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.");
-                        s.showAndWait();
+                        new Alert(Alert.AlertType.INFORMATION, "Mot de passe réinitialisé avec succès !").showAndWait();
                     } else {
-                        showError("Code invalide ou expiré");
+                        new Alert(Alert.AlertType.ERROR, "Code invalide ou expiré").showAndWait();
                     }
                 } catch (SQLException e) {
-                    showError("Erreur lors de la réinitialisation");
+                    new Alert(Alert.AlertType.ERROR, "Erreur lors de la réinitialisation").showAndWait();
                     e.printStackTrace();
                 }
             }

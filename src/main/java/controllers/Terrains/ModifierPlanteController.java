@@ -109,13 +109,15 @@ public class ModifierPlanteController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/TerrainsInterface/AffichagePlante.fxml"));
             Parent root = loader.load();
 
+
+            // On récupère le Stage et la Scene ACTUELLE
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            boolean etaitMaximise = stage.isMaximized();  // ← LIGNE 1 : Sauvegarder
+            Scene scene = stage.getScene();
 
-            stage.setScene(new Scene(root));
+            // SOLUTION MIRACLE : On change la racine, pas la scène !
+            scene.setRoot(root);
 
-            stage.setMaximized(etaitMaximise);
-            stage.setTitle("Gestion des Plantes");
+            // Plus besoin de gérer "etaitMaximise", la fenêtre ne bougera pas d'un pixel
             stage.show();
 
         } catch (IOException e) {

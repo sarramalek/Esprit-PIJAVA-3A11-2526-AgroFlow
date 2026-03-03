@@ -158,11 +158,16 @@ public class AjoutRotationController implements Initializable {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/TerrainsInterface/AffichageRotation.fxml"));
             Parent root = loader.load();
 
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.setTitle("Gestion des Rotations");
-            stage.show();
 
+            // On récupère le Stage et la Scene ACTUELLE
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            Scene scene = stage.getScene();
+
+            // SOLUTION MIRACLE : On change la racine, pas la scène !
+            scene.setRoot(root);
+
+            // Plus besoin de gérer "etaitMaximise", la fenêtre ne bougera pas d'un pixel
+            stage.show();
         } catch (IOException e) {
             e.printStackTrace();
             showAlert("Erreur", "Impossible de retourner à la liste : " + e.getMessage(), Alert.AlertType.ERROR);

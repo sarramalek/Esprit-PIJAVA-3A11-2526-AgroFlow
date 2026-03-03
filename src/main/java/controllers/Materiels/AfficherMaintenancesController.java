@@ -4,6 +4,12 @@ import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
+import controllers.User.ProfilEmploye;
+import javafx.application.Platform;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.shape.Circle;
+import models.User.Personne;
 import org.apache.poi.ss.usermodel.Row;
 import com.itextpdf.layout.Document;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -89,12 +95,20 @@ import com.itextpdf.layout.properties.UnitValue;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import utils.SessionManager;
 
 import static com.itextpdf.layout.properties.TextAlignment.CENTER;
 
 public class AfficherMaintenancesController implements Initializable {
     @FXML private Button logoutBtn,gestionBtn;
     @FXML private VBox gestionSubmenu,gestionContainer;
+    @FXML private ImageView avatarImageView;
+    @FXML private Label     avatarDefaultLabel;
+    @FXML private Circle avatarBg;
+    @FXML private Label     userNameLabel;
+    @FXML private Label userRoleLabel;
+    private Personne currentUser ;
+
     @FXML private TableView<Maintenance> tableMaintenances;
     @FXML private TableColumn<Maintenance, String>  colMachine;
     @FXML private TableColumn<Maintenance, String>  colTypePanne;
@@ -126,7 +140,16 @@ public class AfficherMaintenancesController implements Initializable {
     // ============================================================
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        this.currentUser = SessionManager.getCurrentUser();
+        if (this.currentUser != null) {
+            System.out.println("✓ currentUser chargé depuis SessionManager: " + currentUser.getNom());
+        } else {
+            System.err.println("✗ SessionManager.getCurrentUser() est NULL !");
+        }
+        chargerAvatarTopBar(SessionManager.getCurrentUser());
 
+        // Mise à jour des labels
+        updateUserLabels();
             // Cacher submenu par défaut
             gestionSubmenu.setVisible(false);
             gestionSubmenu.setManaged(false);
@@ -158,7 +181,92 @@ public class AfficherMaintenancesController implements Initializable {
         }); // 4) totaux
     }
     // ── FXML ─────────────────────────────────────────────────────
+    private void chargerAvatarTopBar(Personne user) {
+        if (user == null) return;
 
+        // Afficher le nom
+        if (userNameLabel != null) {
+            userNameLabel.setText(user.getPrenom() + " " + user.getNom());
+        }
+
+        // Charger la photo depuis l'URL Cloudinary dans un thread background
+        String photoUrl = user.getPhotoUrl();
+        if (photoUrl == null || photoUrl.isBlank()) {
+            // Pas de photo → garder l'emoji par défaut, rien à faire
+            return;
+        }
+
+        // Appliquer le clip circulaire en Java (ne fonctionne pas correctement en FXML)
+        Circle clip = new Circle(24, 24, 24);
+        avatarImageView.setClip(clip);
+
+        Thread thread = new Thread(() -> {
+            try {
+                Image image = new Image(photoUrl, 48, 48, false, true, true);
+
+                Platform.runLater(() -> {
+                    if (!image.isError()) {
+                        avatarImageView.setImage(image);
+                        avatarImageView.setVisible(true);
+                        avatarImageView.setManaged(true);
+                        avatarDefaultLabel.setVisible(false);
+                        if (avatarBg != null) avatarBg.setVisible(false);
+                    }
+                });
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        thread.setDaemon(true);
+        thread.start();
+    }
+    @FXML private void handleMonProfil(MouseEvent event )    { try {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/ProfilEmplye.fxml"));
+        Parent root = loader.load();
+        ProfilEmploye ctrl = loader.getController();
+        if (ctrl != null && currentUser != null) ctrl.setCurrentUser(currentUser);
+        Stage s = new Stage();
+        s.setTitle("Mon Profil"); s.setScene(new Scene(root));
+        s.setResizable(true); s.initModality(Modality.APPLICATION_MODAL);
+        s.centerOnScreen(); s.showAndWait();
+    } catch (IOException e) { showError("Erreur"+ e.getMessage(),"erreur "); } }
+    public void setCurrentUser(Personne user) {
+        // ✅ CORRECTION : assigner le CHAMP de classe, pas une variable locale
+        this.currentUser = user;
+
+        if (user != null) {
+            SessionManager.setCurrentUser(user); // synchroniser le SessionManager
+            System.out.println("✓ setCurrentUser: " + user.getPrenom() + " " + user.getNom());
+            updateUserLabels();
+        } else {
+            System.err.println("✗ setCurrentUser appelé avec user NULL");
+        }
+    }
+
+    /**
+     * Met à jour les labels nom/rôle dans la sidebar.
+     */
+    private void updateUserLabels() {
+        if (currentUser == null) return;
+
+        if (userNameLabel != null)
+            userNameLabel.setText(currentUser.getPrenom() + " " + currentUser.getNom());
+        else
+            System.err.println("✗ userNameLabel est NULL (non lié en FXML ?)");
+
+        if (userRoleLabel != null) {
+            String roleText = switch (currentUser.getRole()) {
+                case 1 -> "🌾 AGRICOLE";
+                case 2 -> "👷 EMPLOYÉ";
+                case 3 -> "👑 ADMIN";
+                default -> "Rôle inconnu";
+            };
+            userRoleLabel.setText(roleText);
+        } else {
+            System.err.println("✗ userRoleLabel est NULL (non lié en FXML ?)");
+        }
+    }
 
     @FXML private ComboBox<String> comboTypePanne;
 

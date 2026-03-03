@@ -1,5 +1,7 @@
 package controllers.Events;
 
+import controllers.User.ProfilEmploye;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -13,13 +15,18 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Circle;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import models.Events.CategorieEvenement;
+import models.User.Personne;
 import services.Events.CategorieEvenementService;
+import utils.SessionManager;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -34,17 +41,35 @@ public class AfficherCategoriesController {
     @FXML private TableColumn<CategorieEvenement, String> titleColumn;
     @FXML private TableColumn<CategorieEvenement, String> descriptionColumn;
     @FXML private TableColumn<CategorieEvenement, Void> actionsColumn;
-
+// img user
+@FXML private ImageView avatarImageView;
+    @FXML private Label     avatarDefaultLabel;
+    @FXML private Circle avatarBg;
+    @FXML private Label     userNameLabel;
     @FXML private TextField searchField;
     @FXML private Label resultsCountLabel;  // ← à ajouter dans le FXML
+    @FXML private Label userRoleLabel;
 
     private final CategorieEvenementService service = new CategorieEvenementService();
     private ObservableList<CategorieEvenement> categories;
     private FilteredList<CategorieEvenement> filteredData;
-
+private Personne currentUser;
     // ================= INITIALIZATION =================
     @FXML
     public void initialize() {
+
+        // ✅ CORRECTION PRINCIPALE : récupérer le user depuis SessionManager dès initialize()
+        this.currentUser = SessionManager.getCurrentUser();
+        if (this.currentUser != null) {
+            System.out.println("✓ currentUser chargé depuis SessionManager: " + currentUser.getNom());
+        } else {
+            System.err.println("✗ SessionManager.getCurrentUser() est NULL !");
+        }
+        chargerAvatarTopBar(SessionManager.getCurrentUser());
+
+        // Mise à jour des labels
+        updateUserLabels();
+
 
         // Cacher submenu par défaut
         gestionSubmenu.setVisible(false);
@@ -64,7 +89,82 @@ public class AfficherCategoriesController {
             showError("Erreur", "Impossible de charger les catégories : " + e.getMessage());
         }
     }
+    private void chargerAvatarTopBar(Personne user) {
+        if (user == null) return;
 
+        // Afficher le nom
+        if (userNameLabel != null) {
+            userNameLabel.setText(user.getPrenom() + " " + user.getNom());
+        }
+
+        // Charger la photo depuis l'URL Cloudinary dans un thread background
+        String photoUrl = user.getPhotoUrl();
+        if (photoUrl == null || photoUrl.isBlank()) {
+            // Pas de photo → garder l'emoji par défaut, rien à faire
+            return;
+        }
+
+        // Appliquer le clip circulaire en Java (ne fonctionne pas correctement en FXML)
+        Circle clip = new Circle(24, 24, 24);
+        avatarImageView.setClip(clip);
+
+        Thread thread = new Thread(() -> {
+            try {
+                Image image = new Image(photoUrl, 48, 48, false, true, true);
+
+                Platform.runLater(() -> {
+                    if (!image.isError()) {
+                        avatarImageView.setImage(image);
+                        avatarImageView.setVisible(true);
+                        avatarImageView.setManaged(true);
+                        avatarDefaultLabel.setVisible(false);
+                        if (avatarBg != null) avatarBg.setVisible(false);
+                    }
+                });
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        thread.setDaemon(true);
+        thread.start();
+    }
+    public void setCurrentUser(Personne user) {
+        // ✅ CORRECTION : assigner le CHAMP de classe, pas une variable locale
+        this.currentUser = user;
+
+        if (user != null) {
+            SessionManager.setCurrentUser(user); // synchroniser le SessionManager
+            System.out.println("✓ setCurrentUser: " + user.getPrenom() + " " + user.getNom());
+            updateUserLabels();
+        } else {
+            System.err.println("✗ setCurrentUser appelé avec user NULL");
+        }
+    }
+
+    /**
+     * Met à jour les labels nom/rôle dans la sidebar.
+     */
+    private void updateUserLabels() {
+        if (currentUser == null) return;
+
+        if (userNameLabel != null)
+            userNameLabel.setText(currentUser.getPrenom() + " " + currentUser.getNom());
+        else
+            System.err.println("✗ userNameLabel est NULL (non lié en FXML ?)");
+
+        if (userRoleLabel != null) {
+            String roleText = switch (currentUser.getRole()) {
+                case 1 -> "🌾 AGRICOLE";
+                case 2 -> "👷 EMPLOYÉ";
+                case 3 -> "👑 ADMIN";
+                default -> "Rôle inconnu";
+            };
+            userRoleLabel.setText(roleText);
+        } else {
+            System.err.println("✗ userRoleLabel est NULL (non lié en FXML ?)");
+        }
+    }
     // ================= TABLE COLUMNS =================
     private void initColumns() {
         titleColumn.setCellValueFactory(new PropertyValueFactory<>("nom_categorie"));
@@ -252,7 +352,16 @@ public class AfficherCategoriesController {
     private void handlePersonnes(Event event) {
         ouvrirPage(event, "/UsersInterface/DahboardPersonne.fxml");
     }
-
+    @FXML private void handleMonProfil(MouseEvent event )    { try {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/ProfilEmplye.fxml"));
+        Parent root = loader.load();
+        ProfilEmploye ctrl = loader.getController();
+        if (ctrl != null && currentUser != null) ctrl.setCurrentUser(currentUser);
+        Stage s = new Stage();
+        s.setTitle("Mon Profil"); s.setScene(new Scene(root));
+        s.setResizable(true); s.initModality(Modality.APPLICATION_MODAL);
+        s.centerOnScreen(); s.showAndWait();
+    } catch (IOException e) { showError("Erreur"+ e.getMessage(),"erreur "); } }
     @FXML
     private void handleTaches(Event event) {
         ouvrirPage(event, "/UsersInterface/GestionTache.fxml");

@@ -31,6 +31,10 @@ import java.sql.SQLException;
 import java.util.Optional;
 
 public class affichercategorieController {
+    @FXML private ImageView avatarImageView;
+    @FXML private Label     avatarDefaultLabel;
+    @FXML private Circle avatarBg;
+
 
     // ══════════════════════════════════════════════════════
     //  FXML — Tableau & Colonnes
@@ -66,6 +70,10 @@ public class affichercategorieController {
         } else {
             System.err.println("✗ SessionManager.getCurrentUser() est NULL !");
         }
+        chargerAvatarTopBar(SessionManager.getCurrentUser());
+
+        // Mise à jour des labels
+        updateUserLabels();
         chargerSidebarAvatar(SessionManager.getCurrentUser());
         // Sidebar submenu caché par défaut
         if (gestionSubmenu != null) {
@@ -147,6 +155,71 @@ public class affichercategorieController {
         chargerDonnees();
     }
 
+    private void chargerAvatarTopBar(Personne user) {
+        if (user == null) return;
+
+        // Afficher le nom
+        if (userNameLabel != null) {
+            userNameLabel.setText(user.getPrenom() + " " + user.getNom());
+        }
+
+        // Charger la photo depuis l'URL Cloudinary dans un thread background
+        String photoUrl = user.getPhotoUrl();
+        if (photoUrl == null || photoUrl.isBlank()) {
+            // Pas de photo → garder l'emoji par défaut, rien à faire
+            return;
+        }
+
+        // Appliquer le clip circulaire en Java (ne fonctionne pas correctement en FXML)
+        Circle clip = new Circle(24, 24, 24);
+        avatarImageView.setClip(clip);
+
+        Thread thread = new Thread(() -> {
+            try {
+                Image image = new Image(photoUrl, 48, 48, false, true, true);
+
+                Platform.runLater(() -> {
+                    if (!image.isError()) {
+                        avatarImageView.setImage(image);
+                        avatarImageView.setVisible(true);
+                        avatarImageView.setManaged(true);
+                        avatarDefaultLabel.setVisible(false);
+                        if (avatarBg != null) avatarBg.setVisible(false);
+                    }
+                });
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        thread.setDaemon(true);
+        thread.start();
+    }
+
+
+    /**
+     * Met à jour les labels nom/rôle dans la sidebar.
+     */
+    private void updateUserLabels() {
+        if (currentUser == null) return;
+
+        if (userNameLabel != null)
+            userNameLabel.setText(currentUser.getPrenom() + " " + currentUser.getNom());
+        else
+            System.err.println("✗ userNameLabel est NULL (non lié en FXML ?)");
+
+        if (userRoleLabel != null) {
+            String roleText = switch (currentUser.getRole()) {
+                case 1 -> "🌾 AGRICOLE";
+                case 2 -> "👷 EMPLOYÉ";
+                case 3 -> "👑 ADMIN";
+                default -> "Rôle inconnu";
+            };
+            userRoleLabel.setText(roleText);
+        } else {
+            System.err.println("✗ userRoleLabel est NULL (non lié en FXML ?)");
+        }
+    }
     // ══════════════════════════════════════════════════════
     //  CHARGEMENT DES DONNÉES
     // ══════════════════════════════════════════════════════
