@@ -278,26 +278,24 @@ public class AfficherExamensController {
 //---------------
 @FXML
 void ouvrirStats(ActionEvent event) {
-    Alert alert = new Alert(Alert.AlertType.INFORMATION);
-    alert.setTitle("Statistiques");
-    alert.setHeaderText("Analyse des examens");
-    alert.setContentText("La fonctionnalité des statistiques sera bientôt disponible !");
-    alert.show();
+    try {
+        Parent root = FXMLLoader.load(getClass().getResource("/AnimalsInterface/StatsExamens.fxml"));
+        Stage stage = new Stage();
+        stage.setTitle("Statistiques Examens - AgroFlow");
+        stage.setScene(new Scene(root));
+        stage.show();
+    } catch (IOException e) {
+        System.err.println("Erreur ouverture stats : " + e.getMessage());
+    }
 }
-
     @FXML
     void afficherConseilsSante(ActionEvent event) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/AnimalsInterface/FicheSanteView.fxml"));
             Parent root = loader.load();
-            // On récupère le Stage et la Scene ACTUELLE
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            Scene scene = stage.getScene();
-
-            // SOLUTION MIRACLE : On change la racine, pas la scène !
-            scene.setRoot(root);
-
-            // Plus besoin de gérer "etaitMaximise", la fenêtre ne bougera pas d'un pixel
+            Stage stage = new Stage();
+            stage.setTitle("Statistiques - AgroFlow");
+            stage.setScene(new Scene(root));
             stage.show();
         } catch (IOException e) {
             System.err.println("Erreur de chargement de FicheSanteView.fxml : " + e.getMessage());
