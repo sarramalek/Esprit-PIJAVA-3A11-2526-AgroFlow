@@ -365,6 +365,8 @@ public class SignUp implements Initializable {
             personne.setEmail(emailField.getText().trim());
             personne.setMdp(passwordField.getText()); // TODO: Hash le password
             personne.setTel(telField.getText().trim());
+            personne.setPhotoUrl("");
+
 
             // Date de naissance
             if (dateNaissancePicker.getValue() != null) {

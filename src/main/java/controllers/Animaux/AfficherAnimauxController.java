@@ -82,11 +82,11 @@ public class AfficherAnimauxController {
         } else {
             System.err.println("✗ SessionManager.getCurrentUser() est NULL !");
         }
-        chargerAvatarTopBar(SessionManager.getCurrentUser());
+        //chargerAvatarTopBar(SessionManager.getCurrentUser());
 
         // Mise à jour des labels
         updateUserLabels();
-        chargerSidebarAvatar(SessionManager.getCurrentUser());
+        //chargerSidebarAvatar(SessionManager.getCurrentUser());
 
         System.out.println("✓ AcceuilAgricole Controller initialisé");
         // Cacher submenu par défaut
@@ -150,7 +150,7 @@ public class AfficherAnimauxController {
         refreshTable();
     }
 
-
+/*
 
     private void chargerAvatarTopBar(Personne user) {
         if (user == null) return;
@@ -192,7 +192,7 @@ public class AfficherAnimauxController {
         thread.setDaemon(true);
         thread.start();
     }
-
+*/
 
     /**
      * Met à jour les labels nom/rôle dans la sidebar.
@@ -556,7 +556,7 @@ public class AfficherAnimauxController {
         alert.showAndWait();
     }
     // navigation Front Office Agricole
-    private void chargerSidebarAvatar(Personne user) {
+    /*private void chargerSidebarAvatar(Personne user) {
         if (user == null) return;
 
         // Nom et rôle
@@ -590,7 +590,7 @@ public class AfficherAnimauxController {
         });
         thread.setDaemon(true);
         thread.start();
-    }
+    }*/
     @FXML
     void ouvrirTerrains(MouseEvent event) {
         chargerPage(event, "/TerrainsInterface/agricoleaffichageterrain.fxml", "Gestion des Terrains");

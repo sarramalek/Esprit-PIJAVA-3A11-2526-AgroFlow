@@ -112,7 +112,7 @@ public class afficherarticleController {
         } else {
             System.err.println("✗ SessionManager.getCurrentUser() est NULL !");
         }
-        chargerAvatarTopBar(SessionManager.getCurrentUser());
+        //chargerAvatarTopBar(SessionManager.getCurrentUser());
 
         // Mise à jour des labels
         updateUserLabels();
@@ -136,7 +136,7 @@ public class afficherarticleController {
         configurerStyleLignes();
         chargerDonnees();
     }
-    private void chargerAvatarTopBar(Personne user) {
+   /* private void chargerAvatarTopBar(Personne user) {
         if (user == null) return;
 
         // Afficher le nom
@@ -175,7 +175,7 @@ public class afficherarticleController {
         });
         thread.setDaemon(true);
         thread.start();
-    }
+    }*/
 
 
     /**

@@ -95,7 +95,7 @@ public class AfficherExamensController {
         } else {
             System.err.println("✗ SessionManager.getCurrentUser() est NULL !");
         }
-        chargerAvatarTopBar(SessionManager.getCurrentUser());
+        //chargerAvatarTopBar(SessionManager.getCurrentUser());
 
         // Mise à jour des labels
         updateUserLabels();

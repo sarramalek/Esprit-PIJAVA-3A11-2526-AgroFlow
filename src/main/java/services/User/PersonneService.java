@@ -122,8 +122,8 @@ public class PersonneService implements IService<Personne> {
         // Hasher le mot de passe avant l'insertion
         String hashedPassword = hashPassword(personne.getMdp());
 
-        String query = "INSERT INTO users (cin, nom, prenom, tel, date_naiss, email, mdp, adresse, ville, role, date_creationcpt, date_dernierchg) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO users (cin, nom, prenom, tel, date_naiss, email, mdp, adresse, ville, role, date_creationcpt, date_dernierchg,img) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
 
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             pst.setInt(1, personne.getCin());
@@ -138,6 +138,8 @@ public class PersonneService implements IService<Personne> {
             pst.setInt(10, personne.getRole());
             pst.setString(11, personne.getDate_creationcpt());
             pst.setString(12, personne.getDate_dernierchg());
+            pst.setString(13, personne.getPhotoUrl());
+
             pst.executeUpdate();
 
             System.out.println("✅ Utilisateur ajouté avec mot de passe sécurisé (BCrypt)");
