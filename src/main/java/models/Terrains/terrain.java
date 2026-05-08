@@ -9,15 +9,20 @@ public class terrain {
     private String type_sol;
     private String localisation;
     private float p_h;
-    private float proprietaire;
+    private int proprietaire;
 
     public terrain(int id_terrain, String nom_terrain, float surface, String type_sol, String localisation, float p_h) {
+        this(id_terrain, nom_terrain, surface, type_sol, localisation, p_h, 0);
+    }
+
+    public terrain(int id_terrain, String nom_terrain, float surface, String type_sol, String localisation, float p_h, int proprietaire) {
         this.id_terrain = id_terrain;
         this.nom_terrain = nom_terrain;
         this.surface = surface;
         this.type_sol = type_sol;
         this.localisation = localisation;
         this.p_h = p_h;
+        this.proprietaire = proprietaire;
     }
 
     public int getId_terrain() {
@@ -68,15 +73,23 @@ public class terrain {
         this.p_h = p_h;
     }
 
+    public int getProprietaire() {
+        return proprietaire;
+    }
+
+    public void setProprietaire(int proprietaire) {
+        this.proprietaire = proprietaire;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         terrain terrain = (terrain) o;
-        return id_terrain == terrain.id_terrain && Float.compare(surface, terrain.surface) == 0 && Float.compare(p_h, terrain.p_h) == 0 && Objects.equals(nom_terrain, terrain.nom_terrain) && Objects.equals(type_sol, terrain.type_sol) && Objects.equals(localisation, terrain.localisation);
+        return id_terrain == terrain.id_terrain && Float.compare(surface, terrain.surface) == 0 && Float.compare(p_h, terrain.p_h) == 0 && proprietaire == terrain.proprietaire && Objects.equals(nom_terrain, terrain.nom_terrain) && Objects.equals(type_sol, terrain.type_sol) && Objects.equals(localisation, terrain.localisation);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id_terrain, nom_terrain, surface, type_sol, localisation, p_h);
+        return Objects.hash(id_terrain, nom_terrain, surface, type_sol, localisation, p_h, proprietaire);
     }
 }

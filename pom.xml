@@ -248,7 +248,7 @@
             <version>5.10.2</version>
             <scope>test</scope>
         </dependency>
-<!-- Gestion Stocks -->
+        <!-- Gestion Stocks -->
         <dependency>
             <groupId>com.sun.mail</groupId>
             <artifactId>javax.mail</artifactId>

@@ -50,6 +50,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 import static controllers.User.GestionAbonnements.showInfo;
@@ -234,7 +235,15 @@ public class agricoleplanteController implements Initializable {
                 "linear-gradient(to right, #0E6655, #1ABC9C)");
         btnArrosage.setOnAction(e -> afficherRecommandationArrosage(p));
 
-        boutons.getChildren().addAll(btnPDF, btnStats, btnArrosage);
+        Button btnEdit = creerBouton("✏️  Modifier",
+                "linear-gradient(to right, #F39C12, #E67E22)");
+        btnEdit.setOnAction(e -> modifierPlanteAgricole(p));
+
+        Button btnDelete = creerBouton("🗑️  Supprimer",
+                "linear-gradient(to right, #C0392B, #E74C3C)");
+        btnDelete.setOnAction(e -> supprimerPlanteAgricole(p));
+
+        boutons.getChildren().addAll(btnPDF, btnStats, btnArrosage, btnEdit, btnDelete);
         carte.getChildren().addAll(ligne1, ligne2, progressBar, lblCycle, boutons);
         return carte;
     }
@@ -704,6 +713,48 @@ public class agricoleplanteController implements Initializable {
         alert.setContentText(message);
         alert.showAndWait();
     }
+
+    @FXML
+    private void ajouterPlanteAgricole(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/TerrainsInterface/ajouterplanteagriculteur.fxml"));
+            Parent root = loader.load();
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            Scene scene = stage.getScene();
+            scene.setRoot(root);
+            stage.show();
+        } catch (IOException e) {
+            showAlert("Erreur", "Impossible d'ouvrir la page d'ajout plante.");
+        }
+    }
+
+    private void modifierPlanteAgricole(plante p) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/TerrainsInterface/modifierplanteagriculteur.fxml"));
+            Parent root = loader.load();
+            ModifierPlanteAgriculteurController controller = loader.getController();
+            controller.initialiserAvecPlante(p);
+            Stage stage = (Stage) plantesContainer.getScene().getWindow();
+            Scene scene = stage.getScene();
+            scene.setRoot(root);
+            stage.show();
+        } catch (IOException e) {
+            showAlert("Erreur", "Impossible d'ouvrir la page de modification plante.");
+        }
+    }
+
+    private void supprimerPlanteAgricole(plante p) {
+        Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION,
+                "Supprimer la plante '" + p.getNom_p() + "' ?",
+                ButtonType.YES, ButtonType.NO);
+        confirmation.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.YES) {
+                ps.supprimerAvecRotations(p.getId_plante());
+                chargerDonneesPlantes();
+            }
+        });
+    }
+
     @FXML private void handleMesArticles(MouseEvent mouseEvent)   {         navigateTo(mouseEvent,"/StocksInterface/AfficherArticleAgr.fxml","Articles"); }
     @FXML private void handleMesCatégories(MouseEvent mouseEvent)   {         navigateTo(mouseEvent,"/StocksInterface/AfficherCategorieAgr.fxml","Catégories "); }
     @FXML private void handleDashboard(MouseEvent event)    { navigateTo(event,"/UsersInterface/AcceuillAgr.fxml","Dashboard"); }

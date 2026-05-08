@@ -25,6 +25,8 @@ import java.sql.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import models.User.Personne;
+import utils.SessionManager;
 
 public class AjoutRotationController implements Initializable {
     @FXML private Button logoutBtn,gestionBtn;
@@ -44,9 +46,11 @@ public class AjoutRotationController implements Initializable {
     private final RotationService rs = new RotationService();
     private final TerrainService ts = new TerrainService();
     private final PlanteService ps = new PlanteService();
+    private Personne currentUser;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        currentUser = SessionManager.getCurrentUser();
 
             // Cacher submenu par défaut
             gestionSubmenu.setVisible(false);
@@ -62,7 +66,9 @@ public class AjoutRotationController implements Initializable {
                 showGestionSubmenu();
             });
         // Charger les terrains
-        List<terrain> terrains = ts.afficherTous();
+        List<terrain> terrains = (currentUser != null && currentUser.getRole() == 1)
+                ? ts.afficherParCin(currentUser.getCin())
+                : ts.afficherTous();
         comboTerrain.setItems(FXCollections.observableArrayList(terrains));
         comboTerrain.setCellFactory(param -> new ListCell<terrain>() {
             @Override
@@ -155,7 +161,10 @@ public class AjoutRotationController implements Initializable {
     @FXML
     void retourListe(ActionEvent event) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/TerrainsInterface/AffichageRotation.fxml"));
+            String cible = (currentUser != null && currentUser.getRole() == 1)
+                    ? "/TerrainsInterface/agricoleaffichagerotation.fxml"
+                    : "/TerrainsInterface/AffichageRotation.fxml";
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(cible));
             Parent root = loader.load();
 
 

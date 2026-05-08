@@ -702,8 +702,8 @@ public class MindSpherePageController {
             afficherAlerteClair("Aucune machine", "Aucune machine disponible.", Alert.AlertType.WARNING);
             return;
         }
-        // FIX #3 : getFirst() au lieu de get(0)
-        Machine m       = machinesLocales.getFirst();
+        // Java 17-compatible access to first item
+        Machine m       = machinesLocales.get(0);
         String  assetId = "ms-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
         String  ts      = LocalDateTime.now().toString();
         int     score   = scoreEtat(m.getEtatM());

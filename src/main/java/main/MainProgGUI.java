@@ -21,6 +21,7 @@ public class MainProgGUI extends Application {
         Scene scene = new Scene(root);
         primaryStage.setScene(scene);
         primaryStage.setTitle("Agroflow Application");
+        primaryStage.setMaximized(true);
         primaryStage.show();
     }
 }

@@ -144,10 +144,10 @@
                         <Label text="Type de Sol :" textFill="#2C3E50" GridPane.rowIndex="2">
                             <font><Font size="14.0" /></font>
                         </Label>
-                        <TextField fx:id="txtTypeSol" prefHeight="40.0"
-                                   promptText="Ex: Argileux, Sableux, Limoneux"
-                                   style="-fx-border-color: #A8C69F; -fx-border-radius: 5; -fx-background-radius: 5;"
-                                   GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <ComboBox fx:id="comboTypeSol" prefHeight="40.0" prefWidth="350.0"
+                                  promptText="— Choisir —"
+                                  style="-fx-border-color: #A8C69F; -fx-border-radius: 5; -fx-background-radius: 5;"
+                                  GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
                         <Label text="Localisation :" textFill="#2C3E50" GridPane.rowIndex="3">
                             <font><Font size="14.0" /></font>
@@ -157,13 +157,21 @@
                                    style="-fx-border-color: #A8C69F; -fx-border-radius: 5; -fx-background-radius: 5;"
                                    GridPane.columnIndex="1" GridPane.rowIndex="3" />
 
-                        <Label text="pH :" textFill="#2C3E50" GridPane.rowIndex="4">
+                        <Label text="Proprietaire (CIN) :" textFill="#2C3E50" GridPane.rowIndex="4">
+                            <font><Font size="14.0" /></font>
+                        </Label>
+                        <ComboBox fx:id="comboProprietaire" prefHeight="40.0" prefWidth="350.0"
+                                  promptText="— Choisir —"
+                                  style="-fx-border-color: #A8C69F; -fx-border-radius: 5; -fx-background-radius: 5;"
+                                  GridPane.columnIndex="1" GridPane.rowIndex="4" />
+
+                        <Label text="pH :" textFill="#2C3E50" GridPane.rowIndex="5">
                             <font><Font size="14.0" /></font>
                         </Label>
                         <TextField fx:id="txtPH" prefHeight="40.0"
                                    promptText="Ex: 6.5 (entre 0 et 14)"
                                    style="-fx-border-color: #A8C69F; -fx-border-radius: 5; -fx-background-radius: 5;"
-                                   GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                   GridPane.columnIndex="1" GridPane.rowIndex="5" />
                     </children>
                 </GridPane>
 
