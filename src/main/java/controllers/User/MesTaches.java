@@ -238,11 +238,11 @@ public class MesTaches {
                     // Filtre texte
                     if (!searchText.isEmpty()) {
                         boolean matchSearch =
-                                (t.getNom_tache() != null && t.getNom_tache().toLowerCase().contains(searchText)) ||
+                                (t.getNomTache() != null && t.getNomTache().toLowerCase().contains(searchText)) ||
                                         (t.getDescription() != null && t.getDescription().toLowerCase().contains(searchText)) ||
                                         (t.getEtat() != null && t.getEtat().toLowerCase().contains(searchText)) ||
                                         (t.getPriorite() != null && t.getPriorite().toLowerCase().contains(searchText)) ||
-                                        String.valueOf(t.getId_tache()).contains(searchText);
+                                        String.valueOf(t.getId()).contains(searchText);
                         if (!matchSearch) return false;
                     }
                     // Filtre statut
@@ -261,12 +261,12 @@ public class MesTaches {
         if (sort != null) {
             switch (sort) {
                 case "Titre (A→Z)":
-                    filtered.sort(Comparator.comparing(t -> t.getNom_tache() != null ? t.getNom_tache() : ""));
+                    filtered.sort(Comparator.comparing(t -> t.getNomTache() != null ? t.getNomTache() : ""));
                     break;
                 case "Titre (Z→A)":
                     filtered.sort((a, b) -> {
-                        String na = a.getNom_tache() != null ? a.getNom_tache() : "";
-                        String nb = b.getNom_tache() != null ? b.getNom_tache() : "";
+                        String na = a.getNomTache() != null ? a.getNomTache() : "";
+                        String nb = b.getNomTache() != null ? b.getNomTache() : "";
                         return nb.compareTo(na);
                     });
                     break;
@@ -278,15 +278,15 @@ public class MesTaches {
                     break;
                 case "Date (Récente→Ancienne)":
                     filtered.sort((a, b) -> {
-                        String da = a.getDate_echeancee() != null ? a.getDate_echeancee().toString() : "";
-                        String db = b.getDate_echeancee() != null ? b.getDate_echeancee().toString() : "";
+                        String da = a.getDateEcheance() != null ? a.getDateEcheance().toString() : "";
+                        String db = b.getDateEcheance() != null ? b.getDateEcheance().toString() : "";
                         return db.compareTo(da);
                     });
                     break;
                 case "Date (Ancienne→Récente)":
                     filtered.sort((a, b) -> {
-                        String da = a.getDate_echeancee() != null ? a.getDate_echeancee().toString() : "";
-                        String db = b.getDate_echeancee() != null ? b.getDate_echeancee().toString() : "";
+                        String da = a.getDateEcheance() != null ? a.getDateEcheance().toString() : "";
+                        String db = b.getDateEcheance() != null ? b.getDateEcheance().toString() : "";
                         return da.compareTo(db);
                     });
                     break;
@@ -431,13 +431,13 @@ public class MesTaches {
 
     private void handleViewTask(Tache tache) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Détails de la Tâche #" + tache.getId_tache());
-        alert.setHeaderText(tache.getNom_tache());
+        alert.setTitle("Détails de la Tâche #" + tache.getId());
+        alert.setHeaderText(tache.getNomTache());
         StringBuilder content = new StringBuilder();
         content.append("Description: ").append(tache.getDescription() != null ? tache.getDescription() : "N/A").append("\n\n");
         content.append("Statut: ").append(tache.getEtat() != null ? tache.getEtat() : "N/A").append("\n");
         content.append("Priorité: ").append(tache.getPriorite() != null ? tache.getPriorite() : "N/A").append("\n");
-        content.append("Date d'échéance: ").append(tache.getDate_echeancee() != null ? tache.getDate_echeancee() : "N/A");
+        content.append("Date d'échéance: ").append(tache.getDateEcheance() != null ? tache.getDateEcheance() : "N/A");
         alert.setContentText(content.toString());
         alert.getDialogPane().setMinWidth(500);
         alert.showAndWait();
@@ -447,7 +447,7 @@ public class MesTaches {
         ChoiceDialog<String> dialog = new ChoiceDialog<>(
                 tache.getEtat(), "En attente", "En cours", "Terminée");
         dialog.setTitle("Changer le statut");
-        dialog.setHeaderText("Tâche: " + tache.getNom_tache());
+        dialog.setHeaderText("Tâche: " + tache.getNomTache());
         dialog.setContentText("Nouveau statut:");
 
         dialog.showAndWait().ifPresent(nouveauStatut -> {
@@ -478,7 +478,7 @@ public class MesTaches {
             showInfo("Aucune sélection", "Veuillez sélectionner une tâche dans le tableau.");
             return;
         }
-        generateRapport(Collections.singletonList(selected), "rapport_tache_" + selected.getId_tache());
+        generateRapport(Collections.singletonList(selected), "rapport_tache_" + selected.getId());
     }
 
     /**
@@ -518,12 +518,12 @@ public class MesTaches {
                 writer.println("ID,Titre,Description,Statut,Priorité,Échéance");
                 for (Tache t : taches) {
                     writer.printf("%d,\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"%n",
-                            t.getId_tache(),
-                            safe(t.getNom_tache()),
+                            t.getId(),
+                            safe(t.getNomTache()),
                             safe(t.getDescription()),
                             safe(t.getEtat()),
                             safe(t.getPriorite()),
-                            t.getDate_echeancee() != null ? t.getDate_echeancee().toString() : "N/A"
+                            t.getDateEcheance() != null ? t.getDateEcheance().toString() : "N/A"
                     );
                 }
             } else {
@@ -556,12 +556,12 @@ public class MesTaches {
                 // Détail de chaque tâche
                 int i = 1;
                 for (Tache t : taches) {
-                    writer.println("TÂCHE #" + i++ + " (ID: " + t.getId_tache() + ")");
-                    writer.println("  Titre       : " + safe(t.getNom_tache()));
+                    writer.println("TÂCHE #" + i++ + " (ID: " + t.getId() + ")");
+                    writer.println("  Titre       : " + safe(t.getNomTache()));
                     writer.println("  Description : " + safe(t.getDescription()));
                     writer.println("  Statut      : " + safe(t.getEtat()));
                     writer.println("  Priorité    : " + safe(t.getPriorite()));
-                    writer.println("  Échéance    : " + (t.getDate_echeancee() != null ? t.getDate_echeancee() : "N/A"));
+                    writer.println("  Échéance    : " + (t.getDateEcheance() != null ? t.getDateEcheance() : "N/A"));
                     writer.println("──────────────────────────────────────────────────────");
                 }
             }

@@ -1,5 +1,6 @@
 package controllers.User;
 
+// DELETE this line entirely:
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -65,14 +66,15 @@ public class GestionTache {
     private List<Employe> employes;
     private Personne currentUser;
     private Tache selectedTache;
+
     // Image user
     @FXML private ImageView avatarImageView;
     @FXML private Label     avatarDefaultLabel;
     @FXML private Circle avatarBg;
+
     // ═══════════════════════════════════════════════════════════════
     @FXML
     public void initialize() {
-        // ✅ CORRECTION PRINCIPALE : récupérer le user depuis SessionManager dès initialize()
         this.currentUser = SessionManager.getCurrentUser();
         if (this.currentUser != null) {
             System.out.println("✓ currentUser chargé depuis SessionManager: " + currentUser.getNom());
@@ -107,9 +109,7 @@ public class GestionTache {
         if (user != null && userNameLabel != null)
             userNameLabel.setText(user.getPrenom() + " " + user.getNom());
     }
-    /**
-     * Met à jour les labels nom/rôle dans la sidebar.
-     */
+
     private void updateUserLabels() {
         if (currentUser == null) return;
 
@@ -130,29 +130,25 @@ public class GestionTache {
             System.err.println("✗ userRoleLabel est NULL (non lié en FXML ?)");
         }
     }
+
     private void chargerAvatarTopBar(Personne user) {
         if (user == null) return;
 
-        // Afficher le nom
         if (userNameLabel != null) {
             userNameLabel.setText(user.getPrenom() + " " + user.getNom());
         }
 
-        // Charger la photo depuis l'URL Cloudinary dans un thread background
         String photoUrl = user.getPhotoUrl();
         if (photoUrl == null || photoUrl.isBlank()) {
-            // Pas de photo → garder l'emoji par défaut, rien à faire
             return;
         }
 
-        // Appliquer le clip circulaire en Java (ne fonctionne pas correctement en FXML)
         Circle clip = new Circle(24, 24, 24);
         avatarImageView.setClip(clip);
 
         Thread thread = new Thread(() -> {
             try {
                 Image image = new Image(photoUrl, 48, 48, false, true, true);
-
                 Platform.runLater(() -> {
                     if (!image.isError()) {
                         avatarImageView.setImage(image);
@@ -162,7 +158,6 @@ public class GestionTache {
                         if (avatarBg != null) avatarBg.setVisible(false);
                     }
                 });
-
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -172,7 +167,7 @@ public class GestionTache {
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // PDF — génère une fiche détaillée de la tâche sélectionnée
+    // PDF
     // ═══════════════════════════════════════════════════════════════
 
     private void setupPdfButton() {
@@ -186,7 +181,7 @@ public class GestionTache {
                         if (pdfBtn != null) pdfBtn.setDisable(false);
                         String assigneNom = resolveAssigne(newVal.getAssignee());
                         safeLabel(selectedTacheLabel,
-                                "Sélectionnée : " + newVal.getNom_tache()
+                                "Sélectionnée : " + newVal.getNomTache()
                                         + "  |  " + nvl(newVal.getEtat())
                                         + "  |  Assignée à : " + assigneNom);
                     } else {
@@ -205,8 +200,8 @@ public class GestionTache {
         }
         FileChooser fc = new FileChooser();
         fc.setTitle("Enregistrer le PDF");
-        fc.setInitialFileName("tache_" + selectedTache.getId_tache() + "_"
-                + selectedTache.getNom_tache().replaceAll("\\s+", "_") + ".pdf");
+        fc.setInitialFileName("tache_" + selectedTache.getId() + "_"
+                + selectedTache.getNomTache().replaceAll("\\s+", "_") + ".pdf");
         fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF (*.pdf)", "*.pdf"));
         File bureau = new File(System.getProperty("user.home") + "/Desktop");
         if (bureau.exists()) fc.setInitialDirectory(bureau);
@@ -236,7 +231,6 @@ public class GestionTache {
         com.itextpdf.kernel.colors.DeviceRgb C_DARK      = new com.itextpdf.kernel.colors.DeviceRgb(30,30,30);
         com.itextpdf.kernel.colors.DeviceRgb C_MUTED     = new com.itextpdf.kernel.colors.DeviceRgb(100,100,100);
 
-        // couleur selon statut
         com.itextpdf.kernel.colors.DeviceRgb C_STATUS = switch (nvl(tache.getEtat())) {
             case "en_cours"   -> new com.itextpdf.kernel.colors.DeviceRgb(37, 99, 235);
             case "terminee"   -> new com.itextpdf.kernel.colors.DeviceRgb(22, 163, 74);
@@ -266,7 +260,7 @@ public class GestionTache {
         doc.add(new com.itextpdf.layout.element.Paragraph(" "));
 
         // Titre + badge statut
-        doc.add(new com.itextpdf.layout.element.Paragraph(tache.getNom_tache())
+        doc.add(new com.itextpdf.layout.element.Paragraph(tache.getNomTache())
                 .setFont(bold).setFontSize(20).setFontColor(C_DARK_BLUE)
                 .setTextAlignment(com.itextpdf.layout.properties.TextAlignment.CENTER));
 
@@ -294,20 +288,19 @@ public class GestionTache {
                         com.itextpdf.layout.properties.UnitValue.createPercentArray(new float[]{35,65}))
                         .setWidth(com.itextpdf.layout.properties.UnitValue.createPercentValue(100));
 
-        addRow(t, bold, regular, "ID Tâche",        "#" + tache.getId_tache(),             C_LIGHT, C_DARK);
-        addRow(t, bold, regular, "Titre",            tache.getNom_tache(),                  C_WHITE, C_DARK);
-        addRow(t, bold, regular, "Assignée à",       resolveAssigne(tache.getAssignee()),   C_LIGHT, C_DARK);
-        addRow(t, bold, regular, "Statut",           nvl(tache.getEtat()),                  C_WHITE, C_DARK);
+        addRow(t, bold, regular, "ID Tâche",        "#" + tache.getId(),                    C_LIGHT, C_DARK);
+        addRow(t, bold, regular, "Titre",            tache.getNomTache(),                    C_WHITE, C_DARK);
+        addRow(t, bold, regular, "Assignée à",       resolveAssigne(tache.getAssignee()),    C_LIGHT, C_DARK);
+        addRow(t, bold, regular, "Statut",           nvl(tache.getEtat()),                   C_WHITE, C_DARK);
         addRow(t, bold, regular, "Priorité",         nvl(tache.getPriorite()),               C_LIGHT, C_DARK);
-        addRow(t, bold, regular, "Date d'échéance",  nvl(tache.getDate_echeancee()),         C_WHITE, C_DARK);
+        // FIX: use nvl(LocalDate) overload instead of nvl(String)
+        addRow(t, bold, regular, "Date d'échéance",  nvl(tache.getDateEcheance()),           C_WHITE, C_DARK);
 
-        // Retard ?
-        boolean enRetard = false;
-        try {
-            enRetard = tache.getDate_echeancee() != null
-                    && LocalDate.parse(tache.getDate_echeancee()).isBefore(LocalDate.now())
-                    && !"terminee".equals(tache.getEtat());
-        } catch (Exception ignored) {}
+        // FIX: no more LocalDate.parse() — getDateEcheance() is already a LocalDate
+        boolean enRetard = tache.getDateEcheance() != null
+                && tache.getDateEcheance().isBefore(LocalDate.now())
+                && !"terminee".equals(tache.getEtat());
+
         if (enRetard)
             addRow(t, bold, regular, "⚠ Retard", "Cette tâche est en retard !",
                     new com.itextpdf.kernel.colors.DeviceRgb(254,226,226),
@@ -376,13 +369,13 @@ public class GestionTache {
 
     private void applyAllFilters() {
         if (allTachesList == null) return;
-        String search  = searchField != null ? searchField.getText().toLowerCase().trim() : "";
-        String statut  = filterComboBox != null ? filterComboBox.getValue() : "Tous";
+        String search    = searchField != null ? searchField.getText().toLowerCase().trim() : "";
+        String statut    = filterComboBox != null ? filterComboBox.getValue() : "Tous";
         String empFilter = employeeFilterComboBox != null ? employeeFilterComboBox.getValue() : "Tous";
         ObservableList<Tache> filtered = FXCollections.observableArrayList();
         for (Tache t : allTachesList) {
             boolean ms = search.isEmpty()
-                    || (t.getNom_tache() != null && t.getNom_tache().toLowerCase().contains(search))
+                    || (t.getNomTache() != null && t.getNomTache().toLowerCase().contains(search))
                     || (t.getDescription() != null && t.getDescription().toLowerCase().contains(search));
             boolean mst = statut == null || statut.equals("Tous") || statut.equals(t.getEtat());
             boolean me = true;
@@ -430,19 +423,22 @@ public class GestionTache {
             }
         });
 
+        // FIX: no more LocalDate.parse() — getDateEcheance() is already a LocalDate
         dueDateColumn.setCellFactory(col -> new TableCell<>() {
             @Override protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
                 if (empty) { setText(null); setStyle(""); return; }
                 Tache t = getTableView().getItems().get(getIndex());
-                setText(t.getDate_echeancee() != null ? t.getDate_echeancee() : "N/A");
-                try {
-                    if (t.getDate_echeancee() != null
-                            && LocalDate.parse(t.getDate_echeancee()).isBefore(LocalDate.now())
-                            && !"terminee".equals(t.getEtat()))
-                        setStyle("-fx-text-fill:#E74C3C;-fx-font-weight:bold;");
-                    else setStyle("-fx-text-fill:#2C3E50;");
-                } catch (Exception ex) { setStyle(""); }
+                // FIX: convert LocalDate to String for display
+                setText(t.getDateEcheance() != null ? t.getDateEcheance().toString() : "N/A");
+                // FIX: no parse needed, directly compare LocalDate
+                if (t.getDateEcheance() != null
+                        && t.getDateEcheance().isBefore(LocalDate.now())
+                        && !"terminee".equals(t.getEtat())) {
+                    setStyle("-fx-text-fill:#E74C3C;-fx-font-weight:bold;");
+                } else {
+                    setStyle("-fx-text-fill:#2C3E50;");
+                }
             }
         });
 
@@ -490,11 +486,11 @@ public class GestionTache {
         safeLabel(totalTasksLabel, String.valueOf(taches.size()));
         safeLabel(enCoursLabel,    String.valueOf(taches.stream().filter(t -> "en_cours".equals(t.getEtat())).count()));
         safeLabel(termineesLabel,  String.valueOf(taches.stream().filter(t -> "terminee".equals(t.getEtat())).count()));
+        // FIX: no more LocalDate.parse() — getDateEcheance() is already a LocalDate
         if (enRetardLabel != null)
             enRetardLabel.setText(String.valueOf(taches.stream().filter(t -> {
-                if (t.getDate_echeancee() == null || "terminee".equals(t.getEtat())) return false;
-                try { return LocalDate.parse(t.getDate_echeancee()).isBefore(LocalDate.now()); }
-                catch (Exception e) { return false; }
+                if (t.getDateEcheance() == null || "terminee".equals(t.getEtat())) return false;
+                return t.getDateEcheance().isBefore(LocalDate.now());
             }).count()));
     }
 
@@ -525,13 +521,14 @@ public class GestionTache {
 
     private void handleViewTask(Tache t) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Détails"); alert.setHeaderText("📋 " + t.getNom_tache());
+        alert.setTitle("Détails"); alert.setHeaderText("📋 " + t.getNomTache());
+        // FIX: use nvl(LocalDate) overload for getDateEcheance()
         alert.setContentText(
                 "Description : " + t.getDescription() + "\n" +
                         "Assignée à  : " + resolveAssigne(t.getAssignee()) + "\n" +
                         "Statut      : " + nvl(t.getEtat()) + "\n" +
                         "Priorité    : " + nvl(t.getPriorite()) + "\n" +
-                        "Échéance    : " + nvl(t.getDate_echeancee()));
+                        "Échéance    : " + nvl(t.getDateEcheance()));
         alert.getDialogPane().setMinWidth(480);
         alert.showAndWait();
     }
@@ -554,9 +551,9 @@ public class GestionTache {
     }
 
     private void handleDeleteTask(Tache t) {
-        new Alert(Alert.AlertType.CONFIRMATION, "Supprimer \"" + t.getNom_tache() + "\" ?")
+        new Alert(Alert.AlertType.CONFIRMATION, "Supprimer \"" + t.getNomTache() + "\" ?")
                 .showAndWait().filter(r -> r == ButtonType.OK).ifPresent(r -> {
-                    try { tacheService.supprimer(t.getId_tache()); loadTaches(); showSuccess("Succès", "Tâche supprimée"); }
+                    try { tacheService.supprimer(t.getId()); loadTaches(); showSuccess("Succès", "Tâche supprimée"); }
                     catch (SQLException e) { showError("Erreur", "Impossible de supprimer"); }
                 });
     }
@@ -567,7 +564,7 @@ public class GestionTache {
     // NAVIGATION
     // ═══════════════════════════════════════════════════════════════
 
-    @FXML private void handlePersonnes(MouseEvent e)   { navigateTo(e, "/UsersInterface/DahboardPersonne.fxml",    "Personnes");    }
+    @FXML private void handlePersonnes(MouseEvent e)   { navigateTo(e, "/UsersInterface/DahboardPersonne.fxml",    "Personnes");   }
     @FXML private void handleTaches(MouseEvent e)      { /* déjà ici */ }
     @FXML private void handleAbonnements(MouseEvent e) { navigateTo(e, "/UsersInterface/GestionAbonnements.fxml",  "Abonnements"); }
     @FXML private void handleOffres(MouseEvent e)      { navigateTo(e, "/UsersInterface/GestionOffre.fxml",        "Offres");      }
@@ -575,8 +572,8 @@ public class GestionTache {
     @FXML private void handleAnimals(MouseEvent e)     { navigateTo(e, "/AnimalsInterface/AfficherAnimaux.fxml",   "Animaux");     }
     @FXML private void handleStocks(MouseEvent e)      { navigateTo(e, "/StocksInterface/afficherarticle.fxml",    "Stocks");      }
     @FXML private void handleTerrains(MouseEvent e)    { navigateTo(e, "/TerrainsInterface/acceuilterrain.fxml",   "Terrains");    }
-    @FXML private void handleEvents(MouseEvent e)      { navigateTo(e, "/G-Evenements/Accueil.fxml",               "Événements"); }
-    @FXML private void handleMateriels(MouseEvent e)   { navigateTo(e, "/MaterielsInterface/AccueilMateriel.fxml", "Matériels");  }
+    @FXML private void handleEvents(MouseEvent e)      { navigateTo(e, "/G-Evenements/Accueil.fxml",               "Événements");  }
+    @FXML private void handleMateriels(MouseEvent e)   { navigateTo(e, "/MaterielsInterface/AccueilMateriel.fxml", "Matériels");   }
 
     @FXML
     private void handleDashboard() {
@@ -586,14 +583,10 @@ public class GestionTache {
             Acceuil controller = loader.getController();
             if (currentUser != null) controller.setCurrentUser(currentUser);
             Stage stage = (Stage) dashboardBtn.getScene().getWindow();
-            // On récupère le Stage et la Scene ACTUELLE
             Scene scene = stage.getScene();
-
-            // SOLUTION MIRACLE : On change la racine, pas la scène !
             scene.setRoot(root);
-
-            // Plus besoin de gérer "etaitMaximise", la fenêtre ne bougera pas d'un pixel
-            stage.show();        } catch (IOException e) { showError("Erreur", "Impossible de charger le dashboard"); }
+            stage.show();
+        } catch (IOException e) { showError("Erreur", "Impossible de charger le dashboard"); }
     }
 
     @FXML
@@ -604,14 +597,10 @@ public class GestionTache {
                         FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/login.fxml"));
                         Parent root = loader.load();
                         Stage stage = (Stage) logoutBtn.getScene().getWindow();
-                        // On récupère le Stage et la Scene ACTUELLE
                         Scene scene = stage.getScene();
-
-                        // SOLUTION MIRACLE : On change la racine, pas la scène !
                         scene.setRoot(root);
-
-                        // Plus besoin de gérer "etaitMaximise", la fenêtre ne bougera pas d'un pixel
-                        stage.show();                    } catch (IOException e) { showError("Erreur", "Impossible de se déconnecter"); }
+                        stage.show();
+                    } catch (IOException e) { showError("Erreur", "Impossible de se déconnecter"); }
                 });
     }
 
@@ -637,8 +626,8 @@ public class GestionTache {
     private void showPdfSuccess(File f) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("PDF généré"); alert.setHeaderText("✅ PDF créé avec succès"); alert.setContentText(f.getAbsolutePath());
-        ButtonType open = new ButtonType("📂 Ouvrir", ButtonBar.ButtonData.OK_DONE);
-        ButtonType close = new ButtonType("Fermer", ButtonBar.ButtonData.CANCEL_CLOSE);
+        ButtonType open  = new ButtonType("📂 Ouvrir", ButtonBar.ButtonData.OK_DONE);
+        ButtonType close = new ButtonType("Fermer",    ButtonBar.ButtonData.CANCEL_CLOSE);
         alert.getButtonTypes().setAll(open, close);
         alert.showAndWait().ifPresent(btn -> { if (btn == open) try { Desktop.getDesktop().open(f); } catch (Exception e) {} });
     }
@@ -647,21 +636,13 @@ public class GestionTache {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
-
-            // Transmettre currentUser si le contrôleur le supporte
             Object controller = loader.getController();
             if (controller instanceof GestionTache dp) {
                 dp.setCurrentUser(this.currentUser);
             }
-            // Ajoutez d'autres types si nécessaire
-            // On récupère le Stage et la Scene ACTUELLE
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             Scene scene = stage.getScene();
-
-            // SOLUTION MIRACLE : On change la racine, pas la scène !
             scene.setRoot(root);
-
-            // Plus besoin de gérer "etaitMaximise", la fenêtre ne bougera pas d'un pixel
             stage.show();
         } catch (IOException e) {
             System.err.println("Erreur navigation : " + fxmlPath);
@@ -680,13 +661,11 @@ public class GestionTache {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/ProfilEmplye.fxml"));
             Parent root = loader.load();
-
             ProfilEmploye controller = loader.getController();
             if (controller != null) {
                 controller.setCurrentUser(currentUser);
                 System.out.println("✓ Utilisateur passé au profil");
             }
-
             Stage stage = new Stage();
             stage.setTitle("Mon Profil - Employé");
             stage.setScene(new Scene(root, 800, 700));
@@ -694,18 +673,23 @@ public class GestionTache {
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.centerOnScreen();
             stage.showAndWait();
-
             System.out.println("✓ Modal profil fermée");
-
         } catch (IOException e) {
             e.printStackTrace();
             showError("Erreur", "Impossible d'ouvrir le profil: " + e.getMessage());
         }
     }
-    private void showGestionSubmenu() { if (gestionSubmenu != null) { gestionSubmenu.setVisible(true);  gestionSubmenu.setManaged(true); } }
+
+    private void showGestionSubmenu() { if (gestionSubmenu != null) { gestionSubmenu.setVisible(true);  gestionSubmenu.setManaged(true);  } }
     private void hideGestionSubmenu() { if (gestionSubmenu != null) { gestionSubmenu.setVisible(false); gestionSubmenu.setManaged(false); } }
     private void safeLabel(Label l, String v) { if (l != null) l.setText(v); }
+
+    // FIX: nvl for String
     private String nvl(String s) { return s != null ? s : "—"; }
+
+    // FIX: nvl overload for LocalDate — converts to String for display
+    private String nvl(LocalDate d) { return d != null ? d.toString() : "—"; }
+
     private void showError(String t, String m)   { Alert a = new Alert(Alert.AlertType.ERROR);       a.setTitle(t); a.setHeaderText(null); a.setContentText(m); a.showAndWait(); }
     private void showSuccess(String t, String m) { Alert a = new Alert(Alert.AlertType.INFORMATION); a.setTitle(t); a.setHeaderText(null); a.setContentText(m); a.showAndWait(); }
 }

@@ -37,10 +37,7 @@ public class SignUp implements Initializable {
     // FXML ELEMENTS
     // ═══════════════════════════════════════════════════════
 
-    // Toggle buttons pour les rôles
-    @FXML private ToggleButton adminToggle;
-    @FXML private ToggleButton agricoleToggle;
-    @FXML private ToggleButton employeToggle;
+
 
     // Champs du formulaire
     @FXML private TextField cinField;
@@ -68,8 +65,7 @@ public class SignUp implements Initializable {
     // ═══════════════════════════════════════════════════════
 
     private PersonneService personneService;
-    private ToggleGroup roleToggleGroup;
-    private int selectedRole = 1; // 1=Utilisateur (Agricole), 2=Employé, 3=Admin
+    private int selectedRole = 2; // 1=Utilisateur (Agricole), 2=Employé, 3=Admin
     @FXML
     private ComboBox<String> gouvernoratComboBox,villeComboBox;
 
@@ -129,7 +125,6 @@ public class SignUp implements Initializable {
             }
         });
 
-        setupRoleToggles();
         setupValidationListeners();
         errorLabel.setVisible(false);
         errorLabel.setManaged(false);
@@ -148,35 +143,6 @@ public class SignUp implements Initializable {
     /**
      * Configure les toggle buttons pour la sélection du rôle
      */
-    private void setupRoleToggles() {
-        roleToggleGroup = new ToggleGroup();
-
-        adminToggle.setToggleGroup(roleToggleGroup);
-        agricoleToggle.setToggleGroup(roleToggleGroup);
-        employeToggle.setToggleGroup(roleToggleGroup);
-
-        // Agricole (Utilisateur) sélectionné par défaut
-        agricoleToggle.setSelected(true);
-        selectedRole = 1; // Utilisateur
-
-        // Gérer les changements de style
-        roleToggleGroup.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
-            if (newToggle != null) {
-                updateToggleStyles();
-
-                // Mettre à jour le rôle sélectionné
-                if (newToggle == adminToggle) {
-                    selectedRole = 3; // Admin
-                } else if (newToggle == agricoleToggle) {
-                    selectedRole = 1; // Utilisateur (Agricole)
-                } else if (newToggle == employeToggle) {
-                    selectedRole = 2; // Employé
-                }
-            }
-        });
-
-        updateToggleStyles();
-    }
 
     /**
      * Met à jour les styles des toggle buttons
@@ -200,9 +166,7 @@ public class SignUp implements Initializable {
                 "-fx-border-color: transparent; " +
                 "-fx-effect: dropshadow(gaussian, rgba(76,175,80,0.45), 10, 0, 0, 2);";
 
-        adminToggle.setStyle(adminToggle.isSelected() ? selectedStyle : unselectedStyle);
-        agricoleToggle.setStyle(agricoleToggle.isSelected() ? selectedStyle : unselectedStyle);
-        employeToggle.setStyle(employeToggle.isSelected() ? selectedStyle : unselectedStyle);
+
     }
 
     /**
@@ -345,18 +309,9 @@ public class SignUp implements Initializable {
         try {
             // Créer l'objet Personne approprié selon le rôle
             Personne personne;
-            switch (selectedRole) {
-                case 3: // Admin
-                    personne = new Admin();
-                    break;
-                case 2: // Employé
-                    personne = new Employe();
-                    break;
-                case 1: // Utilisateur (Agricole)
-                default:
-                    personne = new Utilisateur();
-                    break;
-            }
+            personne = new Utilisateur();
+
+
 
             // Remplir les données
             personne.setCin(Integer.parseInt(cinField.getText().trim()));
@@ -515,8 +470,6 @@ public class SignUp implements Initializable {
         dateNaissancePicker.setValue(null);
         adresseField.clear();
         villeField.clear();
-        agricoleToggle.setSelected(true);
-        selectedRole = 1;
         hideError();
     }
 }

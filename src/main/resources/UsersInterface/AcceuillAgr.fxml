@@ -77,6 +77,13 @@
                         text="📊  Acceuil ">
                     <font><Font name="System Bold" size="14" /></font>
                 </Button>
+                <Button onMouseClicked="#handlemesouvriers" prefHeight="48" prefWidth="230"
+                        style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
+                               -fx-font-size: 14px; -fx-alignment: CENTER-LEFT;
+                               -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand;"
+                        text="📊  mes ouvriers  ">
+                    <font><Font name="System Bold" size="14" /></font>
+                </Button>
 
                 <!-- Mes Terrains avec sous-menu (ouvert par défaut ici) -->
                 <VBox spacing="0">

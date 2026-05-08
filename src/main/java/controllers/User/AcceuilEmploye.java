@@ -258,13 +258,13 @@ public class AcceuilEmploye {
                 "-fx-padding: 15; -fx-border-color: #E0E0E0; -fx-border-width: 1; " +
                 "-fx-border-radius: 8;");
 
-        Label titleLabel = new Label(tache.getNom_tache());
+        Label titleLabel = new Label(tache.getNomTache());
         titleLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;");
 
         Label statusLabel = new Label("Statut: " + tache.getEtat());
         statusLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #7F8C8D;");
 
-        Label dateLabel = new Label("📅 " + tache.getDate_echeancee());
+        Label dateLabel = new Label("📅 " + tache.getDateEcheance());
         dateLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #95A5A6;");
 
         card.getChildren().addAll(titleLabel, statusLabel, dateLabel);

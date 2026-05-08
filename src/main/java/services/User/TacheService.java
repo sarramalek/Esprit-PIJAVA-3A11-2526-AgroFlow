@@ -24,12 +24,12 @@ public class TacheService implements IService<Tache> {
         String query = "INSERT INTO taches (nom_tache, description, assignee, etat, priorite, date_echeancee) " +
                 "VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement pst = connection.prepareStatement(query)) {
-            pst.setString(1, tache.getNom_tache());
+            pst.setString(1, tache.getNomTache());
             pst.setString(2, tache.getDescription());
             pst.setInt(3, tache.getAssignee());
             pst.setString(4, tache.getEtat());
             pst.setString(5, tache.getPriorite());
-            pst.setString(6, tache.getDate_echeancee());
+            pst.setDate(6, java.sql.Date.valueOf(tache.getDateEcheance()));
             pst.executeUpdate();
         }
     }
@@ -39,13 +39,13 @@ public class TacheService implements IService<Tache> {
         String query = "UPDATE taches SET nom_tache=?, description=?, assignee=?, etat=?, priorite=?, date_echeancee=? " +
                 "WHERE id_tache=?";
         try (PreparedStatement pst = connection.prepareStatement(query)) {
-            pst.setString(1, tache.getNom_tache());
+            pst.setString(1, tache.getNomTache());
             pst.setString(2, tache.getDescription());
             pst.setInt(3, tache.getAssignee());
             pst.setString(4, tache.getEtat());
             pst.setString(5, tache.getPriorite());
-            pst.setString(6, tache.getDate_echeancee());
-            pst.setInt(7, tache.getId_tache());
+            pst.setDate(6, java.sql.Date.valueOf(tache.getDateEcheance()));
+            pst.setInt(7, tache.getId());
             pst.executeUpdate();
         }
     }
@@ -89,13 +89,13 @@ public class TacheService implements IService<Tache> {
     // Méthode helper pour éviter la duplication de code
     private Tache mapResultSet(ResultSet rs) throws SQLException {
         Tache tache = new Tache();
-        tache.setId_tache(rs.getInt("id_tache"));
-        tache.setNom_tache(rs.getString("nom_tache"));
+        tache.setId(rs.getInt("id_tache"));
+        tache.setNomTache(rs.getString("nom_tache"));
         tache.setDescription(rs.getString("description"));
         tache.setAssignee(rs.getInt("assignee"));
         tache.setEtat(rs.getString("etat"));
         tache.setPriorite(rs.getString("priorite"));
-        tache.setDate_echeancee(rs.getString("date_echeancee"));
+        tache.setDateEcheance(rs.getDate("date_echeancee").toLocalDate());
         return tache;
     }
 

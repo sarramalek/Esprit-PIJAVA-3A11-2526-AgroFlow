@@ -150,41 +150,8 @@
         <Region prefHeight="30"/>
 
         <!-- ── Toggle rôles ── -->
-        <StackPane prefWidth="420" prefHeight="52"
-                   style="-fx-background-color: #dcedc8;
-                          -fx-background-radius: 14;">
-            <HBox spacing="5" alignment="CENTER" style="-fx-padding: 6;">
-                <ToggleButton fx:id="adminToggle" text="🔐  Admin"
-                              prefWidth="130" prefHeight="38"
-                              style="-fx-background-color: transparent;
-                                     -fx-text-fill: #558B2F;
-                                     -fx-font-size: 13px; -fx-background-radius: 10;
-                                     -fx-cursor: hand; -fx-border-color: transparent;">
-                    <font><Font name="System" size="13"/></font>
-                </ToggleButton>
-                <ToggleButton fx:id="agricoleToggle" text="🌾  Agricole"
-                              prefWidth="130" prefHeight="38"
-                              selected="true"
-                              style="-fx-background-color: #4CAF50;
-                                     -fx-text-fill: white;
-                                     -fx-font-size: 13px; -fx-font-weight: bold;
-                                     -fx-background-radius: 10; -fx-cursor: hand;
-                                     -fx-border-color: transparent;
-                                     -fx-effect: dropshadow(gaussian, rgba(76,175,80,0.45), 10, 0, 0, 2);">
-                    <font><Font name="System Bold" size="13"/></font>
-                </ToggleButton>
-                <ToggleButton fx:id="employeToggle" text="👷  Employé"
-                              prefWidth="130" prefHeight="38"
-                              style="-fx-background-color: transparent;
-                                     -fx-text-fill: #558B2F;
-                                     -fx-font-size: 13px; -fx-background-radius: 10;
-                                     -fx-cursor: hand; -fx-border-color: transparent;">
-                    <font><Font name="System" size="13"/></font>
-                </ToggleButton>
-            </HBox>
-        </StackPane>
 
-        <Region prefHeight="26"/>
+
 
         <GridPane hgap="15" vgap="15">
             <columnConstraints>

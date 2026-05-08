@@ -73,8 +73,8 @@ public class ModifierTache {
     }
 
     private void remplirFormulaire(Tache tache) {
-        titleLabel.setText("Modifier la tâche #" + tache.getId_tache());
-        titleField.setText(tache.getNom_tache());
+        titleLabel.setText("Modifier la tâche #" + tache.getId());
+        titleField.setText(tache.getNomTache());
         descriptionArea.setText(tache.getDescription());
 
         // Statut
@@ -88,10 +88,9 @@ public class ModifierTache {
         }
 
         // Date d'échéance
-        if (tache.getDate_echeancee() != null) {
+        if (tache.getDateEcheance() != null) {
             try {
-                dueDatePicker.setValue(LocalDate.parse(tache.getDate_echeancee()));
-            } catch (Exception e) {
+                dueDatePicker.setValue(tache.getDateEcheance());            } catch (Exception e) {
                 dueDatePicker.setValue(LocalDate.now().plusDays(7));
             }
         }
@@ -112,12 +111,11 @@ public class ModifierTache {
         if (!validateFields()) return;
 
         try {
-            tacheAModifier.setNom_tache(titleField.getText().trim());
+            tacheAModifier.setNomTache(titleField.getText().trim());
             tacheAModifier.setDescription(descriptionArea.getText().trim());
             tacheAModifier.setEtat(statusComboBox.getValue());
             tacheAModifier.setPriorite(priorityComboBox.getValue());
-            tacheAModifier.setDate_echeancee(dueDatePicker.getValue().toString());
-
+            tacheAModifier.setDateEcheance(dueDatePicker.getValue());
             // Récupérer le CIN de l'employé sélectionné
             int selectedIndex = employeeComboBox.getSelectionModel().getSelectedIndex();
             if (selectedIndex >= 0 && employes != null && !employes.isEmpty()) {

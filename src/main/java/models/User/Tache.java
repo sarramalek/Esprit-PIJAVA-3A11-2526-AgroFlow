@@ -1,38 +1,45 @@
 package models.User;
 
+import java.time.LocalDate;
+
+/**
+ * Modèle Tâche - correspond exactement à la table taches :
+ * id_tache | nom_tache | description | etat | priorite | date_echeancee | assignee (cin ouvrier)
+ */
 public class Tache {
-    private int id_tache;
-    private String nom_tache;
-    private String description;
-    private int assignee;
-    private String etat;
-    private String priorite;
-    private String date_echeancee;
+
+    private int id;                  // id_tache
+    private String nomTache;         // nom_tache
+    private String description;      // description
+    private String etat;             // etat
+    private String priorite;         // priorite
+    private LocalDate dateEcheance;  // date_echeancee
+    private int assignee;            // assignee = cin ouvrier (FK → users.cin)
+
+    // Champs utiles côté Java uniquement (non stockés dans taches)
+    private int cinAgriculteur;
+    private int idTerrain;
 
     public Tache() {}
 
-    public Tache(int id_tache, String nom_tache, String description,
-                 int assignee, String etat, String priorite, String date_echeancee) {
-        this.id_tache = id_tache;
-        this.nom_tache = nom_tache;
+    public Tache(String nomTache, String description, String etat, String priorite,
+                 LocalDate dateEcheance, int assignee) {
+        this.nomTache    = nomTache;
         this.description = description;
-        this.assignee = assignee;
-        this.etat = etat;
-        this.priorite = priorite;
-        this.date_echeancee = date_echeancee;
+        this.etat        = etat;
+        this.priorite    = priorite;
+        this.dateEcheance = dateEcheance;
+        this.assignee    = assignee;
     }
 
-    public int getId_tache() { return id_tache; }
-    public void setId_tache(int id_tache) { this.id_tache = id_tache; }
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
 
-    public String getNom_tache() { return nom_tache; }
-    public void setNom_tache(String nom_tache) { this.nom_tache = nom_tache; }
+    public String getNomTache() { return nomTache; }
+    public void setNomTache(String nomTache) { this.nomTache = nomTache; }
 
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
-
-    public int getAssignee() { return assignee; }
-    public void setAssignee(int assignee) { this.assignee = assignee; }
 
     public String getEtat() { return etat; }
     public void setEtat(String etat) { this.etat = etat; }
@@ -40,19 +47,21 @@ public class Tache {
     public String getPriorite() { return priorite; }
     public void setPriorite(String priorite) { this.priorite = priorite; }
 
-    public String getDate_echeancee() { return date_echeancee; }
-    public void setDate_echeancee(String date_echeancee) { this.date_echeancee = date_echeancee; }
+    public LocalDate getDateEcheance() { return dateEcheance; }
+    public void setDateEcheance(LocalDate dateEcheance) { this.dateEcheance = dateEcheance; }
+
+    public int getAssignee() { return assignee; }
+    public void setAssignee(int assignee) { this.assignee = assignee; }
+
+    public int getCinAgriculteur() { return cinAgriculteur; }
+    public void setCinAgriculteur(int cinAgriculteur) { this.cinAgriculteur = cinAgriculteur; }
+
+    public int getIdTerrain() { return idTerrain; }
+    public void setIdTerrain(int idTerrain) { this.idTerrain = idTerrain; }
 
     @Override
     public String toString() {
-        return "Tache{" +
-                "id_tache=" + id_tache +
-                ", nom_tache=" + nom_tache +
-                ", description=" + description +
-                ", assignee=" + assignee +
-                ", etat=" + etat +
-                ", priorite=" + priorite +
-                ", date_echeancee=" + date_echeancee +
-                '}';
+        return "Tache{id=" + id + ", nom='" + nomTache + "', etat='" + etat
+                + "', assignee=" + assignee + "}";
     }
 }

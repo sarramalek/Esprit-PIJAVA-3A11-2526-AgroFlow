@@ -76,12 +76,11 @@ public class AjoutTache {
 
         try {
             Tache tache = new Tache();
-            tache.setNom_tache(titleField.getText().trim());
+            tache.setNomTache(titleField.getText().trim());
             tache.setDescription(descriptionArea.getText().trim());
             tache.setEtat(statusComboBox.getValue());
             tache.setPriorite(priorityComboBox.getValue());
-            tache.setDate_echeancee(dueDatePicker.getValue().toString());
-
+            tache.setDateEcheance(dueDatePicker.getValue());
             // Récupérer le CIN de l'employé sélectionné
             int selectedIndex = employeeComboBox.getSelectionModel().getSelectedIndex();
             if (selectedIndex >= 0 && employes != null && !employes.isEmpty()) {

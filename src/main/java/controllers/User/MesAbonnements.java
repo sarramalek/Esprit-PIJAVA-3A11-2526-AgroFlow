@@ -914,4 +914,8 @@ public class MesAbonnements {
     public void ouvrirParticipations(MouseEvent mouseEvent) {
         nav(mouseEvent,"/G-Evenements/AfficherParticipationsUser.fxml","Participations");
     }
+
+    public void handlemesouvriers(MouseEvent mouseEvent) {
+        nav(mouseEvent,"/UsersInterface/GestionOuvrier.fxml","mes ouvriers ");
+    }
 }

@@ -883,4 +883,8 @@ public class agricoleplanteController implements Initializable {
     public void ouvrirParticipations(MouseEvent mouseEvent) {
         navigateTo(mouseEvent,"/G-Evenements/AfficherParticipationsUser.fxml","Participations");
     }
+
+    public void handlemesouvriers(MouseEvent mouseEvent) {
+        navigateTo(mouseEvent,"/UsersInterface/GestionOuvrier.fxml","mes ouvriers ");
+    }
 }

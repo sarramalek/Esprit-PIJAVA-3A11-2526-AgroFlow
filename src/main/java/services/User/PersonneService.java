@@ -6,11 +6,11 @@ import models.User.Personne;
 import models.User.Utilisateur;
 
 import services.IService;
-import services.User.EmailService;
 import utils.MyDatabase;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,19 +40,22 @@ public class PersonneService implements IService<Personne> {
      * @return Hash BCrypt du mot de passe
      */
     public String hashPassword(String plainPassword) {
-        // Génère un salt et hache le mot de passe
-        // Le coût 12 est un bon équilibre entre sécurité et performance
         return BCrypt.hashpw(plainPassword, BCrypt.gensalt(12));
     }
 
     /**
      * Vérifie un mot de passe contre son hash BCrypt
+     * FIX: Normalise le préfixe $2y$ (PHP) vers $2a$ (Java BCrypt)
      * @param plainPassword Mot de passe en clair à vérifier
      * @param hashedPassword Hash BCrypt stocké en base
      * @return true si le mot de passe correspond
      */
     public boolean verifyPassword(String plainPassword, String hashedPassword) {
         try {
+            // FIX #4: Normalize $2y$ (PHP-generated) to $2a$ (Java BCrypt)
+            if (hashedPassword != null && hashedPassword.startsWith("$2y$")) {
+                hashedPassword = "$2a$" + hashedPassword.substring(4);
+            }
             return BCrypt.checkpw(plainPassword, hashedPassword);
         } catch (Exception e) {
             System.err.println("❌ Erreur lors de la vérification du mot de passe: " + e.getMessage());
@@ -74,7 +77,6 @@ public class PersonneService implements IService<Personne> {
                 if (rs.next()) {
                     String hashedPassword = rs.getString("mdp");
 
-                    // Vérifier le mot de passe avec BCrypt
                     if (verifyPassword(password, hashedPassword)) {
                         Personne personne = createPersonneFromResultSet(rs);
                         System.out.println("✅ Authentification réussie pour: " + email + " (Rôle: " + personne.getRole() + ")");
@@ -119,11 +121,10 @@ public class PersonneService implements IService<Personne> {
 
     @Override
     public void ajouter(Personne personne) throws SQLException {
-        // Hasher le mot de passe avant l'insertion
         String hashedPassword = hashPassword(personne.getMdp());
 
-        String query = "INSERT INTO users (cin, nom, prenom, tel, date_naiss, email, mdp, adresse, ville, role, date_creationcpt, date_dernierchg,img) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
+        String query = "INSERT INTO users (cin, nom, prenom, tel, date_naiss, email, mdp, adresse, ville, role, date_creationcpt, date_dernierchg, img) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             pst.setInt(1, personne.getCin());
@@ -132,7 +133,7 @@ public class PersonneService implements IService<Personne> {
             pst.setString(4, personne.getTel());
             pst.setString(5, personne.getDate_naiss());
             pst.setString(6, personne.getEmail());
-            pst.setString(7, hashedPassword); // Mot de passe hashé avec BCrypt
+            pst.setString(7, hashedPassword);
             pst.setString(8, personne.getAdresse());
             pst.setString(9, personne.getVille());
             pst.setInt(10, personne.getRole());
@@ -141,24 +142,21 @@ public class PersonneService implements IService<Personne> {
             pst.setString(13, personne.getPhotoUrl());
 
             pst.executeUpdate();
-
             System.out.println("✅ Utilisateur ajouté avec mot de passe sécurisé (BCrypt)");
         }
     }
 
     @Override
     public void modifier(Personne personne) throws SQLException {
-        // Vérifier si le mot de passe a changé (si c'est un nouveau mot de passe en clair)
         String passwordToSave = personne.getMdp();
 
-        // Si le mot de passe ne commence pas par "$2a$" (format BCrypt), le hasher
-        if (!passwordToSave.startsWith("$2a$")) {
+        if (!passwordToSave.startsWith("$2a$") && !passwordToSave.startsWith("$2b$") && !passwordToSave.startsWith("$2y$")) {
             passwordToSave = hashPassword(passwordToSave);
             System.out.println("🔐 Nouveau mot de passe hashé avec BCrypt");
         }
 
         String query = "UPDATE users SET nom=?, prenom=?, tel=?, date_naiss=?, email=?, mdp=?, " +
-                "adresse=?, ville=?, role=?, date_creationcpt=?, date_dernierchg=? , img=? WHERE cin=?";
+                "adresse=?, ville=?, role=?, date_creationcpt=?, date_dernierchg=?, img=? WHERE cin=?";
 
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             pst.setString(1, personne.getNom());
@@ -172,33 +170,28 @@ public class PersonneService implements IService<Personne> {
             pst.setInt(9, personne.getRole());
             pst.setString(10, personne.getDate_creationcpt());
             pst.setString(11, personne.getDate_dernierchg());
+            // FIX #3: Corrected parameter order (12=img, 13=cin)
+            pst.setString(12, personne.getPhotoUrl());
             pst.setInt(13, personne.getCin());
-            pst.setString(12,personne.getPhotoUrl());
+
             pst.executeUpdate();
         }
     }
 
     /**
      * Change le mot de passe d'un utilisateur
-     * @param cin CIN de l'utilisateur
-     * @param oldPassword Ancien mot de passe
-     * @param newPassword Nouveau mot de passe
-     * @return true si le changement a réussi
      */
     public boolean changePassword(int cin, String oldPassword, String newPassword) throws SQLException {
-        // Récupérer l'utilisateur
         Personne personne = rechercherParId(cin);
         if (personne == null) {
             return false;
         }
 
-        // Vérifier l'ancien mot de passe
         if (!verifyPassword(oldPassword, personne.getMdp())) {
             System.out.println("❌ Ancien mot de passe incorrect");
             return false;
         }
 
-        // Hasher et sauvegarder le nouveau mot de passe
         String hashedNewPassword = hashPassword(newPassword);
         String query = "UPDATE users SET mdp = ?, date_dernierchg = NOW() WHERE cin = ?";
 
@@ -218,24 +211,28 @@ public class PersonneService implements IService<Personne> {
 
     /**
      * Génère un code de réinitialisation et le sauvegarde en base
-     * @param email Email de l'utilisateur
-     * @return Le code généré (à envoyer par email)
+     * FIX: expires_at est maintenant un vrai Timestamp (now + 15 minutes)
      */
     public String generateResetCode(String email) throws SQLException {
-        // Générer un code à 6 chiffres
         String code = String.format("%06d", (int)(Math.random() * 999999));
 
-        // Sauvegarder en base avec expiration de 15 minutes
-        String query = "INSERT INTO password_resets (email, code, expires_at) " +
-                "VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 15 MINUTE)) " +
-                "ON DUPLICATE KEY UPDATE code = ?, expires_at = DATE_ADD(NOW(), INTERVAL 15 MINUTE)";
+        // Delete any existing reset code for this email first
+        String deleteQuery = "DELETE FROM password_resets WHERE email = ?";
+        try (PreparedStatement deletePst = connection.prepareStatement(deleteQuery)) {
+            deletePst.setString(1, email);
+            deletePst.executeUpdate();
+        }
+
+        String query = "INSERT INTO password_resets (email, token, expires_at) VALUES (?, ?, ?)";
 
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             pst.setString(1, email);
             pst.setString(2, code);
-            pst.setString(3, code);
-            pst.executeUpdate();
+            // FIX #1: Set a real expiry timestamp (now + 15 minutes)
+            LocalDateTime expiresAt = LocalDateTime.now().plusMinutes(15);
+            pst.setTimestamp(3, Timestamp.valueOf(expiresAt));
 
+            pst.executeUpdate();
             System.out.println("✅ Code de réinitialisation généré: " + code);
             return code;
         }
@@ -243,12 +240,11 @@ public class PersonneService implements IService<Personne> {
 
     /**
      * Vérifie un code de réinitialisation
-     * @param email Email de l'utilisateur
-     * @param code Code à vérifier
-     * @return true si le code est valide et non expiré
+     * FIX: La colonne est 'token', pas 'code'
      */
     public boolean verifyResetCode(String email, String code) throws SQLException {
-        String query = "SELECT * FROM password_resets WHERE email = ? AND code = ? AND expires_at > NOW()";
+        // FIX #2: Use column 'token' to match the INSERT statement
+        String query = "SELECT * FROM password_resets WHERE email = ? AND token = ? AND expires_at > NOW()";
 
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             pst.setString(1, email);
@@ -262,22 +258,15 @@ public class PersonneService implements IService<Personne> {
 
     /**
      * Réinitialise le mot de passe avec un code
-     * @param email Email de l'utilisateur
-     * @param code Code de vérification
-     * @param newPassword Nouveau mot de passe
-     * @return true si la réinitialisation a réussi
      */
     public boolean resetPassword(String email, String code, String newPassword) throws SQLException {
-        // Vérifier le code
         if (!verifyResetCode(email, code)) {
             System.out.println("❌ Code invalide ou expiré");
             return false;
         }
 
-        // Hasher le nouveau mot de passe
         String hashedPassword = hashPassword(newPassword);
 
-        // Mettre à jour le mot de passe
         String query = "UPDATE users SET mdp = ?, date_dernierchg = NOW() WHERE email = ?";
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             pst.setString(1, hashedPassword);
@@ -285,7 +274,6 @@ public class PersonneService implements IService<Personne> {
             int rows = pst.executeUpdate();
 
             if (rows > 0) {
-                // Supprimer le code utilisé
                 String deleteQuery = "DELETE FROM password_resets WHERE email = ?";
                 try (PreparedStatement deletePst = connection.prepareStatement(deleteQuery)) {
                     deletePst.setString(1, email);
@@ -315,12 +303,9 @@ public class PersonneService implements IService<Personne> {
         for (Personne user : users) {
             String currentPassword = user.getMdp();
 
-            // Vérifier si le mot de passe est déjà hashé avec BCrypt
-            if (!currentPassword.startsWith("$2a$")) {
-                // Hasher avec BCrypt
+            if (!currentPassword.startsWith("$2a$") && !currentPassword.startsWith("$2b$") && !currentPassword.startsWith("$2y$")) {
                 String hashedPassword = hashPassword(currentPassword);
 
-                // Mettre à jour en base
                 String query = "UPDATE users SET mdp = ? WHERE cin = ?";
                 try (PreparedStatement pst = connection.prepareStatement(query)) {
                     pst.setString(1, hashedPassword);
@@ -412,8 +397,8 @@ public class PersonneService implements IService<Personne> {
         Personne personne;
 
         switch (role) {
-            case 1:  personne = new Utilisateur(); break;
-            case 2:  personne = new Employe();     break;
+            case 2:  personne = new Utilisateur(); break;
+            case 1:  personne = new Employe();     break;
             case 3:  personne = new Admin();        break;
             default: personne = new Utilisateur();
         }
@@ -429,8 +414,6 @@ public class PersonneService implements IService<Personne> {
         personne.setVille(rs.getString("ville"));
         personne.setDate_creationcpt(rs.getString("date_creationcpt"));
         personne.setDate_dernierchg(rs.getString("date_dernierchg"));
-
-        // ✅ FIX 2 : mapper photo_url depuis la BDD
         personne.setPhotoUrl(rs.getString("img"));
 
         return personne;
@@ -438,7 +421,7 @@ public class PersonneService implements IService<Personne> {
 
     public List<Utilisateur> getUtilisateurs() throws SQLException {
         List<Utilisateur> utilisateurs = new ArrayList<>();
-        String query = "SELECT * FROM users WHERE role=1";
+        String query = "SELECT * FROM users WHERE role=2";
 
         try (Statement st = connection.createStatement();
              ResultSet rs = st.executeQuery(query)) {
@@ -451,7 +434,7 @@ public class PersonneService implements IService<Personne> {
 
     public List<Employe> getEmployes() throws SQLException {
         List<Employe> employes = new ArrayList<>();
-        String query = "SELECT * FROM users WHERE role=2";
+        String query = "SELECT * FROM users WHERE role=1";
 
         try (Statement st = connection.createStatement();
              ResultSet rs = st.executeQuery(query)) {

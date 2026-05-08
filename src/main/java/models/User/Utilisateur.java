@@ -17,7 +17,7 @@ public class Utilisateur extends Personne {
 
     @Override
     public int getRole() {
-        return 1; // Rôle Utilisateur
+        return 2; // Rôle Utilisateur
     }
 
     @Override

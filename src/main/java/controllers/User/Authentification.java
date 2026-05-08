@@ -446,8 +446,8 @@ public class Authentification {
             String fxmlPath, title;
             switch (personne.getRole()) {
                 case 3 -> { fxmlPath = "/UsersInterface/Acceuil.fxml";      title = "AgroFlow - Dashboard Admin"; }
-                case 2 -> { fxmlPath = "/UsersInterface/AcceuilEmp.fxml";   title = "AgroFlow - Dashboard Employé"; }
-                case 1 -> { fxmlPath = "/UsersInterface/AcceuillAgr.fxml";  title = "AgroFlow - Dashboard Utilisateur"; }
+                case 1 -> { fxmlPath = "/UsersInterface/AcceuilEmp.fxml";   title = "AgroFlow - Dashboard Employé"; }
+                case 2 -> { fxmlPath = "/UsersInterface/AcceuillAgr.fxml";  title = "AgroFlow - Dashboard Utilisateur"; }
                 default -> { showError("Rôle utilisateur non reconnu"); return; }
             }
 

@@ -1,6 +1,7 @@
 package controllers.User;
 
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -428,5 +429,10 @@ public class AcceuilAgricole {
 
     public void ouvrirParticipations(MouseEvent mouseEvent) {
         navigateTo(mouseEvent,"/G-Evenements/AfficherParticipationsUser.fxml","Participations");
+    }
+
+    public void handlemesouvriers(MouseEvent mouseEvent) {
+        navigateTo(mouseEvent,"/UsersInterface/GestionOuvrier.fxml","mes ouvriers");
+
     }
 }
