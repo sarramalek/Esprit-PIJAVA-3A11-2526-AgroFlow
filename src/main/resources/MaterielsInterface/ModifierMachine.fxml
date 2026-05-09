@@ -5,129 +5,169 @@
 <?import javafx.scene.text.*?>
 <?import javafx.geometry.Insets?>
 
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.image.Image?>
-<BorderPane prefHeight="600.0" prefWidth="900.0"
+<BorderPane prefHeight="750.0" prefWidth="1000.0"
             style="-fx-background-color: #fcf8e6;"
             xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="controllers.Materiels.ModifierMachineController">
 
-    <!-- ================= SIDEBAR ================= -->
-    <!-- SIDEBAR MODERNISÉE -->
-
-    <!-- ================= CENTER ================= -->
     <center>
-        <VBox spacing="20.0" style="-fx-padding: 30;" alignment="TOP_CENTER">
-            <children>
+        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent;">
+            <VBox spacing="20.0" style="-fx-padding: 30;" alignment="TOP_CENTER">
 
                 <!-- Titre -->
-                <Text fill="#2C3E50" text="Modifier une Machine">
+                <Text fill="#2C3E50" text="✏️ Modifier une Machine">
                     <font><Font name="System Bold" size="26.0" /></font>
                 </Text>
 
                 <!-- Formulaire dans un conteneur blanc -->
-                <VBox spacing="0" alignment="CENTER" maxWidth="650.0">
+                <VBox spacing="0" alignment="CENTER" maxWidth="850.0">
                     <children>
-                        <GridPane hgap="15.0" vgap="18.0"
+                        <GridPane hgap="20.0" vgap="15.0"
                                   style="-fx-background-color: white;
                                         -fx-padding: 40;
-                                        -fx-background-radius: 10;
-                                        -fx-border-color: #ddd;
+                                        -fx-background-radius: 15;
+                                        -fx-border-color: #e0d9c0;
                                         -fx-border-width: 1;
-                                        -fx-border-radius: 10;
+                                        -fx-border-radius: 15;
                                         -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);">
 
                             <columnConstraints>
-                                <ColumnConstraints minWidth="130.0" prefWidth="130.0" />
-                                <ColumnConstraints minWidth="350.0" prefWidth="350.0" />
+                                <ColumnConstraints minWidth="160.0" prefWidth="160.0" />
+                                <ColumnConstraints minWidth="280.0" prefWidth="300.0" />
+                                <ColumnConstraints minWidth="160.0" prefWidth="160.0" />
+                                <ColumnConstraints minWidth="280.0" prefWidth="300.0" />
                             </columnConstraints>
 
-                            <!-- 1. Marque (ordre Machine: marque) -->
-                            <Label text="Marque :" GridPane.columnIndex="0" GridPane.rowIndex="0"
+                            <!-- LIGNE 1 : Marque -->
+                            <Label text="🔧 Marque :" GridPane.columnIndex="0" GridPane.rowIndex="0"
                                    style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #2C3E50;"/>
-                            <TextField fx:id="tfMarque" promptText="Entrez la marque"
+                            <TextField fx:id="tfMarque" promptText="Ex: John Deere, New Holland..."
                                        GridPane.columnIndex="1" GridPane.rowIndex="0"
-                                       style="-fx-font-size: 14px; -fx-padding: 10; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: #bdc3c7;"/>
+                                       style="-fx-font-size: 14px; -fx-padding: 10; -fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #bdc3c7;"/>
 
-                            <!-- 2. Modèle (ordre Machine: modele) -->
-                            <Label text="Modèle :" GridPane.columnIndex="0" GridPane.rowIndex="1"
+                            <!-- LIGNE 1 : Modèle -->
+                            <Label text="📐 Modèle :" GridPane.columnIndex="2" GridPane.rowIndex="0"
                                    style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #2C3E50;"/>
-                            <TextField fx:id="tfModele" promptText="Entrez le modèle"
-                                       GridPane.columnIndex="1" GridPane.rowIndex="1"
-                                       style="-fx-font-size: 14px; -fx-padding: 10; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: #bdc3c7;"/>
+                            <TextField fx:id="tfModele" promptText="Ex: 5075E, T7.210..."
+                                       GridPane.columnIndex="3" GridPane.rowIndex="0"
+                                       style="-fx-font-size: 14px; -fx-padding: 10; -fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #bdc3c7;"/>
 
-                            <!-- 3. État (ordre Machine: etatM) -->
-                            <Label text="État :" GridPane.columnIndex="0" GridPane.rowIndex="2"
+                            <!-- LIGNE 2 : État -->
+                            <Label text="📊 État :" GridPane.columnIndex="0" GridPane.rowIndex="1"
                                    style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #2C3E50;"/>
-                            <TextField fx:id="tfEtatM" promptText="Ex: Neuf, Bon, Occasion, Disponible"
+                            <ComboBox fx:id="cbEtat" promptText="Sélectionnez un état"
+                                      GridPane.columnIndex="1" GridPane.rowIndex="1"
+                                      style="-fx-font-size: 14px; -fx-padding: 5;"/>
+
+                            <!-- LIGNE 2 : Numéro de série -->
+                            <Label text="🔢 N° Série :" GridPane.columnIndex="2" GridPane.rowIndex="1"
+                                   style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #2C3E50;"/>
+                            <TextField fx:id="tfNumeroSerie" promptText="Ex: JD5075E-2024-001"
+                                       GridPane.columnIndex="3" GridPane.rowIndex="1"
+                                       style="-fx-font-size: 14px; -fx-padding: 10; -fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #bdc3c7;"/>
+
+                            <!-- LIGNE 3 : Nom de la machine -->
+                            <Label text="🏷️ Nom :" GridPane.columnIndex="0" GridPane.rowIndex="2"
+                                   style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #2C3E50;"/>
+                            <TextField fx:id="tfNom" promptText="Ex: Tracteur Principal, Moissonneuse..."
                                        GridPane.columnIndex="1" GridPane.rowIndex="2"
-                                       style="-fx-font-size: 14px; -fx-padding: 10; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: #bdc3c7;"/>
+                                       style="-fx-font-size: 14px; -fx-padding: 10; -fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #bdc3c7;"/>
 
-                            <!-- 4. N° Série (ordre Machine: numeroSerie) -->
-                            <Label text="N° Série :" GridPane.columnIndex="0" GridPane.rowIndex="3"
+                            <!-- LIGNE 3 : Date d'achat -->
+                            <Label text="📅 Date d'Achat :" GridPane.columnIndex="2" GridPane.rowIndex="2"
                                    style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #2C3E50;"/>
-                            <TextField fx:id="tfNumeroSerie" promptText="Entrez le numéro de série"
-                                       GridPane.columnIndex="1" GridPane.rowIndex="3"
-                                       style="-fx-font-size: 14px; -fx-padding: 10; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: #bdc3c7;"/>
-
-                            <!-- 5. Date d'Achat (ordre Machine: dateAchat) -->
-                            <Label text="Date d'Achat :" GridPane.columnIndex="0" GridPane.rowIndex="4"
-                                   style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #2C3E50;"/>
-                            <DatePicker fx:id="dpDateAchat" promptText="Sélectionnez la date d'achat"
-                                        GridPane.columnIndex="1" GridPane.rowIndex="4"
-                                        maxWidth="Infinity"
+                            <DatePicker fx:id="dpDateAchat" promptText="Sélectionnez la date"
+                                        GridPane.columnIndex="3" GridPane.rowIndex="2"
                                         style="-fx-font-size: 14px; -fx-padding: 5;"/>
 
-                            <!-- 6. Nom (ordre Machine: nom) -->
-                            <Label text="Nom :" GridPane.columnIndex="0" GridPane.rowIndex="5"
+                            <!-- LIGNE 4 : Kilométrage / Heures -->
+                            <Label text="⏱️ Kilométrage/Heures :" GridPane.columnIndex="0" GridPane.rowIndex="3"
                                    style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #2C3E50;"/>
-                            <TextField fx:id="tfNom" promptText="Entrez le nom de la machine"
-                                       GridPane.columnIndex="1" GridPane.rowIndex="5"
-                                       style="-fx-font-size: 14px; -fx-padding: 10; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: #bdc3c7;"/>
+                            <TextField fx:id="tfKilometrage" promptText="Ex: 1500"
+                                       GridPane.columnIndex="1" GridPane.rowIndex="3"
+                                       style="-fx-font-size: 14px; -fx-padding: 10; -fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #bdc3c7;"/>
+
+                            <!-- LIGNE 4 : CIN Responsable (COMBOBOX avec bouton refresh) -->
+                            <Label text="👤 CIN Responsable :" GridPane.columnIndex="2" GridPane.rowIndex="3"
+                                   style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #2C3E50;"/>
+                            <HBox spacing="5" GridPane.columnIndex="3" GridPane.rowIndex="3">
+                                <ComboBox fx:id="cbCin" promptText="Sélectionnez un responsable"
+                                          style="-fx-font-size: 14px; -fx-padding: 5;"
+                                          HBox.hgrow="ALWAYS" prefWidth="260"/>
+                                <Button text="🔄" onAction="#rafraichirCin"
+                                        style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 14px; -fx-cursor: hand; -fx-background-radius: 5;"
+                                        prefWidth="40">
+                                    <tooltip>
+                                        <Tooltip text="Rafraîchir la liste des responsables"/>
+                                    </tooltip>
+                                </Button>
+                            </HBox>
+
+                            <!-- LIGNE 5 : Date Dernière Visite -->
+                            <Label text="🔧 Dernière Visite :" GridPane.columnIndex="0" GridPane.rowIndex="4"
+                                   style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #2C3E50;"/>
+                            <DatePicker fx:id="dpDateLastVisite" promptText="Date de la dernière maintenance"
+                                        GridPane.columnIndex="1" GridPane.rowIndex="4"
+                                        style="-fx-font-size: 14px; -fx-padding: 5;"/>
+
+                            <!-- LIGNE 5 : KM Dernière Visite -->
+                            <Label text="📊 KM Dernière Visite :" GridPane.columnIndex="2" GridPane.rowIndex="4"
+                                   style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #2C3E50;"/>
+                            <TextField fx:id="tfKmLastVisite" promptText="Ex: 1200"
+                                       GridPane.columnIndex="3" GridPane.rowIndex="4"
+                                       style="-fx-font-size: 14px; -fx-padding: 10; -fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #bdc3c7;"/>
+
+                            <!-- LIGNE 6 : Prochaine Maintenance -->
+                            <Label text="⚠️ Prochaine Maintenance :" GridPane.columnIndex="0" GridPane.rowIndex="5"
+                                   style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #2C3E50;"/>
+                            <DatePicker fx:id="dpProchaineMaintenance" promptText="Date de la prochaine maintenance"
+                                        GridPane.columnIndex="1" GridPane.rowIndex="5"
+                                        GridPane.columnSpan="3"
+                                        style="-fx-font-size: 14px; -fx-padding: 5;"/>
 
                         </GridPane>
                     </children>
                 </VBox>
 
                 <!-- Boutons d'action -->
-                <HBox spacing="20.0" alignment="CENTER" style="-fx-padding: 10 0 0 0;">
+                <HBox spacing="20.0" alignment="CENTER" style="-fx-padding: 20 0 0 0;">
                     <children>
                         <Button text="✓ MODIFIER" onAction="#handleModifier"
-                                prefWidth="160.0" prefHeight="45.0"
-                                style="-fx-background-color: #3498db;
+                                prefWidth="180.0" prefHeight="50.0"
+                                style="-fx-background-color: #2D5A27;
                                       -fx-text-fill: white;
                                       -fx-font-weight: bold;
                                       -fx-font-size: 15px;
                                       -fx-cursor: hand;
-                                      -fx-background-radius: 5;
+                                      -fx-background-radius: 10;
                                       -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 2);"/>
 
                         <Button text="✗ ANNULER" onAction="#handleAnnuler"
-                                prefWidth="160.0" prefHeight="45.0"
+                                prefWidth="180.0" prefHeight="50.0"
                                 style="-fx-background-color: #95a5a6;
                                       -fx-text-fill: white;
                                       -fx-font-weight: bold;
                                       -fx-font-size: 15px;
                                       -fx-cursor: hand;
-                                      -fx-background-radius: 5;
+                                      -fx-background-radius: 10;
                                       -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 2);"/>
                     </children>
                 </HBox>
 
                 <!-- Message d'aide -->
-                <Text text="Modifiez les informations de la machine et cliquez sur MODIFIER pour enregistrer les changements"
+                <Text text="Modifiez les informations et cliquez sur MODIFIER pour enregistrer les changements"
                       fill="#7f8c8d"
                       textAlignment="CENTER"
-                      wrappingWidth="600"
+                      wrappingWidth="700"
                       style="-fx-font-size: 12px; -fx-font-style: italic;">
                     <VBox.margin>
                         <Insets top="10.0" />
                     </VBox.margin>
                 </Text>
 
-            </children>
-        </VBox>
+            </VBox>
+        </ScrollPane>
     </center>
 
 </BorderPane>

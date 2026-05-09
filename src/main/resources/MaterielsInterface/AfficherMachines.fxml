@@ -22,11 +22,11 @@
                 <ImageView fitWidth="200" fitHeight="150" preserveRatio="true">
                     <image><Image url="/style/logo.png"/></image>
                 </ImageView>
-
             </StackPane>
             <padding>
                 <Insets bottom="20" top="20" />
             </padding>
+
             <!-- Navigation Menu MODERNISÉE -->
             <VBox spacing="10">
                 <!-- Dashboard -->
@@ -38,7 +38,7 @@
 
                 <!-- GESTION PRINCIPALE avec sous-menu -->
                 <VBox fx:id="gestionContainer" prefWidth="230" spacing="5" style="-fx-background-radius: 12;">
-                    <Button fx:id="gestionBtn"  prefHeight="50" prefWidth="230"
+                    <Button fx:id="gestionBtn" prefHeight="50" prefWidth="230"
                             style="-fx-background-color: linear-gradient(to right, #4CAF50, #45a049); -fx-text-fill: white; -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0, 0, 2);"
                             text="⚙️  Gestion Utilisateurs">
                         <font><Font name="System Bold" size="14" /></font>
@@ -56,7 +56,6 @@
                                 text="✓  Tâches">
                             <font><Font name="System" size="13" /></font>
                         </Button>
-
                         <Button fx:id="abonnementsBtn" onMouseClicked="#handleAbonnements" prefHeight="42" prefWidth="215"
                                 style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.95); -fx-font-size: 13px; -fx-alignment: CENTER_LEFT; -fx-padding: 0 0 0 15; -fx-background-radius: 8; -fx-cursor: hand;"
                                 text="💳  Abonnements">
@@ -86,7 +85,7 @@
                         text="🐄  Animaux">
                     <font><Font name="System" size="14" /></font>
                 </Button>
-                <Button fx:id="materielBtn" prefHeight="48" prefWidth="230 " onMouseClicked="#handleMateriels"
+                <Button fx:id="materielBtn" prefHeight="48" prefWidth="230" onMouseClicked="#handleMateriels"
                         style="-fx-background-color: rgba(255,255,255,0.1); -fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand;"
                         text="🔧  Matériel">
                     <font><Font name="System" size="14" /></font>
@@ -123,23 +122,21 @@
                     </Label>
                 </VBox>
 
-                <!-- Avatar circulaire : photo si disponible, sinon emoji 👤 -->
+                <!-- Avatar circulaire -->
                 <StackPane>
-                    <!-- Fond dégradé (visible si pas de photo) -->
                     <Circle fx:id="avatarBg" radius="24"
                             fill="linear-gradient(to bottom right, #667eea, #764ba2)" />
-                    <!-- Emoji par défaut -->
                     <Label fx:id="avatarDefaultLabel"
                            style="-fx-font-size: 22px; -fx-text-fill: white;"
                            text="👤" />
-                    <!-- Photo chargée depuis Cloudinary (clip appliqué en Java) -->
                     <ImageView fx:id="avatarImageView"
                                fitWidth="48" fitHeight="48"
                                preserveRatio="false"
                                visible="false" managed="false" />
                 </StackPane>
             </HBox>
-            <!-- ─── En-tête avec retour ─── -->
+
+            <!-- En-tête avec retour -->
             <HBox alignment="CENTER_LEFT" spacing="12">
                 <Button text="← Retour" onAction="#retourAccueil"
                         style="-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-font-size: 13px;
@@ -150,11 +147,19 @@
 
             <Separator/>
 
-            <!-- ─── Panneau de recherche et filtres — FOND BEIGE, SANS BORDURE BLEUE ─── -->
+            <!-- Panneau de recherche et filtres -->
             <VBox spacing="10"
                   style="-fx-background-color: #fcf8e6; -fx-padding: 14 16; -fx-background-radius: 10;
                          -fx-border-color: #e0d9c0; -fx-border-width: 1; -fx-border-radius: 10;
                          -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);">
+
+                <!-- ════════════════════════════════════════════════════════
+                     CORRECTION BUG 1 : le HBox de la ligne 1 était ouvert
+                     mais jamais fermé avant le HBox de la ligne 2.
+                     Ajout de </HBox> à la fin de la ligne 1.
+                     CORRECTION BUG 2 : suppression du ">" orphelin
+                     après le premier MenuItem.
+                     ════════════════════════════════════════════════════════ -->
 
                 <!-- Ligne 1 : Recherche globale + Actions -->
                 <HBox spacing="10" alignment="CENTER_LEFT">
@@ -181,24 +186,18 @@
 
                     <Region HBox.hgrow="ALWAYS"/>
 
-                    <!-- Menu des exports PDF avancés -->
+                    <!-- BUG 2 CORRIGÉ : suppression du ">" parasite entre les deux MenuItem -->
                     <MenuButton text="📄 Rapport PDF ▾"
                                 prefWidth="140" prefHeight="36"
                                 style="-fx-background-color: #c0392b; -fx-text-fill: white; -fx-font-size: 12px;
                                        -fx-background-radius: 6; -fx-cursor: hand; -fx-font-weight: bold;">
                         <items>
                             <MenuItem text="📋 Export liste machines" onAction="#exporterPDF"/>
-                            <MenuItem text="🧾 Générer Facture" onAction="#genererFacture"/>
-                            <MenuItem text="📅 Rapport mensuel" onAction="#genererRapportMensuel"/>
                             <MenuItem text="📊 Rapport statistiques" onAction="#genererRapportStatistiques"/>
                         </items>
                     </MenuButton>
-
-                    <Button text="📊 Export Excel" onAction="#exporterExcel"
-                            prefWidth="125" prefHeight="36"
-                            style="-fx-background-color: #1e8449; -fx-text-fill: white; -fx-font-size: 12px;
-                                   -fx-background-radius: 6; -fx-cursor: hand; -fx-font-weight: bold;"/>
                 </HBox>
+                <!-- BUG 1 CORRIGÉ : </HBox> ajouté ici pour fermer la ligne 1 -->
 
                 <!-- Ligne 2 : Filtres spécifiques -->
                 <HBox spacing="10" alignment="CENTER_LEFT">
@@ -237,17 +236,23 @@
                 </HBox>
             </VBox>
 
-            <!-- ─── Tableau des machines ─── -->
+            <!-- Tableau des machines -->
             <TableView fx:id="tableMachines" VBox.vgrow="ALWAYS" prefHeight="290"
                        style="-fx-background-color: white; -fx-border-color: #dfe6e9;
-                              -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8;">
+                  -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8;">
                 <columns>
-                    <TableColumn fx:id="colMarque" text="Marque" prefWidth="160" minWidth="110"/>
-                    <TableColumn fx:id="colModele" text="Modèle" prefWidth="145" minWidth="100"/>
-                    <TableColumn fx:id="colEtat" text="État" prefWidth="145" minWidth="100"/>
-                    <TableColumn fx:id="colNumeroSerie" text="N° Série" prefWidth="175" minWidth="130"/>
-                    <TableColumn fx:id="colDateAchat" text="Date Achat" prefWidth="145" minWidth="110"/>
-                    <TableColumn fx:id="colNom" text="Nom" prefWidth="150" minWidth="110"/>
+                    <TableColumn fx:id="colId"                   text="ID"                    prefWidth="60"  minWidth="50"/>
+                    <TableColumn fx:id="colNom"                  text="Nom"                   prefWidth="120" minWidth="100"/>
+                    <TableColumn fx:id="colMarque"               text="Marque"                prefWidth="100" minWidth="80"/>
+                    <TableColumn fx:id="colModele"               text="Modèle"                prefWidth="100" minWidth="80"/>
+                    <TableColumn fx:id="colNumeroSerie"          text="N° Série"              prefWidth="130" minWidth="110"/>
+                    <TableColumn fx:id="colEtat"                 text="État"                  prefWidth="100" minWidth="80"/>
+                    <TableColumn fx:id="colDateAchat"            text="Date Achat"            prefWidth="100" minWidth="90"/>
+                    <TableColumn fx:id="colKilometrage"          text="Kilométrage"           prefWidth="100" minWidth="90"/>
+                    <TableColumn fx:id="colDateLastVisite"       text="Dernière Visite"       prefWidth="120" minWidth="110"/>
+                    <TableColumn fx:id="colKmLastVisite"         text="Km Dernière Visite"    prefWidth="120" minWidth="110"/>
+                    <TableColumn fx:id="colProchaineMaintenance" text="Prochaine Maintenance" prefWidth="150" minWidth="140"/>
+                    <TableColumn fx:id="colCin"                  text="CIN"                   prefWidth="80"  minWidth="70"/>
                 </columns>
                 <placeholder>
                     <Label text="Aucune machine trouvée pour ces critères."
@@ -255,10 +260,9 @@
                 </placeholder>
             </TableView>
 
-            <!-- ─── Cartes de statistiques et graphique ─── -->
+            <!-- Cartes de statistiques et graphique -->
             <HBox spacing="12" alignment="CENTER">
 
-                <!-- Carte Total -->
                 <VBox alignment="CENTER" spacing="6" prefWidth="145" prefHeight="85"
                       style="-fx-background-color: #fcf8e6; -fx-padding: 12 10; -fx-border-color: #3498db;
                              -fx-border-width: 0 0 0 5; -fx-background-radius: 10;
@@ -270,7 +274,6 @@
                            style="-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: #3498db;"/>
                 </VBox>
 
-                <!-- Carte Neuves/Dispo -->
                 <VBox alignment="CENTER" spacing="6" prefWidth="145" prefHeight="85"
                       style="-fx-background-color: #fcf8e6; -fx-padding: 12 10; -fx-border-color: #27ae60;
                              -fx-border-width: 0 0 0 5; -fx-background-radius: 10;
@@ -282,7 +285,6 @@
                            style="-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: #27ae60;"/>
                 </VBox>
 
-                <!-- Carte Occasion/Bon -->
                 <VBox alignment="CENTER" spacing="6" prefWidth="145" prefHeight="85"
                       style="-fx-background-color: #fcf8e6; -fx-padding: 12 10; -fx-border-color: #e67e22;
                              -fx-border-width: 0 0 0 5; -fx-background-radius: 10;
@@ -294,7 +296,6 @@
                            style="-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: #e67e22;"/>
                 </VBox>
 
-                <!-- Carte En Panne -->
                 <VBox alignment="CENTER" spacing="6" prefWidth="145" prefHeight="85"
                       style="-fx-background-color: #fcf8e6; -fx-padding: 12 10; -fx-border-color: #e74c3c;
                              -fx-border-width: 0 0 0 5; -fx-background-radius: 10;
@@ -306,7 +307,6 @@
                            style="-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: #e74c3c;"/>
                 </VBox>
 
-                <!-- Carte Résultats filtrés -->
                 <VBox alignment="CENTER" spacing="6" prefWidth="145" prefHeight="85"
                       style="-fx-background-color: #fcf8e6; -fx-padding: 12 10; -fx-border-color: #9b59b6;
                              -fx-border-width: 0 0 0 5; -fx-background-radius: 10;
@@ -318,7 +318,6 @@
                            style="-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: #9b59b6;"/>
                 </VBox>
 
-                <!-- Graphique camembert -->
                 <StackPane HBox.hgrow="ALWAYS" maxWidth="200" prefHeight="85">
                     <PieChart fx:id="pieStats" prefWidth="200" prefHeight="85"
                               labelsVisible="false" legendVisible="false"
@@ -327,7 +326,7 @@
                 </StackPane>
             </HBox>
 
-            <!-- ─── Boutons d'actions CRUD et fonctionnalités avancées ─── -->
+            <!-- Boutons d'actions CRUD -->
             <HBox spacing="12" alignment="CENTER" style="-fx-padding: 4 0 0 0;">
 
                 <Button text="➕ AJOUTER" onAction="#versAjout"

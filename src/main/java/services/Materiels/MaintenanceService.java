@@ -4,6 +4,7 @@ import models.Materiels.Maintenance;
 import utils.MyDatabase;
 
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,122 +16,114 @@ public class MaintenanceService {
         connection = MyDatabase.getInstance().getConnection();
     }
 
+    // AJOUTER
     public void ajouter(Maintenance m) throws SQLException {
-        String req = "INSERT INTO maintenance(typePanne, cout, dateMain, description, idM) VALUES (?, ?, ?, ?, ?)";
-
-        // Préparer la requête en demandant de récupérer les clés générées
-        PreparedStatement ps = connection.prepareStatement(req, Statement.RETURN_GENERATED_KEYS);
-
-        ps.setString(1, m.getTypePanne());
-        ps.setDouble(2, m.getCout());
-        ps.setDate(3, java.sql.Date.valueOf(m.getDateMain()));
-        ps.setString(4, m.getDescription());
-        ps.setInt(5, m.getIdM()); // L'id de la machine
-
-        int result = ps.executeUpdate();
-        System.out.println("Nombre de lignes ajoutées : " + result);
-
-        // Récupérer l'ID généré par la base
-        ResultSet generatedKeys = ps.getGeneratedKeys();
-        if (generatedKeys.next()) {
-            m.setIdMain(generatedKeys.getInt(1));
-            System.out.println("ID généré pour la maintenance : " + m.getIdMain());
-        }
+        String sql = "INSERT INTO maintenance (typePanne, cout, dateMain, description, idM, statut, recommandation, priorite, kilometrage) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        PreparedStatement pst = connection.prepareStatement(sql);
+        pst.setString(1, m.getTypePanne());
+        pst.setDouble(2, m.getCout());
+        pst.setDate(3, Date.valueOf(m.getDateMain()));
+        pst.setString(4, m.getDescription());
+        pst.setInt(5, m.getIdM());
+        pst.setString(6, m.getStatut());
+        pst.setString(7, m.getRecommandation());
+        pst.setString(8, m.getPriorite());
+        pst.setInt(9, m.getKilometrage());
+        pst.executeUpdate();
     }
 
-
-    // Modifier une maintenance
-    public int modifier(Maintenance maintenance) throws SQLException {
-        String sql = "UPDATE maintenance SET typePanne = ?, cout = ?, dateMain = ?, description = ?, idM = ? " +
-                "WHERE idMain = ?";
-        PreparedStatement ps = connection.prepareStatement(sql);
-        ps.setString(1, maintenance.getTypePanne());
-        ps.setDouble(2, maintenance.getCout());
-        ps.setDate(3, Date.valueOf(maintenance.getDateMain()));
-        ps.setString(4, maintenance.getDescription());
-        ps.setInt(5, maintenance.getIdM());
-        ps.setInt(6, maintenance.getIdMain());
-
-        return ps.executeUpdate();
+    // MODIFIER
+    public void modifier(Maintenance m) throws SQLException {
+        String sql = "UPDATE maintenance SET typePanne=?, cout=?, dateMain=?, description=?, idM=?, statut=?, recommandation=?, priorite=?, kilometrage=? WHERE idMain=?";
+        PreparedStatement pst = connection.prepareStatement(sql);
+        pst.setString(1, m.getTypePanne());
+        pst.setDouble(2, m.getCout());
+        pst.setDate(3, Date.valueOf(m.getDateMain()));
+        pst.setString(4, m.getDescription());
+        pst.setInt(5, m.getIdM());
+        pst.setString(6, m.getStatut());
+        pst.setString(7, m.getRecommandation());
+        pst.setString(8, m.getPriorite());
+        pst.setInt(9, m.getKilometrage());
+        pst.setInt(10, m.getIdMain());
+        pst.executeUpdate();
     }
 
-    // Supprimer une maintenance
-    public int supprimer(int idMain) throws SQLException {
-        String sql = "DELETE FROM maintenance WHERE idMain = ?";
-        PreparedStatement ps = connection.prepareStatement(sql);
-        ps.setInt(1, idMain);
-        return ps.executeUpdate();
+    // SUPPRIMER
+    public void supprimer(int id) throws SQLException {
+        String sql = "DELETE FROM maintenance WHERE idMain=?";
+        PreparedStatement pst = connection.prepareStatement(sql);
+        pst.setInt(1, id);
+        pst.executeUpdate();
     }
 
-    // Récupérer toutes les maintenances
+    // RÉCUPÉRER TOUS
     public List<Maintenance> recuperer() throws SQLException {
-        String sql = "SELECT * FROM maintenance";
-        Statement statement = connection.createStatement();
-        ResultSet rs = statement.executeQuery(sql);
-        List<Maintenance> maintenances = new ArrayList<>();
-
-        while (rs.next()) {
-            Maintenance m = new Maintenance();
-            m.setIdMain(rs.getInt("idMain"));
-            m.setTypePanne(rs.getString("typePanne"));
-            m.setCout(rs.getDouble("cout"));
-            m.setDateMain(rs.getDate("dateMain").toLocalDate());
-            m.setDescription(rs.getString("description"));
-            m.setIdM(rs.getInt("idM")); // clé étrangère vers Machine
-
-            maintenances.add(m);
-        }
-        return maintenances;
-    }
-
-    // Récupérer toutes les maintenances pour une machine spécifique
-    public List<Maintenance> recupererParMachine(int idM) throws SQLException {
-        String sql = "SELECT * FROM maintenance WHERE idM = ?";
-        PreparedStatement ps = connection.prepareStatement(sql);
-        ps.setInt(1, idM);
-        ResultSet rs = ps.executeQuery();
-        List<Maintenance> maintenances = new ArrayList<>();
-
-        while (rs.next()) {
-            Maintenance m = new Maintenance();
-            m.setIdMain(rs.getInt("idMain"));
-            m.setTypePanne(rs.getString("typePanne"));
-            m.setCout(rs.getDouble("cout"));
-            m.setDateMain(rs.getDate("dateMain").toLocalDate());
-            m.setDescription(rs.getString("description"));
-            m.setIdM(rs.getInt("idM"));
-
-            maintenances.add(m);
-        }
-        return maintenances;
-    }
-
-    // Jointure Maintenance + Machine
-    public void afficherMaintenanceAvecMachine() throws SQLException {
-
-        String sql = "SELECT m.idMain, m.typePanne, m.cout, m.dateMain, m.description, " +
-                "ma.idM, ma.marque, ma.modele " +
-                "FROM maintenance m " +
-                "INNER JOIN machine ma ON m.idM = ma.idM";
-
+        List<Maintenance> list = new ArrayList<>();
+        String sql = "SELECT * FROM maintenance ORDER BY dateMain DESC";
         Statement st = connection.createStatement();
         ResultSet rs = st.executeQuery(sql);
 
         while (rs.next()) {
-            System.out.println(
-                    "ID Maintenance: " + rs.getInt("idMain") +
-                            ", Type: " + rs.getString("typePanne") +
-                            ", Coût: " + rs.getDouble("cout") +
-                            ", Date: " + rs.getDate("dateMain") +
-                            ", Machine ID: " + rs.getInt("idM") +
-                            ", Marque: " + rs.getString("marque") +
-                            ", Modèle: " + rs.getString("modele")
-            );
+            Maintenance m = new Maintenance();
+            m.setIdMain(rs.getInt("idMain"));
+            m.setTypePanne(rs.getString("typePanne"));
+            m.setCout(rs.getDouble("cout"));
+            m.setDateMain(rs.getDate("dateMain") != null ? rs.getDate("dateMain").toLocalDate() : null);
+            m.setDescription(rs.getString("description"));
+            m.setIdM(rs.getInt("idM"));
+            m.setStatut(rs.getString("statut"));
+            m.setRecommandation(rs.getString("recommandation"));
+            m.setPriorite(rs.getString("priorite"));
+            m.setKilometrage(rs.getInt("kilometrage"));
+            list.add(m);
         }
+        return list;
     }
 
+    // RÉCUPÉRER PAR ID
+    public Maintenance getById(int id) throws SQLException {
+        String sql = "SELECT * FROM maintenance WHERE idMain=?";
+        PreparedStatement pst = connection.prepareStatement(sql);
+        pst.setInt(1, id);
+        ResultSet rs = pst.executeQuery();
 
+        if (rs.next()) {
+            Maintenance m = new Maintenance();
+            m.setIdMain(rs.getInt("idMain"));
+            m.setTypePanne(rs.getString("typePanne"));
+            m.setCout(rs.getDouble("cout"));
+            m.setDateMain(rs.getDate("dateMain") != null ? rs.getDate("dateMain").toLocalDate() : null);
+            m.setDescription(rs.getString("description"));
+            m.setIdM(rs.getInt("idM"));
+            m.setStatut(rs.getString("statut"));
+            m.setRecommandation(rs.getString("recommandation"));
+            m.setPriorite(rs.getString("priorite"));
+            m.setKilometrage(rs.getInt("kilometrage"));
+            return m;
+        }
+        return null;
+    }
 
+    // STATISTIQUES
+    public int getTotalCount() throws SQLException {
+        String sql = "SELECT COUNT(*) FROM maintenance";
+        Statement st = connection.createStatement();
+        ResultSet rs = st.executeQuery(sql);
+        return rs.next() ? rs.getInt(1) : 0;
+    }
 
+    public double getTotalCout() throws SQLException {
+        String sql = "SELECT SUM(cout) FROM maintenance";
+        Statement st = connection.createStatement();
+        ResultSet rs = st.executeQuery(sql);
+        return rs.next() ? rs.getDouble(1) : 0;
+    }
 
+    public double getMoyenneCout() throws SQLException {
+        String sql = "SELECT AVG(cout) FROM maintenance";
+        Statement st = connection.createStatement();
+        ResultSet rs = st.executeQuery(sql);
+        return rs.next() ? rs.getDouble(1) : 0;
+    }
 }

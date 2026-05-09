@@ -8,7 +8,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -1013,8 +1012,8 @@ public class MindSpherePageController {
     @FXML
     private void retourListe() {
         try {
-            java.net.URL url = getClass().getResource("/MaterielsInterface/AffichageMachine.fxml");
-            if (url == null) throw new IOException("AffichageMachine.fxml introuvable.");
+            java.net.URL url = getClass().getResource("/MaterielsInterface/AfficherMachines.fxml");
+            if (url == null) throw new IOException("AfficherMachines.fxml introuvable.");
             Parent root = FXMLLoader.load(url);
             Stage stage = (Stage) btnRetour.getScene().getWindow();
             // On récupère le Stage et la Scene ACTUELLE

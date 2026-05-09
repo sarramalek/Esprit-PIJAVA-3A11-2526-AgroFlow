@@ -1,230 +1,182 @@
 package controllers.Materiels;
 
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import models.Materiels.Machine;
 import models.Materiels.Maintenance;
-import models.User.Personne;
 import services.Materiels.MachineService;
 import services.Materiels.MaintenanceService;
-import utils.SessionManager;
 
-import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.Locale;
 import java.util.ResourceBundle;
 
 public class AjouterMaintenanceController implements Initializable {
-    @FXML private Button logoutBtn;
-    @FXML private VBox gestionSubmenu;
-    // ============================================================
-    //  CHAMPS FXML
-    // ============================================================
 
-    /**
-     * ComboBox<Machine> : affiche le NOM de la machine (via cellFactory)
-     * mais stocke l'objet Machine complet → on récupère l'idM proprement.
-     */
     @FXML private ComboBox<Machine> comboMachine;
-
-    @FXML private TextField  txtTypePanne;
+    @FXML private TextField txtTypePanne;
     @FXML private DatePicker datePickerMain;
-    @FXML private TextField  txtCout;
-    @FXML private TextArea   txtDescription;
+    @FXML private TextField txtCout;
+    @FXML private ComboBox<String> comboStatut;
+    @FXML private ComboBox<String> comboPriorite;
+    @FXML private TextField txtKilometrage;
+    @FXML private TextArea txtDescription;
+    @FXML private TextArea txtRecommandation;
 
-    // Labels d'erreur inline
     @FXML private Label errMachine;
     @FXML private Label errTypePanne;
     @FXML private Label errDate;
     @FXML private Label errCout;
+    @FXML private Label errStatut;
+    @FXML private Label errPriorite;
+    @FXML private Label errKilometrage;
 
-    // ============================================================
-    //  SERVICES
-    // ============================================================
-    private final MachineService     machineService     = new MachineService();
+    private final MachineService machineService = new MachineService();
     private final MaintenanceService maintenanceService = new MaintenanceService();
 
-    // ============================================================
-    //  INITIALISATION
-    // ============================================================
     @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
-        configurerComboMachine();   // JOINTURE : charge les machines et configure l'affichage
-        datePickerMain.setValue(LocalDate.now());  // date par défaut = aujourd'hui
+    public void initialize(URL url, ResourceBundle rb) {
+        configurerMachineCombo();
+        comboStatut.setItems(FXCollections.observableArrayList("planifie", "en_cours", "termine"));
+        comboStatut.setValue("planifie");
+        comboPriorite.setItems(FXCollections.observableArrayList("faible", "moyenne", "haute", "urgente"));
+        comboPriorite.setValue("moyenne");
+        datePickerMain.setValue(LocalDate.now());
+
+        txtKilometrage.textProperty().addListener((obs, old, value) -> {
+            if (value != null && !value.matches("\\d*")) {
+                txtKilometrage.setText(value.replaceAll("[^\\d]", ""));
+            }
+        });
     }
 
-    /**
-     * Configure le ComboBox pour :
-     * - afficher uniquement le NOM de la machine dans la liste
-     * - stocker l'objet Machine complet (idM accessible via machine.getIdM())
-     *
-     * C'est LA clé de la jointure idM ↔ nom_machine.
-     */
-    private void configurerComboMachine() {
+    private void configurerMachineCombo() {
         try {
             List<Machine> machines = machineService.recuperer();
-
-            if (machines.isEmpty()) {
-                afficherAlerte("Attention",
-                        "Aucune machine disponible. Veuillez d'abord ajouter des machines.",
-                        Alert.AlertType.WARNING);
-                return;
-            }
-
-            ObservableList<Machine> listeMachines = FXCollections.observableArrayList(machines);
-            comboMachine.setItems(listeMachines);
-
-            // -------------------------------------------------------
-            //  cellFactory  : affiche le NOM dans chaque ligne de la liste déroulante
-            // -------------------------------------------------------
-            comboMachine.setCellFactory(lv -> new ListCell<Machine>() {
+            comboMachine.setItems(FXCollections.observableArrayList(machines));
+            comboMachine.setCellFactory(lv -> new ListCell<>() {
                 @Override
                 protected void updateItem(Machine machine, boolean empty) {
                     super.updateItem(machine, empty);
-                    if (empty || machine == null) {
-                        setText(null);
-                    } else {
-                        // Affiche : "Tracteur  (ID: 3)"  — retirez la partie ID si non souhaitée
-                        setText(machine.getNom() + "   (ID: " + machine.getIdM() + ")");
-                    }
+                    setText(empty || machine == null ? null : machine.getNom());
                 }
             });
-
-            // -------------------------------------------------------
-            //  buttonCell  : affiche le NOM dans le bouton du ComboBox après sélection
-            // -------------------------------------------------------
-            comboMachine.setButtonCell(new ListCell<Machine>() {
+            comboMachine.setButtonCell(new ListCell<>() {
                 @Override
                 protected void updateItem(Machine machine, boolean empty) {
                     super.updateItem(machine, empty);
-                    if (empty || machine == null) {
-                        setText("Selectionner une machine");
-                        setStyle("-fx-text-fill: #a0aec0;");
-                    } else {
-                        setText(machine.getNom());
-                        setStyle("-fx-text-fill: #2c3e50; -fx-font-weight: bold;");
-                    }
+                    setText(empty || machine == null ? "Selectionner une machine" : machine.getNom());
                 }
             });
-
-            System.out.println("[OK] " + machines.size() + " machine(s) chargee(s) dans le ComboBox");
-
         } catch (SQLException e) {
-            afficherAlerte("Erreur", "Impossible de charger les machines : " + e.getMessage(),
-                    Alert.AlertType.ERROR);
-            e.printStackTrace();
+            showAlert("Erreur", "Impossible de charger les machines : " + e.getMessage(), Alert.AlertType.ERROR);
         }
     }
 
-    // ============================================================
-    //  ENREGISTRER
-    // ============================================================
     @FXML
     private void enregistrer(ActionEvent event) {
-        // 1. Réinitialiser les erreurs
-        effacerErreurs();
-
-        // 2. Valider les champs
         if (!valider()) return;
 
-        // 3. Récupérer la machine sélectionnée → idM via JOINTURE
-        Machine machineSelectionnee = comboMachine.getValue();
-        int idM = machineSelectionnee.getIdM();  // clé étrangère vers table Machine
-
-        // 4. Construire l'objet Maintenance
-        String   typePanne   = txtTypePanne.getText().trim();
-        LocalDate date       = datePickerMain.getValue();
-        double   cout        = Double.parseDouble(txtCout.getText().trim().replace(",", "."));
-        String   description = txtDescription.getText().trim();
-
-        Maintenance maintenance = new Maintenance();
-        maintenance.setIdM(idM);                // FK → Machine.idM  (jointure)
-        maintenance.setTypePanne(typePanne);
-        maintenance.setDateMain(date);
-        maintenance.setCout(cout);
-        maintenance.setDescription(description.isEmpty() ? null : description);
-
-        // 5. Persister
         try {
+            Machine machine = comboMachine.getValue();
+            String typePanne = txtTypePanne.getText().trim();
+            String recommandation = texte(txtRecommandation);
+            double cout = Double.parseDouble(txtCout.getText().trim().replace(",", "."));
+
+            Maintenance maintenance = new Maintenance();
+            maintenance.setIdM(machine.getIdM());
+            maintenance.setTypePanne(typePanne);
+            maintenance.setDateMain(datePickerMain.getValue());
+            maintenance.setCout(cout);
+            maintenance.setStatut(comboStatut.getValue());
+            maintenance.setPriorite(comboPriorite.getValue());
+            maintenance.setKilometrage(Integer.parseInt(txtKilometrage.getText().trim()));
+            maintenance.setDescription(texte(txtDescription));
+            maintenance.setRecommandation(recommandation == null
+                    ? genererRecommandationIA(machine.getNom(), typePanne)
+                    : recommandation);
+
+            if (!confirmerAlerteMaintenance(maintenance)) return;
+
             maintenanceService.ajouter(maintenance);
-            afficherAlerte("Succes",
-                    "Maintenance ajoutee avec succes pour la machine : " + machineSelectionnee.getNom(),
-                    Alert.AlertType.INFORMATION);
+            showAlert("Succes", "Maintenance ajoutee avec succes", Alert.AlertType.INFORMATION);
             fermerFenetre(event);
         } catch (SQLException e) {
-            afficherAlerte("Erreur", "Erreur lors de l'enregistrement : " + e.getMessage(),
-                    Alert.AlertType.ERROR);
-            e.printStackTrace();
+            showAlert("Erreur", "Erreur lors de l'ajout : " + e.getMessage(), Alert.AlertType.ERROR);
         }
     }
 
-    // ============================================================
-    //  VALIDATION
-    // ============================================================
     private boolean valider() {
-        boolean valide = true;
+        effacerErreurs();
 
-        // Machine obligatoire
         if (comboMachine.getValue() == null) {
-            errMachine.setText("Veuillez selectionner une machine.");
-            surligner(comboMachine);
-            valide = false;
+            errMachine.setText("Selectionnez une machine");
+            return false;
         }
-
-        // Type de panne obligatoire
-        if (txtTypePanne.getText().trim().isEmpty()) {
-            errTypePanne.setText("Le type de panne est obligatoire.");
-            surligner(txtTypePanne);
-            valide = false;
+        if (txtTypePanne.getText() == null || txtTypePanne.getText().trim().isEmpty()) {
+            errTypePanne.setText("Type de panne obligatoire");
+            return false;
         }
-
-        // Date obligatoire
+        if (txtTypePanne.getText().trim().length() < 3) {
+            errTypePanne.setText("Minimum 3 caracteres");
+            return false;
+        }
         if (datePickerMain.getValue() == null) {
-            errDate.setText("Veuillez choisir une date.");
-            valide = false;
-        } else if (datePickerMain.getValue().isAfter(LocalDate.now())) {
-            errDate.setText("La date ne peut pas etre dans le futur.");
-            valide = false;
+            errDate.setText("Date obligatoire");
+            return false;
         }
-
-        // Coût : obligatoire + numérique + positif
-        String coutStr = txtCout.getText().trim().replace(",", ".");
-        if (coutStr.isEmpty()) {
-            errCout.setText("Le cout est obligatoire.");
-            surligner(txtCout);
-            valide = false;
-        } else {
-            try {
-                double cout = Double.parseDouble(coutStr);
-                if (cout < 0) {
-                    errCout.setText("Le cout doit etre positif ou nul.");
-                    surligner(txtCout);
-                    valide = false;
-                }
-            } catch (NumberFormatException e) {
-                errCout.setText("Valeur numerique invalide (ex: 150.00).");
-                surligner(txtCout);
-                valide = false;
-            }
+        if (datePickerMain.getValue().isAfter(LocalDate.now())) {
+            errDate.setText("La date ne peut pas etre dans le futur");
+            return false;
         }
+        try {
+            double cout = Double.parseDouble(txtCout.getText().trim().replace(",", "."));
+            if (cout < 0) throw new NumberFormatException();
+        } catch (Exception e) {
+            errCout.setText("Cout valide obligatoire");
+            return false;
+        }
+        if (comboStatut.getValue() == null) {
+            errStatut.setText("Statut obligatoire");
+            return false;
+        }
+        if (comboPriorite.getValue() == null) {
+            errPriorite.setText("Priorite obligatoire");
+            return false;
+        }
+        try {
+            int km = Integer.parseInt(txtKilometrage.getText().trim());
+            if (km < 0) throw new NumberFormatException();
+        } catch (Exception e) {
+            errKilometrage.setText("Kilometrage valide obligatoire");
+            return false;
+        }
+        return true;
+    }
 
-        return valide;
+    @FXML
+    private void genererRecommandation(ActionEvent event) {
+        if (comboMachine.getValue() == null) {
+            errMachine.setText("Selectionnez une machine avant de generer la recommandation");
+            return;
+        }
+        if (txtTypePanne.getText() == null || txtTypePanne.getText().trim().isEmpty()) {
+            errTypePanne.setText("Saisissez le type de panne avant de generer la recommandation");
+            return;
+        }
+        effacerErreurs();
+        txtRecommandation.setText(genererRecommandationIA(
+                comboMachine.getValue().getNom(),
+                txtTypePanne.getText().trim()
+        ));
     }
 
     private void effacerErreurs() {
@@ -232,191 +184,68 @@ public class AjouterMaintenanceController implements Initializable {
         errTypePanne.setText("");
         errDate.setText("");
         errCout.setText("");
-
-        // Retirer le surlignage rouge
-        String styleNormal = "-fx-background-radius: 6; -fx-border-color: #cbd5e0; " +
-                "-fx-border-radius: 6; -fx-font-size: 13px; -fx-padding: 8;";
-        txtTypePanne.setStyle(styleNormal);
-        txtCout.setStyle(styleNormal);
-        comboMachine.setStyle("-fx-background-radius: 6; -fx-border-color: #cbd5e0; " +
-                "-fx-border-radius: 6; -fx-font-size: 13px;");
+        errStatut.setText("");
+        errPriorite.setText("");
+        errKilometrage.setText("");
     }
 
-    /** Surligne un champ en rouge pour signaler une erreur */
-    private void surligner(Control control) {
-        control.setStyle(control.getStyle() +
-                "; -fx-border-color: #e74c3c; -fx-border-width: 2;");
+    private String texte(TextInputControl input) {
+        String value = input.getText();
+        return value == null || value.trim().isEmpty() ? null : value.trim();
     }
 
-    // ============================================================
-    //  ANNULER
-    // ============================================================
+    private String genererRecommandationIA(String nomMachine, String typePanne) {
+        String machine = nomMachine != null ? nomMachine : "la machine";
+        String type = typePanne != null ? typePanne.toLowerCase(Locale.ROOT) : "";
+        if (type.contains("moteur") || type.contains("surchauffe")) {
+            return "IA: Pour " + machine + ", controler le moteur, l'huile et le refroidissement avant utilisation.";
+        }
+        if (type.contains("hydraul")) {
+            return "IA: Pour " + machine + ", verifier les flexibles, joints et la pression hydraulique.";
+        }
+        if (type.contains("elect") || type.contains("batterie")) {
+            return "IA: Pour " + machine + ", tester la batterie, les fusibles et le cablage.";
+        }
+        if (type.contains("frein")) {
+            return "IA: Pour " + machine + ", inspecter les freins et tester le freinage.";
+        }
+        return "IA: Pour " + machine + ", effectuer un diagnostic complet et planifier une maintenance preventive.";
+    }
+
+    private boolean confirmerAlerteMaintenance(Maintenance maintenance) {
+        boolean prioriteCritique = "urgente".equalsIgnoreCase(maintenance.getPriorite())
+                || "haute".equalsIgnoreCase(maintenance.getPriorite());
+        boolean coutEleve = maintenance.getCout() >= 1000;
+
+        if (!prioriteCritique && !coutEleve) return true;
+
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Alerte maintenance");
+        alert.setHeaderText("Cette maintenance demande une attention particuliere");
+        alert.setContentText(
+                "Machine : " + comboMachine.getValue().getNom() + "\n"
+                        + "Type : " + maintenance.getTypePanne() + "\n"
+                        + "Priorite : " + maintenance.getPriorite() + "\n"
+                        + "Cout : " + String.format("%.2f DT", maintenance.getCout()) + "\n\n"
+                        + "Voulez-vous sauvegarder cette maintenance ?"
+        );
+        return alert.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK;
+    }
+
+    private void fermerFenetre(ActionEvent event) {
+        ((Stage) ((Node) event.getSource()).getScene().getWindow()).close();
+    }
+
+    private void showAlert(String title, String msg, Alert.AlertType type) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(msg);
+        alert.showAndWait();
+    }
+
     @FXML
     private void annuler(ActionEvent event) {
         fermerFenetre(event);
-    }
-
-    // ============================================================
-    //  UTILITAIRES
-    // ============================================================
-    private void fermerFenetre(ActionEvent event) {
-        try {
-            Personne currentUser = SessionManager.getCurrentUser();
-            String fxml = (currentUser != null && currentUser.getRole() == 1)
-                    ? "/MaterielsInterface/AgricoleAffichageMaintenance.fxml"
-                    : "/MaterielsInterface/AfficherMaintenancesExamens.fxml";
-
-            Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource(fxml)));
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    private void afficherAlerte(String titre, String message, Alert.AlertType type) {
-        Alert alert = new Alert(type);
-        alert.setTitle(titre);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-
-    }
-
-
-    //navigguer vers les autres modules
-
-    @FXML
-    private void handlePersonnes(MouseEvent event )  {
-        this.naviguerVers("/UsersInterface/DahboardPersonne.fxml",event);}
-
-
-    @FXML private void handleTaches(MouseEvent event ) { /* Charger vue Tâches */
-        this.naviguerVers("/UsersInterface/GestionTache.fxml",event);}
-
-
-
-    @FXML
-    private void handleAbonnements(MouseEvent event) { /* Charger vue Abonnements */
-        this.naviguerVers("/UsersInterface/GestionAbonnements.fxml",event);}
-    @FXML private void handleOffres(MouseEvent event) { /* Charger vue Offres */
-        this.naviguerVers("/UsersInterface/GestionOffre.fxml",event);}
-
-
-    private void showGestionSubmenu() {
-        gestionSubmenu.setVisible(true);
-        gestionSubmenu.setManaged(true);
-    }
-
-    private void hideGestionSubmenu() {
-        gestionSubmenu.setVisible(false);
-        gestionSubmenu.setManaged(false);
-    }
-
-    public void handleDashboard(MouseEvent actionEvent) {
-        this.naviguerVers("/UsersInterface/Acceuil.fxml", actionEvent);
-
-    }
-    public void handleAnimals(MouseEvent mouseEvent) {
-        this.naviguerVers("/AnimalsInterface/AfficherAnimaux.fxml",mouseEvent);
-
-    }
-
-
-
-
-    public void handleStocks(MouseEvent mouseEvent) {
-        this.naviguerVers("/StocksInterface/afficherarticle.fxml",mouseEvent);
-    }
-
-
-
-    public void handleTerrains(MouseEvent mouseEvent) {
-        this.naviguerVers("/TerrainsInterface/acceuilterrain.fxml",mouseEvent);
-    }
-
-
-    //
-    public void handleEvents(MouseEvent mouseEvent) {
-        this.naviguerVers("/G-Evenements/Accueil.fxml",mouseEvent);
-    }
-
-
-    public void handleMateriels(MouseEvent mouseEvent) {
-        this.naviguerVers("/MaterielsInterface/AccueilMateriel.fxml",mouseEvent);
-    }
-    @FXML
-    private void handleLogout() {
-        System.out.println("🚪 Déconnexion...");
-
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Confirmation");
-        alert.setHeaderText("Déconnexion");
-        alert.setContentText("Voulez-vous vraiment vous déconnecter ?");
-
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/login.fxml"));
-                Parent root = loader.load();
-
-                Stage stage = (Stage) logoutBtn.getScene().getWindow();
-
-                // On récupère le Stage et la Scene ACTUELLE
-                Scene scene = stage.getScene();
-
-                // SOLUTION MIRACLE : On change la racine, pas la scène !
-                scene.setRoot(root);
-
-                // Plus besoin de gérer "etaitMaximise", la fenêtre ne bougera pas d'un pixel
-                stage.show();
-
-                System.out.println("✓ Déconnexion réussie");
-
-            } catch (IOException e) {
-                e.printStackTrace();
-                showError("Erreur", "Impossible de retourner à la page de connexion");
-            }
-        }
-    }
-
-
-    /**
-     * Afficher une information
-     */
-    private static void showInfo(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-    // ================= ALERT METHODS =================
-    private void showError(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-    private void naviguerVers(String fxmlPath , Event event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
-            Parent root = loader.load();
-
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-
-            boolean etaitMaximise = stage.isMaximized();  // ← SAUVEGARDER AVANT
-
-            stage.setScene(new Scene(root));
-
-            stage.setMaximized(etaitMaximise);  // ← RESTAURER APRÈS
-
-            stage.show();
-        } catch (IOException e) {
-            System.err.println("Erreur de chargement FXML : " + fxmlPath);
-            e.printStackTrace();
-        }
     }
 }

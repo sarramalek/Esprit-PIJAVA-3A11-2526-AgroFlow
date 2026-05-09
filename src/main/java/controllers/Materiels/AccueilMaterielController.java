@@ -1,7 +1,5 @@
 package controllers.Materiels;
 
-import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -74,7 +72,7 @@ public class AccueilMaterielController {
         });}
     @FXML
     private void ouvrirMachines(MouseEvent event) {
-        naviguerVers("/MaterielsInterface/AffichageMachine.fxml", event);
+        naviguerVers("/MaterielsInterface/AfficherMachines.fxml", event);
     }
 
     @FXML
@@ -82,10 +80,6 @@ public class AccueilMaterielController {
         naviguerVers("/MaterielsInterface/AfficherMaintenances.fxml", event);
     }
 
-    @FXML
-    private void ouvrirAchats(MouseEvent event) {
-        naviguerVers("/MaterielsInterface/AfficherAchats.fxml", event);
-    }
 
     // Navigation vers les autres modules depuis la sidebar
     @FXML

@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox spacing="15"
+      xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="controllers.Materiels.AgriModifierMaintenanceController"
+      style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 25;">
+
+    <Label style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #F39C12;"
+           text="✏️ Modifier une maintenance">
+        <font><Font name="System Bold" size="20"/></font>
+    </Label>
+
+    <Separator/>
+
+    <GridPane hgap="15" vgap="12">
+        <padding><Insets top="10"/></padding>
+
+        <!-- Ligne 0 : Machine -->
+        <Label text="🚜 Machine :"
+               GridPane.rowIndex="0" GridPane.columnIndex="0"
+               style="-fx-font-weight: bold;"/>
+        <ComboBox fx:id="comboMachine"
+                  GridPane.rowIndex="0" GridPane.columnIndex="1"
+                  prefWidth="300"
+                  promptText="Sélectionner une machine"/>
+
+        <!-- Ligne 1 : Type de panne  (ComboBox editable) -->
+        <Label text="🔧 Type panne :"
+               GridPane.rowIndex="1" GridPane.columnIndex="0"
+               style="-fx-font-weight: bold;"/>
+        <ComboBox fx:id="comboTypePanne"
+                  GridPane.rowIndex="1" GridPane.columnIndex="1"
+                  prefWidth="300"
+                  editable="true"
+                  promptText="Sélectionner ou saisir le type de panne…"/>
+
+        <!-- Ligne 2 : Date -->
+        <Label text="📅 Date :"
+               GridPane.rowIndex="2" GridPane.columnIndex="0"
+               style="-fx-font-weight: bold;"/>
+        <DatePicker fx:id="datePicker"
+                    GridPane.rowIndex="2" GridPane.columnIndex="1"
+                    prefWidth="300"/>
+
+        <!-- Ligne 3 : Coût -->
+        <Label text="💰 Coût (DT) :"
+               GridPane.rowIndex="3" GridPane.columnIndex="0"
+               style="-fx-font-weight: bold;"/>
+        <TextField fx:id="txtCout"
+                   GridPane.rowIndex="3" GridPane.columnIndex="1"
+                   prefWidth="300" promptText="Ex : 350.00"/>
+
+        <!-- Ligne 4 : Statut -->
+        <Label text="📊 Statut :"
+               GridPane.rowIndex="4" GridPane.columnIndex="0"
+               style="-fx-font-weight: bold;"/>
+        <ComboBox fx:id="comboStatut"
+                  GridPane.rowIndex="4" GridPane.columnIndex="1"
+                  prefWidth="300"
+                  promptText="Sélectionner un statut"/>
+
+        <!-- Ligne 5 : Priorité -->
+        <Label text="⚠️ Priorité :"
+               GridPane.rowIndex="5" GridPane.columnIndex="0"
+               style="-fx-font-weight: bold;"/>
+        <ComboBox fx:id="comboPriorite"
+                  GridPane.rowIndex="5" GridPane.columnIndex="1"
+                  prefWidth="300"
+                  promptText="Sélectionner une priorité"/>
+
+        <!-- Ligne 6 : Kilométrage -->
+        <Label text="📏 Kilométrage :"
+               GridPane.rowIndex="6" GridPane.columnIndex="0"
+               style="-fx-font-weight: bold;"/>
+        <TextField fx:id="txtKilometrage"
+                   GridPane.rowIndex="6" GridPane.columnIndex="1"
+                   prefWidth="300" promptText="Ex : 12000"/>
+
+        <!-- Ligne 7 : Description -->
+        <Label text="📝 Description :"
+               GridPane.rowIndex="7" GridPane.columnIndex="0"
+               style="-fx-font-weight: bold;"/>
+        <TextArea fx:id="txtDescription"
+                  GridPane.rowIndex="7" GridPane.columnIndex="1"
+                  prefWidth="300" prefHeight="80" wrapText="true"/>
+
+        <!-- Ligne 8 : Recommandation -->
+        <Label text="💡 Recommandation :"
+               GridPane.rowIndex="8" GridPane.columnIndex="0"
+               style="-fx-font-weight: bold;"/>
+        <TextArea fx:id="txtRecommandation"
+                  GridPane.rowIndex="8" GridPane.columnIndex="1"
+                  prefWidth="300" prefHeight="60" wrapText="true"/>
+
+        <columnConstraints>
+            <ColumnConstraints halignment="RIGHT" minWidth="130"/>
+            <ColumnConstraints halignment="LEFT"  minWidth="300"/>
+        </columnConstraints>
+    </GridPane>
+
+    <Separator/>
+
+    <HBox spacing="15" alignment="CENTER_RIGHT">
+        <Button fx:id="btnAnnuler"
+                text="❌ Annuler"
+                style="-fx-background-color: #95A5A6; -fx-text-fill: white;
+                       -fx-font-weight: bold; -fx-background-radius: 8;
+                       -fx-padding: 10 20; -fx-cursor: hand;"/>
+        <Button fx:id="btnEnregistrer"
+                text="✅ Enregistrer"
+                style="-fx-background-color: #F39C12; -fx-text-fill: white;
+                       -fx-font-weight: bold; -fx-background-radius: 8;
+                       -fx-padding: 10 20; -fx-cursor: hand;"/>
+    </HBox>
+</VBox>

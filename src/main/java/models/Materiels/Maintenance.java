@@ -5,98 +5,89 @@ import java.util.Objects;
 
 public class Maintenance {
 
-    private int idMain;
-    private String typePanne;
-    private double cout;
+    private int       idMain;
+    private String    typePanne;
+    private double    cout;
     private LocalDate dateMain;
-    private String description;
+    private String    description;
+    private int       idM;           // clé étrangère → Machine
 
-    // Clé étrangère vers Machine
-    private int idM;
+    // ── Nouveaux champs (BDD capture) ─────────────────────────────────────────
+    private String    statut;        // enum : 'en_cours', 'termine', 'planifie'
+    private String    recommandation; // text
+    private String    priorite;      // enum : 'faible', 'moyenne', 'haute', 'urgente'
+    private int       kilometrage;   // int(11)
 
-    public Maintenance() {
-    }
+    // ── Constructeurs ──────────────────────────────────────────────────────────
+    public Maintenance() {}
 
     public Maintenance(int idMain, String typePanne, double cout,
-                       LocalDate dateMain, String description, int idM) {
-        this.idMain = idMain;
-        this.typePanne = typePanne;
-        this.cout = cout;
-        this.dateMain = dateMain;
-        this.description = description;
-        this.idM = idM;
+                       LocalDate dateMain, String description, int idM,
+                       String statut, String recommandation,
+                       String priorite, int kilometrage) {
+        this.idMain        = idMain;
+        this.typePanne     = typePanne;
+        this.cout          = cout;
+        this.dateMain      = dateMain;
+        this.description   = description;
+        this.idM           = idM;
+        this.statut        = statut;
+        this.recommandation = recommandation;
+        this.priorite      = priorite;
+        this.kilometrage   = kilometrage;
     }
 
-    public int getIdMain() {
-        return idMain;
-    }
+    // ── Getters / Setters ──────────────────────────────────────────────────────
+    public int       getIdMain()          { return idMain; }
+    public void      setIdMain(int v)     { this.idMain = v; }
 
-    public void setIdMain(int idMain) {
-        this.idMain = idMain;
-    }
+    public String    getTypePanne()       { return typePanne; }
+    public void      setTypePanne(String v){ this.typePanne = v; }
 
-    public String getTypePanne() {
-        return typePanne;
-    }
+    public double    getCout()            { return cout; }
+    public void      setCout(double v)    { this.cout = v; }
 
-    public void setTypePanne(String typePanne) {
-        this.typePanne = typePanne;
-    }
+    public LocalDate getDateMain()        { return dateMain; }
+    public void      setDateMain(LocalDate v){ this.dateMain = v; }
 
-    public double getCout() {
-        return cout;
-    }
+    public String    getDescription()     { return description; }
+    public void      setDescription(String v){ this.description = v; }
 
-    public void setCout(double cout) {
-        this.cout = cout;
-    }
+    public int       getIdM()             { return idM; }
+    public void      setIdM(int v)        { this.idM = v; }
 
-    public LocalDate getDateMain() {
-        return dateMain;
-    }
+    public String    getStatut()          { return statut; }
+    public void      setStatut(String v)  { this.statut = v; }
 
-    public void setDateMain(LocalDate dateMain) {
-        this.dateMain = dateMain;
-    }
+    public String    getRecommandation()  { return recommandation; }
+    public void      setRecommandation(String v){ this.recommandation = v; }
 
-    public String getDescription() {
-        return description;
-    }
+    public String    getPriorite()        { return priorite; }
+    public void      setPriorite(String v){ this.priorite = v; }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+    public int       getKilometrage()     { return kilometrage; }
+    public void      setKilometrage(int v){ this.kilometrage = v; }
 
-    public int getIdM() {
-        return idM;
-    }
-
-    public void setIdM(int idM) {
-        this.idM = idM;
-    }
-
+    // ── toString / equals / hashCode ──────────────────────────────────────────
     @Override
     public String toString() {
-        return "Maintenance{" +
-                "idMain=" + idMain +
-                ", typePanne='" + typePanne + '\'' +
-                ", cout=" + cout +
-                ", dateMain=" + dateMain +
-                ", description='" + description + '\'' +
-                ", idM=" + idM +
-                '}';
+        return "Maintenance{idMain=" + idMain
+                + ", typePanne='" + typePanne + '\''
+                + ", cout=" + cout
+                + ", dateMain=" + dateMain
+                + ", statut='" + statut + '\''
+                + ", priorite='" + priorite + '\''
+                + ", kilometrage=" + kilometrage
+                + ", idM=" + idM + '}';
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Maintenance that = (Maintenance) o;
-        return idMain == that.idMain;
+        return idMain == ((Maintenance) o).idMain;
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(idMain);
-    }
+    public int hashCode() { return Objects.hash(idMain); }
 }
