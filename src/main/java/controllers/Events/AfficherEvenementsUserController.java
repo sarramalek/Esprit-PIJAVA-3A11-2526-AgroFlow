@@ -84,7 +84,7 @@ public class AfficherEvenementsUserController {
     private int idUtilisateur ; // à remplacer par la session utilisateur réelle
 
     public void setIdUtilisateur(int id) {
-        this.idUtilisateur = SessionManager.getCurrentUser().getCin() ;
+        this.idUtilisateur = id;
     }
 
     public void setUserName(String name) {
@@ -108,8 +108,11 @@ public class AfficherEvenementsUserController {
         try {
             loadEvenements();
             setupReactiveSearch();
-        } catch (SQLException e) {
+        } catch (Exception e) {
+            e.printStackTrace();
             showError("Erreur", "Impossible de charger les evenements : " + e.getMessage());
+            eventsTable.setItems(FXCollections.observableArrayList());
+            resultsCountLabel.setText("0 evenement(s) trouve(s)");
         }
     }
 
@@ -119,7 +122,7 @@ public class AfficherEvenementsUserController {
         filterStatut.setValue("Tous les statuts");
 
         try {
-            int userRole = currentUser.getRole();
+            int userRole = currentUser != null ? currentUser.getRole() : 3;
             filterCategorie.getItems().add("Toutes");
 
             categorieService.recuperer().stream()
@@ -136,8 +139,10 @@ public class AfficherEvenementsUserController {
                     .forEach(cat -> filterCategorie.getItems().add(cat.getNom_categorie()));
 
             filterCategorie.setValue("Toutes");
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
+            filterCategorie.getItems().setAll("Toutes");
+            filterCategorie.setValue("Toutes");
         }
 
         filterStatut.setOnAction(e -> appliquerFiltres());
@@ -236,7 +241,7 @@ public class AfficherEvenementsUserController {
     }
 
     private List<Evenement> getEvenementsForCurrentUser() throws SQLException {
-        int userRole = currentUser.getRole();
+        int userRole = currentUser != null ? currentUser.getRole() : 3;
 
         Set<Integer> allowedCategoryIds = categorieService.recuperer().stream()
                 .filter(cat -> {

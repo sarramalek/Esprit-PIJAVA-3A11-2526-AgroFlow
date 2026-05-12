@@ -11,7 +11,9 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
+import models.User.Personne;
 import services.Terrains.PlanteService;
+import utils.SessionManager;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -31,7 +33,9 @@ public class ModifierPlanteController {
 
     private final PlanteService ps = new PlanteService();
     private plante planteSelectionnee;
+    private Personne currentUser;
     public void initialize() {
+        currentUser = SessionManager.getCurrentUser();
         // Cacher submenu par défaut
         gestionSubmenu.setVisible(false);
         gestionSubmenu.setManaged(false);
@@ -106,7 +110,10 @@ public class ModifierPlanteController {
     @FXML
     public void retourListe(ActionEvent event) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/TerrainsInterface/AffichagePlante.fxml"));
+            String cible = (currentUser != null && currentUser.getRole() == 1)
+                    ? "/TerrainsInterface/agricoleaffichageplante.fxml"
+                    : "/TerrainsInterface/AffichagePlante.fxml";
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(cible));
             Parent root = loader.load();
 
 

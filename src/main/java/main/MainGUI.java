@@ -22,6 +22,7 @@ public class MainGUI extends Application {
         Scene scene = new Scene(root, 900, 600); // Taille stable
         primaryStage.setScene(scene);
         primaryStage.setTitle("AgroFlow - Gestion des Animaux");
+        primaryStage.setMaximized(true);
         primaryStage.show();
     }
 

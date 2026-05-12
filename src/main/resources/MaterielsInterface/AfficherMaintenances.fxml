@@ -20,11 +20,10 @@
             </padding>
 
             <!-- Logo/Header MODERNE -->
-            <StackPane prefWidth="100" prefHeight="100"  >
+            <StackPane prefWidth="100" prefHeight="100">
                 <ImageView fitWidth="200" fitHeight="150" preserveRatio="true">
-                    <image><Image url="/style/logo.png"/></image>
+                    <Image url="/style/logo.png"/>
                 </ImageView>
-
             </StackPane>
             <padding>
                 <Insets bottom="20" top="20" />
@@ -111,6 +110,7 @@
             </Button>
         </VBox>
     </left>
+
     <!-- Contenu principal -->
     <center>
         <VBox spacing="10" style="-fx-padding: 20; -fx-background-color: #fcf8e6;">
@@ -119,7 +119,7 @@
                     <Label fx:id="userNameLabel" style="-fx-font-size: 15px; -fx-text-fill: #2C3E50; -fx-font-weight: bold;" text="Admin">
                         <font><Font name="System Bold" size="15" /></font>
                     </Label>
-                    <Label style="-fx-font-size: 11px; -fx-text-fill: #95A5A6;" text="Administrateur">
+                    <Label fx:id="userRoleLabel" style="-fx-font-size: 11px; -fx-text-fill: #95A5A6;" text="Administrateur">
                         <font><Font name="System" size="11" /></font>
                     </Label>
                 </VBox>
@@ -140,6 +140,7 @@
                                visible="false" managed="false" />
                 </StackPane>
             </HBox>
+
             <!-- EN-TETE -->
             <HBox alignment="CENTER_LEFT" spacing="15">
                 <Button text="← Retour" onAction="#retourAccueil"
@@ -163,7 +164,7 @@
                     <Label text="🔍 Recherche :"
                            style="-fx-font-size: 13px; -fx-text-fill: #2c3e50; -fx-font-weight: bold;"/>
                     <TextField fx:id="champRecherche"
-                               promptText="Type de panne, machine, description, coût, date..."
+                               promptText="Type de panne, machine, description, coût, date, statut, priorité..."
                                prefWidth="360"
                                style="-fx-padding: 7 10; -fx-background-radius: 6;
                                       -fx-border-color: #c8b99a; -fx-border-width: 1.5;
@@ -228,16 +229,20 @@
 
             </VBox>
 
-            <!-- TABLE -->
+            <!-- TABLE AVEC TOUTES LES COLONNES -->
             <TableView fx:id="tableMaintenances" VBox.vgrow="ALWAYS" prefHeight="310"
                        style="-fx-background-color: white; -fx-border-color: #e2e8f0;
                               -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8;">
                 <columns>
-                    <TableColumn fx:id="colMachine"     text="Machine"       prefWidth="150" minWidth="120"/>
-                    <TableColumn fx:id="colTypePanne"   text="Type de Panne" prefWidth="140" minWidth="110"/>
-                    <TableColumn fx:id="colDate"        text="Date"          prefWidth="110" minWidth="90"/>
-                    <TableColumn fx:id="colCout"        text="Cout (DT)"     prefWidth="105" minWidth="85"/>
-                    <TableColumn fx:id="colDescription" text="Description"   prefWidth="250" minWidth="170"/>
+                    <TableColumn fx:id="colMachine"       text="Machine"         prefWidth="130" minWidth="100"/>
+                    <TableColumn fx:id="colTypePanne"     text="Type de Panne"   prefWidth="120" minWidth="100"/>
+                    <TableColumn fx:id="colDate"          text="Date"            prefWidth="100" minWidth="80"/>
+                    <TableColumn fx:id="colCout"          text="Coût (DT)"       prefWidth="100" minWidth="80"/>
+                    <TableColumn fx:id="colDescription"   text="Description"     prefWidth="150" minWidth="120"/>
+                    <TableColumn fx:id="colStatut"        text="Statut"          prefWidth="100" minWidth="80"/>
+                    <TableColumn fx:id="colRecommandation" text="Recommandation" prefWidth="140" minWidth="100"/>
+                    <TableColumn fx:id="colPriorite"      text="Priorité"        prefWidth="90"  minWidth="70"/>
+                    <TableColumn fx:id="colKilometrage"   text="Km"              prefWidth="80"  minWidth="60"/>
                 </columns>
                 <placeholder>
                     <Label text="Aucune maintenance trouvée"
@@ -347,16 +352,11 @@
                             style="-fx-background-color: #e74c3c; -fx-text-fill: white;
                                    -fx-font-size: 13px; -fx-font-weight: bold;
                                    -fx-background-radius: 0; -fx-cursor: hand;"/>
-                    <Button text="📊  STATISTIQUES" onAction="#afficherStatistiques"
-                            prefWidth="180" prefHeight="44"
-                            style="-fx-background-color: #8e44ad; -fx-text-fill: white;
+                    <Button text="ALERTES" onAction="#afficherAlertesMaintenance"
+                            prefWidth="140" prefHeight="44"
+                            style="-fx-background-color: #c0392b; -fx-text-fill: white;
                                    -fx-font-size: 13px; -fx-font-weight: bold;
                                    -fx-background-radius: 0; -fx-cursor: hand;"/>
-                    <Button text="🏭  COÛT/MACHINE" onAction="#ouvrirCoutMachine"
-                            prefWidth="180" prefHeight="44"
-                            style="-fx-background-color: #2980b9; -fx-text-fill: white;
-                                   -fx-font-size: 13px; -fx-font-weight: bold;
-                                   -fx-background-radius: 0 8 8 0; -fx-cursor: hand;"/>
                     <Region HBox.hgrow="ALWAYS"/>
                 </HBox>
 

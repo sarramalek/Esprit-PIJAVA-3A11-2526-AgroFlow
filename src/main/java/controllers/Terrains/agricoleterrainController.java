@@ -46,6 +46,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 import static controllers.User.GestionAbonnements.showInfo;
@@ -144,7 +145,7 @@ public class agricoleterrainController implements Initializable {
     // CHARGER TERRAINS
     // ============================================================
     private void chargerDonneesTerrains() {
-        List<terrain> terrains = ts.afficherTous();
+        List<terrain> terrains = currentUser != null ? ts.afficherParCin(currentUser.getCin()) : ts.afficherTous();
         if (nbTerrainsLabel != null)
             nbTerrainsLabel.setText(String.valueOf(terrains.size()));
 
@@ -216,7 +217,15 @@ public class agricoleterrainController implements Initializable {
                 "linear-gradient(to right, #0E6655, #1ABC9C)");
         btnMeteo.setOnAction(e -> afficherMeteoTerrain(t));
 
-        boutons.getChildren().addAll(btnPDF, btnStats, btnMeteo);
+        Button btnEdit = creerBouton("✏️  Modifier",
+                "linear-gradient(to right, #F39C12, #E67E22)");
+        btnEdit.setOnAction(e -> modifierTerrainAgricole(t));
+
+        Button btnDelete = creerBouton("🗑️  Supprimer",
+                "linear-gradient(to right, #C0392B, #E74C3C)");
+        btnDelete.setOnAction(e -> supprimerTerrainAgricole(t));
+
+        boutons.getChildren().addAll(btnPDF, btnStats, btnMeteo, btnEdit, btnDelete);
         carte.getChildren().addAll(ligne1, ligne2, progressBar, lblScore, boutons);
         return carte;
     }
@@ -641,6 +650,48 @@ public class agricoleterrainController implements Initializable {
         alert.setContentText(message);
         alert.showAndWait();
     }
+
+    @FXML
+    private void ajouterTerrainAgricole(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/TerrainsInterface/ajouterterrainagriculteur.fxml"));
+            Parent root = loader.load();
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            Scene scene = stage.getScene();
+            scene.setRoot(root);
+            stage.show();
+        } catch (IOException e) {
+            showAlert("Erreur", "Impossible d'ouvrir la page d'ajout terrain.");
+        }
+    }
+
+    private void modifierTerrainAgricole(terrain t) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/TerrainsInterface/modifierterrainagriculteur.fxml"));
+            Parent root = loader.load();
+            ModifierTerrainAgriculteurController controller = loader.getController();
+            controller.initialiserAvecTerrain(t);
+            Stage stage = (Stage) abonnementsContainer.getScene().getWindow();
+            Scene scene = stage.getScene();
+            scene.setRoot(root);
+            stage.show();
+        } catch (IOException e) {
+            showAlert("Erreur", "Impossible d'ouvrir la page de modification terrain.");
+        }
+    }
+
+    private void supprimerTerrainAgricole(terrain t) {
+        Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION,
+                "Supprimer le terrain '" + t.getNom_terrain() + "' ?",
+                ButtonType.YES, ButtonType.NO);
+        confirmation.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.YES) {
+                ts.supprimerAvecRotations(t.getId_terrain());
+                chargerDonneesTerrains();
+            }
+        });
+    }
+
     @FXML private void handleMesArticles(MouseEvent mouseEvent)   {         navigateTo(mouseEvent,"/StocksInterface/AfficherArticleAgr.fxml","Articles"); }
     @FXML private void handleMesCatégories(MouseEvent mouseEvent)   {         navigateTo(mouseEvent,"/StocksInterface/AfficherCategorieAgr.fxml","Catégories "); }
     @FXML private void handleDashboard(MouseEvent event)    { navigateTo(event,"/UsersInterface/AcceuillAgr.fxml","Dashboard"); }

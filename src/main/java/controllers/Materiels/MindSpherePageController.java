@@ -8,7 +8,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -702,8 +701,8 @@ public class MindSpherePageController {
             afficherAlerteClair("Aucune machine", "Aucune machine disponible.", Alert.AlertType.WARNING);
             return;
         }
-        // FIX #3 : getFirst() au lieu de get(0)
-        Machine m       = machinesLocales.getFirst();
+        // Java 17-compatible access to first item
+        Machine m       = machinesLocales.get(0);
         String  assetId = "ms-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
         String  ts      = LocalDateTime.now().toString();
         int     score   = scoreEtat(m.getEtatM());
@@ -1013,8 +1012,8 @@ public class MindSpherePageController {
     @FXML
     private void retourListe() {
         try {
-            java.net.URL url = getClass().getResource("/MaterielsInterface/AffichageMachine.fxml");
-            if (url == null) throw new IOException("AffichageMachine.fxml introuvable.");
+            java.net.URL url = getClass().getResource("/MaterielsInterface/AfficherMachines.fxml");
+            if (url == null) throw new IOException("AfficherMachines.fxml introuvable.");
             Parent root = FXMLLoader.load(url);
             Stage stage = (Stage) btnRetour.getScene().getWindow();
             // On récupère le Stage et la Scene ACTUELLE

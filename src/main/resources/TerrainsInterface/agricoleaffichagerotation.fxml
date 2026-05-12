@@ -306,7 +306,11 @@
                             <font><Font name="System Bold" size="20" /></font>
                         </Label>
                         <Region HBox.hgrow="ALWAYS" />
-
+                        <Button onAction="#ajouterRotationAgricole"
+                                style="-fx-background-color: linear-gradient(to right, #2E7D32, #43A047);
+                                       -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 18;
+                                       -fx-padding: 8 16; -fx-cursor: hand;"
+                                text="+ Ajouter Rotation" />
                     </HBox>
 
                     <!-- ── BARRE DE RECHERCHE ── -->

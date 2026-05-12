@@ -18,13 +18,14 @@ public class TerrainService {
 
     // --- AJOUTER ---
     public void ajouter(terrain t) {
-        String query = "INSERT INTO terrain (nom_terrain, surface, type_sol, localisation, p_h) VALUES (?, ?, ?, ?, ?)";
+        String query = "INSERT INTO terrain (nom_terrain, surface, type_sol, localisation, p_h, cin) VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             pst.setString(1, t.getNom_terrain());
             pst.setFloat(2, t.getSurface());
             pst.setString(3, t.getType_sol());
             pst.setString(4, t.getLocalisation());
             pst.setFloat(5, t.getP_h());
+            pst.setInt(6, t.getProprietaire());
             pst.executeUpdate();
             System.out.println("Terrain '" + t.getNom_terrain() + "' ajouté avec succès !");
         } catch (SQLException e) {
@@ -74,11 +75,35 @@ public class TerrainService {
                         rs.getFloat("surface"),
                         rs.getString("type_sol"),
                         rs.getString("localisation"),
-                        rs.getFloat("p_h")
+                        rs.getFloat("p_h"),
+                        rs.getInt("cin")
                 ));
             }
         } catch (SQLException e) {
             System.out.println("Erreur Affichage Terrain: " + e.getMessage());
+        }
+        return terrains;
+    }
+
+    public List<terrain> afficherParCin(int cin) {
+        List<terrain> terrains = new ArrayList<>();
+        String query = "SELECT * FROM terrain WHERE cin = ? ORDER BY id_terrain DESC";
+        try (PreparedStatement pst = connection.prepareStatement(query)) {
+            pst.setInt(1, cin);
+            ResultSet rs = pst.executeQuery();
+            while (rs.next()) {
+                terrains.add(new terrain(
+                        rs.getInt("id_terrain"),
+                        rs.getString("nom_terrain"),
+                        rs.getFloat("surface"),
+                        rs.getString("type_sol"),
+                        rs.getString("localisation"),
+                        rs.getFloat("p_h"),
+                        rs.getInt("cin")
+                ));
+            }
+        } catch (SQLException e) {
+            System.out.println("Erreur Affichage Terrain par CIN: " + e.getMessage());
         }
         return terrains;
     }
@@ -119,7 +144,8 @@ public class TerrainService {
                         rs.getFloat("surface"),
                         rs.getString("type_sol"),
                         rs.getString("localisation"),
-                        rs.getFloat("p_h")
+                        rs.getFloat("p_h"),
+                        rs.getInt("cin")
                 ));
             }
         } catch (SQLException e) {
@@ -152,7 +178,8 @@ public class TerrainService {
                         rs.getFloat("surface"),
                         rs.getString("type_sol"),
                         rs.getString("localisation"),
-                        rs.getFloat("p_h")
+                        rs.getFloat("p_h"),
+                        rs.getInt("cin")
                 ));
             }
         } catch (SQLException e) {
@@ -219,13 +246,45 @@ public class TerrainService {
                         rs.getFloat("surface"),
                         rs.getString("type_sol"),
                         rs.getString("localisation"),
-                        rs.getFloat("p_h")
+                        rs.getFloat("p_h"),
+                        rs.getInt("cin")
                 );
             }
         } catch (SQLException e) {
             System.out.println("Erreur: " + e.getMessage());
         }
         return null;
+    }
+
+    public List<Integer> recupererTousLesCin() {
+        List<Integer> cins = new ArrayList<>();
+        String query = "SELECT cin FROM users ORDER BY cin ASC";
+        try (PreparedStatement pst = connection.prepareStatement(query);
+             ResultSet rs = pst.executeQuery()) {
+            while (rs.next()) {
+                cins.add(rs.getInt("cin"));
+            }
+        } catch (SQLException e) {
+            System.out.println("Erreur Chargement CIN: " + e.getMessage());
+        }
+        return cins;
+    }
+
+    public List<String> recupererProprietairesAffichage() {
+        List<String> proprietaires = new ArrayList<>();
+        String query = "SELECT cin, nom, prenom FROM users ORDER BY nom ASC, prenom ASC";
+        try (PreparedStatement pst = connection.prepareStatement(query);
+             ResultSet rs = pst.executeQuery()) {
+            while (rs.next()) {
+                int cin = rs.getInt("cin");
+                String nom = rs.getString("nom");
+                String prenom = rs.getString("prenom");
+                proprietaires.add(cin + " - " + (nom != null ? nom : "") + " " + (prenom != null ? prenom : "").trim());
+            }
+        } catch (SQLException e) {
+            System.out.println("Erreur Chargement Proprietaires: " + e.getMessage());
+        }
+        return proprietaires;
     }
     // ── RECOMMANDATION DE PLANTE SELON pH ──
     public String getRecommandationPlante(float ph) {

@@ -12,9 +12,12 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import models.User.Personne;
 import services.Terrains.TerrainService;
+import utils.SessionManager;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -28,17 +31,31 @@ public class AjoutTerrainController {
     @FXML
     private TextField txtSurface;
     @FXML
-    private TextField txtTypeSol;
+    private ComboBox<String> comboTypeSol;
     @FXML
     private TextField txtLocalisation;
     @FXML
     private TextField txtPH;
+    @FXML
+    private ComboBox<String> comboProprietaire;
 
     private final TerrainService ts = new TerrainService();
+    private Personne currentUser;
     public void initialize() {
         // Cacher submenu par défaut
         gestionSubmenu.setVisible(false);
         gestionSubmenu.setManaged(false);
+
+        comboTypeSol.getItems().setAll("Argileux", "Sableux", "Limoneux", "Calcaire", "Humifère");
+        comboTypeSol.setValue(null);
+
+        currentUser = SessionManager.getCurrentUser();
+        comboProprietaire.getItems().setAll(ts.recupererProprietairesAffichage());
+        comboProprietaire.setValue(null);
+        if (currentUser != null && currentUser.getRole() == 1) {
+            comboProprietaire.setValue(currentUser.getCin() + " - " + currentUser.getNom() + " " + currentUser.getPrenom());
+            comboProprietaire.setDisable(true);
+        }
 
         // 1. Hover sur le bouton Gestion → Ouvre submenu
         gestionBtn.setOnMouseEntered(e -> {
@@ -54,12 +71,13 @@ public class AjoutTerrainController {
         // 1. Récupération des données
         String nom = txtNom.getText().trim();
         String surfaceStr = txtSurface.getText().trim();
-        String typeSol = txtTypeSol.getText().trim();
+        String typeSol = comboTypeSol.getValue() != null ? comboTypeSol.getValue().trim() : "";
         String localisation = txtLocalisation.getText().trim();
         String phStr = txtPH.getText().trim();
+        String proprietaireSelection = comboProprietaire.getValue();
 
         // 2. Validation des champs vides
-        if (nom.isEmpty() || surfaceStr.isEmpty() || typeSol.isEmpty() || localisation.isEmpty() || phStr.isEmpty()) {
+        if (nom.isEmpty() || surfaceStr.isEmpty() || typeSol.isEmpty() || localisation.isEmpty() || phStr.isEmpty() || proprietaireSelection == null) {
             showAlert("Erreur", "Veuillez remplir tous les champs.", Alert.AlertType.ERROR);
             return;
         }
@@ -80,6 +98,7 @@ public class AjoutTerrainController {
             // 5. Conversion des types numériques
             float surface = Float.parseFloat(surfaceStr);
             float ph = Float.parseFloat(phStr);
+            int proprietaire = Integer.parseInt(proprietaireSelection.split(" - ")[0].trim());
 
             // 6. Validation : Surface doit être positive
             if (surface <= 0) {
@@ -94,7 +113,7 @@ public class AjoutTerrainController {
             }
 
             // 8. Création et ajout de l'objet
-            terrain t = new terrain(0, nom, surface, typeSol, localisation, ph);
+            terrain t = new terrain(0, nom, surface, typeSol, localisation, ph, proprietaire);
             ts.ajouter(t);
 
             // 9. Succès et réinitialisation
@@ -109,7 +128,10 @@ public class AjoutTerrainController {
     @FXML
     void retourListe(ActionEvent event) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/TerrainsInterface/AffichageTerrain.fxml"));
+            String cible = (currentUser != null && currentUser.getRole() == 1)
+                    ? "/TerrainsInterface/agricoleaffichageterrain.fxml"
+                    : "/TerrainsInterface/AffichageTerrain.fxml";
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(cible));
             Parent root = loader.load();
 
 
@@ -132,9 +154,10 @@ public class AjoutTerrainController {
     private void nettoyerChamps() {
         txtNom.clear();
         txtSurface.clear();
-        txtTypeSol.clear();
+        comboTypeSol.setValue(null);
         txtLocalisation.clear();
         txtPH.clear();
+        comboProprietaire.setValue(null);
     }
 
     private void showAlert(String titre, String message, Alert.AlertType type) {

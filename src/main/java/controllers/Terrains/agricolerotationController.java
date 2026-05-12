@@ -46,6 +46,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
@@ -186,7 +187,7 @@ public class agricolerotationController implements Initializable {
     // CHARGER DEPUIS LA BASE
     // ============================================================
     private void chargerDonneesRotations() {
-        toutesRotations = rs.afficherToutes();   // ← méthode correcte
+        toutesRotations = currentUser != null ? rs.afficherToutesParCin(currentUser.getCin()) : rs.afficherToutes();
 
         long enCours   = toutesRotations.stream().filter(r -> r.getStatus() == 1).count();
         long terminees = toutesRotations.stream().filter(r -> r.getStatus() == 0).count();
@@ -270,7 +271,15 @@ public class agricolerotationController implements Initializable {
         Button btnAnalyse = creerBouton("📊  Analyse", "linear-gradient(to right, #4A235A, #7D3C98)");
         btnAnalyse.setOnAction(e -> afficherAnalyseRotation(r));
 
-        boutons.getChildren().addAll(btnPDF, btnAnalyse);
+        Button btnEdit = creerBouton("✏️  Modifier",
+                "linear-gradient(to right, #F39C12, #E67E22)");
+        btnEdit.setOnAction(e -> modifierRotationAgricole(r));
+
+        Button btnDelete = creerBouton("🗑️  Supprimer",
+                "linear-gradient(to right, #C0392B, #E74C3C)");
+        btnDelete.setOnAction(e -> supprimerRotationAgricole(r));
+
+        boutons.getChildren().addAll(btnPDF, btnAnalyse, btnEdit, btnDelete);
         carte.getChildren().addAll(ligne1, ligne2, lblDuree, boutons);
         return carte;
     }
@@ -566,6 +575,48 @@ public class agricolerotationController implements Initializable {
         alert.setContentText(message);
         alert.showAndWait();
     }
+
+    @FXML
+    private void ajouterRotationAgricole(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/TerrainsInterface/ajouterrotationagriculteur.fxml"));
+            Parent root = loader.load();
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            Scene scene = stage.getScene();
+            scene.setRoot(root);
+            stage.show();
+        } catch (IOException e) {
+            showAlert("Erreur", "Impossible d'ouvrir la page d'ajout rotation.");
+        }
+    }
+
+    private void modifierRotationAgricole(rotation r) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/TerrainsInterface/modifierrotationagriculteur.fxml"));
+            Parent root = loader.load();
+            ModifierRotationAgriculteurController controller = loader.getController();
+            controller.initialiserAvecRotation(r);
+            Stage stage = (Stage) rotationsContainer.getScene().getWindow();
+            Scene scene = stage.getScene();
+            scene.setRoot(root);
+            stage.show();
+        } catch (IOException e) {
+            showAlert("Erreur", "Impossible d'ouvrir la page de modification rotation.");
+        }
+    }
+
+    private void supprimerRotationAgricole(rotation r) {
+        Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION,
+                "Supprimer cette rotation ?",
+                ButtonType.YES, ButtonType.NO);
+        confirmation.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.YES) {
+                rs.supprimer(r.getId_rotation());
+                chargerDonneesRotations();
+            }
+        });
+    }
+
     @FXML private void handleMesArticles(MouseEvent mouseEvent)   {         navigateTo(mouseEvent,"/StocksInterface/AfficherArticleAgr.fxml","Articles"); }
     @FXML private void handleMesCatégories(MouseEvent mouseEvent)   {         navigateTo(mouseEvent,"/StocksInterface/AfficherCategorieAgr.fxml","Catégories "); }
     @FXML private void handleDashboard(MouseEvent event)    { navigateTo(event,"/UsersInterface/AcceuillAgr.fxml","Dashboard"); }
