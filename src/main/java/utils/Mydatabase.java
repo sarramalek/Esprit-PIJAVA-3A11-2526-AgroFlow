@@ -6,9 +6,9 @@ import java.sql.SQLException;
 
 public class MyDatabase {
 
-    private final String URL = "jdbc:mysql://localhost:3306/agro";
+    private final String URL = "jdbc:mysql://yamabiko.proxy.rlwy.net:33504/railway";
     private final String USER = "root";
-    private final String PASSWORD = "";
+    private final String PASSWORD = "ljfkJWoilNDUEtYNvbxxlNMHZeDJNrRb";
     private Connection connection;
     private static MyDatabase instance;
 
@@ -20,7 +20,6 @@ public class MyDatabase {
             System.err.println(e.getMessage());
         }
     }
-
     public static MyDatabase getInstance() {
         if(instance == null)
             instance = new MyDatabase();
