@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox prefHeight="600.0" prefWidth="900.0" spacing="20.0" style="-fx-background-color: #fdfae7; -fx-padding: 30;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.Stocks.historiqueMouvementsController">
+    <children>
+        <HBox alignment="CENTER_LEFT" spacing="15.0">
+            <children>
+                <Label fx:id="lblTitre" text="📜 Historique des Mouvements" textFill="#2d5a27">
+                    <font>
+                        <Font name="System Bold" size="24.0" />
+                    </font>
+                </Label>
+                <Region HBox.hgrow="ALWAYS" />
+                <Button onAction="#fermer" style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" text="Fermer" />
+            </children>
+        </HBox>
+
+        <HBox spacing="15.0" alignment="CENTER_LEFT">
+            <children>
+                <TextField fx:id="tfSearch" prefWidth="250.0" promptText="🔍 Rechercher par motif ou article..." style="-fx-background-radius: 15;" />
+                <ComboBox fx:id="cbType" prefWidth="150.0" promptText="Type" />
+            </children>
+        </HBox>
+
+        <TableView fx:id="tableMouvements" prefHeight="400.0" VBox.vgrow="ALWAYS" style="-fx-background-color: white; -fx-background-radius: 10;">
+            <columns>
+                <TableColumn fx:id="colDate" prefWidth="160.0" text="Date" />
+                <TableColumn fx:id="colArticle" prefWidth="150.0" text="Article" />
+                <TableColumn fx:id="colType" prefWidth="100.0" text="Type" />
+                <TableColumn fx:id="colQuantite" prefWidth="100.0" text="Quantité" />
+                <TableColumn fx:id="colMotif" prefWidth="200.0" text="Motif" />
+            </columns>
+            <columnResizePolicy>
+                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+            </columnResizePolicy>
+        </TableView>
+
+        <HBox alignment="CENTER_RIGHT" spacing="15.0">
+            <children>
+                <Button onAction="#exporterPDF" style="-fx-background-color: #2d5a27; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" text="📥 Exporter PDF" />
+            </children>
+        </HBox>
+    </children>
+</VBox>

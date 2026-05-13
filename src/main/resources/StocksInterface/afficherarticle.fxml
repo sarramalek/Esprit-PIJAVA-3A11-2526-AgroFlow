@@ -44,7 +44,7 @@
                 <Button fx:id="stocksBtn" onMouseClicked="#handleStocks" prefHeight="48" prefWidth="230" style="-fx-background-color: rgba(255,255,255,0.1); -fx-text-fill: white; -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand;" text="📦  Stocks" />
                 <VBox fx:id="gestionStocksSubmenu" spacing="3" style="-fx-padding: 5 0 5 15; -fx-background-color: rgba(0,0,0,0.15); -fx-background-radius: 0 0 12 12;">
                     <Button fx:id="categorieBtn" onMouseClicked="#allerVersCategories" prefHeight="42" prefWidth="215" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 13px; -fx-alignment: CENTER_LEFT; -fx-cursor: hand;" text=" Catégorie " />
-                    <Button fx:id="articleBtn"  prefHeight="42" prefWidth="215" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 13px; -fx-alignment: CENTER_LEFT; -fx-cursor: hand;" text=" Article " />
+                    <Button fx:id="articleBtn" onMouseClicked="#handleStocks" prefHeight="42" prefWidth="215" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 13px; -fx-alignment: CENTER_LEFT; -fx-cursor: hand;" text=" Article " />
                 </VBox>
                 <Button fx:id="terrainsBtn" onMouseClicked="#handleTerrains" prefHeight="48" prefWidth="230" style="-fx-background-color: rgba(255,255,255,0.1); -fx-text-fill: white; -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand;" text="🌾  Terrains" />
                 <Button fx:id="animauxBtn" onMouseClicked="#handleAnimals" prefHeight="48" prefWidth="230" style="-fx-background-color: rgba(255,255,255,0.1); -fx-text-fill: white; -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand;" text="🐄  Animaux" />
@@ -97,10 +97,14 @@
                     <padding><Insets left="15.0" right="15.0" /></padding>
                     <children>
                         <Button onAction="#ouvrirFormulaireAjout" prefHeight="35.0" style="-fx-background-color: #2d5a27; -fx-text-fill: white; -fx-font-weight: bold;" text="+ AJOUTER" />
-                        <Button onAction="#exporterAlertesPDF" prefHeight="35.0" style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold;" text="📄 RAPPORT ALERTES" />
+                        <Button onAction="#exporterPDF" prefHeight="35.0" style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold;" text="📄 PDF" />
+                        <Button onAction="#exporterExcel" prefHeight="35.0" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold;" text="📊 EXCEL" />
+                        <Button onAction="#exporterAlertesPDF" prefHeight="35.0" style="-fx-background-color: #e67e22; -fx-text-fill: white; -fx-font-weight: bold;" text="🔔 ALERTES" />
                         <Region HBox.hgrow="ALWAYS" />
                         <Label style="-fx-font-weight: bold;" text="Catégorie :" />
                         <ComboBox fx:id="cbFiltreCategorie" prefHeight="35.0" prefWidth="150.0" promptText="Toutes" />
+                        <Label fx:id="lblFiltreAgriculteur" style="-fx-font-weight: bold;" text="Agriculteur :" visible="false" managed="false" />
+                        <ComboBox fx:id="cbFiltreAgriculteur" prefHeight="35.0" prefWidth="150.0" promptText="Tous" visible="false" managed="false" />
                         <Label style="-fx-font-weight: bold;" text="Rechercher :" />
                         <TextField fx:id="tfRecherche" prefHeight="35.0" prefWidth="200.0" promptText="Nom..." style="-fx-background-radius: 15;" />
                     </children>
@@ -111,15 +115,18 @@
                         <TableView fx:id="tableArticles" HBox.hgrow="ALWAYS">
                             <columns>
                                 <TableColumn fx:id="colNom" prefWidth="150" text="Nom" />
+                                <TableColumn fx:id="colAgriculteur" prefWidth="150" text="Agriculteur" visible="false" />
                                 <TableColumn fx:id="colCategorie" prefWidth="120" text="Catégorie" />
                                 <TableColumn fx:id="colQuantite" prefWidth="80" text="Quantité" />
                                 <TableColumn fx:id="colUnite" prefWidth="70" text="Unité" />
+                                <TableColumn fx:id="colPrix" prefWidth="80" text="Prix" />
+                                <TableColumn fx:id="colDevise" prefWidth="100" text="Devise" />
                                 <TableColumn fx:id="colSeuil" prefWidth="80" text="Seuil" />
-                                <TableColumn fx:id="colActions" prefWidth="160" text="Actions" />
+                                <TableColumn fx:id="colActions" prefWidth="350.0" text="Actions" />
                             </columns>
                         </TableView>
 
-                        <VBox alignment="TOP_CENTER" minWidth="220.0" spacing="10.0" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 0);">
+                        <VBox fx:id="qrCodeContainer" alignment="TOP_CENTER" minWidth="220.0" spacing="10.0" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 0);">
                             <children>
                                 <Label style="-fx-font-weight: bold;" text="QR CODE" />
                                 <ImageView fx:id="ivQRCode" fitHeight="150.0" fitWidth="150.0" />

@@ -144,6 +144,13 @@
                             text="Catégories ">
                         <font><Font name="System" size="13" /></font>
                     </Button>
+                    <Button onAction="#voirHistoriqueGlobal" prefHeight="40" prefWidth="230"
+                            style="-fx-background-color: rgba(0,0,0,0.15); -fx-text-fill: rgba(255,255,255,0.9);
+                                       -fx-font-size: 13px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 40;
+                                       -fx-background-radius: 10; -fx-cursor: hand;"
+                            text="📜 Historique ">
+                        <font><Font name="System" size="13" /></font>
+                    </Button>
                 </VBox>
                 <Button onMouseClicked="#handleMonMateriel" prefHeight="48" prefWidth="230"
                         style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
@@ -192,7 +199,9 @@
                     <padding><Insets left="15.0" right="15.0" /></padding>
                     <children>
                         <Button onAction="#ouvrirFormulaireAjout" prefHeight="35.0" style="-fx-background-color: #2d5a27; -fx-text-fill: white; -fx-font-weight: bold;" text="+ AJOUTER" />
-                        <Button onAction="#exporterAlertesPDF" prefHeight="35.0" style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold;" text="📄 RAPPORT ALERTES" />
+                        <Button onAction="#exporterPDF" prefHeight="35.0" style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold;" text="📄 PDF" />
+                        <Button onAction="#exporterExcel" prefHeight="35.0" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold;" text="📊 EXCEL" />
+                        <Button onAction="#exporterAlertesPDF" prefHeight="35.0" style="-fx-background-color: #e67e22; -fx-text-fill: white; -fx-font-weight: bold;" text="🔔 ALERTES" />
                         <Region HBox.hgrow="ALWAYS" />
                         <Label style="-fx-font-weight: bold;" text="Catégorie :" />
                         <ComboBox fx:id="cbFiltreCategorie" prefHeight="35.0" prefWidth="150.0" promptText="Toutes" />
@@ -209,12 +218,14 @@
                                 <TableColumn fx:id="colCategorie" prefWidth="120" text="Catégorie" />
                                 <TableColumn fx:id="colQuantite" prefWidth="80" text="Quantité" />
                                 <TableColumn fx:id="colUnite" prefWidth="70" text="Unité" />
+                                <TableColumn fx:id="colPrix" prefWidth="80" text="Prix" />
+                                <TableColumn fx:id="colDevise" prefWidth="100" text="Devise" />
                                 <TableColumn fx:id="colSeuil" prefWidth="80" text="Seuil" />
-                                <TableColumn fx:id="colActions" prefWidth="160" text="Actions" />
+                                <TableColumn fx:id="colActions" prefWidth="350.0" text="Actions" />
                             </columns>
                         </TableView>
 
-                        <VBox alignment="TOP_CENTER" minWidth="220.0" spacing="10.0" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 0);">
+                        <VBox fx:id="qrCodeContainer" alignment="TOP_CENTER" minWidth="220.0" spacing="10.0" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 0);">
                             <children>
                                 <Label style="-fx-font-weight: bold;" text="QR CODE" />
                                 <ImageView fx:id="ivQRCode" fitHeight="150.0" fitWidth="150.0" />

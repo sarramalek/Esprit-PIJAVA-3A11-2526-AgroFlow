@@ -28,12 +28,17 @@ class MachineServiceTest {
         // Création d'une nouvelle machine
         Machine machine = new Machine(
                 0, // id sera généré automatiquement
+                "Machine Tracteur",
                 "John Deere",
                 "X120",
-                "Disponible",
                 "SN12345",
+                "Disponible",
                 LocalDate.now(),
-                "Machine Tracteur "
+                0,
+                LocalDate.now(),
+                0,
+                LocalDate.now().plusMonths(6),
+                1
         );
 
         // Ajout dans la base

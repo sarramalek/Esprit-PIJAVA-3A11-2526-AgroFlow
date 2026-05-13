@@ -12,6 +12,7 @@ import models.User.Personne;
 import models.User.Employe;
 import models.User.Utilisateur;
 import services.User.*;
+import services.DatabaseBackupService;
 import models.User.Abonnements;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -619,6 +620,55 @@ public class DashboardPersonnes {
 
     public void handleAddTask(ActionEvent e) {}
     public void handleRefresh(ActionEvent e) { loadEmployees(); }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // DATABASE BACKUP
+    // ═══════════════════════════════════════════════════════════════════
+
+    @FXML
+    private void handleBackup(MouseEvent event) {
+        // Vérification des droits (Seul l'admin peut faire une sauvegarde)
+        if (currentUser == null || currentUser.getRole() != 3) {
+            showError("Accès refusé", "Seuls les administrateurs peuvent effectuer une sauvegarde de la base de données.");
+            return;
+        }
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Enregistrer la sauvegarde de la base de données");
+        
+        // Nom de fichier par défaut avec horodatage
+        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+        fileChooser.setInitialFileName("agro_backup_" + timestamp + ".sql");
+        
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Fichiers SQL (*.sql)", "*.sql"));
+
+        // Dossier par défaut : Documents ou Bureau
+        String userHome = System.getProperty("user.home");
+        File initialDir = new File(userHome, "Documents");
+        if (!initialDir.exists()) initialDir = new File(userHome, "Desktop");
+        fileChooser.setInitialDirectory(initialDir);
+
+        File file = fileChooser.showSaveDialog(((Node) event.getSource()).getScene().getWindow());
+
+        if (file != null) {
+            showProgress("Sauvegarde de la base de données en cours...");
+            
+            DatabaseBackupService backupService = new DatabaseBackupService();
+            
+            // On lance la sauvegarde dans un thread séparé pour ne pas bloquer l'UI
+            new Thread(() -> {
+                boolean success = backupService.backup(file.getAbsolutePath());
+                
+                Platform.runLater(() -> {
+                    if (success) {
+                        showSuccess("Sauvegarde terminée", "La base de données a été sauvegardée avec succès dans :\n" + file.getAbsolutePath());
+                    } else {
+                        showError("Erreur de sauvegarde", "Une erreur est survenue lors de la sauvegarde. Vérifiez que MySQL est bien lancé.");
+                    }
+                });
+            }).start();
+        }
+    }
 
     // ═══════════════════════════════════════════════════════════════════
     // 2FA

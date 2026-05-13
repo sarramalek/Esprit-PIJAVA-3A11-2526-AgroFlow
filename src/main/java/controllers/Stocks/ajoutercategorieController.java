@@ -1,328 +1,192 @@
 package controllers.Stocks;
 
-import javafx.application.Platform;
-import javafx.event.Event;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.VBox;
-import models.Stocks.Categorie;
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import models.Stocks.Categorie;
 import models.User.Personne;
 import services.Stocks.CategorieService;
-import services.Stocks.ImageService;
-import services.Stocks.TranslatorService;
+import services.User.PersonneService;
 import utils.SessionManager;
 
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class ajoutercategorieController {
 
-    // ══════════════════════════════════════════════════════
-    //  FXML — Formulaire
-    // ══════════════════════════════════════════════════════
-    @FXML private TextField  tfNom;
-    @FXML private TextArea   taDescription;
-    @FXML private Label      lblTitre;
-    @FXML private Label      msgNom;
-    @FXML private Label      msgDescription;
+    @FXML private TextField tfNom;
+    @FXML private TextArea taDescription;
+    @FXML private Label lblTitre;
+    @FXML private Label msgNom;
+    @FXML private Label msgDescription;
+    @FXML private ComboBox<Personne> cbAgriculteur;
+    @FXML private Label lblAgriculteur;
 
-    // Traduction & image (optionnels — protégés par null check)
-    @FXML private Label     lblTradEn;
-    @FXML private Label     lblTradAr;
-    @FXML private ImageView imgPreview;
-
-    // ══════════════════════════════════════════════════════
-    //  FXML — Sidebar
-    // ══════════════════════════════════════════════════════
     @FXML private Button logoutBtn;
+    @FXML private VBox gestionSubmenu;
+    @FXML private VBox gestionContainer;
     @FXML private Button gestionBtn;
-    @FXML private VBox   gestionSubmenu;
-    @FXML private VBox   gestionContainer;
 
-    // ══════════════════════════════════════════════════════
-    //  Services & État
-    // ══════════════════════════════════════════════════════
-    private final CategorieService  catService    = new CategorieService();
-    private final TranslatorService translator    = new TranslatorService();
-    private final ImageService      imageService  = new ImageService();
+    private final CategorieService catService = new CategorieService();
+    private boolean isModification = false;
+    private int idCategorieActuel = 0;
 
-    private boolean isModification    = false;
-    private int     idCategorieActuel = 0;
-    private String  nomAnglais        = "";
-    private String  nomArabe          = "";
-    private String  imageUrl          = "";
-
-    private Timer timerTraduction = new Timer();
-
-    // ══════════════════════════════════════════════════════
-    //  INITIALISATION
-    // ══════════════════════════════════════════════════════
     @FXML
     public void initialize() {
-        // Sidebar submenu caché par défaut
         if (gestionSubmenu != null) {
             gestionSubmenu.setVisible(false);
             gestionSubmenu.setManaged(false);
         }
-        if (gestionBtn != null)
+        if (gestionBtn != null && gestionContainer != null) {
             gestionBtn.setOnMouseEntered(e -> showGestionSubmenu());
-        if (gestionContainer != null)
             gestionContainer.setOnMouseEntered(e -> showGestionSubmenu());
-
-        // Feedback initial
-        if (!isModification) {
-            afficherFeedback(msgNom,         "⚠️ Veuillez remplir le nom (min 3 car.)",         true);
-            afficherFeedback(msgDescription, "⚠️ Veuillez remplir la description (min 5 car.)", true);
         }
 
+        Personne currentUser = SessionManager.getCurrentUser();
+        // Role 3 = ADMIN
+        if (currentUser != null && currentUser.getRole() == 3) {
+            if (lblAgriculteur != null) { lblAgriculteur.setVisible(true); lblAgriculteur.setManaged(true); }
+            if (cbAgriculteur != null) {
+                cbAgriculteur.setVisible(true);
+                cbAgriculteur.setManaged(true);
+                chargerAgriculteurs();
+            }
+        }
+
+        if (!isModification) {
+            afficherFeedback(msgNom, "⚠️ Nom requis (min 3 car.)", true);
+            afficherFeedback(msgDescription, "⚠️ Description requise (min 5 car.)", true);
+        }
         ajouterEcouteurs();
     }
 
-    // ══════════════════════════════════════════════════════
-    //  FEEDBACK EN TEMPS RÉEL
-    // ══════════════════════════════════════════════════════
+    private void chargerAgriculteurs() {
+        try {
+            PersonneService ps = new PersonneService();
+            // Role 2 = Agriculteur
+            cbAgriculteur.setItems(FXCollections.observableArrayList(
+                ps.recuperer().stream().filter(p -> p.getRole() == 2).toList()
+            ));
+            
+            cbAgriculteur.setCellFactory(lv -> new ListCell<>() {
+                @Override protected void updateItem(Personne p, boolean empty) {
+                    super.updateItem(p, empty);
+                    setText(empty ? null : p.getNom() + " " + p.getPrenom());
+                }
+            });
+            cbAgriculteur.setButtonCell(new ListCell<>() {
+                @Override protected void updateItem(Personne p, boolean empty) {
+                    super.updateItem(p, empty);
+                    setText(empty ? null : p.getNom() + " " + p.getPrenom());
+                }
+            });
+        } catch (SQLException e) { e.printStackTrace(); }
+    }
+
     private void afficherFeedback(Label label, String texte, boolean estErreur) {
         if (label == null) return;
         label.setText(texte);
-        label.setStyle(estErreur
-                ? "-fx-text-fill: #e74c3c; -fx-font-weight: bold;"
-                : "-fx-text-fill: #27ae60; -fx-font-weight: bold;");
+        label.setStyle(estErreur ? "-fx-text-fill: #e74c3c; -fx-font-weight: bold;" : "-fx-text-fill: #27ae60; -fx-font-weight: bold;");
     }
 
     private void ajouterEcouteurs() {
         tfNom.textProperty().addListener((obs, old, nv) -> {
-            String val = nv.trim();
-
-            // Annuler le timer précédent
-            if (timerTraduction != null) timerTraduction.cancel();
-
-            if (val.isEmpty()) {
-                afficherFeedback(msgNom, "⚠️ Le nom est obligatoire", true);
-                resetTraduction();
-            } else if (val.length() < 3) {
-                afficherFeedback(msgNom, "⚠️ Trop court (min 3 car.)", true);
-                resetTraduction();
-            } else {
-                // Déclencher traduction + image après 600ms de pause
-                timerTraduction = new Timer();
-                timerTraduction.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        String anglais        = translator.traduire(val, "en");
-                        String arabe          = translator.traduire(val, "ar");
-                        String fetchedImageUrl = imageService.chercherImage(anglais);
-
-                        Platform.runLater(() -> {
-                            nomAnglais = anglais;
-                            nomArabe   = arabe;
-                            imageUrl   = fetchedImageUrl;
-
-                            if (lblTradEn != null) lblTradEn.setText(anglais);
-                            if (lblTradAr != null) lblTradAr.setText(arabe);
-
-                            if (imgPreview != null && imageUrl != null && !imageUrl.isEmpty())
-                                imgPreview.setImage(new Image(imageUrl));
-
-                            afficherFeedback(msgNom, "✅ Nom valide", false);
-                        });
-                    }
-                }, 600);
-            }
+            if (nv.trim().length() < 3) afficherFeedback(msgNom, "⚠️ Trop court (min 3 car.)", true);
+            else afficherFeedback(msgNom, "✅ Valide", false);
         });
-
         taDescription.textProperty().addListener((obs, old, nv) -> {
-            String val = nv.trim();
-            if (val.isEmpty())        afficherFeedback(msgDescription, "⚠️ La description est obligatoire", true);
-            else if (val.length() < 5) afficherFeedback(msgDescription, "⚠️ Trop courte (min 5 car.)", true);
-            else                       afficherFeedback(msgDescription, "✅ Description valide", false);
+            if (nv.trim().length() < 5) afficherFeedback(msgDescription, "⚠️ Trop courte (min 5 car.)", true);
+            else afficherFeedback(msgDescription, "✅ Valide", false);
         });
     }
 
-    private void resetTraduction() {
-        if (lblTradEn  != null) lblTradEn.setText("...");
-        if (lblTradAr  != null) lblTradAr.setText("...");
-        if (imgPreview != null) imgPreview.setImage(null);
-    }
-
-    // ══════════════════════════════════════════════════════
-    //  PRÉPARER MODIFICATION
-    // ══════════════════════════════════════════════════════
     public void preparerModification(Categorie c) {
-        isModification    = true;
+        isModification = true;
         idCategorieActuel = c.getId();
         if (lblTitre != null) lblTitre.setText("Modifier la Catégorie");
-
         tfNom.setText(c.getNom());
         taDescription.setText(c.getDescription());
 
-        this.nomAnglais = c.getNomEn()    != null ? c.getNomEn()    : "";
-        this.nomArabe   = c.getNomAr()    != null ? c.getNomAr()    : "";
-        this.imageUrl   = c.getImageUrl() != null ? c.getImageUrl() : "";
-
-        if (c.getNom().length() >= 3) {
-            afficherFeedback(msgNom, "✅ Prêt à modifier", false);
-            if (lblTradEn != null) lblTradEn.setText(nomAnglais);
-            if (lblTradAr != null) lblTradAr.setText(nomArabe);
-            if (imgPreview != null && !imageUrl.isEmpty())
-                imgPreview.setImage(new Image(imageUrl));
+        if (cbAgriculteur != null && cbAgriculteur.isVisible()) {
+            for (Personne p : cbAgriculteur.getItems()) {
+                if (p.getCin() == c.getIdUser()) { cbAgriculteur.setValue(p); break; }
+            }
         }
-        if (c.getDescription().length() >= 5)
-            afficherFeedback(msgDescription, "✅ Description valide", false);
     }
 
-    // ══════════════════════════════════════════════════════
-    //  VALIDATION & ENREGISTREMENT
-    // ══════════════════════════════════════════════════════
     @FXML
     void validerAjout(ActionEvent event) {
-        String nom  = tfNom.getText().trim();
+        String nom = tfNom.getText().trim();
         String desc = taDescription.getText().trim();
+        Personne user = SessionManager.getCurrentUser();
 
         if (nom.length() < 3 || desc.length() < 5) {
-            afficherAlerte(Alert.AlertType.WARNING, "Format invalide",
-                    "Veuillez respecter les contraintes :\n- Nom : 3 caractères min\n- Description : 5 caractères min");
+            showAlert(Alert.AlertType.WARNING, "Format invalide", "Veuillez respecter les contraintes.");
             return;
         }
 
+        int ownerId = (user != null && user.getRole() == 3 && cbAgriculteur.getValue() != null) ? cbAgriculteur.getValue().getCin() : (user != null ? user.getCin() : 0);
+
         try {
-            if (catService.existeDeja(nom) && !isModification) {
-                afficherFeedback(msgNom, "❌ Ce nom de catégorie existe déjà !", true);
+            if (!isModification && catService.existeDeja(nom)) {
+                afficherFeedback(msgNom, "❌ Ce nom existe déjà !", true);
                 return;
             }
 
-            // Constructeur 6 paramètres (avec traductions et image)
-            Categorie c = new Categorie(
-                    isModification ? idCategorieActuel : 0,
-                    nom, nomAnglais, nomArabe, desc, imageUrl);
+            Categorie c = new Categorie();
+            c.setId(isModification ? idCategorieActuel : 0);
+            c.setNom(nom);
+            c.setDescription(desc);
+            c.setIdUser(ownerId);
+            if (user != null && user.getRole() == 3) c.setIdAdmin(user.getCin());
 
             if (isModification) catService.modifier(c);
-            else                catService.ajouter(c);
+            else catService.ajouter(c);
 
             retourListe(event);
-
-        } catch (SQLException | IOException e) {
-            e.printStackTrace();
-            afficherAlerte(Alert.AlertType.ERROR, "Erreur Système",
-                    "Une erreur est survenue lors de l'accès à la base de données.");
-        }
+        } catch (SQLException | IOException e) { e.printStackTrace(); }
     }
 
-    // ══════════════════════════════════════════════════════
-    //  NAVIGATION INTERNE
-    // ══════════════════════════════════════════════════════
     @FXML
     void retourListe(ActionEvent event) throws IOException {
-        try {
-            Personne currentUser = SessionManager.getCurrentUser();
-            String fxml = (currentUser != null && currentUser.getRole() == 1)
-                    ? "/StocksInterface/AfficherCategorieAgr.fxml"
-                    : "/StocksInterface/affichercategorie.fxml";
+        Personne user = SessionManager.getCurrentUser();
+        String fxml = (user != null && user.getRole() == 2) ? "/StocksInterface/AfficherCategorieAgr.fxml" : "/StocksInterface/affichercategorie.fxml";
+        navigateTo(event, fxml);
+    }
 
+    // --- Navigation Sidebar ---
+    @FXML public void handleDashboard(MouseEvent event) { navigateTo(event, "/UsersInterface/Acceuil.fxml"); }
+    @FXML public void handleStocks(MouseEvent event) { 
+        Personne user = SessionManager.getCurrentUser();
+        String fxml = (user != null && user.getRole() == 2) ? "/StocksInterface/AfficherArticleAgr.fxml" : "/StocksInterface/afficherarticle.fxml";
+        navigateTo(event, fxml); 
+    }
+    @FXML public void handleLogout(MouseEvent event) {
+        SessionManager.clearSession();
+        navigateTo(event, "/UsersInterface/login.fxml");
+    }
+
+    private void navigateTo(Event event, String fxml) {
+        try {
             Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource(fxml)));
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+            stage.getScene().setRoot(root);
+        } catch (IOException e) { e.printStackTrace(); }
     }
 
-    // ══════════════════════════════════════════════════════
-    //  NAVIGATION SIDEBAR (autres modules)
-    // ══════════════════════════════════════════════════════
-    @FXML public void handleDashboard(MouseEvent event)  { changerScene(event, "/UsersInterface/Acceuil.fxml"); }
-    @FXML public void handleAnimals(MouseEvent event)    { changerScene(event, "/AnimalsInterface/AfficherAnimaux.fxml"); }
-    @FXML public void handleStocks(MouseEvent event)     { changerScene(event, "/StocksInterface/afficherarticle.fxml"); }
-    @FXML public void handleTerrains(MouseEvent event)   { changerScene(event, "/TerrainsInterface/acceuilterrain.fxml"); }
-    @FXML public void handleEvents(MouseEvent event)     { changerScene(event, "/G-Evenements/Accueil.fxml"); }
-    @FXML public void handleMateriels(MouseEvent event)  { changerScene(event, "/MaterielsInterface/AccueilMateriel.fxml"); }
-    @FXML private void handlePersonnes(MouseEvent event)   { changerScene(event, "/UsersInterface/DahboardPersonne.fxml"); }
-    @FXML private void handleTaches(Event event)           { changerScene(event, "/UsersInterface/GestionTache.fxml"); }
-    @FXML private void handleAbonnements(MouseEvent event) { changerScene(event, "/UsersInterface/GestionAbonnements.fxml"); }
-    @FXML private void handleOffres(MouseEvent event)      { changerScene(event, "/UsersInterface/GestionOffre.fxml"); }
-    @FXML private void handleGestion(MouseEvent event)     { /* Vue principale Gestion */ }
-
-    // ══════════════════════════════════════════════════════
-    //  DÉCONNEXION
-    // ══════════════════════════════════════════════════════
-    @FXML
-    private void handleLogout() {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Confirmation");
-        alert.setHeaderText("Déconnexion");
-        alert.setContentText("Voulez-vous vraiment vous déconnecter ?");
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
-            try {
-                FXMLLoader loader = new FXMLLoader(
-                        getClass().getResource("/UsersInterface/login.fxml"));
-                Parent root = loader.load();
-                Stage stage = (Stage) logoutBtn.getScene().getWindow();
-                stage.setScene(new Scene(root, 900, 600));
-                stage.setTitle("AgroFlow - Connexion");
-                stage.setMaximized(true);
-            } catch (IOException e) {
-                e.printStackTrace();
-                showError("Erreur", "Impossible de retourner à la page de connexion");
-            }
-        }
-    }
-
-    // ══════════════════════════════════════════════════════
-    //  SIDEBAR SUBMENU
-    // ══════════════════════════════════════════════════════
-    private void showGestionSubmenu() {
-        if (gestionSubmenu != null) { gestionSubmenu.setVisible(true);  gestionSubmenu.setManaged(true);  }
-    }
-    private void hideGestionSubmenu() {
-        if (gestionSubmenu != null) { gestionSubmenu.setVisible(false); gestionSubmenu.setManaged(false); }
-    }
-
-    // ══════════════════════════════════════════════════════
-    //  UTILITAIRES
-    // ══════════════════════════════════════════════════════
-    private void changerScene(Event event, String fxml) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxml));
-            Parent root = loader.load();
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            boolean etaitMaximise = stage.isMaximized();
-            stage.setScene(new Scene(root));
-            stage.setMaximized(etaitMaximise);
-            stage.show();
-        } catch (IOException e) {
-            System.err.println("Erreur de chargement FXML : " + fxml);
-            e.printStackTrace();
-        }
-    }
-
-    private void afficherAlerte(Alert.AlertType type, String titre, String message) {
+    private void showGestionSubmenu() { if (gestionSubmenu != null) { gestionSubmenu.setVisible(true); gestionSubmenu.setManaged(true); } }
+    private void showAlert(Alert.AlertType type, String title, String message) {
         Alert alert = new Alert(type);
-        alert.setTitle(titre);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-
-    private static void showError(String title, String message) {
-        Alert a = new Alert(Alert.AlertType.ERROR);
-        a.setTitle(title); a.setHeaderText(null); a.setContentText(message); a.showAndWait();
-    }
-
-    private static void showInfo(String title, String message) {
-        Alert a = new Alert(Alert.AlertType.INFORMATION);
-        a.setTitle(title); a.setHeaderText(null); a.setContentText(message); a.showAndWait();
+        alert.setTitle(title); alert.setHeaderText(null); alert.setContentText(message); alert.showAndWait();
     }
 }

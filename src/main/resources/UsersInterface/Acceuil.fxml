@@ -76,6 +76,11 @@
 
                             <font><Font name="System" size="13" /></font>
                         </Button>
+                        <Button fx:id="backupBtn" onMouseClicked="#handleBackup" prefHeight="42" prefWidth="215"
+                                style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.95); -fx-font-size: 13px; -fx-alignment: CENTER_LEFT; -fx-padding: 0 0 0 15; -fx-background-radius: 8; -fx-cursor: hand;"
+                                text="💾 Sauvegarde BD">
+                            <font><Font name="System" size="13" /></font>
+                        </Button>
                     </VBox>
                 </VBox>
 

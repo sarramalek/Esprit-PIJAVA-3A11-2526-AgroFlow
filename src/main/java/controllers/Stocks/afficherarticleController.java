@@ -34,10 +34,23 @@ import models.User.Personne;
 import services.Stocks.ArticleService;
 import services.Stocks.CategorieService;
 
-import com.itextpdf.text.*;
+import com.itextpdf.text.BaseColor;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.FontFactory;
+import com.itextpdf.text.PageSize;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Phrase;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import utils.SessionManager;
 
 import javax.imageio.ImageIO;
@@ -64,8 +77,8 @@ public class afficherarticleController {
     //  FXML — Tableau & Colonnes
     // ══════════════════════════════════════════════════════
     @FXML private TableView<Article>            tableArticles;
-    @FXML private TableColumn<Article, String>  colNom, colUnite, colCategorie;
-    @FXML private TableColumn<Article, Double>  colQuantite, colSeuil;
+    @FXML private TableColumn<Article, String>  colNom, colUnite, colCategorie, colDevise, colAgriculteur;
+    @FXML private TableColumn<Article, Double>  colQuantite, colSeuil, colPrix;
     @FXML private TableColumn<Article, Void>    colActions;
 
     // ══════════════════════════════════════════════════════
@@ -73,6 +86,8 @@ public class afficherarticleController {
     // ══════════════════════════════════════════════════════
     @FXML private TextField        tfRecherche;
     @FXML private ComboBox<String> cbFiltreCategorie;
+    @FXML private ComboBox<String> cbFiltreAgriculteur;
+    @FXML private Label            lblFiltreAgriculteur;
 
     // ══════════════════════════════════════════════════════
     //  FXML — QR Code & KPI Labels
@@ -82,6 +97,7 @@ public class afficherarticleController {
     @FXML private Label     lblNbAlertes;
     @FXML private Label     lblTotalArticles;
     @FXML private Label     lblWarning;
+    @FXML private VBox      qrCodeContainer;
 
     // ══════════════════════════════════════════════════════
     //  FXML — Sidebar & Navigation
@@ -116,7 +132,7 @@ public class afficherarticleController {
 
         // Mise à jour des labels
         updateUserLabels();
-        chargerSidebarAvatar(SessionManager.getCurrentUser());
+        //chargerSidebarAvatar(SessionManager.getCurrentUser());
         // Sidebar submenu caché par défaut
         if (gestionSubmenu != null) {
             gestionSubmenu.setVisible(false);
@@ -132,6 +148,26 @@ public class afficherarticleController {
         // Sélection → affichage QR
         tableArticles.getSelectionModel().selectedItemProperty()
                 .addListener((obs, old, nv) -> { if (nv != null) afficherQR(nv); });
+
+        // Visibilité QR Code : Masquer pour ADMIN (Role 3)
+        if (qrCodeContainer != null) {
+            boolean isNotAdmin = (currentUser != null && currentUser.getRole() != 3);
+            qrCodeContainer.setVisible(isNotAdmin);
+            qrCodeContainer.setManaged(isNotAdmin);
+        }
+
+        // Visibilité Colonne Agriculteur & Filtre : Uniquement pour ADMIN (Role 3)
+        if (colAgriculteur != null) {
+            boolean isAdmin = (currentUser != null && currentUser.getRole() == 3);
+            colAgriculteur.setVisible(isAdmin);
+            
+            if (cbFiltreAgriculteur != null && lblFiltreAgriculteur != null) {
+                cbFiltreAgriculteur.setVisible(isAdmin);
+                cbFiltreAgriculteur.setManaged(isAdmin);
+                lblFiltreAgriculteur.setVisible(isAdmin);
+                lblFiltreAgriculteur.setManaged(isAdmin);
+            }
+        }
 
         configurerStyleLignes();
         chargerDonnees();
@@ -191,8 +227,8 @@ public class afficherarticleController {
 
         if (userRoleLabel != null) {
             String roleText = switch (currentUser.getRole()) {
-                case 1 -> "🌾 AGRICOLE";
-                case 2 -> "👷 EMPLOYÉ";
+                case 1 -> "👷 EMPLOYÉ";
+                case 2 -> "🌾 AGRICOLE";
                 case 3 -> "👑 ADMIN";
                 default -> "Rôle inconnu";
             };
@@ -206,8 +242,17 @@ public class afficherarticleController {
     // ══════════════════════════════════════════════════════
     private void configurerColonnes() {
         colNom.setCellValueFactory(new PropertyValueFactory<>("nom"));
+        if (colAgriculteur != null) {
+            colAgriculteur.setCellValueFactory(new PropertyValueFactory<>("nomAgriculteur"));
+        }
         colQuantite.setCellValueFactory(new PropertyValueFactory<>("quantiteEnStock"));
         colUnite.setCellValueFactory(new PropertyValueFactory<>("uniteMesure"));
+        if (colPrix != null) {
+            colPrix.setCellValueFactory(new PropertyValueFactory<>("prixUnitaire"));
+        }
+        if (colDevise != null) {
+            colDevise.setCellValueFactory(new PropertyValueFactory<>("devise"));
+        }
         colSeuil.setCellValueFactory(new PropertyValueFactory<>("seuilAlerte"));
 
         // Affichage du nom de catégorie (résolution depuis l'id)
@@ -229,16 +274,38 @@ public class afficherarticleController {
     // ══════════════════════════════════════════════════════
     private void chargerDonnees() {
         try {
-            masterData = FXCollections.observableArrayList(articleService.recuperer());
+            if (currentUser != null && currentUser.getRole() == 1) { // 1 = AGRICOLE
+                masterData = FXCollections.observableArrayList(articleService.recupererParUser(currentUser.getCin()));
+            } else {
+                masterData = FXCollections.observableArrayList(articleService.recuperer());
+            }
 
             // Combo catégories
             if (cbFiltreCategorie != null) {
                 ObservableList<String> cats = FXCollections.observableArrayList("Toutes");
-                cats.addAll(catService.recuperer().stream()
+                List<models.Stocks.Categorie> allCats;
+                if (currentUser != null && currentUser.getRole() == 1) {
+                    allCats = catService.recupererParUser(currentUser.getCin());
+                } else {
+                    allCats = catService.recuperer();
+                }
+                
+                cats.addAll(allCats.stream()
                         .map(c -> c.getNom())
                         .collect(Collectors.toList()));
                 cbFiltreCategorie.setItems(cats);
                 cbFiltreCategorie.getSelectionModel().selectFirst();
+            }
+
+            // Combo agriculteurs (pour Admin)
+            if (cbFiltreAgriculteur != null && currentUser != null && currentUser.getRole() == 3) {
+                ObservableList<String> agris = FXCollections.observableArrayList("Tous");
+                List<models.User.Utilisateur> allAgris = new services.User.PersonneService().getUtilisateurs();
+                agris.addAll(allAgris.stream()
+                        .map(u -> u.getPrenom() + " " + u.getNom())
+                        .collect(Collectors.toList()));
+                cbFiltreAgriculteur.setItems(agris);
+                cbFiltreAgriculteur.getSelectionModel().selectFirst();
             }
 
             // Recherche + filtre combinés
@@ -247,6 +314,8 @@ public class afficherarticleController {
             tfRecherche.textProperty().addListener((o, old, nv) -> appliquerFiltres(filteredData));
             if (cbFiltreCategorie != null)
                 cbFiltreCategorie.valueProperty().addListener((o, old, nv) -> appliquerFiltres(filteredData));
+            if (cbFiltreAgriculteur != null)
+                cbFiltreAgriculteur.valueProperty().addListener((o, old, nv) -> appliquerFiltres(filteredData));
 
             SortedList<Article> sortedData = new SortedList<>(filteredData);
             sortedData.comparatorProperty().bind(tableArticles.comparatorProperty());
@@ -278,7 +347,16 @@ public class afficherarticleController {
                     }
                 }
             }
-            return matchesNom && matchesCat;
+
+            boolean matchesAgri = true;
+            if (cbFiltreAgriculteur != null && cbFiltreAgriculteur.isVisible()) {
+                String agriSel = cbFiltreAgriculteur.getValue();
+                if (agriSel != null && !agriSel.equals("Tous")) {
+                    matchesAgri = agriSel.equals(article.getNomAgriculteur());
+                }
+            }
+
+            return matchesNom && matchesCat && matchesAgri;
         });
         mettreAJourKPI();
     }
@@ -346,6 +424,131 @@ public class afficherarticleController {
     // ══════════════════════════════════════════════════════
     //  EXPORT PDF ALERTES
     // ══════════════════════════════════════════════════════
+    @FXML
+    void exporterPDF(ActionEvent event) {
+        ObservableList<Article> data = tableArticles.getItems();
+        if (data.isEmpty()) {
+            new Alert(Alert.AlertType.INFORMATION, "Aucune donnée à exporter.").show();
+            return;
+        }
+
+        FileChooser fc = new FileChooser();
+        fc.setInitialFileName("Inventaire_Stock.pdf");
+        File file = fc.showSaveDialog(((Node) event.getSource()).getScene().getWindow());
+
+        if (file != null) {
+            try {
+                Document document = new Document(PageSize.A4.rotate());
+                PdfWriter.getInstance(document, new FileOutputStream(file));
+                document.open();
+                
+                // Titre
+                com.itextpdf.text.Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18, BaseColor.BLACK);
+                document.add(new Paragraph("AGROFLOW - INVENTAIRE DES STOCKS\n\n", titleFont));
+                document.add(new Paragraph("Date : " + java.time.LocalDate.now() + "\n\n"));
+
+                // Tableau (7 ou 8 colonnes selon si admin)
+                boolean isAdmin = (currentUser != null && currentUser.getRole() == 3);
+                int colCount = isAdmin ? 8 : 7;
+                PdfPTable table = new PdfPTable(colCount);
+                table.setWidthPercentage(100);
+
+                // En-têtes
+                String[] headers = isAdmin 
+                    ? new String[]{"Nom", "Agriculteur", "Catégorie", "Qte", "Unité", "Prix", "Devise", "Seuil"}
+                    : new String[]{"Nom", "Catégorie", "Qte", "Unité", "Prix", "Devise", "Seuil"};
+
+                for (String h : headers) {
+                    PdfPCell cell = new PdfPCell(new Phrase(h, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, BaseColor.WHITE)));
+                    cell.setBackgroundColor(new BaseColor(45, 90, 39));
+                    cell.setPadding(5);
+                    table.addCell(cell);
+                }
+
+                // Données
+                for (Article a : data) {
+                    table.addCell(a.getNom());
+                    if (isAdmin) table.addCell(a.getNomAgriculteur() != null ? a.getNomAgriculteur() : "-");
+                    table.addCell(a.getNomCategorie());
+                    table.addCell(String.valueOf(a.getQuantiteEnStock()));
+                    table.addCell(a.getUniteMesure());
+                    table.addCell(String.valueOf(a.getPrixUnitaire()));
+                    table.addCell(a.getDevise());
+                    table.addCell(String.valueOf(a.getSeuilAlerte()));
+                }
+
+                document.add(table);
+                document.close();
+                new Alert(Alert.AlertType.INFORMATION, "PDF généré avec succès !").show();
+            } catch (Exception e) { e.printStackTrace(); }
+        }
+    }
+
+    @FXML
+    void exporterExcel(ActionEvent event) {
+        ObservableList<Article> data = tableArticles.getItems();
+        if (data.isEmpty()) {
+            new Alert(Alert.AlertType.INFORMATION, "Aucune donnée à exporter.").show();
+            return;
+        }
+
+        FileChooser fc = new FileChooser();
+        fc.setInitialFileName("Inventaire_Stock.xlsx");
+        File file = fc.showSaveDialog(((Node) event.getSource()).getScene().getWindow());
+
+        if (file != null) {
+            try (Workbook workbook = new XSSFWorkbook()) {
+                Sheet sheet = workbook.createSheet("Stocks");
+                
+                // Style En-tête
+                org.apache.poi.ss.usermodel.Font headerFont = workbook.createFont();
+                headerFont.setBold(true);
+                headerFont.setColor(IndexedColors.WHITE.getIndex());
+                
+                CellStyle headerStyle = workbook.createCellStyle();
+                headerStyle.setFont(headerFont);
+                headerStyle.setFillForegroundColor(IndexedColors.GREEN.getIndex());
+                headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+                // En-têtes
+                boolean isAdmin = (currentUser != null && currentUser.getRole() == 3);
+                String[] headers = isAdmin 
+                    ? new String[]{"Nom", "Agriculteur", "Catégorie", "Quantité", "Unité", "Prix", "Devise", "Seuil"}
+                    : new String[]{"Nom", "Catégorie", "Quantité", "Unité", "Prix", "Devise", "Seuil"};
+
+                Row headerRow = sheet.createRow(0);
+                for (int i = 0; i < headers.length; i++) {
+                    Cell cell = headerRow.createCell(i);
+                    cell.setCellValue(headers[i]);
+                    cell.setCellStyle(headerStyle);
+                }
+
+                // Données
+                int rowNum = 1;
+                for (Article a : data) {
+                    Row row = sheet.createRow(rowNum++);
+                    int col = 0;
+                    row.createCell(col++).setCellValue(a.getNom());
+                    if (isAdmin) row.createCell(col++).setCellValue(a.getNomAgriculteur() != null ? a.getNomAgriculteur() : "-");
+                    row.createCell(col++).setCellValue(a.getNomCategorie());
+                    row.createCell(col++).setCellValue(a.getQuantiteEnStock());
+                    row.createCell(col++).setCellValue(a.getUniteMesure());
+                    row.createCell(col++).setCellValue(a.getPrixUnitaire());
+                    row.createCell(col++).setCellValue(a.getDevise());
+                    row.createCell(col++).setCellValue(a.getSeuilAlerte());
+                }
+
+                // Ajuster colonnes
+                for (int i = 0; i < headers.length; i++) sheet.autoSizeColumn(i);
+
+                try (FileOutputStream fileOut = new FileOutputStream(file)) {
+                    workbook.write(fileOut);
+                }
+                new Alert(Alert.AlertType.INFORMATION, "Fichier Excel généré avec succès !").show();
+            } catch (Exception e) { e.printStackTrace(); }
+        }
+    }
+
     @FXML
     void exporterAlertesPDF(ActionEvent event) {
         List<Article> articlesEnAlerte = masterData.stream()
@@ -421,30 +624,96 @@ public class afficherarticleController {
     // ══════════════════════════════════════════════════════
     private void configurerColonneActions() {
         colActions.setCellFactory(param -> new TableCell<>() {
-            private final Button btnEdit = new Button("Modifier");
-            private final Button btnDel  = new Button("Supprimer");
-            private final HBox container = new HBox(btnEdit, btnDel);
+            private final Button btnEdit = new Button("📝 MODIF");
+            private final Button btnMvt  = new Button("📈 MVT");
+            private final Button btnHist = new Button("📋 HISTO");
+            private final Button btnDel  = new Button("🗑️ SUPP");
+            private final HBox container = new HBox(btnEdit, btnMvt, btnHist, btnDel);
+
             {
-                container.setSpacing(10);
-                container.setStyle("-fx-alignment: center;");
-                btnEdit.setStyle("-fx-background-color: #f39c12; -fx-text-fill: white;"
-                        + "-fx-font-weight: bold; -fx-cursor: hand;");
-                btnDel.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white;"
-                        + "-fx-font-weight: bold; -fx-cursor: hand;");
-                btnEdit.setOnAction(e -> ouvrirFormulaire(
-                        getTableView().getItems().get(getIndex()), e));
-                btnDel.setOnAction(e -> supprimer(
-                        getTableView().getItems().get(getIndex())));
+                container.setSpacing(6);
+                container.setStyle("-fx-alignment: center; -fx-padding: 0 5 0 5;");
+                
+                // Tooltips explicites
+                btnEdit.setTooltip(new Tooltip("Modifier les détails de l'article"));
+                btnMvt.setTooltip(new Tooltip("Ajouter une entrée ou sortie de stock"));
+                btnHist.setTooltip(new Tooltip("Consulter tous les mouvements de cet article"));
+                btnDel.setTooltip(new Tooltip("Supprimer cet article du stock"));
+
+                String commonStyle = "-fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-background-radius: 6; -fx-font-size: 10px; -fx-padding: 5 8 5 8;";
+                
+                btnEdit.setStyle("-fx-background-color: #f39c12; " + commonStyle);
+                btnMvt.setStyle("-fx-background-color: #27ae60; " + commonStyle);
+                btnHist.setStyle("-fx-background-color: #2980b9; " + commonStyle);
+                btnDel.setStyle("-fx-background-color: #e74c3c; " + commonStyle);
+
+                btnEdit.setOnAction(e -> ouvrirFormulaire(getTableView().getItems().get(getIndex()), e));
+                btnMvt.setOnAction(e -> ouvrirMouvement(getTableView().getItems().get(getIndex())));
+                btnHist.setOnAction(e -> ouvrirHistoriqueArticle(getTableView().getItems().get(getIndex())));
+                btnDel.setOnAction(e -> supprimer(getTableView().getItems().get(getIndex())));
             }
-            @Override protected void updateItem(Void item, boolean empty) {
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
                 setGraphic(empty ? null : container);
             }
         });
     }
 
+    private void ouvrirMouvement(Article a) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/StocksInterface/enregistrerMouvement.fxml"));
+            Parent root = loader.load();
+            enregistrerMouvementController ctrl = loader.getController();
+            ctrl.setArticle(a);
+            
+            Stage stage = new Stage();
+            stage.setTitle("Enregistrer - " + a.getNom());
+            stage.setScene(new Scene(root));
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.showAndWait();
+            
+            if (ctrl.isSuccess()) {
+                chargerDonnees();
+            }
+        } catch (IOException e) { e.printStackTrace(); }
+    }
+
+    private void ouvrirHistoriqueArticle(Article a) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/StocksInterface/historiqueMouvements.fxml"));
+            Parent root = loader.load();
+            historiqueMouvementsController ctrl = loader.getController();
+            ctrl.chargerHistoriqueArticle(a.getId());
+            
+            Stage stage = new Stage();
+            stage.setTitle("Historique - " + a.getNom());
+            stage.setScene(new Scene(root));
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.show();
+        } catch (IOException e) { e.printStackTrace(); }
+    }
+
+    @FXML
+    void voirHistoriqueGlobal(ActionEvent event) {
+        if (currentUser == null) return;
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/StocksInterface/historiqueMouvements.fxml"));
+            Parent root = loader.load();
+            historiqueMouvementsController ctrl = loader.getController();
+            ctrl.chargerHistoriqueGlobal(currentUser.getCin());
+            
+            Stage stage = new Stage();
+            stage.setTitle("Mon Historique de Mouvements");
+            stage.setScene(new Scene(root));
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.show();
+        } catch (IOException e) { e.printStackTrace(); }
+    }
+
     // ══════════════════════════════════════════════════════
-    //  STYLE DES LIGNES (alerte rouge / normal jaune)
+    //  STYLE DES LIGNES
     // ══════════════════════════════════════════════════════
     private void configurerStyleLignes() {
         tableArticles.setRowFactory(tv -> new TableRow<Article>() {
@@ -459,12 +728,8 @@ public class afficherarticleController {
         });
     }
 
-    // ══════════════════════════════════════════════════════
-    //  CRUD
-    // ══════════════════════════════════════════════════════
     private void supprimer(Article a) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION,
-                "Supprimer " + a.getNom() + " ?", ButtonType.YES, ButtonType.NO);
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Supprimer " + a.getNom() + " ?", ButtonType.YES, ButtonType.NO);
         if (alert.showAndWait().get() == ButtonType.YES) {
             try {
                 articleService.supprimer(a.getId());
@@ -510,15 +775,60 @@ public class afficherarticleController {
     @FXML public void handleDashboard(MouseEvent event) throws IOException {
         changerScene("/UsersInterface/Acceuil.fxml", event);
     }
+    @FXML public void handleDashboardAgricole(MouseEvent event) throws IOException {
+        changerScene("/UsersInterface/AcceuillAgr.fxml", event);
+    }
     @FXML public void handleAnimals(MouseEvent event) throws IOException {
-        changerScene("/AnimalsInterface/AfficherAnimaux.fxml", event);
+        changerScene("/AnimauxInterface/AfficherAnimaux.fxml", event);
+    }
+    @FXML public void handleMesAnimaux(MouseEvent event) throws IOException {
+        changerScene("/AnimauxInterface/AfficherAnimaux.fxml", event);
     }
     @FXML public void handleStocks(MouseEvent event) throws IOException {
-        changerScene("/StocksInterface/afficherarticle.fxml", event);
+        Personne currentUser = SessionManager.getCurrentUser();
+        String fxml = (currentUser != null && currentUser.getRole() == 2)
+                ? "/StocksInterface/AfficherArticleAgr.fxml"
+                : "/StocksInterface/afficherarticle.fxml";
+        changerScene(fxml, event);
+    }
+    @FXML public void handleMesStocks(ActionEvent event) throws IOException {
+        handleStocks(null);
+    }
+    @FXML public void handleMesArticles(MouseEvent event) throws IOException {
+        handleStocks(event);
+    }
+    @FXML public void handleMesCatégories(MouseEvent event) throws IOException {
+        Personne currentUser = SessionManager.getCurrentUser();
+        String fxml = (currentUser != null && currentUser.getRole() == 2)
+                ? "/StocksInterface/AfficherCategorieAgr.fxml"
+                : "/StocksInterface/affichercategorie.fxml";
+        changerScene(fxml, event);
     }
     @FXML public void handleTerrains(MouseEvent event) throws IOException {
         changerScene("/TerrainsInterface/acceuilterrain.fxml", event);
     }
+    @FXML public void handleMesTerrains(MouseEvent event) throws IOException {
+        changerScene("/TerrainsInterface/acceuilterrain.fxml", event);
+    }
+    @FXML public void handleMonMateriel(MouseEvent event) throws IOException {
+        changerScene("/MaterielsInterface/AgricoleAffichageMachine.fxml", event);
+    }
+    @FXML public void handleMonAbonnement(MouseEvent event) throws IOException {
+        changerScene("/UsersInterface/MesAbonnements.fxml", event);
+    }
+    @FXML public void handleMesEvenements(MouseEvent event) throws IOException {
+        changerScene("/G-Evenements/AfficherEvenementsUser.fxml", event);
+    }
+    @FXML void ouvrirTerrains(MouseEvent event) throws IOException {
+        changerScene("/TerrainsInterface/agricoleaffichageterrain.fxml", event);
+    }
+    @FXML void ouvrirPlantes(MouseEvent event) throws IOException {
+        changerScene("/TerrainsInterface/agricoleaffichageplante.fxml", event);
+    }
+    @FXML void ouvrirRotations(MouseEvent event) throws IOException {
+        changerScene("/TerrainsInterface/agricoleaffichagerotation.fxml", event);
+    }
+
     @FXML public void handleEvents(MouseEvent event) throws IOException {
         changerScene("/G-Evenements/Accueil.fxml", event);
     }
@@ -565,7 +875,7 @@ public class afficherarticleController {
                 stage.show();
             } catch (IOException e) {
                 e.printStackTrace();
-                showError("Erreur", "Impossible de retourner à la page de connexion");
+                showAlert(Alert.AlertType.ERROR, "Erreur", "Impossible de retourner à la page de connexion");
             }
         }
     }
@@ -590,265 +900,51 @@ public class afficherarticleController {
     // ══════════════════════════════════════════════════════
     //  UTILITAIRES
     // ══════════════════════════════════════════════════════
+    // ══════════════════════════════════════════════════════
+    //  UTILITAIRES & NAVIGATION
+    // ══════════════════════════════════════════════════════
     private void changerScene(String fxml, Event event) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxml));
             Parent root = loader.load();
-            // On récupère le Stage et la Scene ACTUELLE
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            Scene scene = stage.getScene();
-
-            // SOLUTION MIRACLE : On change la racine, pas la scène !
-            scene.setRoot(root);
-
-            // Plus besoin de gérer "etaitMaximise", la fenêtre ne bougera pas d'un pixel
-            stage.show();
+            stage.getScene().setRoot(root);
         } catch (IOException e) {
             System.err.println("Erreur de chargement FXML : " + fxml);
             e.printStackTrace();
         }
     }
 
-    private static void showError(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
+    private void showAlert(Alert.AlertType type, String title, String message) {
+        Alert alert = new Alert(type);
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
     }
 
-    private static void showInfo(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-
-
-    // navigation Front Office Agricole
-    @FXML private Button dashboardBtn;
-
-    @FXML private Label welcomeNameLabel;
-    @FXML private Hyperlink aproposLink;
-
-
-    //image useer
-    @FXML private ImageView sidebarAvatarImageView;
-    @FXML private Label     sidebarAvatarDefault;
-    @FXML private Circle sidebarAvatarBg;
-    private void chargerSidebarAvatar(Personne user) {
-        if (user == null) return;
-
-        // Nom et rôle
-        if (userNameLabel != null)
-            userNameLabel.setText(user.getPrenom() + " " + user.getNom());
-
-        // Clip circulaire appliqué en Java (radius=35, centre=35,35 pour fitWidth/Height=70)
-        if (sidebarAvatarImageView != null) {
-            Circle clip = new Circle(35, 35, 35);
-            sidebarAvatarImageView.setClip(clip);
-        }
-
-        String photoUrl = user.getPhotoUrl();
-        if (photoUrl == null || photoUrl.isBlank()) return;
-
-        Thread thread = new Thread(() -> {
-            try {
-                Image image = new Image(photoUrl, 70, 70, false, true, true);
-                Platform.runLater(() -> {
-                    if (!image.isError()) {
-                        sidebarAvatarImageView.setImage(image);
-                        sidebarAvatarImageView.setVisible(true);
-                        sidebarAvatarImageView.setManaged(true);
-                        sidebarAvatarDefault.setVisible(false);
-                        if (sidebarAvatarBg != null) sidebarAvatarBg.setVisible(false);
-                    }
-                });
-            } catch (Exception e) {
-                System.err.println("⚠️ Avatar sidebar : " + e.getMessage());
-            }
-        });
-        thread.setDaemon(true);
-        thread.start();
-    }
     @FXML
-    void ouvrirTerrains(MouseEvent event) {
-        chargerPage(event, "/TerrainsInterface/agricoleaffichageterrain.fxml", "Gestion des Terrains");
-    }
-
-    @FXML
-    void ouvrirPlantes(MouseEvent event) {
-        chargerPage(event, "/TerrainsInterface/agricoleaffichageplante.fxml", "Liste des Plantes");
-    }
-
-    @FXML
-    void ouvrirRotations(MouseEvent event) {
-        chargerPage(event, "/TerrainsInterface/agricoleaffichagerotation.fxml", "Gestion des Rotations");
-    }
-
-    private void chargerPage(MouseEvent event, String fxmlPath, String titre) {
+    public void handleMonProfil(MouseEvent event) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/ProfilEmplye.fxml"));
             Parent root = loader.load();
-
-            // On récupère le Stage et la Scene ACTUELLE
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            Scene scene = stage.getScene();
-
-            // SOLUTION MIRACLE : On change la racine, pas la scène !
-            scene.setRoot(root);
-
-            // Plus besoin de gérer "etaitMaximise", la fenêtre ne bougera pas d'un pixel
-            stage.show();
-        } catch (IOException e) {
-            System.err.println("Erreur de chargement FXML : " + fxmlPath);
-            e.printStackTrace();
-        }
+            ProfilEmploye ctrl = loader.getController();
+            if (ctrl != null && currentUser != null) ctrl.setCurrentUser(currentUser);
+            Stage s = new Stage();
+            s.setScene(new Scene(root));
+            s.initModality(Modality.APPLICATION_MODAL);
+            s.show();
+        } catch (IOException e) { showAlert(Alert.AlertType.ERROR, "Erreur", e.getMessage()); }
     }
-    // ── Navigation ────────────────────────────────────────────────────────────
 
-    @FXML private void handleDashboardAgricole(MouseEvent event)    { navigateTo(event,"/UsersInterface/AcceuillAgr.fxml","Dashboard"); }
-    @FXML private void handleMesTerrains(MouseEvent mouseEvent)  {         navigateTo(mouseEvent,"/TerrainsInterface/acceuilagricoleterrain.fxml","Terrains");
-    }
-    @FXML private void handleMesAnimaux(MouseEvent mouseEvent)   {         navigateTo(mouseEvent,"/AnimalsInterface/acceuilagricoleanimaux.fxml","Animaux");
-    }
-    @FXML private void handleMesStocks()    { System.out.println("📦 Stocks..."); }
-    @FXML private void handleMonMateriel(MouseEvent mouseEvent)   {         navigateTo(mouseEvent,"/MaterielsInterface/AgricoleAffichageMachine.fxml","Animaux"); }
-
-    // ✓ CORRECT
-    @FXML
-    private void handleMonAbonnement(MouseEvent event) {
-        System.out.println("💳 Ouverture Mon Abonnement...");
-        navigateTo(event,"/UsersInterface/MesAbonnements.fxml","Mes Abonnements");
-    }
-    @FXML private void handleMesArticles(MouseEvent mouseEvent)   {         navigateTo(mouseEvent,"/StocksInterface/AfficherArticleAgr.fxml","Articles"); }
-    @FXML private void handleMesCatégories(MouseEvent mouseEvent)   {         navigateTo(mouseEvent,"/StocksInterface/AfficherCategorieAgr.fxml","Catégories "); }
-
-
-
-
-    public static void showError(String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-    // Ajouter cette méthode getStage() pour ProfilAgricole
     public Stage getStage() {
-        if (logoutBtn != null && logoutBtn.getScene() != null)
-            return (Stage) logoutBtn.getScene().getWindow();
+        if (logoutBtn != null && logoutBtn.getScene() != null) return (Stage) logoutBtn.getScene().getWindow();
         return null;
     }
 
     public void setCurrentUser(Personne user) {
         this.currentUser = user;
-        if (user != null) {
-            System.out.println("✓ setCurrentUser appelé pour: " + user.getNom());
-
-            if (userNameLabel != null)
-                userNameLabel.setText(user.getPrenom() + " " + user.getNom());
-            else
-                System.err.println("✗ userNameLabel est NULL !");
-
-            if (welcomeNameLabel != null)
-                welcomeNameLabel.setText(user.getPrenom() + " !");
-            else
-                System.err.println("✗ welcomeNameLabel est NULL !");
-
-            if (userRoleLabel != null)
-                userRoleLabel.setText("🌾 AGRICULTEUR");
-
-
-        } else {
-            System.err.println("✗ setCurrentUser appelé avec user NULL !");
-        }
+        updateUserLabels();
     }
-
-
-
-    /**
-     * Transfère l'utilisateur courant au contrôleur cible via réflexion
-     */
-    private void transferUserToController(Object controller) {
-        try {
-            controller.getClass()
-                    .getMethod("setCurrentUser", Personne.class)
-                    .invoke(controller, currentUser);
-            System.out.println("✓ Utilisateur transféré au contrôleur");
-        } catch (NoSuchMethodException e) {
-            System.out.println("ℹ Le contrôleur n'a pas de méthode setCurrentUser()");
-        } catch (Exception e) {
-            System.err.println("✗ Erreur lors du transfert utilisateur: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Gère les erreurs de navigation de manière appropriée
-     */
-    private void handleNavigationError(String fxmlPath, String title, IOException e) {
-        e.printStackTrace();
-
-        // Vérifier si c'est un fichier manquant ou une autre erreur
-        if (e.getMessage() != null && e.getMessage().contains("Location is not set")) {
-            showInfo("Module à venir",
-                    "Le module \"" + title + "\" sera disponible prochainement.");
-        } else if (fxmlPath.contains("MesTerrains") ||
-                fxmlPath.contains("MesAnimaux") ||
-                fxmlPath.contains("MesStocks") ||
-                fxmlPath.contains("MonMateriel")) {
-            // Modules pas encore implémentés
-            showInfo("Fonctionnalité à venir",
-                    "Cette fonctionnalité est en cours de développement.");
-        } else {
-            // Erreur réelle
-            showError("Erreur de chargement\n\n" +
-                    "Impossible de charger " + title + ".\n" +
-                    "Détails: " + e.getMessage());
-        }
-    }
-
-    private void navigateTo(MouseEvent event, String fxmlPath, String title) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
-            Parent root = loader.load();
-
-            // On récupère le Stage et la Scene ACTUELLE
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            Scene scene = stage.getScene();
-
-            // SOLUTION MIRACLE : On change la racine, pas la scène !
-            scene.setRoot(root);
-
-            // Plus besoin de gérer "etaitMaximise", la fenêtre ne bougera pas d'un pixel
-            stage.show();
-        } catch (IOException e) {
-            System.err.println("Erreur de chargement FXML : " + fxmlPath);
-            e.printStackTrace();
-        }
-    }
-    @FXML private void handleMonProfil(MouseEvent event )    { try {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/ProfilEmplye.fxml"));
-        Parent root = loader.load();
-        ProfilEmploye ctrl = loader.getController();
-        if (ctrl != null && currentUser != null) ctrl.setCurrentUser(currentUser);
-        Stage s = new Stage();
-        s.setTitle("Mon Profil"); s.setScene(new Scene(root));
-        s.setResizable(true); s.initModality(Modality.APPLICATION_MODAL);
-        s.centerOnScreen(); s.showAndWait();
-    } catch (IOException e) { showError("Erreur"+ e.getMessage()); } }
-
-
-
-
-    public void handleMesEvenements(MouseEvent mouseEvent) {
-        navigateTo(mouseEvent,"/G-Evenements/AfficherEvenementsUser.fxml","Evenements");
-    }
-
-    public void ouvrirParticipations(MouseEvent mouseEvent) {
-        navigateTo(mouseEvent,"/G-Evenements/AfficherParticipationsUser.fxml","Participations");
-    }
-
 
 }

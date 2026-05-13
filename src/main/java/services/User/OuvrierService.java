@@ -154,6 +154,25 @@ public class OuvrierService {
     }
 
     /**
+     * Récupère le CIN de l'agriculteur propriétaire pour un ouvrier donné.
+     */
+    public int getAgriculteurCinForOuvrier(int cinOuvrier) throws SQLException {
+        String q = """
+            SELECT t.cin 
+            FROM users u
+            INNER JOIN terrain t ON u.id_terrain = t.id_terrain
+            WHERE u.cin = ?
+            """;
+        try (PreparedStatement pst = connection.prepareStatement(q)) {
+            pst.setInt(1, cinOuvrier);
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) return rs.getInt("cin");
+            }
+        }
+        return -1;
+    }
+
+    /**
      * FIX: Supprime un ouvrier sans toucher à ouvrier_terrain.
      */
     public void supprimerOuvrier(int cinOuvrier) throws SQLException {

@@ -67,6 +67,30 @@
                                     </HBox>
                                     <Label fx:id="msgCategorie" text="" textFill="#e74c3c" style="-fx-font-size: 11px;" />
                                 </VBox>
+
+                                <Label style="-fx-font-weight: bold;" text="Prix Unitaire (TND) :" GridPane.rowIndex="5" />
+                                <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="5">
+                                    <TextField fx:id="tfPrixUnitaire" prefHeight="40.0" promptText="Calculé automatiquement si devise ≠ TND" style="-fx-background-radius: 8;" />
+                                    <Label fx:id="msgPrixUnitaire" text="" textFill="#e74c3c" style="-fx-font-size: 11px;" />
+                                </VBox>
+
+                                <Label style="-fx-font-weight: bold;" text="Prix (Devise Étrangère) :" GridPane.rowIndex="6" />
+                                <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="6">
+                                    <TextField fx:id="tfPrixAchatDevise" prefHeight="40.0" promptText="0.0" style="-fx-background-radius: 8;" />
+                                    <Label fx:id="msgPrixAchatDevise" text="" textFill="#e74c3c" style="-fx-font-size: 11px;" />
+                                </VBox>
+
+                                <Label style="-fx-font-weight: bold;" text="Devise :" GridPane.rowIndex="7" />
+                                <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="7">
+                                    <ComboBox fx:id="cbDevise" prefHeight="40.0" prefWidth="350.0" promptText="Sélectionner la devise" style="-fx-background-radius: 8;" />
+                                    <Label fx:id="msgDevise" text="" textFill="#e74c3c" style="-fx-font-size: 11px;" />
+                                </VBox>
+
+                                <Label fx:id="lblAgriculteur" style="-fx-font-weight: bold;" text="Propriétaire (Agriculteur) :" GridPane.rowIndex="8" />
+                                <VBox fx:id="boxAgriculteur" spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="8">
+                                    <ComboBox fx:id="cbAgriculteurs" prefHeight="40.0" prefWidth="350.0" promptText="Choisir un agriculteur" style="-fx-background-radius: 8;" />
+                                    <Label fx:id="msgAgriculteur" text="" textFill="#e74c3c" style="-fx-font-size: 11px;" />
+                                </VBox>
                             </children>
                         </GridPane>
 

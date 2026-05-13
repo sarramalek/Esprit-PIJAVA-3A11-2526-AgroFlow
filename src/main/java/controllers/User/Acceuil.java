@@ -23,6 +23,12 @@ import models.User.offres;
 import services.User.AbonnementService;
 import services.User.OffresServicees;
 import services.User.PersonneService;
+import services.DatabaseBackupService;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import javafx.stage.FileChooser;
+import java.io.File;
+import javafx.application.Platform;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -430,6 +436,45 @@ private void mettreAJourBarOffres(List<offres> offres,
 
         // Plus besoin de gérer "etaitMaximise", la fenêtre ne bougera pas d'un pixel
         stage.show();
+    }
+
+    @FXML
+    private void handleBackup(MouseEvent event) {
+        // Vérification des droits (Seul l'admin peut faire une sauvegarde)
+        if (currentUser == null || currentUser.getRole() != 3) {
+            showError("Accès refusé", "Seuls les administrateurs peuvent effectuer une sauvegarde de la base de données.");
+            return;
+        }
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Enregistrer la sauvegarde de la base de données");
+        
+        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+        fileChooser.setInitialFileName("agro_backup_" + timestamp + ".sql");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Fichiers SQL (*.sql)", "*.sql"));
+
+        String userHome = System.getProperty("user.home");
+        File initialDir = new File(userHome, "Documents");
+        if (!initialDir.exists()) initialDir = new File(userHome, "Desktop");
+        fileChooser.setInitialDirectory(initialDir);
+
+        File file = fileChooser.showSaveDialog(((Node) event.getSource()).getScene().getWindow());
+
+        if (file != null) {
+            DatabaseBackupService backupService = new DatabaseBackupService();
+            
+            new Thread(() -> {
+                boolean success = backupService.backup(file.getAbsolutePath());
+                
+                Platform.runLater(() -> {
+                    if (success) {
+                        showInfo("Sauvegarde terminée", "La base de données a été sauvegardée avec succès dans :\n" + file.getAbsolutePath());
+                    } else {
+                        showError("Erreur de sauvegarde", "Une erreur est survenue lors de la sauvegarde. Vérifiez que MySQL est bien lancé.");
+                    }
+                });
+            }).start();
+        }
     }
     // ─────────────────────────────────────────────────────────────
     // HELPERS

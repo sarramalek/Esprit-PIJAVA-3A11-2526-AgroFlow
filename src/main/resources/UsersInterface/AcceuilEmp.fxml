@@ -75,7 +75,7 @@
                     <font><Font name="System Bold" size="14" /></font>
                 </Button>
 
-                <!-- Mes Tâches -->
+                 <!-- Mes Tâches -->
                 <Button  prefHeight="50" prefWidth="230" onMouseClicked="#handleMesTaches"
                          style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
                                -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
@@ -83,6 +83,17 @@
                                -fx-border-color: rgba(255,255,255,0.2); -fx-border-width: 1;
                                -fx-border-radius: 12;"
                          text="📋  Mes Tâches">
+                    <font><Font name="System Bold" size="14" /></font>
+                </Button>
+
+                <!-- Stocks -->
+                <Button prefHeight="50" prefWidth="230" onMouseClicked="#handleStocks"
+                        style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
+                               -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
+                               -fx-background-radius: 12; -fx-cursor: hand;
+                               -fx-border-color: rgba(255,255,255,0.2); -fx-border-width: 1;
+                               -fx-border-radius: 12;"
+                        text="📦  Stocks">
                     <font><Font name="System Bold" size="14" /></font>
                 </Button>
 
@@ -133,7 +144,6 @@
                         <font><Font name="System Bold" size="14" /></font>
                     </Button>
                 </VBox>
-
             </VBox>
 
             <Region VBox.vgrow="ALWAYS" />

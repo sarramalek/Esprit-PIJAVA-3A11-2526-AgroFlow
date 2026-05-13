@@ -17,28 +17,36 @@ public class CategorieService implements IService<Categorie> {
 
     @Override
     public void ajouter(Categorie c) throws SQLException {
-        // Ajout de la colonne image_url dans la requête
-        String req = "INSERT INTO categorie (nom, nom_en, nom_ar, description, image_url) VALUES (?, ?, ?, ?, ?)";
+        String req = "INSERT INTO categorie (nom, description, id_user, id_admin) VALUES (?, ?, ?, ?)";
         PreparedStatement ps = connection.prepareStatement(req);
         ps.setString(1, c.getNom());
-        ps.setString(2, c.getNomEn());
-        ps.setString(3, c.getNomAr());
-        ps.setString(4, c.getDescription());
-        ps.setString(5, c.getImageUrl()); // Ajout de l'URL de l'image
+        ps.setString(2, c.getDescription());
+        ps.setInt(3, c.getIdUser());
+        
+        if (c.getIdAdmin() == null) {
+            ps.setNull(4, java.sql.Types.INTEGER);
+        } else {
+            ps.setInt(4, c.getIdAdmin());
+        }
+        
         ps.executeUpdate();
     }
 
     @Override
     public void modifier(Categorie categorie) throws SQLException {
-        // Mise à jour incluant les traductions et l'image_url
-        String sql = "UPDATE categorie SET nom = ?, nom_en = ?, nom_ar = ?, description = ?, image_url = ? WHERE id_categorie = ?";
+        String sql = "UPDATE categorie SET nom = ?, description = ?, id_user = ?, id_admin = ? WHERE id_categorie = ?";
         PreparedStatement ps = connection.prepareStatement(sql);
         ps.setString(1, categorie.getNom());
-        ps.setString(2, categorie.getNomEn());
-        ps.setString(3, categorie.getNomAr());
-        ps.setString(4, categorie.getDescription());
-        ps.setString(5, categorie.getImageUrl());
-        ps.setInt(6, categorie.getId());
+        ps.setString(2, categorie.getDescription());
+        ps.setInt(3, categorie.getIdUser());
+        
+        if (categorie.getIdAdmin() == null) {
+            ps.setNull(4, java.sql.Types.INTEGER);
+        } else {
+            ps.setInt(4, categorie.getIdAdmin());
+        }
+        
+        ps.setInt(5, categorie.getId());
 
         ps.executeUpdate();
         System.out.println("Catégorie modifiée !");
@@ -55,7 +63,11 @@ public class CategorieService implements IService<Categorie> {
 
     @Override
     public List<Categorie> recuperer() throws SQLException {
-        String sql = "SELECT id_categorie, nom, description, nom_en, nom_ar, image_url FROM categorie";
+        String sql = "SELECT c.*, " +
+                     "CONCAT(u.prenom, ' ', u.nom) as nom_agriculteur, " +
+                     "(SELECT COUNT(*) FROM article a WHERE a.id_categorie = c.id_categorie) as nb_articles " +
+                     "FROM categorie c " +
+                     "LEFT JOIN users u ON c.id_user = u.cin";
         Statement statement = connection.createStatement();
         ResultSet rs = statement.executeQuery(sql);
         List<Categorie> categories = new ArrayList<>();
@@ -65,10 +77,33 @@ public class CategorieService implements IService<Categorie> {
             c.setId(rs.getInt("id_categorie"));
             c.setNom(rs.getString("nom"));
             c.setDescription(rs.getString("description"));
-            c.setNomEn(rs.getString("nom_en"));
-            c.setNomAr(rs.getString("nom_ar"));
-            c.setImageUrl(rs.getString("image_url")); // Récupération de l'image
+            c.setIdUser(rs.getInt("id_user"));
+            c.setIdAdmin(rs.getObject("id_admin") != null ? rs.getInt("id_admin") : null);
+            c.setNomAgriculteur(rs.getString("nom_agriculteur"));
+            c.setNbArticles(rs.getInt("nb_articles"));
 
+            categories.add(c);
+        }
+        return categories;
+    }
+
+    public List<Categorie> recupererParUser(int idUser) throws SQLException {
+        String sql = "SELECT c.*, " +
+                     "(SELECT COUNT(*) FROM article a WHERE a.id_categorie = c.id_categorie) as nb_articles " +
+                     "FROM categorie c WHERE c.id_user = ?";
+        PreparedStatement ps = connection.prepareStatement(sql);
+        ps.setInt(1, idUser);
+        ResultSet rs = ps.executeQuery();
+        List<Categorie> categories = new ArrayList<>();
+
+        while (rs.next()) {
+            Categorie c = new Categorie();
+            c.setId(rs.getInt("id_categorie"));
+            c.setNom(rs.getString("nom"));
+            c.setDescription(rs.getString("description"));
+            c.setIdUser(rs.getInt("id_user"));
+            c.setIdAdmin(rs.getObject("id_admin") != null ? rs.getInt("id_admin") : null);
+            c.setNbArticles(rs.getInt("nb_articles"));
             categories.add(c);
         }
         return categories;

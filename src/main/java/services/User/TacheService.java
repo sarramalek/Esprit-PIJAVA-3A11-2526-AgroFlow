@@ -95,7 +95,10 @@ public class TacheService implements IService<Tache> {
         tache.setAssignee(rs.getInt("assignee"));
         tache.setEtat(rs.getString("etat"));
         tache.setPriorite(rs.getString("priorite"));
-        tache.setDateEcheance(rs.getDate("date_echeancee").toLocalDate());
+        Date date = rs.getDate("date_echeancee");
+        if (date != null) {
+            tache.setDateEcheance(date.toLocalDate());
+        }
         return tache;
     }
 

@@ -1,48 +1,37 @@
 package models.Stocks;
 
 /**
- * Entité Categorie mise à jour avec le support des images (Pixabay/Upload).
+ * Entité Categorie simplifiée.
  */
 public class Categorie {
     private int id;
     private String nom;
-    private String nomEn;
-    private String nomAr;
     private String description;
-    private String imageUrl;   // <--- NOUVEL ATTRIBUT
+    private int idUser;          // ID de l'agriculteur propriétaire
+    private Integer idAdmin;     // ID de l'admin (si créé par admin)
+    private String nomAgriculteur; // Nom complet (pour affichage Admin)
+    private int nbArticles;      // Nombre d'articles liés
 
     // --- CONSTRUCTEURS ---
 
-    // 1. Constructeur vide
     public Categorie() {}
 
-    // 2. Constructeur complet (6 paramètres) - Utilisé pour l'affichage et la modification
-    public Categorie(int id, String nom, String nomEn, String nomAr, String description, String imageUrl) {
+    public Categorie(int id, String nom, String description, int idUser, Integer idAdmin) {
         this.id = id;
         this.nom = nom;
-        this.nomEn = nomEn;
-        this.nomAr = nomAr;
         this.description = description;
-        this.imageUrl = imageUrl;
+        this.idUser = idUser;
+        this.idAdmin = idAdmin;
     }
 
-    // 3. Constructeur pour l'ajout (5 paramètres sans ID)
-    public Categorie(String nom, String nomEn, String nomAr, String description, String imageUrl) {
-        this.nom = nom;
-        this.nomEn = nomEn;
-        this.nomAr = nomAr;
-        this.description = description;
-        this.imageUrl = imageUrl;
-    }
-
-    // 4. Constructeur de compatibilité (Ancien code sans multilingue/image)
     public Categorie(int id, String nom, String description) {
-        this.id = id;
+        this(id, nom, description, 0, null);
+    }
+
+    public Categorie(String nom, String description, int idUser) {
         this.nom = nom;
         this.description = description;
-        this.nomEn = "";
-        this.nomAr = "";
-        this.imageUrl = "";
+        this.idUser = idUser;
     }
 
     // --- GETTERS ET SETTERS ---
@@ -53,27 +42,28 @@ public class Categorie {
     public String getNom() { return nom; }
     public void setNom(String nom) { this.nom = nom; }
 
-    public String getNomEn() { return nomEn; }
-    public void setNomEn(String nomEn) { this.nomEn = nomEn; }
-
-    public String getNomAr() { return nomAr; }
-    public void setNomAr(String nomAr) { this.nomAr = nomAr; }
-
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
 
-    public String getImageUrl() { return imageUrl; } // <--- NOUVEAU
-    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; } // <--- NOUVEAU
+    public int getIdUser() { return idUser; }
+    public void setIdUser(int idUser) { this.idUser = idUser; }
 
-    // --- TOSTRING ---
+    public Integer getIdAdmin() { return idAdmin; }
+    public void setIdAdmin(Integer idAdmin) { this.idAdmin = idAdmin; }
+
+    public String getNomAgriculteur() { return nomAgriculteur; }
+    public void setNomAgriculteur(String nomAgriculteur) { this.nomAgriculteur = nomAgriculteur; }
+
+    public int getNbArticles() { return nbArticles; }
+    public void setNbArticles(int nbArticles) { this.nbArticles = nbArticles; }
+
     @Override
     public String toString() {
         return "Categorie{" +
                 "id=" + id +
                 ", nom='" + nom + '\'' +
-                ", nomEn='" + nomEn + '\'' +
-                ", nomAr='" + nomAr + '\'' +
-                ", imageUrl='" + imageUrl + '\'' +
+                ", idUser=" + idUser +
+                ", nbArticles=" + nbArticles +
                 '}';
     }
 }

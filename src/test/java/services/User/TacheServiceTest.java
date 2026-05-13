@@ -7,6 +7,7 @@ import utils.MyDatabase;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -62,12 +63,12 @@ class TacheServiceTest {
         service = new TacheService();
 
         testTache = new Tache();
-        testTache.setNom_tache("Tache Test");
+        testTache.setNomTache("Tache Test");
         testTache.setDescription("Description tache test");
         testTache.setAssignee(TEST_CIN_1); // ✅ real int cin that exists in users
         testTache.setEtat("en_attente");
         testTache.setPriorite("moyenne");
-        testTache.setDate_echeancee("2025-12-31");
+        testTache.setDateEcheance(LocalDate.parse("2025-12-31"));
     }
 
     @AfterEach
@@ -79,9 +80,9 @@ class TacheServiceTest {
         // Also sweep by name in case assignee was changed
         List<Tache> liste = service.recuperer();
         for (Tache t : liste) {
-            if (t.getNom_tache().equals("Tache Test") ||
-                    t.getNom_tache().equals("Tache Modifiee")) {
-                service.supprimer(t.getId_tache());
+            if (t.getNomTache().equals("Tache Test") ||
+                    t.getNomTache().equals("Tache Modifiee")) {
+                service.supprimer(t.getId());
             }
         }
         personneService.supprimer(TEST_CIN_1);
@@ -99,11 +100,11 @@ class TacheServiceTest {
             assertFalse(liste.isEmpty());
 
             boolean trouve = liste.stream()
-                    .anyMatch(t -> t.getNom_tache().equals("Tache Test")
+                    .anyMatch(t -> t.getNomTache().equals("Tache Test")
                             && t.getDescription().equals("Description tache test")
                             && t.getEtat().equals("en_attente")
                             && t.getPriorite().equals("moyenne")
-                            && t.getDate_echeancee().equals("2025-12-31"));
+                            && t.getDateEcheance().equals(LocalDate.parse("2025-12-31")));
             assertTrue(trouve, "La tâche ajoutée doit être présente dans la liste");
         });
     }
@@ -115,27 +116,27 @@ class TacheServiceTest {
 
             List<Tache> liste = service.recuperer();
             Tache ajoutee = liste.stream()
-                    .filter(t -> t.getNom_tache().equals("Tache Test"))
+                    .filter(t -> t.getNomTache().equals("Tache Test"))
                     .findFirst()
                     .orElse(null);
             assertNotNull(ajoutee, "La tâche doit exister avant modification");
 
-            ajoutee.setNom_tache("Tache Modifiee");
+            ajoutee.setNomTache("Tache Modifiee");
             ajoutee.setDescription("Description modifiee");
             ajoutee.setAssignee(TEST_CIN_2); // ✅ valid second user cin
             ajoutee.setEtat("en_cours");
             ajoutee.setPriorite("haute");
-            ajoutee.setDate_echeancee("2026-06-30");
+            ajoutee.setDateEcheance(LocalDate.parse("2026-06-30"));
             service.modifier(ajoutee);
 
-            Tache modifiee = service.rechercherParId(ajoutee.getId_tache());
+            Tache modifiee = service.rechercherParId(ajoutee.getId());
             assertNotNull(modifiee);
-            assertEquals("Tache Modifiee",      modifiee.getNom_tache());
+            assertEquals("Tache Modifiee",      modifiee.getNomTache());
             assertEquals("Description modifiee", modifiee.getDescription());
             assertEquals(TEST_CIN_2,             modifiee.getAssignee()); // ✅ int
             assertEquals("en_cours",             modifiee.getEtat());
             assertEquals("haute",                modifiee.getPriorite());
-            assertEquals("2026-06-30",           modifiee.getDate_echeancee());
+            assertEquals(LocalDate.parse("2026-06-30"), modifiee.getDateEcheance());
         });
     }
 
@@ -146,11 +147,11 @@ class TacheServiceTest {
 
             List<Tache> liste = service.recuperer();
             Tache ajoutee = liste.stream()
-                    .filter(t -> t.getNom_tache().equals("Tache Test"))
+                    .filter(t -> t.getNomTache().equals("Tache Test"))
                     .findFirst()
                     .orElse(null);
             assertNotNull(ajoutee);
-            int id = ajoutee.getId_tache();
+            int id = ajoutee.getId();
 
             service.supprimer(id);
 
@@ -169,8 +170,8 @@ class TacheServiceTest {
             assertFalse(liste.isEmpty());
 
             for (Tache t : liste) {
-                assertTrue(t.getId_tache() > 0);
-                assertNotNull(t.getNom_tache());
+                assertTrue(t.getId() > 0);
+                assertNotNull(t.getNomTache());
                 assertNotNull(t.getDescription());
                 assertNotNull(t.getEtat());
                 assertNotNull(t.getPriorite());
@@ -185,20 +186,20 @@ class TacheServiceTest {
 
             List<Tache> liste = service.recuperer();
             Tache ajoutee = liste.stream()
-                    .filter(t -> t.getNom_tache().equals("Tache Test"))
+                    .filter(t -> t.getNomTache().equals("Tache Test"))
                     .findFirst()
                     .orElse(null);
             assertNotNull(ajoutee);
-            int id = ajoutee.getId_tache();
+            int id = ajoutee.getId();
 
             Tache trouve = service.rechercherParId(id);
             assertNotNull(trouve);
-            assertEquals(id,                       trouve.getId_tache());
-            assertEquals("Tache Test",             trouve.getNom_tache());
+            assertEquals(id,                       trouve.getId());
+            assertEquals("Tache Test",             trouve.getNomTache());
             assertEquals("Description tache test", trouve.getDescription());
             assertEquals("en_attente",             trouve.getEtat());
             assertEquals("moyenne",                trouve.getPriorite());
-            assertEquals("2025-12-31",             trouve.getDate_echeancee());
+            assertEquals(LocalDate.parse("2025-12-31"), trouve.getDateEcheance());
 
             assertNull(service.rechercherParId(-1),
                     "Un id inexistant doit retourner null");

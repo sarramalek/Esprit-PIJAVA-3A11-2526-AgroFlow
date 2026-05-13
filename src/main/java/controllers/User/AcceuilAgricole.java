@@ -2,6 +2,7 @@ package controllers.User;
 
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -247,7 +248,7 @@ public class AcceuilAgricole {
     void ouvrirRotations(MouseEvent event) {
         navigateTo(event, "/TerrainsInterface/agricoleaffichagerotation.fxml", "Gestion des Rotations");
     }
-    @FXML private void handleDashboard()    { /* Déjà sur cette page */ }
+    @FXML public void handleDashboard()    { /* Déjà sur cette page */ }
     @FXML private void handleMesTerrains(MouseEvent event )  { navigateTo(event,"/TerrainsInterface/acceuilagricoleterrain.fxml","Mes Terrains"); }
     @FXML private void handleMesAnimaux(MouseEvent event)  { navigateTo(event,"/AnimalsInterface/acceuilagricoleanimaux.fxml","Animaux"); }
     @FXML private void handleMesStocks()    { System.out.println("📦 Stocks..."); }
@@ -359,13 +360,18 @@ public class AcceuilAgricole {
             s.centerOnScreen(); s.showAndWait();
         } catch (IOException e) { showError("Erreur"+ e.getMessage()); }
     }
-    private void navigateTo(MouseEvent event, String fxmlPath, String title) {
+    private void navigateTo(Event event, String fxmlPath, String title) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
 
-            // On récupère le Stage et la Scene ACTUELLE
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            // Si l'événement est null ou source non Node, on utilise logoutBtn pour trouver le Stage
+            Stage stage;
+            if (event != null && event.getSource() instanceof Node) {
+                stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            } else {
+                stage = (Stage) logoutBtn.getScene().getWindow();
+            }
             Scene scene = stage.getScene();
 
             // SOLUTION MIRACLE : On change la racine, pas la scène !
@@ -420,8 +426,15 @@ public class AcceuilAgricole {
                     "Détails: " + e.getMessage());
         }
     }
-    @FXML private void handleMesArticles(MouseEvent mouseEvent)   {         navigateTo(mouseEvent,"/StocksInterface/AfficherArticleAgr.fxml","Articles"); }
-    @FXML private void handleMesCatégories(MouseEvent mouseEvent)   {         navigateTo(mouseEvent,"/StocksInterface/AfficherCategorieAgr.fxml","Catégories "); }
+    @FXML
+    public void handleMesArticles(MouseEvent mouseEvent) {
+        navigateTo(mouseEvent, "/StocksInterface/AfficherArticleAgr.fxml", "Articles");
+    }
+
+    @FXML
+    public void handleMesCatégories(MouseEvent mouseEvent) {
+        navigateTo(mouseEvent, "/StocksInterface/AfficherCategorieAgr.fxml", "Catégories");
+    }
     @FXML private void handleMonMateriel(MouseEvent mouseEvent)   {         navigateTo(mouseEvent,"/MaterielsInterface/AgricoleAffichageMachine.fxml","Animaux"); }
     public void handleMesEvenements(MouseEvent mouseEvent) {
         navigateTo(mouseEvent,"/G-Evenements/AfficherEvenementsUser.fxml","Evenements");

@@ -38,14 +38,11 @@
                                             <Label fx:id="msgNom" textFill="#e74c3c" style="-fx-font-size: 11px;" />
                                         </VBox>
 
-                                        <Label style="-fx-font-weight: bold;" text="Nom (Anglais) :" GridPane.rowIndex="1" />
-                                        <TextField fx:id="tfNomEn" prefHeight="40.0" promptText="Ex: Fertilizer" style="-fx-background-radius: 8;" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                        <Label fx:id="lblAgriculteur" style="-fx-font-weight: bold;" text="Propriétaire :" GridPane.rowIndex="1" visible="false" managed="false" />
+                                        <ComboBox fx:id="cbAgriculteur" prefHeight="40.0" prefWidth="400.0" promptText="Sélectionner un agriculteur" style="-fx-background-radius: 8;" GridPane.columnIndex="1" GridPane.rowIndex="1" visible="false" managed="false" />
 
-                                        <Label style="-fx-font-weight: bold;" text="Nom (Arabe) :" GridPane.rowIndex="2" />
-                                        <TextField fx:id="tfNomAr" alignment="CENTER_RIGHT" prefHeight="40.0" promptText="أسم الفئة" style="-fx-background-radius: 8;" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-
-                                        <Label style="-fx-font-weight: bold;" text="Description :" GridPane.rowIndex="3" />
-                                        <TextArea fx:id="taDescription" prefHeight="80.0" promptText="Détails techniques..." wrapText="true" style="-fx-background-radius: 8;" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                        <Label style="-fx-font-weight: bold;" text="Description :" GridPane.rowIndex="2" />
+                                        <TextArea fx:id="taDescription" prefHeight="80.0" promptText="Détails techniques..." wrapText="true" style="-fx-background-radius: 8;" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
                                         <Label style="-fx-font-weight: bold;" text="Image de catégorie :" GridPane.rowIndex="4" />
                                         <HBox spacing="15.0" alignment="CENTER_LEFT" GridPane.columnIndex="1" GridPane.rowIndex="4">

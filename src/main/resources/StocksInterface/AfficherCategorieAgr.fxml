@@ -195,6 +195,10 @@
                         <Button onAction="#ouvrirFormulaireAjout" prefHeight="35.0" prefWidth="120.0" style="-fx-background-color: #2d5a27; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5;" text="+ AJOUTER" />
                         <Button onAction="#modifierCategorie" prefHeight="35.0" prefWidth="120.0" style="-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5;" text="✏ MODIFIER" />
                         <Button onAction="#supprimerCategorie" prefHeight="35.0" prefWidth="120.0" style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5;" text="🗑 SUPPRIMER" />
+                        
+                        <Region HBox.hgrow="ALWAYS" />
+                        
+                        <TextField fx:id="searchField" prefWidth="200.0" promptText="🔍 Rechercher..." style="-fx-background-radius: 20; -fx-padding: 8 15;" />
                     </children>
                 </HBox>
 
@@ -203,9 +207,7 @@
                     <columns>
                         <TableColumn fx:id="colNom" text="Nom" />
                         <TableColumn fx:id="colDescription" text="Description Détaillé" />
-                        <TableColumn fx:id="colNomEn" text="Nom (EN)" />
-                        <TableColumn fx:id="colNomAr" text="Nom (AR)" />
-                        <TableColumn fx:id="colImage" text="Image" prefWidth="60" />
+                        <TableColumn fx:id="colNbArticles" text="Nb Articles" />
                     </columns>
                     <columnResizePolicy>
                         <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />

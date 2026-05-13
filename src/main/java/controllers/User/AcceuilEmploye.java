@@ -281,6 +281,11 @@ public class AcceuilEmploye {
     }
 
     @FXML
+    private void handleStocks(MouseEvent event) {
+        navigateTo(event, "/StocksInterface/AfficherStockOuvrier.fxml", "Gestion des Stocks - Ouvrier");
+    }
+
+    @FXML
     private void handleMesTaches(MouseEvent event) {
 
         try {
