@@ -692,4 +692,8 @@ public class GestionTache {
 
     private void showError(String t, String m)   { Alert a = new Alert(Alert.AlertType.ERROR);       a.setTitle(t); a.setHeaderText(null); a.setContentText(m); a.showAndWait(); }
     private void showSuccess(String t, String m) { Alert a = new Alert(Alert.AlertType.INFORMATION); a.setTitle(t); a.setHeaderText(null); a.setContentText(m); a.showAndWait(); }
+
+    public void handlemesouvriers(MouseEvent mouseEvent) {
+
+    }
 }

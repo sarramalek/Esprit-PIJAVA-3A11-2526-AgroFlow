@@ -830,4 +830,8 @@ public class AfficherAnimauxController {
     public void ouvrirParticipations(MouseEvent mouseEvent) {
         navigateTo(mouseEvent,"/G-Evenements/AfficherParticipationsUser.fxml","Participations");
     }
+
+    public void handlemesouvriers(MouseEvent mouseEvent) {
+
+    }
 }

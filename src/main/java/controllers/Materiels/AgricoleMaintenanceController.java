@@ -119,6 +119,9 @@ public class AgricoleMaintenanceController implements Initializable {
     private final ObservableList<Maintenance> masterList = FXCollections.observableArrayList();
     private List<Maintenance>     currentFilteredList = new ArrayList<>();
 
+    public void handlemesouvriers(MouseEvent mouseEvent) {
+    }
+
     private enum SortMode { DATE_DESC, DATE_ASC, COUT_ASC, COUT_DESC, MACHINE_AZ, NONE }
     private SortMode currentSort = SortMode.DATE_DESC;
     private static final int ROWS_PER_PAGE = 10;

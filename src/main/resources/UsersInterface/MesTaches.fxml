@@ -15,36 +15,28 @@
 
     <!-- ═══════════════════════════════ SIDEBAR ═══════════════════════════════ -->
     <left>
-        <VBox prefWidth="250" style="-fx-background-color: linear-gradient(to bottom, #1a237e, #283593, #3949ab);">
+        <VBox prefWidth="250" style="-fx-background-color: #ffffff; -fx-border-color: #e8e8e8; -fx-border-width: 0 1 0 0;">
             <padding><Insets bottom="20" top="20" /></padding>
 
             <!-- Logo -->
-            <StackPane prefWidth="100" prefHeight="100"  >
+            <StackPane prefWidth="100" prefHeight="100">
                 <ImageView fitWidth="200" fitHeight="150" preserveRatio="true">
                     <image><Image url="/style/logo.png"/></image>
                 </ImageView>
-
             </StackPane>
 
-            <!-- Info Utilisateur -->
             <!-- ══ Info Utilisateur + Avatar ══ -->
             <VBox alignment="CENTER" spacing="8"
-                  style="-fx-background-color: rgba(255,255,255,0.1); -fx-background-radius: 15;
-                         -fx-padding: 20; -fx-margin: 10;">
+                  style="-fx-background-color: #f5f9f5; -fx-background-radius: 12;
+                     -fx-padding: 16; -fx-margin: 10;
+                     -fx-border-color: #d6e8d6; -fx-border-width: 1; -fx-border-radius: 12;">
 
-                <!-- Conteneur avatar : StackPane pour superposer image + fallback emoji -->
+                <!-- Conteneur avatar -->
                 <StackPane prefWidth="64" prefHeight="64">
-
-                    <!-- Cercle de fond (visible quand pas de photo) -->
-                    <Circle fx:id="avatarBg" radius="32"
-                            fill="rgba(255,255,255,0.25)" />
-
-                    <!-- Emoji fallback (visible par défaut) -->
+                    <Circle fx:id="avatarBg" radius="32" fill="#d6e8d6" />
                     <Label fx:id="avatarDefaultLabel"
                            text="👤"
                            style="-fx-font-size: 30px;" />
-
-                    <!-- Photo de profil (masquée par défaut, apparaît si URL valide) -->
                     <ImageView fx:id="avatarImageView"
                                fitWidth="64" fitHeight="64"
                                preserveRatio="false"
@@ -52,100 +44,117 @@
                 </StackPane>
 
                 <Label fx:id="userNameLabel"
-                       style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;"
+                       style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #1a2e1a;"
                        text="Nom Employé">
-                    <font><Font name="System Bold" size="16" /></font>
+                    <font><Font name="System Bold" size="15" /></font>
                 </Label>
                 <Label fx:id="userRoleLabel"
-                       style="-fx-font-size: 12px; -fx-text-fill: rgba(255,255,255,0.8);
-                              -fx-background-color: rgba(76,175,80,0.3); -fx-padding: 4 12;
-                              -fx-background-radius: 15;"
+                       style="-fx-font-size: 11px; -fx-text-fill: #3a7d44;
+                          -fx-background-color: #d6ead6; -fx-padding: 4 12;
+                          -fx-background-radius: 15;"
                        text="👷 EMPLOYÉ">
-                    <font><Font name="System Bold" size="12" /></font>
+                    <font><Font name="System Bold" size="11" /></font>
                 </Label>
             </VBox>
-            <!-- Navigation Menu -->
-            <VBox spacing="10" style="-fx-padding: 20 0 0 0;">
 
-                <!-- Dashboard (actif) -->
-                <Button fx:id="dashboardBtn" onMouseClicked="#handleDashboard" prefHeight="50" prefWidth="230"
-                        style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
-                               -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
-                               -fx-background-radius: 12; -fx-cursor: hand;
-                               -fx-border-color: rgba(255,255,255,0.2); -fx-border-width: 1;
-                               -fx-border-radius: 12;"
-                        text="📊  Acceuil">
-                    <font><Font name="System Bold" size="14" /></font>
+            <!-- Navigation Menu -->
+            <VBox spacing="4" style="-fx-padding: 16 12 0 12;">
+
+                <!-- Dashboard (actif) — fond vert clair + bordure verte gauche -->
+                <Button fx:id="dashboardBtn" onMouseClicked="#handleDashboard"
+                        prefHeight="46" prefWidth="226"
+                        style="-fx-background-color: #eaf4ea;
+                           -fx-text-fill: #2d6a2d; -fx-font-size: 13px;
+                           -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 16;
+                           -fx-background-radius: 8; -fx-cursor: hand;
+                           -fx-border-color: #4a9e4a transparent transparent transparent;
+                           -fx-border-width: 0 0 0 3; -fx-border-radius: 0;"
+                        text="📊  Accueil">
+                    <font><Font name="System Bold" size="13" /></font>
                 </Button>
 
                 <!-- Mes Tâches -->
-                <Button  prefHeight="50" prefWidth="230"
-                         style="-fx-background-color: linear-gradient(to right, #4CAF50, #45a049);
-                                   -fx-text-fill: white; -fx-font-size: 14px; -fx-alignment: CENTER-LEFT;
-                                   -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand;"
-                         text="📋  Mes Tâches">
-                    <font><Font name="System Bold" size="14" /></font>
+                <Button prefHeight="46" prefWidth="226"
+                        style="-fx-background-color: transparent; -fx-text-fill: #3d3d3d;
+                           -fx-font-size: 13px; -fx-alignment: CENTER-LEFT;
+                           -fx-padding: 0 0 0 16; -fx-background-radius: 8;
+                           -fx-cursor: hand;"
+                        text="📋  Mes Tâches">
+                    <font><Font name="System Bold" size="13" /></font>
+                </Button>
+
+                <!-- Stocks -->
+                <Button prefHeight="46" prefWidth="226" onMouseClicked="#handleStocks"
+                        style="-fx-background-color: transparent; -fx-text-fill: #3d3d3d;
+                           -fx-font-size: 13px; -fx-alignment: CENTER-LEFT;
+                           -fx-padding: 0 0 0 16; -fx-background-radius: 8;
+                           -fx-cursor: hand;"
+                        text="📦  Stocks">
+                    <font><Font name="System Bold" size="13" /></font>
                 </Button>
 
                 <!-- Mon Profil -->
-                <Button onMouseClicked= "#handleMonProfil" prefHeight="50" prefWidth="230"
-                        style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
-                               -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
-                               -fx-background-radius: 12; -fx-cursor: hand;
-                               -fx-border-color: rgba(255,255,255,0.2); -fx-border-width: 1;
-                               -fx-border-radius: 12;"
+                <Button onMouseClicked="#handleMonProfil" prefHeight="46" prefWidth="226"
+                        style="-fx-background-color: transparent; -fx-text-fill: #3d3d3d;
+                           -fx-font-size: 13px; -fx-alignment: CENTER-LEFT;
+                           -fx-padding: 0 0 0 16; -fx-background-radius: 8;
+                           -fx-cursor: hand;"
                         text="👤  Mon Profil">
-                    <font><Font name="System Bold" size="14" /></font>
+                    <font><Font name="System Bold" size="13" /></font>
                 </Button>
 
-                <VBox spacing="0">
-                    <Button onMouseClicked="#ouvrirRotations" prefHeight="48" prefWidth="230"
-                            style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
-                               -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
-                               -fx-background-radius: 12; -fx-cursor: hand;
-                               -fx-border-color: rgba(255,255,255,0.2); -fx-border-width: 1;
-                               -fx-border-radius: 12;"
-                            text="🌾  Mes Rotations  ">
-                        <font><Font name="System Bold" size="14" /></font>
-                    </Button>
+                <!-- Mes Rotations -->
+                <Button onMouseClicked="#ouvrirRotations" prefHeight="46" prefWidth="226"
+                        style="-fx-background-color: transparent; -fx-text-fill: #3d3d3d;
+                           -fx-font-size: 13px; -fx-alignment: CENTER-LEFT;
+                           -fx-padding: 0 0 0 16; -fx-background-radius: 8;
+                           -fx-cursor: hand;"
+                        text="🌾  Mes Rotations">
+                    <font><Font name="System Bold" size="13" /></font>
+                </Button>
 
-                </VBox>
-                <VBox spacing="0">
-                    <Button onMouseClicked="#handleMateriel" prefHeight="48" prefWidth="230"
-                            style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
-                               -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
-                               -fx-background-radius: 12; -fx-cursor: hand;
-                               -fx-border-color: rgba(255,255,255,0.2); -fx-border-width: 1;
-                               -fx-border-radius: 12;"
-                            text="  Maintenances   ">
-                        <font><Font name="System Bold" size="14" /></font>
-                    </Button>
+                <!-- Maintenances -->
+                <Button onMouseClicked="#handleMateriel" prefHeight="46" prefWidth="226"
+                        style="-fx-background-color: transparent; -fx-text-fill: #3d3d3d;
+                           -fx-font-size: 13px; -fx-alignment: CENTER-LEFT;
+                           -fx-padding: 0 0 0 16; -fx-background-radius: 8;
+                           -fx-cursor: hand;"
+                        text="🔧  Maintenances">
+                    <font><Font name="System Bold" size="13" /></font>
+                </Button>
 
-                </VBox>
-                <VBox spacing="0">
-                    <Button onMouseClicked="#handleEvenements" prefHeight="48" prefWidth="230"
-                            style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
-                               -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
-                               -fx-background-radius: 12; -fx-cursor: hand;
-                               -fx-border-color: rgba(255,255,255,0.2); -fx-border-width: 1;
-                               -fx-border-radius: 12;"
-                            text="  Evenements et Participations    ">
-                        <font><Font name="System Bold" size="14" /></font>
-                    </Button>
-                </VBox>
+                <!-- Événements et Participations -->
+                <Button onMouseClicked="#handleEvenements" prefHeight="46" prefWidth="226"
+                        style="-fx-background-color: transparent; -fx-text-fill: #3d3d3d;
+                           -fx-font-size: 13px; -fx-alignment: CENTER-LEFT;
+                           -fx-padding: 0 0 0 16; -fx-background-radius: 8;
+                           -fx-cursor: hand;"
+                        text="📅  Événements">
+                    <font><Font name="System Bold" size="13" /></font>
+                </Button>
 
             </VBox>
 
             <Region VBox.vgrow="ALWAYS" />
 
+            <!-- Séparateur -->
+            <Separator style="-fx-background-color: #e0e0e0;" prefWidth="226">
+                <padding><Insets left="12" right="12" bottom="8" /></padding>
+            </Separator>
+
             <!-- Logout -->
-            <Button fx:id="logoutBtn" onMouseClicked="#handleLogout" prefHeight="50" prefWidth="230"
-                    style="-fx-background-color: #E74C3C; -fx-text-fill: white; -fx-font-size: 14px;
-                           -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22; -fx-background-radius: 12;
-                           -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 10, 0, 0, 3);"
+            <Button fx:id="logoutBtn" onMouseClicked="#handleLogout"
+                    prefHeight="46" prefWidth="226"
+                    style="-fx-background-color: #fff0f0; -fx-text-fill: #c0392b;
+                       -fx-font-size: 13px; -fx-alignment: CENTER-LEFT;
+                       -fx-padding: 0 0 0 16; -fx-background-radius: 8;
+                       -fx-cursor: hand;
+                       -fx-border-color: #e74c3c transparent transparent transparent;
+                       -fx-border-width: 0 0 0 3; -fx-border-radius: 0;"
                     text="🚪  Déconnexion">
-                <font><Font name="System Bold" size="14" /></font>
+                <font><Font name="System Bold" size="13" /></font>
             </Button>
+            <padding><Insets left="12" right="12" bottom="8" /></padding>
         </VBox>
     </left>
 

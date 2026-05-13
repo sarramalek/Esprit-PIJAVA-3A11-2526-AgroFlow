@@ -143,6 +143,9 @@ public class AgricoleAffichageMachineController implements Initializable {
     private int taillePage     = 10;
     private int totalPages     = 1;
 
+    public void handlemesouvriers(MouseEvent mouseEvent) {
+    }
+
     // ══════════════════════════════════════════════════════
     //  Tri
     // ══════════════════════════════════════════════════════
@@ -154,7 +157,10 @@ public class AgricoleAffichageMachineController implements Initializable {
     // ══════════════════════════════════════════════════════
     public void ouvrirMaintenance(MouseEvent e) { navigateTo(e, "/MaterielsInterface/AgricoleAffichageMaintenance.fxml", "Maintenance"); }
     public void ouvrirAchat(MouseEvent e)       { navigateTo(e, "/MaterielsInterface/AgricoleAffichageAchat.fxml",       "Achat");       }
-    public void ouvrirMachine(MouseEvent e)     { navigateTo(e, "/MaterielsInterface/AgricoleAffichageMachine.fxml",     "Machine");     }
+
+    public void ouvrirMachine(MouseEvent e) {
+
+    }
 
     // ══════════════════════════════════════════════════════
     //  INITIALISATION

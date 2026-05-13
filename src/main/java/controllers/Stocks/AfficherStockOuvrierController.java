@@ -159,10 +159,6 @@ public class AfficherStockOuvrierController {
         changerScene("/TerrainsInterface/EmployeRotation.fxml", event);
     }
 
-    @FXML
-    public void handleMateriel(MouseEvent event) {
-        changerScene("/MaterielsInterface/MaintenanceFront.fxml", event);
-    }
 
     @FXML
     public void handleEvenements(MouseEvent event) {
@@ -187,5 +183,9 @@ public class AfficherStockOuvrierController {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public void handleMateriel(MouseEvent mouseEvent) {
+        changerScene("/StocksInterface/AfficherMouvementOuvrier.fxml", mouseEvent);
     }
 }

@@ -738,4 +738,7 @@ public class MesTaches {
         navigateTo(mouseEvent,"/TerrainsInterface/EmployeRotation.fxml","Rotations Employee ");
     }
 
-}
+    public void handleStocks(MouseEvent mouseEvent) {
+        navigateTo(mouseEvent,"/StocksInterface/AfficherStockOuvrier.fxml","stocks");
+    }
+    }

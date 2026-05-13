@@ -305,5 +305,8 @@ public class AccueilTerrainagricole {
         navigateTo(mouseEvent,"/G-Evenements/AfficherParticipationsUser.fxml","Participations");
     }
 
+    public void handlemesouvriers(MouseEvent mouseEvent) {
+
+    }
 }
 

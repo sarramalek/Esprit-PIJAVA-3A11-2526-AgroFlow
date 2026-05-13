@@ -811,4 +811,8 @@ void ouvrirStats(ActionEvent event) {
     public void ouvrirParticipations(MouseEvent mouseEvent) {
         navigateTo(mouseEvent,"/G-Evenements/AfficherParticipationsUser.fxml","Participations");
     }
+
+    public void handlemesouvriers(MouseEvent mouseEvent) {
+
+    }
 }

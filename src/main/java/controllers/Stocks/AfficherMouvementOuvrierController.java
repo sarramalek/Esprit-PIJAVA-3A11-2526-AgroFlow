@@ -1,5 +1,6 @@
 package controllers.Stocks;
 
+import controllers.User.ProfilEmploye;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -10,6 +11,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import models.Stocks.Mouvement;
 import models.User.Personne;
@@ -126,5 +128,40 @@ public class AfficherMouvementOuvrierController {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+    @FXML
+    public void handleMesTaches(MouseEvent event) {
+        changerScene( event,"/UsersInterface/MesTaches.fxml");
+    }
+
+    @FXML
+    public void handleMonProfil(MouseEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/UsersInterface/ProfilEmplye.fxml"));
+            Parent root = loader.load();
+            ProfilEmploye controller = loader.getController();
+            Personne user = SessionManager.getCurrentUser();
+            if (controller != null && user != null) {
+                controller.setCurrentUser(user);
+            }
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root));
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.show();
+        } catch (IOException e) { e.printStackTrace(); }
+    }
+
+    @FXML
+    public void ouvrirRotations(MouseEvent event) {
+        changerScene( event,"/TerrainsInterface/EmployeRotation.fxml");
+    }
+
+
+    @FXML
+    public void handleEvenements(MouseEvent event) {
+        changerScene( event,"/G-Evenements/AfficherEvenementsEmp.fxml");
+    }
+
+    public void handleMateriel(MouseEvent mouseEvent) {
     }
 }

@@ -640,4 +640,8 @@ public class EmployeRotationController implements Initializable {
             }
         });
     }
+
+    public void handleStocks(MouseEvent mouseEvent) {
+        chargerPage(mouseEvent,"/StocksInterface/AfficherStockOuvrier.fxml","stocks");
+    }
 }
