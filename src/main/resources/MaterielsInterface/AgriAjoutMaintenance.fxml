@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox spacing="15" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="controllers.Materiels.AgriAjoutMaintenanceController"
+      style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 25;">
+
+    <Label style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #2E7D32;" text="➕ Ajouter une maintenance">
+        <font><Font name="System Bold" size="20" /></font>
+    </Label>
+
+    <Separator />
+
+    <GridPane hgap="15" vgap="12">
+        <padding><Insets top="10" /></padding>
+
+        <!-- Ligne 1: Machine -->
+        <Label text="🚜 Machine :" GridPane.rowIndex="0" GridPane.columnIndex="0" style="-fx-font-weight: bold;"/>
+        <ComboBox fx:id="comboMachine" GridPane.rowIndex="0" GridPane.columnIndex="1" prefWidth="300" promptText="Sélectionner une machine" />
+
+        <!-- Ligne 2: Type Panne (Liste déroulante) -->
+        <Label text="🔧 Type panne :" GridPane.rowIndex="1" GridPane.columnIndex="0" style="-fx-font-weight: bold;"/>
+        <ComboBox fx:id="comboTypePanne" GridPane.rowIndex="1" GridPane.columnIndex="1" prefWidth="300" promptText="Sélectionner le type de panne" editable="false"/>
+
+        <!-- Ligne 3: Date -->
+        <Label text="📅 Date :" GridPane.rowIndex="2" GridPane.columnIndex="0" style="-fx-font-weight: bold;"/>
+        <DatePicker fx:id="datePicker" GridPane.rowIndex="2" GridPane.columnIndex="1" prefWidth="300"/>
+
+        <!-- Ligne 4: Coût -->
+        <Label text="💰 Coût (DT) :" GridPane.rowIndex="3" GridPane.columnIndex="0" style="-fx-font-weight: bold;"/>
+        <TextField fx:id="txtCout" GridPane.rowIndex="3" GridPane.columnIndex="1" promptText="0.00" prefWidth="300"/>
+
+        <!-- Ligne 5: Statut -->
+        <Label text="📊 Statut :" GridPane.rowIndex="4" GridPane.columnIndex="0" style="-fx-font-weight: bold;"/>
+        <ComboBox fx:id="comboStatut" GridPane.rowIndex="4" GridPane.columnIndex="1" prefWidth="300" promptText="Sélectionner un statut"/>
+
+        <!-- Ligne 6: Priorité -->
+        <Label text="⚠️ Priorité :" GridPane.rowIndex="5" GridPane.columnIndex="0" style="-fx-font-weight: bold;"/>
+        <ComboBox fx:id="comboPriorite" GridPane.rowIndex="5" GridPane.columnIndex="1" prefWidth="300" promptText="Sélectionner une priorité"/>
+
+        <!-- Ligne 7: Kilométrage -->
+        <Label text="📏 Kilométrage :" GridPane.rowIndex="6" GridPane.columnIndex="0" style="-fx-font-weight: bold;"/>
+        <TextField fx:id="txtKilometrage" GridPane.rowIndex="6" GridPane.columnIndex="1" promptText="0" prefWidth="300"/>
+
+        <!-- Ligne 8: Description -->
+        <Label text="📝 Description :" GridPane.rowIndex="7" GridPane.columnIndex="0" style="-fx-font-weight: bold;"/>
+        <TextArea fx:id="txtDescription" GridPane.rowIndex="7" GridPane.columnIndex="1" prefWidth="300" prefHeight="80" promptText="Description détaillée..." wrapText="true"/>
+
+        <!-- Ligne 9: Recommandation avec bouton IA -->
+        <Label text="💡 Recommandation :" GridPane.rowIndex="8" GridPane.columnIndex="0" style="-fx-font-weight: bold;"/>
+        <HBox spacing="5" GridPane.rowIndex="8" GridPane.columnIndex="1">
+            <TextArea fx:id="txtRecommandation" prefWidth="240" prefHeight="120" promptText="Recommandations..." wrapText="true"/>
+            <Button fx:id="btnGenererRecommandation" text="🤖 IA" style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 10; -fx-cursor: hand;" minWidth="50" maxWidth="50"/>
+        </HBox>
+
+        <columnConstraints>
+            <ColumnConstraints halignment="RIGHT" minWidth="120" />
+            <ColumnConstraints halignment="LEFT" minWidth="300" />
+        </columnConstraints>
+    </GridPane>
+
+    <Separator />
+
+    <HBox spacing="15" alignment="CENTER_RIGHT">
+        <Button fx:id="btnAnnuler" text="❌ Annuler" style="-fx-background-color: #95A5A6; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 10 20; -fx-cursor: hand;"/>
+        <Button fx:id="btnEnregistrer" text="✅ Enregistrer" style="-fx-background-color: #27AE60; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 10 20; -fx-cursor: hand;"/>
+    </HBox>
+</VBox>

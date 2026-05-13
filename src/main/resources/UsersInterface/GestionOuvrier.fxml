@@ -1,0 +1,389 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Font?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<BorderPane xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controllers.User.GestionOuvriersController"
+            style="-fx-background-color: #F5F5F0;">
+    <!-- SIDEBAR AGRICOLE -->
+    <left>
+        <VBox prefWidth="250" style="-fx-background-color: linear-gradient(to bottom, #2E7D32, #388E3C, #43A047);">
+            <padding><Insets bottom="20" top="20" /></padding>
+
+            <StackPane prefWidth="100" prefHeight="100"  >
+                <ImageView fitWidth="200" fitHeight="150" preserveRatio="true">
+                    <image><Image url="/style/logo.png"/></image>
+                </ImageView>
+
+            </StackPane>
+            <!-- Info Utilisateur avec Hyperlink À Propos -->
+            <VBox alignment="CENTER" spacing="8"
+                  style="-fx-background-color: rgba(255,255,255,0.1); -fx-background-radius: 15; -fx-padding: 20; -fx-margin: 10;">
+
+                <!-- Avatar circulaire -->
+                <StackPane>
+                    <!-- Fond dégradé (visible par défaut) -->
+                    <Circle fx:id="sidebarAvatarBg" radius="35"
+                            fill="rgba(255,255,255,0.2)" />
+                    <!-- Emoji par défaut -->
+                    <Label fx:id="sidebarAvatarDefault"
+                           style="-fx-font-size: 30px;"
+                           text="👨‍🌾" />
+                    <!-- Photo Cloudinary (cachée par défaut, clip appliqué en Java) -->
+                    <ImageView fx:id="sidebarAvatarImageView"
+                               fitWidth="70" fitHeight="70"
+                               preserveRatio="false"
+                               visible="false" managed="false" />
+                </StackPane>
+
+                <Label fx:id="userNameLabel"
+                       style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;"
+                       text="Nom Agriculteur">
+                    <font><Font name="System Bold" size="16" /></font>
+                </Label>
+                <Label fx:id="userRoleLabel"
+                       style="-fx-font-size: 12px; -fx-text-fill: rgba(255,255,255,0.8);
+                  -fx-background-color: rgba(76,175,80,0.3); -fx-padding: 4 12;
+                  -fx-background-radius: 15;"
+                       text="🌾 AGRICULTEUR">
+                    <font><Font name="System Bold" size="12" /></font>
+                </Label>
+                <!-- Hyperlink À Propos -->
+                <Hyperlink fx:id="aproposLink" text="👤 À propos de moi"
+                           onAction="#handleAPropos"
+                           style="-fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 13px;
+                      -fx-border-color: rgba(255,255,255,0.4); -fx-padding: 5 15;
+                      -fx-background-radius: 20; -fx-border-radius: 20;
+                      -fx-cursor: hand;">
+                    <font><Font name="System" size="13" /></font>
+                </Hyperlink>
+            </VBox>
+
+
+            <!-- Navigation Menu -->
+            <VBox spacing="8" style="-fx-padding: 20 0 0 0;">
+                <Button onAction="#handleDashboard" prefHeight="48" prefWidth="230"
+                        style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
+                               -fx-font-size: 14px; -fx-alignment: CENTER-LEFT;
+                               -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand;"
+                        text="📊  Acceuil ">
+                    <font><Font name="System Bold" size="14" /></font>
+                </Button>
+
+                <!-- Mes Terrains avec sous-menu (ouvert par défaut ici) -->
+                <VBox spacing="0">
+                    <Button onMouseClicked="#handleMesTerrains" prefHeight="48" prefWidth="230"
+                            style="-fx-background-color: linear-gradient(to right, #4CAF50, #45a049);
+                                   -fx-text-fill: white; -fx-font-size: 14px; -fx-alignment: CENTER-LEFT;
+                                   -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand;"
+                            text="🌾  Mes Terrains  ▾">
+                        <font><Font name="System Bold" size="14" /></font>
+                    </Button>
+                    <!-- Sous-menu Terrains -->
+                    <VBox fx:id="terrainsSubMenu" spacing="2" style="-fx-padding: 4 0 0 0;" visible="false" managed="false">
+                        <Button onMouseClicked="#ouvrirTerrains" prefHeight="40" prefWidth="230"
+                                style="-fx-background-color: rgba(0,0,0,0.20); -fx-text-fill: white;
+                                       -fx-font-size: 13px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 40;
+                                       -fx-background-radius: 10; -fx-cursor: hand;"
+                                text="🚜  Terrains">
+                            <font><Font name="System Bold" size="13" /></font>
+                        </Button>
+                        <Button onMouseClicked="#ouvrirPlantes" prefHeight="40" prefWidth="230"
+                                style="-fx-background-color: rgba(0,0,0,0.15); -fx-text-fill: rgba(255,255,255,0.9);
+                                       -fx-font-size: 13px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 40;
+                                       -fx-background-radius: 10; -fx-cursor: hand;"
+                                text="🌱  Plantes">
+                            <font><Font name="System" size="13" /></font>
+                        </Button>
+                        <Button onMouseClicked="#ouvrirRotations" prefHeight="40" prefWidth="230"
+                                style="-fx-background-color: rgba(0,0,0,0.15); -fx-text-fill: rgba(255,255,255,0.9);
+                                       -fx-font-size: 13px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 40;
+                                       -fx-background-radius: 10; -fx-cursor: hand;"
+                                text="📋  Rotations">
+                            <font><Font name="System" size="13" /></font>
+                        </Button>
+                    </VBox>
+                </VBox>
+
+                <Button onMouseClicked="#handleMesAnimaux" prefHeight="48" prefWidth="230"
+                        style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
+                               -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
+                               -fx-background-radius: 12; -fx-cursor: hand;"
+                        text="🐄  Mes Animaux">
+                    <font><Font name="System Bold" size="14" /></font>
+                </Button>
+                <Button onMouseClicked="#handleMesArticles" prefHeight="48" prefWidth="230"
+                        style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
+                               -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
+                               -fx-background-radius: 12; -fx-cursor: hand;"
+                        text="📦  Mes Stocks">
+                    <font><Font name="System Bold" size="14" /></font>
+                </Button>
+                <Button onMouseClicked="#ouvrirMachine" prefHeight="48" prefWidth="230"
+                        style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
+                               -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
+                               -fx-background-radius: 12; -fx-cursor: hand;"
+                        text="🚜  Mon Matériel">
+                    <font><Font name="System Bold" size="14" /></font>
+                </Button>
+                <Button onMouseClicked="#handleMonAbonnement" prefHeight="48" prefWidth="230"
+                        style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
+                               -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
+                               -fx-background-radius: 12; -fx-cursor: hand;"
+                        text="💳  Mes Abonnements">
+                    <font><Font name="System Bold" size="14" /></font>
+                </Button>
+                <Button onMouseClicked="#handleMesEvenements" prefHeight="48" prefWidth="230"
+                        style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
+                               -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
+                               -fx-background-radius: 12; -fx-cursor: hand;"
+                        text="💳  Evenements et Participation ">
+                    <font><Font name="System Bold" size="14" /></font>
+
+                </Button>
+            </VBox>
+
+            <Region VBox.vgrow="ALWAYS" />
+
+            <Button fx:id="logoutBtn" onAction="#handleLogout" prefHeight="50" prefWidth="230"
+                    style="-fx-background-color: #E74C3C; -fx-text-fill: white; -fx-font-size: 14px;
+                           -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22; -fx-background-radius: 12;
+                           -fx-cursor: hand;"
+                    text="🚪  Déconnexion">
+                <font><Font name="System Bold" size="14" /></font>
+            </Button>
+        </VBox>
+    </left>
+
+    <!-- ═══════════ HEADER ═══════════ -->
+    <top>
+        <VBox style="-fx-background-color: linear-gradient(to right, #2E7D32, #43A047);
+                     -fx-padding: 20 30;">
+            <Label text="👷 Gestion des Ouvriers"
+                   style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+            <Label text="Ajoutez des ouvriers, assignez-les à vos terrains et gérez leurs tâches"
+                   style="-fx-font-size: 13px; -fx-text-fill: rgba(255,255,255,0.85);"/>
+        </VBox>
+    </top>
+
+    <center>
+        <TabPane tabClosingPolicy="UNAVAILABLE"
+                 style="-fx-background-color: transparent; -fx-padding: 15;">
+
+            <!-- ═══════════════════════════════════════
+                 ONGLET 1 — OUVRIERS
+            ═══════════════════════════════════════ -->
+            <Tab text="👷 Mes Ouvriers">
+                <SplitPane dividerPositions="0.42"
+                           style="-fx-background-color: transparent;">
+
+                    <!-- Formulaire ajout -->
+                    <ScrollPane fitToWidth="true"
+                                style="-fx-background-color: white; -fx-background: white;">
+                        <VBox spacing="12" style="-fx-padding: 20; -fx-background-color: white;">
+
+                            <Label text="Ajouter un ouvrier"
+                                   style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #2E7D32;"/>
+                            <Separator/>
+
+                            <VBox spacing="4">
+                                <Label text="CIN *" style="-fx-font-weight: bold;"/>
+                                <TextField fx:id="tfCin" promptText="Numéro CIN"/>
+                            </VBox>
+
+                            <HBox spacing="10">
+                                <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                    <Label text="Nom *" style="-fx-font-weight: bold;"/>
+                                    <TextField fx:id="tfNom" promptText="Nom" maxWidth="Infinity"/>
+                                </VBox>
+                                <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                    <Label text="Prénom" style="-fx-font-weight: bold;"/>
+                                    <TextField fx:id="tfPrenom" promptText="Prénom" maxWidth="Infinity"/>
+                                </VBox>
+                            </HBox>
+
+                            <VBox spacing="4">
+                                <Label text="Téléphone *  →  sera le mot de passe par défaut"
+                                       style="-fx-font-weight: bold;"/>
+                                <TextField fx:id="tfTel" promptText="Ex: 22334455"/>
+                            </VBox>
+
+                            <VBox spacing="4">
+                                <Label text="Email *" style="-fx-font-weight: bold;"/>
+                                <TextField fx:id="tfEmail" promptText="email@exemple.com"/>
+                            </VBox>
+
+                            <VBox spacing="4">
+                                <Label text="Date de naissance" style="-fx-font-weight: bold;"/>
+                                <DatePicker fx:id="dpDateNaiss" maxWidth="Infinity"/>
+                            </VBox>
+
+                            <HBox spacing="10">
+                                <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                    <Label text="Adresse" style="-fx-font-weight: bold;"/>
+                                    <TextField fx:id="tfAdresse" promptText="Adresse" maxWidth="Infinity"/>
+                                </VBox>
+                                <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                    <Label text="Ville" style="-fx-font-weight: bold;"/>
+                                    <TextField fx:id="tfVille" promptText="Ville" maxWidth="Infinity"/>
+                                </VBox>
+                            </HBox>
+
+                            <VBox spacing="4">
+                                <Label text="Terrain assigné *" style="-fx-font-weight: bold;"/>
+                                <ComboBox fx:id="cbTerrain" promptText="Sélectionner un terrain"
+                                          maxWidth="Infinity"/>
+                            </VBox>
+
+                            <Button text="➕  Ajouter l'ouvrier" onAction="#handleAjouterOuvrier"
+                                    prefWidth="Infinity" prefHeight="42"
+                                    style="-fx-background-color: #2E7D32; -fx-text-fill: white;
+                                           -fx-font-size: 14px; -fx-font-weight: bold;
+                                           -fx-background-radius: 8; -fx-cursor: hand;"/>
+
+                            <Label fx:id="lblOuvrierMsg" wrapText="true"/>
+
+                        </VBox>
+                    </ScrollPane>
+
+                    <!-- Table ouvriers -->
+                    <VBox spacing="10" style="-fx-padding: 20; -fx-background-color: white;">
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label text="Liste des ouvriers"
+                                   style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #2E7D32;"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Button text="🗑  Supprimer" onAction="#handleSupprimerOuvrier"
+                                    style="-fx-background-color: #E53935; -fx-text-fill: white;
+                                           -fx-background-radius: 6; -fx-cursor: hand; -fx-padding: 6 14;"/>
+                        </HBox>
+
+                        <TableView fx:id="ouvrierTable" VBox.vgrow="ALWAYS">
+                            <columns>
+                                <!-- FIX: column names match Employe/Personne model getters exactly -->
+                                <TableColumn fx:id="colCin"     text="CIN"     prefWidth="80"/>
+                                <TableColumn fx:id="colNom"     text="Nom"     prefWidth="110"/>
+                                <TableColumn fx:id="colPrenom"  text="Prénom"  prefWidth="110"/>
+                                <TableColumn fx:id="colEmail"   text="Email"   prefWidth="180"/>
+                                <TableColumn fx:id="colTel"     text="Tél"     prefWidth="100"/>
+                                <TableColumn fx:id="colTerrain" text="Terrain" prefWidth="80"/>
+                            </columns>
+                            <placeholder>
+                                <Label text="Aucun ouvrier trouvé." style="-fx-text-fill: #888;"/>
+                            </placeholder>
+                        </TableView>
+                    </VBox>
+
+                </SplitPane>
+            </Tab>
+
+            <!-- ═══════════════════════════════════════
+                 ONGLET 2 — TÂCHES
+            ═══════════════════════════════════════ -->
+            <Tab text="📋 Tâches">
+                <SplitPane dividerPositions="0.38"
+                           style="-fx-background-color: transparent;">
+
+                    <!-- Formulaire assignation -->
+                    <ScrollPane fitToWidth="true"
+                                style="-fx-background-color: white; -fx-background: white;">
+                        <VBox spacing="12" style="-fx-padding: 20; -fx-background-color: white;">
+
+                            <Label text="Assigner une tâche"
+                                   style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #2E7D32;"/>
+                            <Separator/>
+
+                            <VBox spacing="4">
+                                <Label text="Ouvrier *" style="-fx-font-weight: bold;"/>
+                                <ComboBox fx:id="cbOuvrier" promptText="Sélectionner un ouvrier"
+                                          maxWidth="Infinity"/>
+                            </VBox>
+
+                            <VBox spacing="4">
+                                <!-- FIX: was tfNomTache — kept consistent with fx:id used in controller -->
+                                <Label text="Nom de la tâche *" style="-fx-font-weight: bold;"/>
+                                <TextField fx:id="tfNomTache" promptText="Ex: Irrigation champ nord"/>
+                            </VBox>
+
+                            <VBox spacing="4">
+                                <Label text="Description" style="-fx-font-weight: bold;"/>
+                                <TextArea fx:id="taDescription" promptText="Détails..."
+                                          prefRowCount="3" wrapText="true"/>
+                            </VBox>
+
+                            <HBox spacing="10">
+                                <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                    <Label text="État" style="-fx-font-weight: bold;"/>
+                                    <ComboBox fx:id="cbEtat" maxWidth="Infinity"/>
+                                </VBox>
+                                <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                    <Label text="Priorité" style="-fx-font-weight: bold;"/>
+                                    <ComboBox fx:id="cbPriorite" maxWidth="Infinity"/>
+                                </VBox>
+                            </HBox>
+
+                            <VBox spacing="4">
+                                <Label text="Date d'échéance" style="-fx-font-weight: bold;"/>
+                                <!-- FIX: fx:id changed from dpEcheance to dueDatePicker
+                                     to match controller reference -->
+                                <DatePicker fx:id="dpEcheance" maxWidth="Infinity"/>                            </VBox>
+
+                            <Button text="📌  Assigner la tâche" onAction="#handleAssignerTache"
+                                    prefWidth="Infinity" prefHeight="42"
+                                    style="-fx-background-color: #1565C0; -fx-text-fill: white;
+                                           -fx-font-size: 14px; -fx-font-weight: bold;
+                                           -fx-background-radius: 8; -fx-cursor: hand;"/>
+
+                            <Button text="🔄  Changer état de la sélection" onAction="#handleChangerEtat"
+                                    prefWidth="Infinity" prefHeight="38"
+                                    style="-fx-background-color: #F57C00; -fx-text-fill: white;
+                                           -fx-font-size: 13px; -fx-background-radius: 8; -fx-cursor: hand;"/>
+
+                            <Label fx:id="lblTacheMsg" wrapText="true"/>
+
+                        </VBox>
+                    </ScrollPane>
+
+                    <!-- Table tâches -->
+                    <VBox spacing="10" style="-fx-padding: 20; -fx-background-color: white;">
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label text="Toutes les tâches"
+                                   style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #2E7D32;"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Button text="🗑  Supprimer" onAction="#handleSupprimerTache"
+                                    style="-fx-background-color: #E53935; -fx-text-fill: white;
+                                           -fx-background-radius: 6; -fx-cursor: hand; -fx-padding: 6 14;"/>
+                        </HBox>
+
+                        <TableView fx:id="tacheTable" VBox.vgrow="ALWAYS">
+                            <columns>
+                                <!-- FIX: column fx:ids match controller's @FXML field names exactly -->
+                                <TableColumn fx:id="colTacheId"   text="ID"          prefWidth="50"/>
+                                <TableColumn fx:id="colNomTache"  text="Nom tâche"   prefWidth="160"/>
+                                <TableColumn fx:id="colEtat"      text="État"        prefWidth="100"/>
+                                <TableColumn fx:id="colPriorite"  text="Priorité"    prefWidth="90"/>
+                                <TableColumn fx:id="colEcheance"  text="Échéance"    prefWidth="110"/>
+                                <TableColumn fx:id="colAssignee"  text="Ouvrier CIN" prefWidth="100"/>
+                            </columns>
+                            <placeholder>
+                                <Label text="Aucune tâche trouvée." style="-fx-text-fill: #888;"/>
+                            </placeholder>
+                        </TableView>
+                    </VBox>
+
+                </SplitPane>
+            </Tab>
+
+        </TabPane>
+    </center>
+
+</BorderPane>

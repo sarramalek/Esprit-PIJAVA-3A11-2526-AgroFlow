@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane prefHeight="650.0" prefWidth="900.0" style="-fx-background-color: #FDFBF0;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.Animaux.AjoutAnimalController">
+    <children>
+        <VBox spacing="30.0" style="-fx-padding: 50;">
+            <children>
+                <VBox spacing="5.0">
+                    <children>
+                        <Text fill="#2C3E50" text="Nouvel Animal">
+                            <font><Font name="System Bold" size="28.0" /></font>
+                        </Text>
+                        <Text fill="#A8C69F" text="Remplissez les informations ci-dessous pour enregistrer l'animal." />
+                    </children>
+                </VBox>
+
+                <GridPane hgap="20.0" vgap="20.0">
+                    <columnConstraints>
+                        <ColumnConstraints minWidth="120.0" prefWidth="150.0" />
+                        <ColumnConstraints minWidth="300.0" prefWidth="400.0" />
+                    </columnConstraints>
+
+                    <children>
+                        <Label text="Nom de l'animal :" textFill="#2C3E50" GridPane.rowIndex="0" />
+                        <TextField fx:id="tfNom" prefHeight="40.0" promptText="Ex: Rex" style="-fx-background-radius: 5; -fx-border-color: #A8C69F; -fx-border-radius: 5;" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                        <Label text="Espèce :" textFill="#2C3E50" GridPane.rowIndex="1" />
+                        <TextField fx:id="tfEspece" prefHeight="40.0" promptText="Ex: Bovin, Ovin..." style="-fx-background-radius: 5; -fx-border-color: #A8C69F; -fx-border-radius: 5;" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                        <Label text="Poids (kg) :" textFill="#2C3E50" GridPane.rowIndex="2" />
+                        <TextField fx:id="tfPoids" prefHeight="40.0" promptText="Ex: 450.5" style="-fx-background-radius: 5; -fx-border-color: #A8C69F; -fx-border-radius: 5;" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                        <Label text="Date de Naissance :" textFill="#2C3E50" GridPane.rowIndex="3" />
+                        <DatePicker fx:id="dpDate" prefHeight="40.0" prefWidth="400.0" style="-fx-border-color: #A8C69F;" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+                        <Label text="Sexe :" textFill="#2C3E50" GridPane.rowIndex="4" />
+                        <ComboBox fx:id="cbSexe" prefHeight="40.0" prefWidth="400.0" style="-fx-border-color: #A8C69F;" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                    </children>
+                </GridPane>
+
+                <HBox spacing="20.0">
+                    <children>
+                        <Button onMouseClicked="#handleAjouterAgr" prefHeight="45.0" prefWidth="180.0" style="-fx-background-color: #2D5A27; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-cursor: hand;" text="CONFIRMER L'AJOUT" />
+                        <Button onMouseClicked="#retourListeAgr" prefHeight="45.0" prefWidth="120.0" style="-fx-background-color: white; -fx-text-fill: #2C3E50; -fx-border-color: #2C3E50; -fx-border-radius: 5; -fx-background-radius: 5; -fx-cursor: hand;" text="ANNULER" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>

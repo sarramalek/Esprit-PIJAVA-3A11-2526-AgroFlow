@@ -1,0 +1,70 @@
+/* Style pour l'application AgroFlow */
+
+.root {
+    -fx-font-family: "Segoe UI", "Arial", sans-serif;
+}
+
+/* Styles pour les TextField */
+.text-field {
+    -fx-background-color: #F5F5F5;
+    -fx-background-radius: 8;
+    -fx-border-color: transparent;
+    -fx-padding: 10;
+    -fx-font-size: 14px;
+}
+
+.text-field:focused {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #4CAF50;
+    -fx-border-width: 2;
+    -fx-border-radius: 8;
+}
+
+/* Styles pour les PasswordField */
+.password-field {
+    -fx-background-color: #F5F5F5;
+    -fx-background-radius: 8;
+    -fx-border-color: transparent;
+    -fx-padding: 10;
+    -fx-font-size: 14px;
+}
+
+.password-field:focused {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #4CAF50;
+    -fx-border-width: 2;
+    -fx-border-radius: 8;
+}
+
+/* Styles pour les boutons */
+.button {
+    -fx-cursor: hand;
+}
+
+.button:hover {
+    -fx-opacity: 0.9;
+}
+
+.button:pressed {
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+/* Styles pour les Toggle Buttons */
+.toggle-button {
+    -fx-cursor: hand;
+}
+
+.toggle-button:hover {
+    -fx-opacity: 0.95;
+}
+
+/* Styles pour les Hyperlinks */
+.hyperlink {
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+}
+
+.hyperlink:hover {
+    -fx-underline: true;
+}

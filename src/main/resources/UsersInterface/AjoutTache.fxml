@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane
+        style="-fx-background-color: #F0F4FF;"
+        xmlns="http://javafx.com/javafx/17.0.12"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="controllers.User.AjoutTache"
+        prefHeight="640.0"
+        prefWidth="580.0">
+
+    <center>
+        <VBox alignment="TOP_CENTER" spacing="0">
+
+            <!-- Header Banner -->
+            <VBox alignment="CENTER" spacing="6"
+                  style="-fx-background-color: #BF360C;
+                         -fx-padding: 28 40 24 40;">
+                <Label text="📋  Ajouter une Tâche"
+                       style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: white;">
+                    <font><Font name="System Bold" size="22.0"/></font>
+                </Label>
+                <Label text="Assignez et planifiez une nouvelle tâche"
+                       style="-fx-font-size: 12px; -fx-text-fill: #FFAB91; -fx-font-style: italic;">
+                    <font><Font name="System Italic" size="12.0"/></font>
+                </Label>
+            </VBox>
+
+            <!-- Card Form -->
+            <VBox spacing="14"
+                  style="-fx-background-color: white;
+                         -fx-padding: 26 36 26 36;
+                         -fx-effect: dropshadow(gaussian, rgba(191,54,12,0.12), 16, 0, 0, 4);">
+
+                <!-- Error Label -->
+                <Label fx:id="errorLabel" visible="false" wrapText="true" maxWidth="Infinity"
+                       style="-fx-text-fill: #C62828; -fx-font-size: 12px;
+                              -fx-background-color: #FFEBEE; -fx-background-radius: 6;
+                              -fx-padding: 10 14; -fx-border-color: #EF9A9A;
+                              -fx-border-radius: 6; -fx-border-width: 1;"/>
+
+                <!-- Titre -->
+                <VBox spacing="4">
+                    <Label text="Titre *"
+                           style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #37474F;">
+                        <font><Font name="System Bold" size="12.0"/></font>
+                    </Label>
+                    <TextField fx:id="titleField" promptText="Ex: Arrosage des cultures"
+                               style="-fx-font-size: 13px; -fx-padding: 9 12;
+                                      -fx-background-color: #FFF8F6;
+                                      -fx-border-color: #FFCCBC; -fx-border-radius: 7;
+                                      -fx-background-radius: 7; -fx-border-width: 1.5;"/>
+                </VBox>
+
+                <!-- Description -->
+                <VBox spacing="4">
+                    <Label text="Description *"
+                           style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #37474F;">
+                        <font><Font name="System Bold" size="12.0"/></font>
+                    </Label>
+                    <TextArea fx:id="descriptionArea" promptText="Décrivez la tâche en détail..."
+                              prefRowCount="3" wrapText="true"
+                              style="-fx-font-size: 13px; -fx-padding: 9 12;
+                                     -fx-background-color: #FFF8F6;
+                                     -fx-border-color: #FFCCBC; -fx-border-radius: 7;
+                                     -fx-background-radius: 7; -fx-border-width: 1.5;"/>
+                </VBox>
+
+                <!-- Employé + Statut -->
+                <HBox spacing="16">
+                    <VBox spacing="4" HBox.hgrow="ALWAYS">
+                        <Label text="Assigner à *"
+                               style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #37474F;">
+                            <font><Font name="System Bold" size="12.0"/></font>
+                        </Label>
+                        <ComboBox fx:id="employeeComboBox" promptText="Sélectionner un employé"
+                                  maxWidth="Infinity"
+                                  style="-fx-font-size: 13px;
+                                         -fx-background-color: #FFF8F6;
+                                         -fx-border-color: #FFCCBC; -fx-border-radius: 7;
+                                         -fx-background-radius: 7; -fx-border-width: 1.5;">
+                            <padding><Insets bottom="6" left="10" right="10" top="6"/></padding>
+                        </ComboBox>
+                    </VBox>
+                    <VBox spacing="4" HBox.hgrow="ALWAYS">
+                        <Label text="Statut *"
+                               style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #37474F;">
+                            <font><Font name="System Bold" size="12.0"/></font>
+                        </Label>
+                        <ComboBox fx:id="statusComboBox" promptText="Sélectionner un statut"
+                                  maxWidth="Infinity"
+                                  style="-fx-font-size: 13px;
+                                         -fx-background-color: #FFF8F6;
+                                         -fx-border-color: #FFCCBC; -fx-border-radius: 7;
+                                         -fx-background-radius: 7; -fx-border-width: 1.5;">
+                            <padding><Insets bottom="6" left="10" right="10" top="6"/></padding>
+                        </ComboBox>
+                    </VBox>
+                </HBox>
+
+                <!-- Date + Priorité -->
+                <HBox spacing="16">
+                    <VBox spacing="4" HBox.hgrow="ALWAYS">
+                        <Label text="Date d'échéance *"
+                               style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #37474F;">
+                            <font><Font name="System Bold" size="12.0"/></font>
+                        </Label>
+                        <DatePicker fx:id="dueDatePicker" maxWidth="Infinity"
+                                    style="-fx-font-size: 13px;
+                                           -fx-background-color: #FFF8F6;
+                                           -fx-border-color: #FFCCBC; -fx-border-radius: 7;
+                                           -fx-background-radius: 7; -fx-border-width: 1.5;"/>
+                    </VBox>
+                    <VBox spacing="4" HBox.hgrow="ALWAYS">
+                        <Label text="Priorité"
+                               style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #37474F;">
+                            <font><Font name="System Bold" size="12.0"/></font>
+                        </Label>
+                        <ComboBox fx:id="priorityComboBox" promptText="Sélectionner une priorité"
+                                  maxWidth="Infinity"
+                                  style="-fx-font-size: 13px;
+                                         -fx-background-color: #FFF8F6;
+                                         -fx-border-color: #FFCCBC; -fx-border-radius: 7;
+                                         -fx-background-radius: 7; -fx-border-width: 1.5;">
+                            <padding><Insets bottom="6" left="10" right="10" top="6"/></padding>
+                        </ComboBox>
+                    </VBox>
+                </HBox>
+
+                <Separator style="-fx-background-color: #FBE9E7;"/>
+
+                <!-- Footer -->
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label text="* Champs obligatoires"
+                           style="-fx-font-size: 11px; -fx-text-fill: #90A4AE; -fx-font-style: italic;">
+                        <font><Font name="System Italic" size="11.0"/></font>
+                    </Label>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="cancelButton" text="Annuler" onAction="#handleCancel"
+                            minWidth="110"
+                            style="-fx-background-color: transparent; -fx-text-fill: #546E7A;
+                                   -fx-font-size: 13px; -fx-padding: 10 24; -fx-background-radius: 7;
+                                   -fx-border-color: #B0BEC5; -fx-border-radius: 7;
+                                   -fx-border-width: 1.5; -fx-cursor: hand;">
+                        <font><Font name="System" size="13"/></font>
+                    </Button>
+                    <Button fx:id="saveButton" text="Enregistrer" onAction="#handleSave"
+                            defaultButton="true" minWidth="130"
+                            style="-fx-background-color: #BF360C; -fx-text-fill: white;
+                                   -fx-font-size: 13px; -fx-font-weight: bold;
+                                   -fx-padding: 10 24; -fx-background-radius: 7; -fx-cursor: hand;
+                                   -fx-effect: dropshadow(gaussian, rgba(191,54,12,0.35), 8, 0, 0, 2);">
+                        <font><Font name="System Bold" size="13"/></font>
+                    </Button>
+                </HBox>
+            </VBox>
+        </VBox>
+    </center>
+</BorderPane>

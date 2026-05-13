@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<BorderPane
+        xmlns="http://javafx.com/javafx/17.0.12"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="controllers.User.ModifierAbonnement"
+        prefHeight="620.0"
+        prefWidth="560.0"
+        style="-fx-background-color: #F0F4FF;">
+
+    <center>
+        <VBox alignment="TOP_CENTER" spacing="0"
+              style="-fx-background-color: #F0F4FF;">
+
+            <!-- Header Banner -->
+            <VBox alignment="CENTER" spacing="6"
+                  style="-fx-background-color: #0D47A1;
+                         -fx-padding: 28 40 24 40;">
+                <Label fx:id="titleLabel"
+                       text="✏️  Modifier l'abonnement"
+                       style="-fx-font-size: 22px;
+                              -fx-font-weight: bold;
+                              -fx-text-fill: white;">
+                    <font><Font name="System Bold" size="22.0"/></font>
+                </Label>
+                <Label text="Modifiez les informations de l'abonnement"
+                       style="-fx-font-size: 12px;
+                              -fx-text-fill: #90CAF9;
+                              -fx-font-style: italic;">
+                    <font><Font name="System Italic" size="12.0"/></font>
+                </Label>
+            </VBox>
+
+            <!-- Card Form -->
+            <VBox spacing="18"
+                  style="-fx-background-color: white;
+                         -fx-padding: 30 36 30 36;
+                         -fx-background-radius: 0 0 12 12;
+                         -fx-effect: dropshadow(gaussian, rgba(13,71,161,0.12), 16, 0, 0, 4);">
+
+                <!-- Error Label -->
+                <Label fx:id="errorLabel" visible="false" wrapText="true" maxWidth="420"
+                       style="-fx-text-fill: #C62828;
+                              -fx-font-size: 12px;
+                              -fx-background-color: #FFEBEE;
+                              -fx-background-radius: 6;
+                              -fx-padding: 10 14;
+                              -fx-border-color: #EF9A9A;
+                              -fx-border-radius: 6;
+                              -fx-border-width: 1;">
+                    <font><Font name="System" size="12"/></font>
+                </Label>
+
+                <!-- CIN -->
+                <VBox spacing="5">
+                    <Label text="CIN *"
+                           style="-fx-font-size: 12px;
+                                  -fx-font-weight: bold;
+                                  -fx-text-fill: #37474F;">
+                        <font><Font name="System Bold" size="12.0"/></font>
+                    </Label>
+                    <TextField fx:id="cinField"
+                               promptText="Ex: 12345678"
+                               prefWidth="420"
+                               style="-fx-font-size: 13px;
+                                      -fx-padding: 10 14;
+                                      -fx-background-color: #F8F9FF;
+                                      -fx-border-color: #BBDEFB;
+                                      -fx-border-radius: 7;
+                                      -fx-background-radius: 7;
+                                      -fx-border-width: 1.5;
+                                      -fx-text-fill: #263238;">
+                        <font><Font name="System" size="13"/></font>
+                    </TextField>
+                </VBox>
+
+                <!-- Offre -->
+                <VBox spacing="5">
+                    <Label text="Offre *"
+                           style="-fx-font-size: 12px;
+                                  -fx-font-weight: bold;
+                                  -fx-text-fill: #37474F;">
+                        <font><Font name="System Bold" size="12.0"/></font>
+                    </Label>
+                    <ComboBox fx:id="offreComboBox"
+                              promptText="Sélectionnez une offre..."
+                              prefWidth="420"
+                              style="-fx-font-size: 13px;
+                                     -fx-background-color: #F8F9FF;
+                                     -fx-border-color: #BBDEFB;
+                                     -fx-border-radius: 7;
+                                     -fx-background-radius: 7;
+                                     -fx-border-width: 1.5;">
+                        <padding><Insets bottom="6" left="10" right="10" top="6"/></padding>
+                    </ComboBox>
+                </VBox>
+
+                <!-- Dates Row -->
+                <HBox spacing="16">
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Date d'inscription *"
+                               style="-fx-font-size: 12px;
+                                      -fx-font-weight: bold;
+                                      -fx-text-fill: #37474F;">
+                            <font><Font name="System Bold" size="12.0"/></font>
+                        </Label>
+                        <DatePicker fx:id="dateInscriptionPicker"
+                                    promptText="Choisir la date"
+                                    prefWidth="202"
+                                    style="-fx-font-size: 13px;
+                                           -fx-background-color: #F8F9FF;
+                                           -fx-border-color: #BBDEFB;
+                                           -fx-border-radius: 7;
+                                           -fx-background-radius: 7;
+                                           -fx-border-width: 1.5;">
+                        </DatePicker>
+                    </VBox>
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Date d'expiration *"
+                               style="-fx-font-size: 12px;
+                                      -fx-font-weight: bold;
+                                      -fx-text-fill: #37474F;">
+                            <font><Font name="System Bold" size="12.0"/></font>
+                        </Label>
+                        <DatePicker fx:id="dateExpirationPicker"
+                                    promptText="Choisir la date"
+                                    prefWidth="202"
+                                    style="-fx-font-size: 13px;
+                                           -fx-background-color: #F8F9FF;
+                                           -fx-border-color: #BBDEFB;
+                                           -fx-border-radius: 7;
+                                           -fx-background-radius: 7;
+                                           -fx-border-width: 1.5;">
+                        </DatePicker>
+                    </VBox>
+                </HBox>
+
+                <!-- Situation -->
+                <VBox spacing="5">
+                    <Label text="Situation *"
+                           style="-fx-font-size: 12px;
+                                  -fx-font-weight: bold;
+                                  -fx-text-fill: #37474F;">
+                        <font><Font name="System Bold" size="12.0"/></font>
+                    </Label>
+                    <ComboBox fx:id="situationComboBox"
+                              promptText="Sélectionnez la situation..."
+                              prefWidth="420"
+                              style="-fx-font-size: 13px;
+                                     -fx-background-color: #F8F9FF;
+                                     -fx-border-color: #BBDEFB;
+                                     -fx-border-radius: 7;
+                                     -fx-background-radius: 7;
+                                     -fx-border-width: 1.5;">
+                        <padding><Insets bottom="6" left="10" right="10" top="6"/></padding>
+                    </ComboBox>
+                </VBox>
+
+                <!-- Separator -->
+                <Separator style="-fx-background-color: #E3F2FD; -fx-opacity: 0.8;"/>
+
+                <!-- Footer: Note + Buttons -->
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label text="* Champs obligatoires"
+                           style="-fx-font-size: 11px;
+                                  -fx-text-fill: #90A4AE;
+                                  -fx-font-style: italic;">
+                        <font><Font name="System Italic" size="11.0"/></font>
+                    </Label>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="cancelButton" text="Annuler"
+                            onAction="#handleCancel"
+                            minWidth="110"
+                            style="-fx-background-color: transparent;
+                                   -fx-text-fill: #546E7A;
+                                   -fx-font-size: 13px;
+                                   -fx-padding: 10 24;
+                                   -fx-background-radius: 7;
+                                   -fx-border-color: #B0BEC5;
+                                   -fx-border-radius: 7;
+                                   -fx-border-width: 1.5;
+                                   -fx-cursor: hand;">
+                        <font><Font name="System" size="13"/></font>
+                    </Button>
+                    <Button fx:id="saveButton" text="Enregistrer"
+                            onAction="#handleSave"
+                            defaultButton="true"
+                            minWidth="130"
+                            style="-fx-background-color: #0D47A1;
+                                   -fx-text-fill: white;
+                                   -fx-font-size: 13px;
+                                   -fx-font-weight: bold;
+                                   -fx-padding: 10 24;
+                                   -fx-background-radius: 7;
+                                   -fx-cursor: hand;
+                                   -fx-effect: dropshadow(gaussian, rgba(13,71,161,0.35), 8, 0, 0, 2);">
+                        <font><Font name="System Bold" size="13"/></font>
+                    </Button>
+                </HBox>
+
+            </VBox>
+        </VBox>
+    </center>
+</BorderPane>

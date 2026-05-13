@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox spacing="0"
+      style="-fx-background-color: #fcf8e6;"
+      prefWidth="560"
+      xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="controllers.Events.AjouterCategorieController">
+
+    <!-- Header -->
+    <HBox alignment="CENTER_LEFT"
+          style="-fx-background-color: #2C3E50; -fx-padding: 20 25;">
+        <Label style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: white;"
+               text="➕ Nouvelle Catégorie">
+            <font><Font name="System Bold" size="20"/></font>
+        </Label>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Label style="-fx-font-size: 13px; -fx-text-fill: #BDC3C7;"
+               text="Créez une nouvelle catégorie d'événement"/>
+    </HBox>
+
+    <!-- Form Body -->
+    <VBox spacing="20" style="-fx-padding: 30; -fx-background-color: white;">
+
+        <!-- Nom de la catégorie -->
+        <VBox spacing="8">
+            <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;"
+                   text="Nom de la catégorie *">
+                <font><Font name="System Bold" size="14"/></font>
+            </Label>
+            <TextField fx:id="tfNom"
+                       promptText="Ex: Conférence, Formation, Atelier..."
+                       prefHeight="40"
+                       style="-fx-background-color: #F8F9FA; -fx-background-radius: 8; -fx-border-color: #E0E0E0; -fx-border-radius: 8; -fx-padding: 10; -fx-font-size: 14px;">
+                <font><Font name="System" size="14"/></font>
+            </TextField>
+        </VBox>
+
+        <!-- Description -->
+        <VBox spacing="8">
+            <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;"
+                   text="Description *">
+                <font><Font name="System Bold" size="14"/></font>
+            </Label>
+            <TextArea fx:id="taDescription"
+                      promptText="Décrivez cette catégorie d'événement..."
+                      prefHeight="120"
+                      wrapText="true"
+                      style="-fx-background-color: #F8F9FA; -fx-background-radius: 8; -fx-border-color: #E0E0E0; -fx-border-radius: 8; -fx-padding: 10; -fx-font-size: 14px;">
+                <font><Font name="System" size="14"/></font>
+            </TextArea>
+        </VBox>
+
+        <!-- Message d'erreur (initialement caché) -->
+        <Label fx:id="errorLabel"
+               style="-fx-text-fill: #E74C3C; -fx-font-size: 13px; -fx-background-color: #FADBD8; -fx-padding: 10; -fx-background-radius: 6;"
+               visible="false"
+               wrapText="true">
+            <font><Font name="System" size="13"/></font>
+        </Label>
+
+        <Separator/>
+
+        <!-- Buttons -->
+        <HBox spacing="15" alignment="CENTER_RIGHT">
+            <Label style="-fx-font-size: 12px; -fx-text-fill: #95A5A6; -fx-font-style: italic;"
+                   text="* Champs obligatoires" HBox.hgrow="ALWAYS">
+                <font><Font name="System Italic" size="12"/></font>
+            </Label>
+            <Button text="✕ Annuler"
+                    onAction="#retourCategories"
+                    prefWidth="130"
+                    prefHeight="40"
+                    style="-fx-background-color: #95A5A6; -fx-text-fill: white; -fx-font-size: 14px; -fx-background-radius: 8; -fx-cursor: hand;">
+                <font><Font name="System" size="14"/></font>
+            </Button>
+            <Button text="✓ Enregistrer"
+                    onAction="#ajouterCategorie"
+                    prefWidth="150"
+                    prefHeight="40"
+                    style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 14px; -fx-background-radius: 8; -fx-cursor: hand; -fx-font-weight: bold;">
+                <font><Font name="System Bold" size="14"/></font>
+            </Button>
+        </HBox>
+
+    </VBox>
+</VBox>

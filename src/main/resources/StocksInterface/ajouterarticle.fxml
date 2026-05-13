@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+
+<BorderPane prefHeight="650.0" prefWidth="1050.0" style="-fx-background-color: #f4f7f6;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.Stocks.ajouterarticleController">
+
+    <center>
+        <StackPane>
+            <children>
+                <VBox maxWidth="700.0" spacing="30.0" style="-fx-background-color: white; -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 5); -fx-padding: 40;">
+                    <children>
+
+                        <VBox spacing="5.0">
+                            <children>
+                                <Label fx:id="lblTitre" text="📦 Nouvel Article de Stock" textFill="#2d5a27">
+                                    <font><Font name="System Bold" size="32.0" /></font>
+                                </Label>
+                                <Label text="Remplissez les informations pour mettre à jour votre inventaire." textFill="#7f8c8d">
+                                    <font><Font size="14.0" /></font>
+                                </Label>
+                                <Separator prefWidth="200.0" style="-fx-padding: 10 0 0 0;" />
+                            </children>
+                        </VBox>
+
+                        <GridPane hgap="25.0" vgap="20.0">
+                            <columnConstraints>
+                                <ColumnConstraints halignment="RIGHT" minWidth="150.0" prefWidth="180.0" />
+                                <ColumnConstraints hgrow="ALWAYS" minWidth="300.0" />
+                            </columnConstraints>
+                            <children>
+                                <Label style="-fx-font-weight: bold;" text="Désignation :" GridPane.rowIndex="0" />
+                                <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                    <TextField fx:id="tfNom" prefHeight="40.0" promptText="Ex: Engrais NPK" style="-fx-background-radius: 8;" />
+                                    <Label fx:id="msgNom" text="" textFill="#e74c3c" style="-fx-font-size: 11px;" />
+                                </VBox>
+
+                                <Label style="-fx-font-weight: bold;" text="Quantité initiale :" GridPane.rowIndex="1" />
+                                <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                    <TextField fx:id="tfQuantite" prefHeight="40.0" promptText="0.0" style="-fx-background-radius: 8;" />
+                                    <Label fx:id="msgQuantite" text="" textFill="#e74c3c" style="-fx-font-size: 11px;" />
+                                </VBox>
+
+                                <Label style="-fx-font-weight: bold;" text="Seuil d'Alerte (Min) :" GridPane.rowIndex="2" />
+                                <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                    <TextField fx:id="tfSeuil" prefHeight="40.0" promptText="Alerte si inférieur à..." style="-fx-background-radius: 8;" />
+                                    <Label fx:id="msgSeuil" text="" textFill="#e74c3c" style="-fx-font-size: 11px;" />
+                                </VBox>
+
+                                <Label style="-fx-font-weight: bold;" text="Unité de mesure :" GridPane.rowIndex="3" />
+                                <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                    <TextField fx:id="tfUnite" prefHeight="40.0" promptText="Kg, Litres, Unités..." style="-fx-background-radius: 8;" />
+                                    <Label fx:id="msgUnite" text="" textFill="#e74c3c" style="-fx-font-size: 11px;" />
+                                </VBox>
+
+                                <Label style="-fx-font-weight: bold;" text="Catégorie :" GridPane.rowIndex="4" />
+                                <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
+                                    <HBox spacing="10.0">
+                                        <children>
+                                            <ComboBox fx:id="cbCategories" prefHeight="40.0" prefWidth="350.0" promptText="Sélectionner la catégorie" style="-fx-background-radius: 8;" />
+                                            <Button onAction="#allerAjouterCategorie" prefHeight="40.0" prefWidth="45.0" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-background-radius: 8; -fx-cursor: hand;" text="+" />
+                                        </children>
+                                    </HBox>
+                                    <Label fx:id="msgCategorie" text="" textFill="#e74c3c" style="-fx-font-size: 11px;" />
+                                </VBox>
+
+                                <Label style="-fx-font-weight: bold;" text="Prix Unitaire (TND) :" GridPane.rowIndex="5" />
+                                <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="5">
+                                    <TextField fx:id="tfPrixUnitaire" prefHeight="40.0" promptText="Calculé automatiquement si devise ≠ TND" style="-fx-background-radius: 8;" />
+                                    <Label fx:id="msgPrixUnitaire" text="" textFill="#e74c3c" style="-fx-font-size: 11px;" />
+                                </VBox>
+
+                                <Label style="-fx-font-weight: bold;" text="Prix (Devise Étrangère) :" GridPane.rowIndex="6" />
+                                <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="6">
+                                    <TextField fx:id="tfPrixAchatDevise" prefHeight="40.0" promptText="0.0" style="-fx-background-radius: 8;" />
+                                    <Label fx:id="msgPrixAchatDevise" text="" textFill="#e74c3c" style="-fx-font-size: 11px;" />
+                                </VBox>
+
+                                <Label style="-fx-font-weight: bold;" text="Devise :" GridPane.rowIndex="7" />
+                                <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="7">
+                                    <ComboBox fx:id="cbDevise" prefHeight="40.0" prefWidth="350.0" promptText="Sélectionner la devise" style="-fx-background-radius: 8;" />
+                                    <Label fx:id="msgDevise" text="" textFill="#e74c3c" style="-fx-font-size: 11px;" />
+                                </VBox>
+
+                                <Label fx:id="lblAgriculteur" style="-fx-font-weight: bold;" text="Propriétaire (Agriculteur) :" GridPane.rowIndex="8" />
+                                <VBox fx:id="boxAgriculteur" spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="8">
+                                    <ComboBox fx:id="cbAgriculteurs" prefHeight="40.0" prefWidth="350.0" promptText="Choisir un agriculteur" style="-fx-background-radius: 8;" />
+                                    <Label fx:id="msgAgriculteur" text="" textFill="#e74c3c" style="-fx-font-size: 11px;" />
+                                </VBox>
+                            </children>
+                        </GridPane>
+
+                        <HBox alignment="CENTER_RIGHT" spacing="15.0" style="-fx-padding: 20 0 0 0;">
+                            <children>
+                                <Button onAction="#allerVersArticles" prefHeight="45.0" prefWidth="150.0" style="-fx-background-color: transparent; -fx-border-color: #bdc3c7; -fx-border-radius: 8; -fx-text-fill: #7f8c8d; -fx-cursor: hand;" text="ANNULER" />
+                                <Button onAction="#validerAjout" prefHeight="45.0" prefWidth="220.0" style="-fx-background-color: #2d5a27; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;" text="💾 ENREGISTRER L'ARTICLE" />
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+            </children>
+        </StackPane>
+    </center>
+</BorderPane>

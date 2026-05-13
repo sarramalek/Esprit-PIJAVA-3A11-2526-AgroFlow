@@ -1,0 +1,402 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.image.ImageView?>
+<BorderPane style="-fx-background-color: #F8F9FA;"
+            xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controllers.User.MesAbonnements"
+            prefHeight="700.0" prefWidth="1500.0">
+
+    <!-- ═══════════════════════════════════════════════════
+         SIDEBAR — identique à l'original
+    ════════════════════════════════════════════════════ -->
+    <!-- SIDEBAR AGRICOLE -->
+    <left>
+        <VBox prefWidth="250" style="-fx-background-color: linear-gradient(to bottom, #2E7D32, #388E3C, #43A047);">
+            <padding><Insets bottom="20" top="20" /></padding>
+
+            <!-- Logo -->
+            <HBox alignment="CENTER" spacing="12" style="-fx-padding: 0 0 20 0;">
+                <Label style="-fx-font-size: 32px;" text="🌱" />
+                <VBox alignment="CENTER_LEFT" spacing="2">
+                    <Label style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: white;" text="AgroFlow">
+                        <font><Font name="System Bold" size="26" /></font>
+                    </Label>
+                    <Label style="-fx-font-size: 11px; -fx-text-fill: rgba(255,255,255,0.7);" text="Mon Exploitation">
+                        <font><Font name="System" size="11" /></font>
+                    </Label>
+                </VBox>
+            </HBox>
+
+            <!-- Info Utilisateur avec Hyperlink À Propos -->
+            <VBox alignment="CENTER" spacing="8"
+                  style="-fx-background-color: rgba(255,255,255,0.1); -fx-background-radius: 15; -fx-padding: 20; -fx-margin: 10;">
+
+                <!-- Avatar circulaire -->
+                <StackPane>
+                    <!-- Fond dégradé (visible par défaut) -->
+                    <Circle fx:id="sidebarAvatarBg" radius="35"
+                            fill="rgba(255,255,255,0.2)" />
+                    <!-- Emoji par défaut -->
+                    <Label fx:id="sidebarAvatarDefault"
+                           style="-fx-font-size: 30px;"
+                           text="👨‍🌾" />
+                    <!-- Photo Cloudinary (cachée par défaut, clip appliqué en Java) -->
+                    <ImageView fx:id="sidebarAvatarImageView"
+                               fitWidth="70" fitHeight="70"
+                               preserveRatio="false"
+                               visible="false" managed="false" />
+                </StackPane>
+
+                <Label fx:id="userNameLabel"
+                       style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;"
+                       text="Nom Agriculteur">
+                    <font><Font name="System Bold" size="16" /></font>
+                </Label>
+                <Label fx:id="userRoleLabel"
+                       style="-fx-font-size: 12px; -fx-text-fill: rgba(255,255,255,0.8);
+                  -fx-background-color: rgba(76,175,80,0.3); -fx-padding: 4 12;
+                  -fx-background-radius: 15;"
+                       text="🌾 AGRICULTEUR">
+                    <font><Font name="System Bold" size="12" /></font>
+                </Label>
+                <!-- Hyperlink À Propos -->
+                <Hyperlink fx:id="aproposLink" text="👤 À propos de moi"
+                           onAction="#handleAPropos"
+                           style="-fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 13px;
+                      -fx-border-color: rgba(255,255,255,0.4); -fx-padding: 5 15;
+                      -fx-background-radius: 20; -fx-border-radius: 20;
+                      -fx-cursor: hand;">
+                    <font><Font name="System" size="13" /></font>
+                </Hyperlink>
+            </VBox>
+
+            <!-- Navigation Menu -->
+            <VBox spacing="8" style="-fx-padding: 20 0 0 0;">
+                <Button onMouseClicked="#handleDashboard" prefHeight="48" prefWidth="230"
+                        style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
+                               -fx-font-size: 14px; -fx-alignment: CENTER-LEFT;
+                               -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand;"
+                        text="📊  Acceuil">
+                    <font><Font name="System Bold" size="14" /></font>
+                </Button>
+                <Button onMouseClicked="#handlemesouvriers" prefHeight="48" prefWidth="230"
+                        style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
+                               -fx-font-size: 14px; -fx-alignment: CENTER-LEFT;
+                               -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand;"
+                        text="📊  mes ouvriers  ">
+                    <font><Font name="System Bold" size="14" /></font>
+                </Button>
+                <!-- Mes Terrains avec sous-menu (ouvert par défaut ici) -->
+                <VBox spacing="0">
+                    <Button onMouseClicked="#handleMesTerrains" prefHeight="48" prefWidth="230"
+                            style="-fx-background-color: linear-gradient(to right, #4CAF50, #45a049);
+                                   -fx-text-fill: white; -fx-font-size: 14px; -fx-alignment: CENTER-LEFT;
+                                   -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand;"
+                            text="🌾  Mes Terrains  ▾">
+                        <font><Font name="System Bold" size="14" /></font>
+                    </Button>
+                    <!-- Sous-menu Terrains -->
+                    <VBox fx:id="terrainsSubMenu" spacing="2" style="-fx-padding: 4 0 0 0;" visible="true" managed="true">
+                        <Button onMouseClicked="#ouvrirTerrains" prefHeight="40" prefWidth="230"
+                                style="-fx-background-color: rgba(0,0,0,0.20); -fx-text-fill: white;
+                                       -fx-font-size: 13px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 40;
+                                       -fx-background-radius: 10; -fx-cursor: hand;"
+                                text="🚜  Terrains">
+                            <font><Font name="System Bold" size="13" /></font>
+                        </Button>
+                        <Button onMouseClicked="#ouvrirPlantes" prefHeight="40" prefWidth="230"
+                                style="-fx-background-color: rgba(0,0,0,0.15); -fx-text-fill: rgba(255,255,255,0.9);
+                                       -fx-font-size: 13px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 40;
+                                       -fx-background-radius: 10; -fx-cursor: hand;"
+                                text="🌱  Plantes">
+                            <font><Font name="System" size="13" /></font>
+                        </Button>
+                        <Button onMouseClicked="#ouvrirRotations" prefHeight="40" prefWidth="230"
+                                style="-fx-background-color: rgba(0,0,0,0.15); -fx-text-fill: rgba(255,255,255,0.9);
+                                       -fx-font-size: 13px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 40;
+                                       -fx-background-radius: 10; -fx-cursor: hand;"
+                                text="📋  Rotations">
+                            <font><Font name="System" size="13" /></font>
+                        </Button>
+                    </VBox>
+                </VBox>
+
+                <Button onMouseClicked="#handleMesAnimaux" prefHeight="48" prefWidth="230"
+                        style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
+                               -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
+                               -fx-background-radius: 12; -fx-cursor: hand;"
+                        text="🐄  Mes Animaux">
+                    <font><Font name="System Bold" size="14" /></font>
+                </Button>
+                <Button onMouseClicked="#handleMesArticles" prefHeight="48" prefWidth="230"
+                        style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
+                               -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
+                               -fx-background-radius: 12; -fx-cursor: hand;"
+                        text="📦  Mes Stocks">
+                    <font><Font name="System Bold" size="14" /></font>
+                </Button>
+                <Button onMouseClicked="#ouvriMachines" prefHeight="48" prefWidth="230"
+                        style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
+                               -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
+                               -fx-background-radius: 12; -fx-cursor: hand;"
+                        text="🚜  Mon Matériel">
+                    <font><Font name="System Bold" size="14" /></font>
+                </Button>
+                <Button onAction="#handleMonAbonnement" prefHeight="48" prefWidth="230"
+                        style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
+                               -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
+                               -fx-background-radius: 12; -fx-cursor: hand;"
+                        text="💳  Mes Abonnements">
+                    <font><Font name="System Bold" size="14" /></font>
+                </Button>
+                <Button onMouseClicked="#handleMesEvenements" prefHeight="48" prefWidth="230"
+                        style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white;
+                               -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22;
+                               -fx-background-radius: 12; -fx-cursor: hand;"
+                        text="💳  Evenements et Participation ">
+                    <font><Font name="System Bold" size="14" /></font>
+
+                </Button>
+            </VBox>
+
+            <Region VBox.vgrow="ALWAYS" />
+
+            <Button fx:id="logoutBtn" onAction="#handleLogout" prefHeight="50" prefWidth="230"
+                    style="-fx-background-color: #E74C3C; -fx-text-fill: white; -fx-font-size: 14px;
+                           -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22; -fx-background-radius: 12;
+                           -fx-cursor: hand;"
+                    text="🚪  Déconnexion">
+                <font><Font name="System Bold" size="14" /></font>
+            </Button>
+        </VBox>
+    </left>
+
+    <!-- ═══════════════════════════════════════════════════
+         CONTENU PRINCIPAL
+    ════════════════════════════════════════════════════ -->
+    <center>
+        <AnchorPane fx:id="rootPane" style="-fx-background-color: #e8f5e9;">
+
+            <VBox spacing="0"
+                  AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0"
+                  AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0">
+
+                <!-- ── Header ──────────────────────────────── -->
+                <HBox alignment="CENTER_LEFT" spacing="16"
+                      style="-fx-background-color: #2e7d32; -fx-padding: 16 24;">
+                    <Label text="💳 Gestion des Abonnements" textFill="white">
+                        <font><Font name="System Bold" size="22"/></font>
+                    </Label>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="userNameLabel1" text="Utilisateur: " textFill="white">
+                        <font><Font size="14"/></font>
+                    </Label>
+                    <!-- ✅ Bouton PDF global -->
+                    <Button text="📥 Exporter tout en PDF"
+                            onAction="#handleGeneratePDFTous"
+                            style="-fx-background-color: #1565C0; -fx-text-fill: white;
+                                   -fx-font-weight: bold; -fx-padding: 8 18;
+                                   -fx-background-radius: 8; -fx-cursor: hand; -fx-font-size: 13;">
+                        <font><Font name="System Bold" size="13"/></font>
+                    </Button>
+                    <Button text="🔄 Actualiser" onAction="#onRefreshOffres"
+                            style="-fx-background-color: #4CAF50; -fx-text-fill: white;
+                                   -fx-font-weight: bold; -fx-padding: 8 18;
+                                   -fx-background-radius: 8; -fx-cursor: hand; -fx-font-size: 13;">
+                        <font><Font name="System Bold" size="13"/></font>
+                    </Button>
+                </HBox>
+
+                <!-- ── Corps : deux colonnes ────────────────── -->
+                <HBox spacing="16" VBox.vgrow="ALWAYS">
+                    <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+
+                    <!-- ══════════════════════════════════════
+                         COLONNE GAUCHE — MES ABONNEMENTS
+                    ═════════════════════════════════════════= -->
+                    <VBox spacing="10"
+                          style="-fx-background-color: white; -fx-background-radius: 12;
+                                 -fx-padding: 18;
+                                 -fx-effect: dropshadow(gaussian,rgba(0,0,0,0.08),8,0,0,2);"
+                          prefWidth="450" HBox.hgrow="NEVER">
+
+                        <!-- Titre + compteur -->
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <Label text="📋 Mes Abonnements"
+                                   style="-fx-font-size: 17; -fx-font-weight: bold; -fx-text-fill: #2e7d32;"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Label fx:id="countAbonnementLabel"
+                                   text="0 abonnement(s)"
+                                   style="-fx-font-size: 12; -fx-text-fill: #888;
+                                          -fx-background-color: #e8f5e9; -fx-padding: 3 10;
+                                          -fx-background-radius: 20;"/>
+                        </HBox>
+                        <Separator/>
+
+                        <!-- ✅ Barre de recherche -->
+                        <TextField fx:id="searchAbonnementField"
+                                   promptText="🔍  Rechercher (n°, statut, date…)"
+                                   style="-fx-background-radius: 20; -fx-border-radius: 20;
+                                          -fx-border-color: #c8e6c9; -fx-padding: 7 14;
+                                          -fx-font-size: 13;"/>
+
+                        <!-- ✅ Filtre situation + tri -->
+                        <HBox spacing="8" alignment="CENTER_LEFT">
+                            <Label text="Statut :"
+                                   style="-fx-font-size: 12; -fx-text-fill: #555; -fx-font-weight: bold;"/>
+                            <ComboBox fx:id="filterSituationCombo" prefWidth="130"
+                                      style="-fx-background-radius: 8; -fx-border-radius: 8;
+                                             -fx-border-color: #c8e6c9;"/>
+                            <Label text="Trier :"
+                                   style="-fx-font-size: 12; -fx-text-fill: #555; -fx-font-weight: bold;"/>
+                            <ComboBox fx:id="sortAbonnementCombo" prefWidth="180"
+                                      style="-fx-background-radius: 8; -fx-border-radius: 8;
+                                             -fx-border-color: #c8e6c9;"/>
+                        </HBox>
+
+                        <!-- Liste scrollable -->
+                        <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                                    style="-fx-background-color: transparent;
+                                           -fx-border-color: transparent;">
+                            <VBox fx:id="mesAbonnementsContainer" spacing="12">
+                                <padding><Insets right="4"/></padding>
+                            </VBox>
+                        </ScrollPane>
+
+                        <Label fx:id="noAbonnementLabel"
+                               text="Aucun abonnement trouvé"
+                               style="-fx-text-fill: #999; -fx-font-style: italic; -fx-font-size: 13;"
+                               visible="false" managed="false"/>
+                    </VBox>
+
+                    <!-- ══════════════════════════════════════
+                         COLONNE DROITE — OFFRES DISPONIBLES
+                    ═════════════════════════════════════════= -->
+                    <VBox spacing="10"
+                          style="-fx-background-color: white; -fx-background-radius: 12;
+                                 -fx-padding: 18;
+                                 -fx-effect: dropshadow(gaussian,rgba(0,0,0,0.08),8,0,0,2);"
+                          HBox.hgrow="ALWAYS">
+
+                        <!-- Titre + compteur -->
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <Label text="🏷️ Offres Disponibles"
+                                   style="-fx-font-size: 17; -fx-font-weight: bold; -fx-text-fill: #2e7d32;"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Label fx:id="countOffreLabel"
+                                   text="0 offre(s)"
+                                   style="-fx-font-size: 12; -fx-text-fill: #888;
+                                          -fx-background-color: #e8f5e9; -fx-padding: 3 10;
+                                          -fx-background-radius: 20;"/>
+                        </HBox>
+                        <Separator/>
+
+                        <!-- ✅ Barre de recherche offres -->
+                        <TextField fx:id="searchOffreField"
+                                   promptText="🔍  Rechercher une offre (nom, description, prix…)"
+                                   style="-fx-background-radius: 20; -fx-border-radius: 20;
+                                          -fx-border-color: #c8e6c9; -fx-padding: 7 14;
+                                          -fx-font-size: 13;"/>
+
+                        <!-- ✅ Tri offres -->
+                        <HBox spacing="8" alignment="CENTER_LEFT">
+                            <Label text="Trier :"
+                                   style="-fx-font-size: 12; -fx-text-fill: #555; -fx-font-weight: bold;"/>
+                            <ComboBox fx:id="sortOffreCombo" prefWidth="200"
+                                      style="-fx-background-radius: 8; -fx-border-radius: 8;
+                                             -fx-border-color: #c8e6c9;"/>
+                        </HBox>
+
+                        <!-- Liste scrollable -->
+                        <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                                    style="-fx-background-color: transparent;
+                                           -fx-border-color: transparent;">
+                            <VBox fx:id="offresContainer" spacing="16">
+                                <padding><Insets right="4"/></padding>
+                            </VBox>
+                        </ScrollPane>
+
+                        <Label fx:id="noOffresLabel"
+                               text="Aucune offre trouvée"
+                               style="-fx-text-fill: #999; -fx-font-style: italic; -fx-font-size: 13;"
+                               visible="false" managed="false"/>
+                    </VBox>
+                </HBox>
+            </VBox>
+
+            <!-- ═══════════════════════════════════════════
+                 DIALOG OVERLAY — Souscription (identique à l'original, mis à jour)
+            ════════════════════════════════════════════ -->
+            <StackPane fx:id="dialogOverlay" visible="false" managed="false"
+                       style="-fx-background-color: rgba(0,0,0,0.55);"
+                       AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
+                       AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+
+                <VBox spacing="20"
+                      style="-fx-background-color: white; -fx-background-radius: 16; -fx-padding: 32;"
+                      maxWidth="580" maxHeight="500" minWidth="420">
+
+                    <HBox alignment="CENTER_LEFT">
+                        <Label fx:id="dialogTitleLabel" text="Détails de l'offre"
+                               style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #2e7d32;"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button text="✕" onAction="#onCloseDialog"
+                                style="-fx-background-color: transparent; -fx-font-size: 20;
+                                       -fx-cursor: hand; -fx-text-fill: #999;"/>
+                    </HBox>
+                    <Separator/>
+
+                    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                                style="-fx-background-color: transparent; -fx-border-color: transparent;">
+                        <VBox fx:id="dialogContent" spacing="18">
+                            <Label fx:id="dialogDescriptionLabel" wrapText="true"
+                                   style="-fx-font-size: 13; -fx-text-fill: #555;"/>
+                            <HBox spacing="40">
+                                <VBox spacing="5">
+                                    <Label text="Prix mensuel"
+                                           style="-fx-font-weight: bold; -fx-text-fill: #444;"/>
+                                    <Label fx:id="dialogPrixLabel"
+                                           style="-fx-font-size: 26; -fx-text-fill: #2e7d32;
+                                                  -fx-font-weight: bold;"/>
+                                </VBox>
+                                <VBox spacing="5">
+                                    <Label text="Durée"
+                                           style="-fx-font-weight: bold; -fx-text-fill: #444;"/>
+                                    <Label fx:id="dialogDureeLabel"
+                                           style="-fx-font-size: 18; -fx-text-fill: #333;"/>
+                                </VBox>
+                            </HBox>
+                            <VBox spacing="6">
+                                <Label text="Date de début :"
+                                       style="-fx-font-weight: bold; -fx-text-fill: #444;"/>
+                                <DatePicker fx:id="dateDebutPicker"
+                                            promptText="Sélectionnez la date de début"
+                                            prefWidth="250"/>
+                            </VBox>
+                        </VBox>
+                    </ScrollPane>
+
+                    <HBox spacing="12" alignment="CENTER_RIGHT">
+                        <Button text="Annuler" onAction="#onCloseDialog"
+                                style="-fx-background-color: #e0e0e0; -fx-text-fill: #333;
+                                       -fx-cursor: hand; -fx-padding: 10 22; -fx-background-radius: 8;"/>
+                        <Button fx:id="souscrireButton"
+                                text="✅ Confirmer l'abonnement" onAction="#onSouscrire"
+                                style="-fx-background-color: #2e7d32; -fx-text-fill: white;
+                                       -fx-cursor: hand; -fx-padding: 10 22; -fx-font-weight: bold;
+                                       -fx-background-radius: 8;"/>
+                    </HBox>
+                </VBox>
+            </StackPane>
+
+        </AnchorPane>
+    </center>
+
+</BorderPane>

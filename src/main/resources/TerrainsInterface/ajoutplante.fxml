@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<BorderPane style="-fx-background-color: #fcf8e6;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.Terrains.AjoutPlanteController">
+
+    <!-- SIDEBAR MODERNISÉE -->
+    <left>
+        <VBox prefWidth="250" style="-fx-background-color:  #617e9c;">
+            <padding>
+                <Insets bottom="20" top="20" />
+            </padding>
+
+            <!-- Logo/Header MODERNE -->
+            <StackPane prefWidth="100" prefHeight="100"  >
+                <ImageView fitWidth="200" fitHeight="150" preserveRatio="true">
+                    <image><Image url="/style/logo.png"/></image>
+                </ImageView>
+
+            </StackPane>
+            <padding>
+                <Insets bottom="20" top="20" />
+            </padding>
+            <!-- Navigation Menu MODERNISÉE -->
+            <VBox spacing="10">
+                <!-- Dashboard -->
+                <Button fx:id="dashboardBtn" onMouseClicked="#handleDashboard" prefHeight="50" prefWidth="230"
+                        style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white; -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand; -fx-border-color: rgba(255,255,255,0.2); -fx-border-width: 1; -fx-border-radius: 12;"
+                        text="📊  Dashboard">
+                    <font><Font name="System Bold" size="14" /></font>
+                </Button>
+
+                <!-- GESTION PRINCIPALE avec sous-menu -->
+                <VBox fx:id="gestionContainer" prefWidth="230" spacing="5" style="-fx-background-radius: 12;">
+                    <Button fx:id="gestionBtn"  prefHeight="50" prefWidth="230"
+                            style="-fx-background-color: linear-gradient(to right, #4CAF50, #45a049); -fx-text-fill: white; -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0, 0, 2);"
+                            text="⚙️  Gestion Utilisateurs">
+                        <font><Font name="System Bold" size="14" /></font>
+                    </Button>
+
+                    <!-- Sous-menu MODERNE -->
+                    <VBox fx:id="gestionSubmenu" spacing="3" style="-fx-padding: 5 0 5 15; -fx-background-color: rgba(0,0,0,0.15); -fx-background-radius: 0 0 12 12;">
+                        <Button fx:id="personnesBtn" onMouseClicked="#handlePersonnes" prefHeight="42" prefWidth="215"
+                                style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.95); -fx-font-size: 13px; -fx-alignment: CENTER_LEFT; -fx-padding: 0 0 0 15; -fx-background-radius: 8; -fx-cursor: hand; -fx-border-color: transparent;"
+                                text="👥  Personnes">
+                            <font><Font name="System" size="13" /></font>
+                        </Button>
+                        <Button fx:id="tachesBtn" onMouseClicked="#handleTaches" prefHeight="42" prefWidth="215"
+                                style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.95); -fx-font-size: 13px; -fx-alignment: CENTER_LEFT; -fx-padding: 0 0 0 15; -fx-background-radius: 8; -fx-cursor: hand;"
+                                text="✓  Tâches">
+                            <font><Font name="System" size="13" /></font>
+                        </Button>
+
+                        <Button fx:id="abonnementsBtn" onMouseClicked="#handleAbonnements" prefHeight="42" prefWidth="215"
+                                style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.95); -fx-font-size: 13px; -fx-alignment: CENTER_LEFT; -fx-padding: 0 0 0 15; -fx-background-radius: 8; -fx-cursor: hand;"
+                                text="💳  Abonnements">
+                            <font><Font name="System" size="13" /></font>
+                        </Button>
+                        <Button fx:id="offresBtn" onMouseClicked="#handleOffres" prefHeight="42" prefWidth="215"
+                                style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.95); -fx-font-size: 13px; -fx-alignment: CENTER_LEFT; -fx-padding: 0 0 0 15; -fx-background-radius: 8; -fx-cursor: hand;"
+                                text="🎁  Offres">
+                            <font><Font name="System" size="13" /></font>
+                        </Button>
+                    </VBox>
+                </VBox>
+
+                <!-- Autres boutons MODERNISÉS -->
+                <Button fx:id="stocksBtn" prefHeight="48" prefWidth="230" onMouseClicked="#handleStocks"
+                        style="-fx-background-color: rgba(255,255,255,0.1); -fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand;"
+                        text="📦  Stocks">
+                    <font><Font name="System" size="14" /></font>
+                </Button>
+                <Button fx:id="terrainsBtn" prefHeight="48" prefWidth="230" onMouseClicked="#handleTerrains"
+                        style="-fx-background-color: rgba(255,255,255,0.1); -fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand;"
+                        text="🌾  Terrains">
+                    <font><Font name="System" size="14" /></font>
+                </Button>
+                <Button fx:id="animauxBtn" prefHeight="48" prefWidth="230" onMouseClicked="#handleAnimals"
+                        style="-fx-background-color: rgba(255,255,255,0.1); -fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand;"
+                        text="🐄  Animaux">
+                    <font><Font name="System" size="14" /></font>
+                </Button>
+                <Button fx:id="materielBtn" prefHeight="48" prefWidth="230 " onMouseClicked="#handleMateriels"
+                        style="-fx-background-color: rgba(255,255,255,0.1); -fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand;"
+                        text="🔧  Matériel">
+                    <font><Font name="System" size="14" /></font>
+                </Button>
+                <Button fx:id="evenementsBtn" prefHeight="48" prefWidth="230" onMouseClicked="#handleEvents"
+                        style="-fx-background-color: rgba(255,255,255,0.1); -fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand;"
+                        text="🎉  Événements">
+                    <font><Font name="System" size="14" /></font>
+                </Button>
+            </VBox>
+
+            <!-- Spacer -->
+            <Region VBox.vgrow="ALWAYS" />
+
+            <!-- Logout Button MODERNISÉ -->
+            <Button fx:id="logoutBtn" onAction="#handleLogout" prefHeight="50" prefWidth="230"
+                    style="-fx-background-color: #E74C3C; -fx-text-fill: white; -fx-font-size: 14px; -fx-alignment: CENTER-LEFT; -fx-padding: 0 0 0 22; -fx-background-radius: 12; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 10, 0, 0, 3);"
+                    text="🚪  Déconnexion">
+                <font><Font name="System Bold" size="14" /></font>
+            </Button>
+        </VBox>
+    </left>
+
+    <center>
+        <VBox spacing="30.0" style="-fx-padding: 50;">
+            <children>
+                <VBox spacing="5.0">
+                    <children>
+                        <Text fill="#2C3E50" text="Nouvelle Plante">
+                            <font><Font name="System Bold" size="28.0" /></font>
+                        </Text>
+                        <Text fill="#A8C69F" text="Remplissez les informations ci-dessous pour enregistrer la plante." />
+                    </children>
+                </VBox>
+
+                <GridPane hgap="20.0" vgap="20.0">
+                    <columnConstraints>
+                        <ColumnConstraints minWidth="120.0" prefWidth="150.0" />
+                        <ColumnConstraints minWidth="300.0" prefWidth="400.0" />
+                    </columnConstraints>
+
+                    <children>
+                        <Label text="Nom de la plante :" textFill="#2C3E50" GridPane.rowIndex="0" />
+                        <TextField fx:id="txtNom" prefHeight="40.0" promptText="Ex: Tomate" style="-fx-background-radius: 5; -fx-border-color: #A8C69F; -fx-border-radius: 5;" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                        <Label text="Variété :" textFill="#2C3E50" GridPane.rowIndex="1" />
+                        <TextField fx:id="txtVariete" prefHeight="40.0" promptText="Ex: Roma, Cherry..." style="-fx-background-radius: 5; -fx-border-color: #A8C69F; -fx-border-radius: 5;" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                        <Label text="Besoin en Eau (L) :" textFill="#2C3E50" GridPane.rowIndex="2" />
+                        <TextField fx:id="txtBesoinEau" prefHeight="40.0" promptText="Ex: 5.5" style="-fx-background-radius: 5; -fx-border-color: #A8C69F; -fx-border-radius: 5;" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                        <Label text="Cycle (jours) :" textFill="#2C3E50" GridPane.rowIndex="3" />
+                        <TextField fx:id="txtCycle" prefHeight="40.0" promptText="Ex: 90" style="-fx-background-radius: 5; -fx-border-color: #A8C69F; -fx-border-radius: 5;" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                    </children>
+                </GridPane>
+
+                <HBox spacing="20.0">
+                    <children>
+                        <Button onAction="#ajouterPlante" prefHeight="45.0" prefWidth="180.0" style="-fx-background-color: #2D5A27; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-cursor: hand;" text="CONFIRMER L'AJOUT" />
+                        <Button onAction="#retourListe" prefHeight="45.0" prefWidth="120.0" style="-fx-background-color: white; -fx-text-fill: #2C3E50; -fx-border-color: #2C3E50; -fx-border-radius: 5; -fx-background-radius: 5; -fx-cursor: hand;" text="ANNULER" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+    </center>
+</BorderPane>

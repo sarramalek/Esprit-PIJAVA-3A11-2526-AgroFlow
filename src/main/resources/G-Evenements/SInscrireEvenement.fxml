@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox spacing="0"
+      style="-fx-background-color: #F0F4F8;"
+      prefWidth="500"
+      xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="controllers.Events.SInscrireEvenementController">
+
+    <!-- Header -->
+    <HBox alignment="CENTER_LEFT"
+          style="-fx-background-color: #1565C0; -fx-padding: 20 25;">
+        <VBox spacing="3">
+            <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;"
+                   text="S'inscrire a l'evenement">
+                <font><Font name="System Bold" size="18"/></font>
+            </Label>
+            <Label fx:id="titreEvenementLabel"
+                   style="-fx-font-size: 13px; -fx-text-fill: #90CAF9;"
+                   text="Chargement..."/>
+        </VBox>
+    </HBox>
+
+    <!-- Info evenement -->
+    <VBox spacing="0">
+        <HBox spacing="0">
+            <VBox spacing="4" alignment="CENTER" prefWidth="125"
+                  style="-fx-background-color: #E3F2FD; -fx-padding: 12;">
+                <Label style="-fx-font-size: 10px; -fx-text-fill: #1565C0; -fx-font-weight: bold;" text="DATE DEBUT"/>
+                <Label fx:id="dateDebutLabel" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #1A2B3C;" text="--/--/----">
+                    <font><Font name="System Bold" size="13"/></font>
+                </Label>
+            </VBox>
+            <VBox spacing="4" alignment="CENTER" prefWidth="125"
+                  style="-fx-background-color: #EDE7F6; -fx-padding: 12;">
+                <Label style="-fx-font-size: 10px; -fx-text-fill: #6A1B9A; -fx-font-weight: bold;" text="DATE FIN"/>
+                <Label fx:id="dateFinLabel" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #1A2B3C;" text="--/--/----">
+                    <font><Font name="System Bold" size="13"/></font>
+                </Label>
+            </VBox>
+            <VBox spacing="4" alignment="CENTER" prefWidth="125"
+                  style="-fx-background-color: #E8F5E9; -fx-padding: 12;">
+                <Label style="-fx-font-size: 10px; -fx-text-fill: #2E7D32; -fx-font-weight: bold;" text="LIEU"/>
+                <Label fx:id="lieuLabel" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #1A2B3C;" text="---" wrapText="true">
+                    <font><Font name="System Bold" size="12"/></font>
+                </Label>
+            </VBox>
+            <VBox spacing="4" alignment="CENTER" prefWidth="125"
+                  style="-fx-background-color: #FFF9C4; -fx-padding: 12;">
+                <Label style="-fx-font-size: 10px; -fx-text-fill: #F57F17; -fx-font-weight: bold;" text="STATUT"/>
+                <Label fx:id="statutEvenementLabel" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #1A2B3C;" text="---">
+                    <font><Font name="System Bold" size="12"/></font>
+                </Label>
+            </VBox>
+        </HBox>
+    </VBox>
+
+    <!-- Form -->
+    <VBox spacing="18" style="-fx-padding: 25; -fx-background-color: white;">
+
+        <!-- Date inscription (auto = aujourd'hui, affichage seulement) -->
+        <VBox spacing="6">
+            <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;"
+                   text="Date d'inscription">
+                <font><Font name="System Bold" size="13"/></font>
+            </Label>
+            <DatePicker fx:id="dpDateInscription"
+                        prefHeight="38"
+                        prefWidth="Infinity"
+                        style="-fx-background-color: #F5F7FA; -fx-background-radius: 8; -fx-border-color: #E0E0E0; -fx-border-radius: 8; -fx-font-size: 13px;"/>
+            <Label style="-fx-font-size: 11px; -fx-text-fill: #90A4AE;"
+                   text="Par defaut : aujourd'hui. Modifiable si necessaire."/>
+        </VBox>
+
+        <!-- Presence -->
+        <VBox spacing="6">
+            <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;"
+                   text="Serez-vous present(e) ? *">
+                <font><Font name="System Bold" size="13"/></font>
+            </Label>
+            <ComboBox fx:id="cbPresence"
+                      promptText="Selectionnez..."
+                      prefWidth="Infinity"
+                      prefHeight="38"
+                      style="-fx-background-color: #F5F7FA; -fx-background-radius: 8; -fx-border-color: #E0E0E0; -fx-border-radius: 8; -fx-font-size: 13px;"/>
+        </VBox>
+
+        <!-- Message erreur -->
+        <Label fx:id="errorLabel"
+               style="-fx-text-fill: #C62828; -fx-font-size: 12px; -fx-background-color: #FFEBEE; -fx-padding: 8 12; -fx-background-radius: 6;"
+               visible="false"
+               managed="false"
+               wrapText="true"/>
+
+        <!-- Info statut auto -->
+        <HBox spacing="8" alignment="CENTER_LEFT"
+              style="-fx-background-color: #E3F2FD; -fx-padding: 10 14; -fx-background-radius: 6;">
+            <Label text="&#8505;" style="-fx-font-size: 14px; -fx-text-fill: #1565C0;"/>
+            <Label style="-fx-font-size: 12px; -fx-text-fill: #1565C0;"
+                   text="Votre inscription aura le statut 'Inscrit' par defaut."
+                   wrapText="true" HBox.hgrow="ALWAYS"/>
+        </HBox>
+
+        <Separator/>
+
+        <!-- Buttons -->
+        <HBox spacing="12" alignment="CENTER_RIGHT">
+            <Button text="Annuler"
+                    onAction="#annuler"
+                    prefWidth="130"
+                    prefHeight="38"
+                    style="-fx-background-color: #ECEFF1; -fx-text-fill: #546E7A; -fx-font-size: 13px; -fx-background-radius: 8; -fx-cursor: hand; -fx-border-color: #CFD8DC; -fx-border-radius: 8;">
+                <font><Font name="System" size="13"/></font>
+            </Button>
+            <Button text="Confirmer l'inscription"
+                    onAction="#sInscrire"
+                    prefWidth="200"
+                    prefHeight="38"
+                    style="-fx-background-color: #1565C0; -fx-text-fill: white; -fx-font-size: 13px; -fx-background-radius: 8; -fx-cursor: hand; -fx-font-weight: bold;">
+                <font><Font name="System Bold" size="13"/></font>
+            </Button>
+        </HBox>
+    </VBox>
+
+</VBox>

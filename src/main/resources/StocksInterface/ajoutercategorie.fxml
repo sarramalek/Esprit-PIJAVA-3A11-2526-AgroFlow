@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+
+<HBox prefHeight="700.0" prefWidth="1100.0" style="-fx-background-color: #f4f7f6;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.Stocks.ajoutercategorieController">
+    <children>
+        <StackPane HBox.hgrow="ALWAYS">
+            <padding><Insets bottom="40.0" left="40.0" right="40.0" top="40.0" /></padding>
+            <children>
+                <VBox maxWidth="800.0" spacing="30.0" style="-fx-background-color: white; -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 15, 0, 0, 5); -fx-padding: 40;">
+                    <children>
+                        <VBox spacing="5.0">
+                            <children>
+                                <Label fx:id="lblTitre" text="📂 Gestion des Catégories" textFill="#2d5a27">
+                                    <font><Font name="System Bold" size="32.0" /></font>
+                                </Label>
+                                <Label text="Définissez les types de produits et leurs traductions." textFill="#7f8c8d" />
+                                <Separator prefWidth="200.0" style="-fx-padding: 10 0 0 0;" />
+                            </children>
+                        </VBox>
+
+                        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: white;">
+                            <content>
+                                <GridPane hgap="25.0" vgap="15.0">
+                                    <columnConstraints>
+                                        <ColumnConstraints halignment="RIGHT" minWidth="150.0" prefWidth="180.0" />
+                                        <ColumnConstraints hgrow="ALWAYS" minWidth="350.0" />
+                                    </columnConstraints>
+                                    <children>
+                                        <Label style="-fx-font-weight: bold;" text="Nom (Français) :" GridPane.rowIndex="0" />
+                                        <VBox spacing="3.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                            <TextField fx:id="tfNom" prefHeight="40.0" promptText="Ex: Engrais" style="-fx-background-radius: 8;" />
+                                            <Label fx:id="msgNom" textFill="#e74c3c" style="-fx-font-size: 11px;" />
+                                        </VBox>
+
+                                        <Label fx:id="lblAgriculteur" style="-fx-font-weight: bold;" text="Propriétaire :" GridPane.rowIndex="1" visible="false" managed="false" />
+                                        <ComboBox fx:id="cbAgriculteur" prefHeight="40.0" prefWidth="400.0" promptText="Sélectionner un agriculteur" style="-fx-background-radius: 8;" GridPane.columnIndex="1" GridPane.rowIndex="1" visible="false" managed="false" />
+
+                                        <Label style="-fx-font-weight: bold;" text="Description :" GridPane.rowIndex="2" />
+                                        <TextArea fx:id="taDescription" prefHeight="80.0" promptText="Détails techniques..." wrapText="true" style="-fx-background-radius: 8;" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                                        <Label style="-fx-font-weight: bold;" text="Image de catégorie :" GridPane.rowIndex="4" />
+                                        <HBox spacing="15.0" alignment="CENTER_LEFT" GridPane.columnIndex="1" GridPane.rowIndex="4">
+
+                                        </HBox>
+                                    </children>
+                                </GridPane>
+                            </content>
+                        </ScrollPane>
+
+                        <HBox alignment="CENTER_RIGHT" spacing="15.0">
+                            <children>
+                                <Button onAction="#retourListe" prefHeight="45.0" prefWidth="140.0" style="-fx-background-color: transparent; -fx-border-color: #bdc3c7; -fx-border-radius: 8; -fx-text-fill: #7f8c8d; -fx-cursor: hand;" text="ANNULER" />
+                                <Button onAction="#validerAjout" prefHeight="45.0" prefWidth="200.0" style="-fx-background-color: #2d5a27; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;" text="💾 ENREGISTRER" />
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+            </children>
+        </StackPane>
+    </children>
+</HBox>

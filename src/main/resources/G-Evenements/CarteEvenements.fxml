@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<HBox prefHeight="580" prefWidth="950" spacing="0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.Events.CarteEvenementsController">
+
+    <!-- ===== PANNEAU GAUCHE : CARTE ===== -->
+    <VBox prefWidth="430" spacing="8" style="-fx-background-color: #F0F4FF;">
+        <padding>
+            <Insets bottom="15" left="15" right="10" top="15" />
+        </padding>
+
+        <!-- Titre -->
+        <HBox alignment="CENTER_LEFT" spacing="10">
+            <Label style="-fx-font-size: 26px;" text="🗺" />
+            <VBox spacing="2">
+                <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #1A237E;" text="Carte des Événements">
+                    <font><Font name="System Bold" size="18" /></font>
+                </Label>
+                <Label style="-fx-font-size: 11px; -fx-text-fill: #5C6BC0;" text="Répartition géographique par gouvernorat" />
+            </VBox>
+        </HBox>
+
+        <Separator />
+
+        <!-- Zone carte (dessinée par le contrôleur) -->
+        <Pane fx:id="cartePane" prefHeight="490" prefWidth="405" style="-fx-background-color: transparent;" />
+    </VBox>
+
+    <!-- Séparateur vertical -->
+    <Separator orientation="VERTICAL" />
+
+    <!-- ===== PANNEAU DROIT : DÉTAILS ===== -->
+    <VBox spacing="15" style="-fx-background-color: white;" HBox.hgrow="ALWAYS">
+        <padding>
+            <Insets bottom="20" left="20" right="20" top="20" />
+        </padding>
+
+        <!-- En-tête gouvernorat sélectionné -->
+        <VBox spacing="6" style="-fx-background-color: #E8EAF6; -fx-background-radius: 10; -fx-padding: 15;">
+            <Label fx:id="gouvernoratLabel" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #283593; -fx-wrap-text: true;" text="Cliquez sur un point pour voir les événements">
+                <font><Font name="System Bold" size="15" /></font>
+            </Label>
+            <Label fx:id="countLabel" style="-fx-font-size: 13px; -fx-text-fill: #5C6BC0;" text="" />
+        </VBox>
+
+        <!-- Titre liste -->
+        <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #37474F;" text="📋 Événements dans ce gouvernorat">
+            <font><Font name="System Bold" size="13" /></font>
+        </Label>
+
+        <!-- Liste des événements -->
+        <ListView fx:id="evenementsList" prefHeight="360" style="-fx-background-color: #FAFAFA;                          -fx-border-color: #E0E0E0;                          -fx-border-radius: 8;                          -fx-background-radius: 8;                          -fx-font-size: 13px;" VBox.vgrow="ALWAYS" />
+
+        <Separator />
+
+        <!-- Pied de page -->
+        <HBox alignment="CENTER_LEFT" spacing="15">
+            <Label fx:id="totalLabel" style="-fx-font-size: 12px; -fx-text-fill: #78909C; -fx-font-style: italic;" text="" HBox.hgrow="ALWAYS" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Button fx:id="fermerBtn" onAction="#handleFermer" style="-fx-background-color: #5C6BC0; -fx-text-fill: white;                            -fx-font-size: 13px; -fx-padding: 9 22;                            -fx-background-radius: 8; -fx-cursor: hand;" text="✕ Fermer">
+                <font><Font name="System" size="13" /></font>
+            </Button>
+        </HBox>
+
+    </VBox>
+
+</HBox>
